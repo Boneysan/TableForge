@@ -13,11 +13,13 @@ import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import type { GameRoom, GameAsset, RoomPlayer } from "@shared/schema";
 
+type RoomPlayerWithName = RoomPlayer & { playerName: string; playerEmail: string };
+
 interface AdminInterfaceProps {
   roomId: string;
   assets: GameAsset[];
   boardAssets: any[];
-  players: RoomPlayer[];
+  players: RoomPlayerWithName[];
   currentUser: { id: string; firstName?: string | null; lastName?: string | null };
   onAssetUploaded: () => void;
   onSwitchView?: () => void;
