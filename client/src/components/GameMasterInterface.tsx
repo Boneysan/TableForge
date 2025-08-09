@@ -23,11 +23,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLocation } from "wouter";
 import type { GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
 
+type RoomPlayerWithName = RoomPlayer & { playerName: string; playerEmail: string };
+
 interface GameMasterInterfaceProps {
   roomId: string;
   assets: GameAsset[];
   boardAssets: BoardAsset[];
-  players: RoomPlayer[];
+  players: RoomPlayerWithName[];
   currentUser: { id: string; firstName?: string | null; lastName?: string | null };
   websocket: WebSocket | null;
   onAssetUploaded: () => void;
@@ -550,7 +552,7 @@ export function GameMasterInterface({
                                 }`}
                               />
                               <span className="text-sm font-medium">
-                                {player.playerId === currentUser.id ? 'You (GM)' : `Player ${player.playerId.slice(0, 8)}`}
+                                {player.playerId === currentUser.id ? 'You (GM)' : (player.playerName || `Player ${player.playerId.slice(0, 8)}`)}
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
