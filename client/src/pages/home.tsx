@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dice1, Plus, Users, Clock, Trash2, LogOut, User as UserIcon } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { signOutUser } from "@/lib/firebase";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -24,8 +25,8 @@ export default function Home() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-[#1F2937] flex items-center justify-center">
-        <div className="text-gray-400">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -118,24 +119,24 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1F2937] text-gray-100">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
         {/* Header with User Info */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-3">
-            <Dice1 className="text-[#2563EB] text-4xl" />
+            <Dice1 className="text-primary text-4xl" />
             <h1 className="text-4xl font-bold">Virtual Tabletop</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-gray-300">
+            <div className="flex items-center space-x-2 text-muted-foreground">
               <UserIcon className="w-5 h-5" />
               <span>{(user as User)?.firstName || (user as User)?.email || 'User'}</span>
             </div>
+            <ThemeToggle />
             <Button 
               onClick={() => window.location.href = '/api/logout'}
               variant="ghost"
               size="sm"
-              className="text-gray-300 hover:text-white"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4 mr-2" />
@@ -146,37 +147,36 @@ export default function Home() {
 
         {/* Subtitle */}
         <div className="text-center mb-12">
-          <p className="text-gray-300 text-lg">
+          <p className="text-muted-foreground text-lg">
             Create rooms as a Game Master or join existing rooms as a Player for real-time multiplayer gaming
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Create Room */}
-          <Card className="bg-[#374151] border-gray-600">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-gray-100">
-                <Plus className="w-5 h-5 text-[#2563EB]" />
+              <CardTitle className="flex items-center space-x-2">
+                <Plus className="w-5 h-5 text-primary" />
                 <span>Create New Room (Game Master)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="room-name" className="text-gray-300">Room Name</Label>
+                <Label htmlFor="room-name">Room Name</Label>
                 <Input
                   id="room-name"
                   type="text"
                   placeholder="Enter room name..."
                   value={roomName}
                   onChange={(e) => setRoomName(e.target.value)}
-                  className="bg-[#4B5563] border-gray-600 text-gray-100 placeholder-gray-400"
                   data-testid="input-room-name"
                 />
               </div>
               <Button
                 onClick={handleCreateRoom}
                 disabled={createRoomMutation.isPending}
-                className="w-full bg-[#2563EB] hover:bg-blue-700"
+                className="w-full"
                 data-testid="button-create-room"
               >
                 {createRoomMutation.isPending ? "Creating..." : "Create Room"}
@@ -185,29 +185,29 @@ export default function Home() {
           </Card>
 
           {/* Join Room */}
-          <Card className="bg-[#374151] border-gray-600">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-gray-100">
-                <Users className="w-5 h-5 text-[#10B981]" />
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="w-5 h-5 text-primary" />
                 <span>Join Existing Room (Player)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="room-input" className="text-gray-300">Room Name or ID</Label>
+                <Label htmlFor="room-input">Room Name or ID</Label>
                 <Input
                   id="room-input"
                   type="text"
                   placeholder="Enter room name or ID..."
                   value={joinRoomInput}
                   onChange={(e) => setJoinRoomInput(e.target.value)}
-                  className="bg-[#4B5563] border-gray-600 text-gray-100 placeholder-gray-400"
                   data-testid="input-room-input"
                 />
               </div>
               <Button
                 onClick={handleJoinRoom}
-                className="w-full bg-[#10B981] hover:bg-green-700"
+                variant="secondary"
+                className="w-full"
                 data-testid="button-join-room"
               >
                 Join Room
@@ -220,21 +220,21 @@ export default function Home() {
         {userRooms && userRooms.length > 0 && (
           <div className="mt-12 max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 flex items-center space-x-2">
-              <Clock className="w-6 h-6 text-[#F59E0B]" />
+              <Clock className="w-6 h-6 text-primary" />
               <span>Your Recent Rooms</span>
             </h2>
             <div className="grid gap-4">
               {userRooms.map((room: GameRoom) => (
                 <Card
                   key={room.id}
-                  className="bg-[#374151] border-gray-600 hover:bg-[#4B5563] transition-colors cursor-pointer"
+                  className="hover:bg-muted/50 transition-colors cursor-pointer"
                   onClick={() => setLocation(`/room/${room.id}`)}
                   data-testid={`card-room-${room.id}`}
                 >
                   <CardContent className="flex items-center justify-between p-4">
                     <div className="flex-1" onClick={() => setLocation(`/room/${room.id}`)}>
-                      <h3 className="font-semibold text-gray-100">{room.name}</h3>
-                      <p className="text-sm text-gray-400">
+                      <h3 className="font-semibold">{room.name}</h3>
+                      <p className="text-sm text-muted-foreground">
                         Created {new Date(room.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -243,7 +243,7 @@ export default function Home() {
                         variant="outline"
                         size="sm"
                         onClick={() => setLocation(`/room/${room.id}`)}
-                        className="border-gray-600 text-gray-300 hover:bg-[#2563EB] hover:text-white"
+                        className=""
                         data-testid={`button-enter-room-${room.id}`}
                       >
                         Enter
@@ -253,7 +253,7 @@ export default function Home() {
                         size="sm"
                         onClick={(e) => handleDeleteRoom(e, room.id)}
                         disabled={deleteRoomMutation.isPending}
-                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/20"
                         data-testid={`button-delete-room-${room.id}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -268,7 +268,7 @@ export default function Home() {
 
         {isLoading && (
           <div className="text-center mt-8">
-            <div className="text-gray-400">Loading your rooms...</div>
+            <div className="text-muted-foreground">Loading your rooms...</div>
           </div>
         )}
       </div>

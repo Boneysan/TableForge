@@ -9,6 +9,7 @@ import { SimplePlayerInterface } from "@/components/SimplePlayerInterface";
 import { GameMasterInterface } from "@/components/GameMasterInterface";
 import { AdminInterface } from "@/components/AdminInterface";
 import { ViewSelector } from "@/components/ViewSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
@@ -238,7 +239,11 @@ export default function GameRoom() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1F2937] text-gray-100">
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Global Theme Toggle - Always visible */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
 
       {userRole === 'admin' && selectedView === 'admin' && (
         <AdminInterface
