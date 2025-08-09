@@ -58,6 +58,7 @@ export default function GameRoom() {
           refetchBoardAssets();
           break;
         case 'dice_rolled':
+          console.log('Dice roll received via WebSocket:', message.payload);
           toast({
             title: "Dice Rolled",
             description: `${message.payload.diceCount}d${message.payload.diceType.substring(1)} = ${message.payload.total}`,
@@ -143,6 +144,7 @@ export default function GameRoom() {
   const handleDiceRolled = (diceType: string, diceCount: number, results: number[], total: number) => {
     // Use the actual room UUID, not the room name/param
     const actualRoomId = room?.id || roomId;
+    console.log('Sending dice roll:', { diceType, diceCount, results, total, actualRoomId });
     sendMessage({
       type: 'dice_rolled',
       roomId: actualRoomId,

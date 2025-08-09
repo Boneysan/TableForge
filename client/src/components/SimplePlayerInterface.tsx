@@ -26,8 +26,21 @@ export function SimplePlayerInterface({
 }: SimplePlayerInterfaceProps) {
   const [selectedDice, setSelectedDice] = useState<string>("d6");
   const [diceCount, setDiceCount] = useState<number>(1);
+  const [lastRoll, setLastRoll] = useState<{ results: number[]; total: number; diceType: string; count: number } | null>(null);
 
   const diceTypes = ["d4", "d6", "d8", "d10", "d12", "d20"];
+
+  const handleRollDice = () => {
+    const sides = parseInt(selectedDice.replace('d', ''));
+    const results = Array.from({ length: diceCount }, () => Math.floor(Math.random() * sides) + 1);
+    const total = results.reduce((sum, roll) => sum + roll, 0);
+    
+    // Update local state to show results immediately
+    setLastRoll({ results, total, diceType: selectedDice, count: diceCount });
+    
+    // Send to server
+    onDiceRoll(selectedDice, diceCount);
+  };
 
   return (
     <div className="space-y-6" data-testid="simple-player-interface">
@@ -128,13 +141,33 @@ export function SimplePlayerInterface({
               </div>
               
               <Button 
-                onClick={() => onDiceRoll(selectedDice, diceCount)}
+                onClick={handleRollDice}
                 className="w-full bg-green-600 hover:bg-green-700"
                 data-testid="roll-dice-button"
               >
                 <Dices className="w-4 h-4 mr-2" />
                 Roll {diceCount} {selectedDice.toUpperCase()}
               </Button>
+              
+              {lastRoll && (
+                <div className="mt-4 p-3 bg-[#374151] rounded-lg border border-green-500">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-300 mb-1">
+                      {lastRoll.count} {lastRoll.diceType.toUpperCase()} Roll
+                    </div>
+                    <div className="flex justify-center space-x-2 mb-2">
+                      {lastRoll.results.map((result, index) => (
+                        <div key={index} className="w-8 h-8 bg-green-600 text-white rounded flex items-center justify-center text-sm font-bold">
+                          {result}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-lg font-bold text-green-400">
+                      Total: {lastRoll.total}
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
