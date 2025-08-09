@@ -6,7 +6,7 @@ import { onAuthChange } from "@/lib/firebase";
 export function useAuth() {
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading, error, refetch } = useQuery({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       console.log("🔐 [useAuth] Fetching user data with Firebase auth...");
@@ -74,23 +74,36 @@ export function useAuth() {
           
           // Force a complete cache invalidation and refetch
           queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
-          queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }).then(() => {
-            console.log("✅ [useAuth] Refetch completed successfully");
-            // Also manually trigger a fetch to ensure it happens
-            queryClient.fetchQuery({ 
-              queryKey: ["/api/auth/user"],
-              queryFn: async () => {
-                console.log("🔐 [useAuth] Manual fetch triggered");
-                const response = await authenticatedApiRequest("GET", "/api/auth/user");
-                if (!response.ok) {
-                  const errorText = await response.text();
-                  throw new Error(`${response.status}: ${response.statusText} - ${errorText}`);
-                }
-                return await response.json();
-              }
-            });
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          
+          // Force immediate refetch
+          queryClient.refetchQueries({ 
+            queryKey: ["/api/auth/user"],
+            type: 'active'
+          }).then((results) => {
+            console.log("✅ [useAuth] Refetch completed, results:", results.length);
+            if (results.length === 0) {
+              // If no active queries, manually fetch
+              console.log("🔐 [useAuth] No active queries, manually fetching...");
+              queryClient.fetchQuery({ 
+                queryKey: ["/api/auth/user"],
+                staleTime: 0,
+                gcTime: 0
+              }).then((userData) => {
+                console.log("✅ [useAuth] Manual fetch successful:", userData);
+                // Force component re-render by triggering refetch
+                refetch();
+              }).catch((fetchError) => {
+                console.error("❌ [useAuth] Manual fetch failed:", fetchError);
+              });
+            } else {
+              // Direct refetch if active queries exist
+              refetch();
+            }
           }).catch((error) => {
             console.error("❌ [useAuth] Refetch failed:", error);
+            // Fallback: direct refetch
+            refetch();
           });
         }, 1000).catch((error) => {
           console.error("❌ [useAuth] Timeout error in auth state change:", error);
@@ -100,6 +113,7 @@ export function useAuth() {
         console.log("🔐 [useAuth] User signed out, invalidating queries immediately");
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
         queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+        refetch();
       }
     });
 
