@@ -230,7 +230,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
                     <div className="flex items-center space-x-3">
                       <div className={`w-3 h-3 rounded-full ${player.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
                       <div>
-                        <p className="font-medium">Player {player.playerId}</p>
+                        <p className="font-medium">{player.playerName || `Player ${player.playerId.slice(0, 8)}`}</p>
                         <p className="text-sm text-gray-500">
                           {player.role === 'admin' ? 'Game Master' : 'Player'} • 
                           {player.isOnline ? ' Online' : ' Offline'}
