@@ -68,6 +68,43 @@ export const boardAssets = pgTable("board_assets", {
   isFlipped: boolean("is_flipped").notNull().default(false),
   zIndex: integer("z_index").notNull().default(0),
   ownedBy: varchar("owned_by").references(() => users.id),
+  // Enhanced properties for cards and tokens
+  visibility: varchar("visibility", { enum: ["public", "owner", "gm"] }).default("public"),
+  assetType: varchar("asset_type", { enum: ["token", "card", "tile", "other"] }).default("other"),
+  faceDown: boolean("face_down").default(false), // For cards specifically
+  stackOrder: integer("stack_order").default(0), // For card stacks/piles
+  snapToGrid: boolean("snap_to_grid").default(false),
+  isLocked: boolean("is_locked").default(false),
+  placedAt: timestamp("placed_at").defaultNow(),
+  placedBy: varchar("placed_by").references(() => users.id),
+});
+
+// Card decks - predefined collections of cards
+export const cardDecks = pgTable("card_decks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  roomId: varchar("room_id").notNull().references(() => gameRooms.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  createdBy: varchar("created_by").notNull().references(() => users.id),
+  isShuffled: boolean("is_shuffled").default(false),
+  deckOrder: json("deck_order"), // Array of card asset IDs in order
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Card piles - dynamic collections of cards on the board
+export const cardPiles = pgTable("card_piles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  roomId: varchar("room_id").notNull().references(() => gameRooms.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 100 }).notNull(),
+  positionX: integer("position_x").notNull(),
+  positionY: integer("position_y").notNull(),
+  pileType: varchar("pile_type", { enum: ["deck", "discard", "hand", "custom"] }).default("custom"),
+  visibility: varchar("visibility", { enum: ["public", "owner", "gm"] }).default("public"),
+  ownerId: varchar("owner_id").references(() => users.id), // For private hands
+  cardOrder: json("card_order"), // Array of board asset IDs in stack order
+  faceDown: boolean("face_down").default(false), // Default face orientation for cards in pile
+  maxCards: integer("max_cards"), // Optional limit
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const diceRolls = pgTable("dice_rolls", {
@@ -134,6 +171,31 @@ export const insertBoardAssetSchema = createInsertSchema(boardAssets).pick({
   scale: true,
   isFlipped: true,
   zIndex: true,
+  visibility: true,
+  assetType: true,
+  faceDown: true,
+  stackOrder: true,
+  snapToGrid: true,
+});
+
+export const insertCardDeckSchema = createInsertSchema(cardDecks).pick({
+  roomId: true,
+  name: true,
+  description: true,
+  deckOrder: true,
+});
+
+export const insertCardPileSchema = createInsertSchema(cardPiles).pick({
+  roomId: true,
+  name: true,
+  positionX: true,
+  positionY: true,
+  pileType: true,
+  visibility: true,
+  ownerId: true,
+  cardOrder: true,
+  faceDown: true,
+  maxCards: true,
 });
 
 export const insertDiceRollSchema = createInsertSchema(diceRolls).pick({
@@ -167,6 +229,12 @@ export type InsertRoomPlayer = typeof roomPlayers.$inferInsert;
 
 export type BoardAsset = typeof boardAssets.$inferSelect;
 export type InsertBoardAsset = z.infer<typeof insertBoardAssetSchema>;
+
+export type CardDeck = typeof cardDecks.$inferSelect;
+export type InsertCardDeck = z.infer<typeof insertCardDeckSchema>;
+
+export type CardPile = typeof cardPiles.$inferSelect;
+export type InsertCardPile = z.infer<typeof insertCardPileSchema>;
 
 export type DiceRoll = typeof diceRolls.$inferSelect;
 export type InsertDiceRoll = z.infer<typeof insertDiceRollSchema>;

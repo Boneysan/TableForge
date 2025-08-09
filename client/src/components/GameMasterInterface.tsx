@@ -13,6 +13,7 @@ import { GameBoard } from "./GameBoard";
 import { GameControls } from "./GameControls";
 import { AssetLibrary } from "./AssetLibrary";
 import { ChatComponent } from "./ChatComponent";
+import { CardDeckManager } from "./CardDeckManager";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -262,7 +263,7 @@ export function GameMasterInterface({
         {isGMPanelVisible && (
           <div className="w-80 border-l bg-gray-50 dark:bg-gray-900/50 flex flex-col">
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col">
-              <TabsList className="grid w-full grid-cols-4 m-2">
+              <TabsList className="grid w-full grid-cols-5 m-2">
                 <TabsTrigger value="game" className="text-xs">
                   <Dice6 className="w-4 h-4 mr-1" />
                   Game
@@ -270,6 +271,10 @@ export function GameMasterInterface({
                 <TabsTrigger value="assets" className="text-xs">
                   <Upload className="w-4 h-4 mr-1" />
                   Assets
+                </TabsTrigger>
+                <TabsTrigger value="cards" className="text-xs">
+                  <Settings className="w-4 h-4 mr-1" />
+                  Cards
                 </TabsTrigger>
                 <TabsTrigger value="players" className="text-xs">
                   <Users className="w-4 h-4 mr-1" />
@@ -362,6 +367,16 @@ export function GameMasterInterface({
                       />
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                {/* Card Management Tab */}
+                <TabsContent value="cards" className="h-full p-4 space-y-4 overflow-y-auto">
+                  <CardDeckManager
+                    roomId={roomId}
+                    assets={assets}
+                    currentUserId={currentUser.id}
+                    playerRole="admin"
+                  />
                 </TabsContent>
 
                 {/* Player Management Tab */}

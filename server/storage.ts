@@ -13,13 +13,19 @@ import {
   type ChatMessage,
   type InsertChatMessage,
   type RoomPlayer,
+  type CardDeck,
+  type InsertCardDeck,
+  type CardPile,
+  type InsertCardPile,
   users,
   gameRooms,
   gameAssets,
   boardAssets,
   roomPlayers,
   diceRolls,
-  chatMessages
+  chatMessages,
+  cardDecks,
+  cardPiles
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -69,6 +75,20 @@ export interface IStorage {
   // Chat Messages
   createChatMessage(message: InsertChatMessage, playerId: string): Promise<ChatMessage>;
   getRoomChatMessages(roomId: string, limit?: number): Promise<Array<ChatMessage & { playerName: string }>>;
+
+  // Card Decks
+  createCardDeck(deck: InsertCardDeck, createdBy: string): Promise<CardDeck>;
+  getCardDecks(roomId: string): Promise<CardDeck[]>;
+  getCardDeck(id: string): Promise<CardDeck | undefined>;
+  shuffleCardDeck(id: string): Promise<CardDeck | undefined>;
+
+  // Card Piles
+  createCardPile(pile: InsertCardPile): Promise<CardPile>;
+  getCardPiles(roomId: string): Promise<CardPile[]>;
+  getCardPile(id: string): Promise<CardPile | undefined>;
+
+  // Enhanced Board Asset operations
+  updateBoardAssetProperties(id: string, updates: Partial<BoardAsset>): Promise<BoardAsset | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -368,6 +388,84 @@ export class DatabaseStorage implements IStorage {
         ? msg.playerFirstName
         : msg.playerEmail || "Player"
     }));
+  }
+
+  // Card Deck operations
+  async createCardDeck(deck: InsertCardDeck, createdBy: string): Promise<CardDeck> {
+    const [newDeck] = await db
+      .insert(cardDecks)
+      .values({ ...deck, createdBy })
+      .returning();
+    return newDeck;
+  }
+
+  async getCardDecks(roomId: string): Promise<CardDeck[]> {
+    return await db
+      .select()
+      .from(cardDecks)
+      .where(eq(cardDecks.roomId, roomId))
+      .orderBy(cardDecks.createdAt);
+  }
+
+  async getCardDeck(id: string): Promise<CardDeck | undefined> {
+    const [deck] = await db
+      .select()
+      .from(cardDecks)
+      .where(eq(cardDecks.id, id));
+    return deck;
+  }
+
+  async shuffleCardDeck(id: string): Promise<CardDeck | undefined> {
+    const deck = await this.getCardDeck(id);
+    if (!deck) return undefined;
+    
+    const shuffledOrder = [...(deck.deckOrder as string[] || [])];
+    for (let i = shuffledOrder.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledOrder[i], shuffledOrder[j]] = [shuffledOrder[j], shuffledOrder[i]];
+    }
+    
+    const [updated] = await db
+      .update(cardDecks)
+      .set({ deckOrder: shuffledOrder, isShuffled: true })
+      .where(eq(cardDecks.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Card Pile operations
+  async createCardPile(pile: InsertCardPile): Promise<CardPile> {
+    const [newPile] = await db
+      .insert(cardPiles)
+      .values(pile)
+      .returning();
+    return newPile;
+  }
+
+  async getCardPiles(roomId: string): Promise<CardPile[]> {
+    return await db
+      .select()
+      .from(cardPiles)
+      .where(eq(cardPiles.roomId, roomId))
+      .orderBy(cardPiles.createdAt);
+  }
+
+  async getCardPile(id: string): Promise<CardPile | undefined> {
+    const [pile] = await db
+      .select()
+      .from(cardPiles)
+      .where(eq(cardPiles.id, id));
+    return pile;
+  }
+
+  // Enhanced Board Asset operations
+  async updateBoardAssetProperties(id: string, updates: Partial<BoardAsset>): Promise<BoardAsset | undefined> {
+    const [updated] = await db
+      .update(boardAssets)
+      .set(updates)
+      .where(eq(boardAssets.id, id))
+      .returning();
+    return updated;
   }
 }
 

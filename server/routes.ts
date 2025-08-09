@@ -523,5 +523,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Card Deck endpoints
+  app.get("/api/rooms/:roomId/decks", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const decks = await storage.getCardDecks(roomId);
+      res.json(decks);
+    } catch (error) {
+      console.error("Error fetching card decks:", error);
+      res.status(500).json({ error: "Failed to fetch card decks" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/decks", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { name, description, deckOrder } = req.body;
+      const userId = req.user?.claims?.sub || req.user?.id;
+
+      if (!name?.trim() || !Array.isArray(deckOrder)) {
+        return res.status(400).json({ error: "Invalid deck data" });
+      }
+
+      const deck = await storage.createCardDeck({
+        roomId,
+        name,
+        description: description || "",
+        deckOrder,
+      }, userId);
+
+      res.json(deck);
+    } catch (error) {
+      console.error("Error creating deck:", error);
+      res.status(500).json({ error: "Failed to create deck" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/decks/:deckId/shuffle", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { deckId } = req.params;
+      const deck = await storage.shuffleCardDeck(deckId);
+      
+      if (!deck) {
+        return res.status(404).json({ error: "Deck not found" });
+      }
+
+      res.json(deck);
+    } catch (error) {
+      console.error("Error shuffling deck:", error);
+      res.status(500).json({ error: "Failed to shuffle deck" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/decks/:deckId/deal", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { deckId } = req.params;
+      const { count = 1, targetPile = "board" } = req.body;
+      
+      const deck = await storage.getCardDeck(deckId);
+      if (!deck) {
+        return res.status(404).json({ error: "Deck not found" });
+      }
+
+      const deckOrder = deck.deckOrder as string[] || [];
+      const dealtCards = deckOrder.slice(0, count);
+      
+      res.json({ cards: dealtCards, targetPile });
+    } catch (error) {
+      console.error("Error dealing cards:", error);
+      res.status(500).json({ error: "Failed to deal cards" });
+    }
+  });
+
+  // Card Pile endpoints
+  app.get("/api/rooms/:roomId/piles", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const piles = await storage.getCardPiles(roomId);
+      res.json(piles);
+    } catch (error) {
+      console.error("Error fetching card piles:", error);
+      res.status(500).json({ error: "Failed to fetch card piles" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/piles", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { name, positionX, positionY, pileType, visibility, ownerId } = req.body;
+
+      if (!name?.trim()) {
+        return res.status(400).json({ error: "Pile name is required" });
+      }
+
+      const pile = await storage.createCardPile({
+        roomId,
+        name,
+        positionX: positionX || 0,
+        positionY: positionY || 0,
+        pileType: pileType || "custom",
+        visibility: visibility || "public",
+        ownerId: ownerId || null,
+      });
+
+      res.json(pile);
+    } catch (error) {
+      console.error("Error creating pile:", error);
+      res.status(500).json({ error: "Failed to create pile" });
+    }
+  });
+
+  // Enhanced Board Asset endpoints
+  app.patch("/api/board-assets/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      const asset = await storage.updateBoardAssetProperties(id, updates);
+      if (!asset) {
+        return res.status(404).json({ error: "Board asset not found" });
+      }
+
+      res.json(asset);
+    } catch (error) {
+      console.error("Error updating board asset:", error);
+      res.status(500).json({ error: "Failed to update board asset" });
+    }
+  });
+
   return httpServer;
 }
