@@ -13,6 +13,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { useToast } from "@/hooks/use-toast";
 import type { GameRoom, User } from "@shared/schema";
+import { auth } from "@/lib/firebase";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -22,13 +23,14 @@ export default function Home() {
   const { user, isLoading: isAuthLoading } = useAuth();
 
   const userId = (user as User)?.id;
+  const firebaseUserId = auth?.currentUser?.uid;
 
   // All hooks must be called before any early returns
   const { data: userRooms = [], isLoading } = useQuery<GameRoom[]>({
-    queryKey: ["/api/user", userId, "rooms"],
-    enabled: !!userId,
+    queryKey: ["/api/user", firebaseUserId, "rooms"],
+    enabled: !!firebaseUserId,
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", `/api/user/${userId}/rooms`);
+      const response = await authenticatedApiRequest("GET", `/api/user/${firebaseUserId}/rooms`);
       if (!response.ok) {
         throw new Error(`Failed to fetch rooms: ${response.statusText}`);
       }
@@ -42,7 +44,7 @@ export default function Home() {
       return response.json();
     },
     onSuccess: (room: GameRoom) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user", userId, "rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user", firebaseUserId, "rooms"] });
       setLocation(`/room/${room.id}`);
       toast({
         title: "Room Created",
@@ -68,7 +70,7 @@ export default function Home() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user", userId, "rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user", firebaseUserId, "rooms"] });
       toast({
         title: "Room Deleted",
         description: "Room has been deleted successfully",
@@ -143,7 +145,17 @@ export default function Home() {
             </div>
             <ThemeToggle />
             <Button 
-              onClick={() => window.location.href = '/api/logout'}
+              onClick={async () => {
+                try {
+                  await signOutUser();
+                  // Force reload to clear all state
+                  window.location.href = '/';
+                } catch (error) {
+                  console.error('Sign out error:', error);
+                  // Fallback to Replit logout
+                  window.location.href = '/api/logout';
+                }
+              }}
               variant="ghost"
               size="sm"
               data-testid="button-logout"
