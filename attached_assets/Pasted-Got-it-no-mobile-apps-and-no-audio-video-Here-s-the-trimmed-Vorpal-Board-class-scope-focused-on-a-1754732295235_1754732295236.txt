@@ -1,0 +1,98 @@
+Got it—no mobile apps and no audio/video. Here’s the trimmed “Vorpal Board–class” scope focused on a browser-only, real-time tabletop with digital components.
+
+Core UX
+Rooms & invites: Create/join via link, lobby, reconnect flow, host controls.
+
+Players & roles: Host (paid) vs guests (free), moderators, spectators.
+
+Private vs shared views: Personal hand/notes; shared board/tabletop.
+
+Presence & cursors: Named cursors, “look here” pings, follow-the-host mode.
+
+Chat (text only): Room chat, whispers, basic moderation, message pins.
+
+Undo/redo & logs: Action log with per-move undo (host-gated).
+
+Game objects & mechanics (rules-agnostic)
+Cards: Decks, piles, shuffling (server-authoritative), draw/discard, face-up/down, ownership/visibility rules.
+
+Tokens/tiles/minis: Drag, stack, snap-to-grid, rotation, z-order, lock.
+
+Boards & layers: Background map/image + overlay layers for objects/measurements.
+
+Dice roller: Synchronized results, custom dice (dF/d6/d20, custom faces), roll history.
+
+Templates & setups: Saved scenes (initial layouts, decks prepared, player seats).
+
+Turn & timers: Turn tracker, round counters, per-player timers.
+
+Asset pipeline (no phone app)
+Imports: Image/PDF uploads for cards/tokens/boards; bulk import via zip; CSV/JSON metadata.
+
+Card builder: Web-based cropper, face/back assignment, border bleed/safe area helpers.
+
+Indexing & sets: Tagging, search, versioning; per-game libraries; thumbnails.
+
+Permissions: Private, room-only, or shared-with-link asset libraries.
+
+Real-time & state
+Transport: WebSockets for state sync; optimistic UI + server conflict resolution.
+
+State model: Document/collection per room; CRDT/OT for object transforms; atomic moves/shuffles.
+
+Persistence: Auto-save checkpoints; save/restore sessions; snapshot export/import.
+
+Scalability: Partition by room; rate limits and batching; backpressure strategy.
+
+Tooling on the board
+Measure & annotate: Ruler, areas, freehand/shape drawing, fog/hide, sticky notes.
+
+Search & filters: Find a card/token by name/tag; highlight result on board.
+
+Accessibility: Keyboard navigation for objects, aria labels, high-contrast mode, color-blind-safe palettes, resizable UI.
+
+Security & integrity
+Auth: Email/password + SSO (optional), magic-link invites.
+
+ACLs: Per-room roles; per-asset visibility; “host-only” zones.
+
+Anti-cheat: Server-side shuffles/rolls; immutable audit trail; tamper-evident snapshots.
+
+Privacy: At-rest encryption for user assets; retention/deletion policies; export my data.
+
+Commerce & licensing
+Plans: Free guest, paid host, trials; metering by active rooms/asset storage.
+
+Billing: Subscriptions, invoices, entitlements enforcement at room creation.
+
+Usage caps: Asset storage quotas, max concurrent guests per room.
+
+Admin & ops
+Moderation: Kick/mute (text), room locks/passwords, report user, word filters.
+
+Observability: Room health (latency, event queue size), error logging, feature usage.
+
+Support: In-app diagnostics (latency test, packet loss), guided tours, searchable help.
+
+Backups: Nightly snapshots of rooms/assets; point-in-time restore.
+
+CDN & caching: Edge cache for static assets/thumbnails; precompute spritesheets.
+
+Legal/compliance
+Content policy: User-generated scans/imports (IP ownership), DMCA/takedowns.
+
+Data compliance: GDPR/CCPA flows (export/delete), age gates/COPPA if needed.
+
+Performance targets
+Latency: <150–200 ms perceived for moves/rolls.
+
+Frame/interaction: Smooth drag at 60 fps on mid-range laptops; graceful degrade on low-end.
+
+Payloads: Delta updates under ~2–5 KB typical; batch redraws; lazy-load assets.
+
+Nice-to-haves (later)
+Macros/automation: Scripting simple flows (deal X cards, set initiative).
+
+Module marketplace: Shareable setups and component packs.
+
+Printer-friendly exports: Generate PDFs for hands or tiles.

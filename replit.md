@@ -1,6 +1,6 @@
 # Overview
 
-This is a multiplayer tabletop gaming application that allows users to create and join game rooms where they can share game assets (cards, tokens, maps), place them on a shared game board, and interact in real-time. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and hybrid authentication supporting both Firebase Google OAuth and Replit Auth with automatic fallback.
+This is a comprehensive multiplayer virtual tabletop gaming platform called "Vorpal Board" designed for browser-based real-time tabletop gaming with digital components. The platform supports rules-agnostic gameplay with advanced features for cards, tokens, dice, and board management. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and hybrid authentication supporting both Firebase Google OAuth and Replit Auth with automatic fallback.
 
 ## Recent Changes (January 2025)
 - **Authentication System Completed**: Implemented robust hybrid authentication with Firebase Google OAuth and Replit Auth fallback
@@ -20,10 +20,74 @@ This is a multiplayer tabletop gaming application that allows users to create an
 - **Player-First Experience Completed**: Join existing room button now routes directly to player interface for immediate gameplay
 - **Player Interface Implementation**: Built complete SimplePlayerInterface with dice rolling, player list, and game board functionality
 - **Database Foreign Key Fix**: Fixed dice rolling errors by ensuring proper room UUID usage instead of room names in WebSocket messages
+- **Name Change System**: Added ability for both players and game masters to change their display names with real-time updates
+- **Player List Enhancement**: Fixed player list to show actual user names instead of raw user IDs with proper database joins
+- **Expanded Scope (Jan 9, 2025)**: Received comprehensive "Vorpal Board-class" specification with advanced tabletop features including:
+  - Advanced card/deck management with face-up/down states and ownership rules
+  - Enhanced token/tile system with rotation, z-order, and snap-to-grid
+  - Multi-layer board system with background maps and overlays
+  - Comprehensive asset pipeline with bulk imports and card builder
+  - Advanced real-time state management with conflict resolution
+  - Measurement tools, annotations, and board manipulation features
+  - Security features including server-side shuffles and audit trails
+  - Commercial features with subscription plans and usage caps
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+# Project Roadmap (Based on Vorpal Board Specification)
+
+## Phase 1: Core Foundation (Current - Mostly Complete)
+✓ Basic room creation and joining
+✓ User authentication and role management
+✓ Basic file upload system
+✓ Simple dice rolling
+✓ Basic player interface and game master console
+✓ Real-time WebSocket communication
+✓ Player name management
+
+## Phase 2: Enhanced Game Objects (Next Priority)
+- Card system with decks, piles, and face-up/down states
+- Enhanced token system with rotation and z-order
+- Snap-to-grid functionality
+- Card/token ownership and visibility rules
+- Server-authoritative shuffling
+
+## Phase 3: Advanced Board Features
+- Multi-layer board system (background + overlay layers)
+- Measurement tools and rulers
+- Annotation system (drawing, sticky notes)
+- Fog of war and hide/reveal functionality
+- Search and filtering for game objects
+
+## Phase 4: Asset Pipeline Enhancement
+- Bulk import system (ZIP files)
+- Web-based card builder with cropping
+- Asset tagging and versioning
+- Thumbnail generation
+- Asset library permissions (private/shared)
+
+## Phase 5: Advanced Real-time Features
+- Optimistic UI with conflict resolution
+- Undo/redo system with action logs
+- Turn tracker and timer system
+- Auto-save checkpoints
+- Session save/restore
+
+## Phase 6: Commercial & Security Features
+- Subscription plans and billing
+- Advanced ACL system
+- Anti-cheat measures
+- Audit trails and tamper detection
+- Usage caps and quotas
+
+## Phase 7: Polish & Advanced Features
+- Accessibility improvements
+- Macro/automation system
+- Module marketplace
+- Advanced moderation tools
+- Performance optimizations
 
 # System Architecture
 
