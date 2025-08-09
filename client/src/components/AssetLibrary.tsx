@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Folder, Upload, ChevronDown, ChevronUp, Layers, Coins, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(['cards', 'tokens', 'map'])
   );
+  const [selectedCategory, setSelectedCategory] = useState<string>("auto");
   const { toast } = useToast();
   const { dragStart } = useDragAndDrop();
 
@@ -61,9 +63,18 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
     if (result.successful && result.successful.length > 0) {
       const file = result.successful[0];
       const fileName = file.name || "Untitled Asset";
-      const fileType = fileName.toLowerCase().includes('card') ? 'card' :
-                      fileName.toLowerCase().includes('token') ? 'token' :
-                      fileName.toLowerCase().includes('map') ? 'map' : 'other';
+      
+      // Determine file type based on user selection or automatic detection
+      let fileType: string;
+      if (selectedCategory === "auto") {
+        // Use automatic detection based on filename
+        fileType = fileName.toLowerCase().includes('card') ? 'card' :
+                  fileName.toLowerCase().includes('token') ? 'token' :
+                  fileName.toLowerCase().includes('map') ? 'map' : 'other';
+      } else {
+        // Use user-selected category
+        fileType = selectedCategory;
+      }
 
       createAssetMutation.mutate({
         roomId,
@@ -120,6 +131,37 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
           <Folder className="mr-2 text-[#10B981]" />
           Game Assets
         </h2>
+        
+        {/* Category Selection */}
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Upload Category
+          </label>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full bg-[#4B5563] border-gray-600 text-gray-100" data-testid="select-category">
+              <SelectValue placeholder="Choose category..." />
+            </SelectTrigger>
+            <SelectContent className="bg-[#4B5563] border-gray-600">
+              <SelectItem value="auto" className="text-gray-100">Auto-detect from filename</SelectItem>
+              <SelectItem value="card" className="text-gray-100 flex items-center">
+                <Layers className="w-4 h-4 mr-2 text-[#7C3AED]" />
+                Cards
+              </SelectItem>
+              <SelectItem value="token" className="text-gray-100">
+                <Coins className="w-4 h-4 mr-2 text-[#F59E0B]" />
+                Tokens
+              </SelectItem>
+              <SelectItem value="map" className="text-gray-100">
+                <Map className="w-4 h-4 mr-2 text-[#10B981]" />
+                Maps
+              </SelectItem>
+              <SelectItem value="other" className="text-gray-100">
+                <Folder className="w-4 h-4 mr-2 text-gray-400" />
+                Other
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         
         <ObjectUploader
           maxNumberOfFiles={10}
