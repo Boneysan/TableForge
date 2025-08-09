@@ -5,7 +5,7 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
-import { PlayerInterface } from "@/components/PlayerInterface";
+import { SimplePlayerInterface } from "@/components/SimplePlayerInterface";
 import { GameMasterInterface } from "@/components/GameMasterInterface";
 import { AdminInterface } from "@/components/AdminInterface";
 import { ViewSelector } from "@/components/ViewSelector";
@@ -20,11 +20,11 @@ export default function GameRoom() {
   const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | 'player' | null>(null);
   const currentPlayer = { id: (user as User)?.id || "unknown", name: (user as User)?.firstName || (user as User)?.email || "Player" };
   
-  // Check if this is a "join" navigation (from home page join button)
-  const isJoiningRoom = sessionStorage.getItem('joining-room') === 'true';
+  // Check if this is a "join" navigation (from home page join button) - check on component mount
+  const [wasJoiningRoom] = useState(() => sessionStorage.getItem('joining-room') === 'true');
   
   // Debug logging
-  console.log('isJoiningRoom:', isJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
+  console.log('wasJoiningRoom:', wasJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
 
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({
@@ -171,8 +171,28 @@ export default function GameRoom() {
     );
   }
 
-  // Show view selector for admins who haven't chosen a view yet (unless they're joining)
-  if (userRole === 'admin' && selectedView === null && !isJoiningRoom) {
+  // If joining room, force player interface regardless of role
+  if (wasJoiningRoom && userRole === 'admin') {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-4 p-3 bg-green-600 text-white rounded-lg">
+          <p>Joined as Player (using Join Room button)</p>
+        </div>
+        <SimplePlayerInterface
+          room={room as GameRoom}
+          roomAssets={assets as GameAsset[]}
+          boardAssets={boardAssets as BoardAsset[]}
+          roomPlayers={roomPlayers}
+          currentUser={user as User}
+          onDiceRoll={handleDiceRoll}
+          connected={connected}
+        />
+      </div>
+    );
+  }
+
+  // Show view selector for admins who haven't chosen a view yet (unless they joined via button)
+  if (userRole === 'admin' && selectedView === null && !wasJoiningRoom) {
     return (
       <ViewSelector
         onSelectView={setSelectedView}
@@ -181,40 +201,16 @@ export default function GameRoom() {
     );
   }
 
-  // If joining room, force player interface regardless of role
-  if (isJoiningRoom && userRole === 'admin') {
-    return (
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-4 p-3 bg-green-600 text-white rounded-lg">
-          <p>Joined as Player (using Join Room button)</p>
-        </div>
-        <PlayerInterface
-          room={room as GameRoom}
-          roomAssets={assets as GameAsset[]}
-          boardAssets={boardAssets as BoardAsset[]}
-          roomPlayers={roomPlayers}
-          currentPlayer={currentPlayer}
-          onAssetMove={handleAssetMoved}
-          onAssetPlace={handleAssetPlaced}
-          onDiceRoll={handleDiceRoll}
-          connected={connected}
-        />
-      </div>
-    );
-  }
-
   // Default player interface for regular players
   if (userRole === 'player' && selectedView === null) {
     return (
       <div className="container mx-auto px-4 py-6">
-        <PlayerInterface
+        <SimplePlayerInterface
           room={room as GameRoom}
           roomAssets={assets as GameAsset[]}
           boardAssets={boardAssets as BoardAsset[]}
           roomPlayers={roomPlayers}
-          currentPlayer={currentPlayer}
-          onAssetMove={handleAssetMoved}
-          onAssetPlace={handleAssetPlaced}
+          currentUser={user as User}
           onDiceRoll={handleDiceRoll}
           connected={connected}
         />
@@ -265,14 +261,12 @@ export default function GameRoom() {
 
       {selectedView === 'player' && (
         <div className="container mx-auto px-4 py-6">
-          <PlayerInterface
+          <SimplePlayerInterface
             room={room as GameRoom}
             roomAssets={assets as GameAsset[]}
             boardAssets={boardAssets as BoardAsset[]}
             roomPlayers={roomPlayers}
-            currentPlayer={currentPlayer}
-            onAssetMove={handleAssetMoved}
-            onAssetPlace={handleAssetPlaced}
+            currentUser={user as User}
             onDiceRoll={handleDiceRoll}
             connected={connected}
           />
