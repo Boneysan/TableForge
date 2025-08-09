@@ -17,11 +17,12 @@ interface GameMasterInterfaceProps {
   assets: GameAsset[];
   boardAssets: BoardAsset[];
   players: RoomPlayer[];
-  currentUser: { id: string; firstName?: string; lastName?: string };
+  currentUser: { id: string; firstName?: string | null; lastName?: string | null };
   onAssetUploaded: () => void;
   onAssetPlaced: (assetId: string, x: number, y: number) => void;
   onAssetMoved: (assetId: string, x: number, y: number) => void;
   onDiceRolled: (diceType: string, diceCount: number, results: number[], total: number) => void;
+  onSwitchView?: () => void;
 }
 
 export function GameMasterInterface({
@@ -34,6 +35,7 @@ export function GameMasterInterface({
   onAssetPlaced,
   onAssetMoved,
   onDiceRolled,
+  onSwitchView,
 }: GameMasterInterfaceProps) {
   const [isGMPanelVisible, setIsGMPanelVisible] = useState(true);
   const [selectedTab, setSelectedTab] = useState("game");
@@ -84,21 +86,33 @@ export function GameMasterInterface({
             Game Master Console
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="gm-panel-toggle" className="text-sm">
-            GM Panel
-          </Label>
-          <Switch
-            id="gm-panel-toggle"
-            checked={isGMPanelVisible}
-            onCheckedChange={setIsGMPanelVisible}
-            data-testid="switch-gm-panel"
-          />
-          {isGMPanelVisible ? (
-            <Eye className="w-4 h-4 text-purple-600" />
-          ) : (
-            <EyeOff className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-4">
+          {onSwitchView && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onSwitchView}
+              data-testid="button-switch-view-gm"
+            >
+              Switch to Admin Interface
+            </Button>
           )}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="gm-panel-toggle" className="text-sm">
+              GM Panel
+            </Label>
+            <Switch
+              id="gm-panel-toggle"
+              checked={isGMPanelVisible}
+              onCheckedChange={setIsGMPanelVisible}
+              data-testid="switch-gm-panel"
+            />
+            {isGMPanelVisible ? (
+              <Eye className="w-4 h-4 text-purple-600" />
+            ) : (
+              <EyeOff className="w-4 h-4 text-gray-400" />
+            )}
+          </div>
         </div>
       </div>
 

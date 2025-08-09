@@ -11,13 +11,16 @@ import { queryClient } from "@/lib/queryClient";
 import type { GameRoom, GameAsset, RoomPlayer } from "@shared/schema";
 
 interface AdminInterfaceProps {
-  room: GameRoom;
-  roomAssets: GameAsset[];
-  roomPlayers: RoomPlayer[];
+  roomId: string;
+  assets: GameAsset[];
+  boardAssets: BoardAsset[];
+  players: RoomPlayer[];
+  currentUser: { id: string; firstName?: string | null; lastName?: string | null };
   onAssetUploaded: () => void;
+  onSwitchView?: () => void;
 }
 
-export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded }: AdminInterfaceProps) {
+export function AdminInterface({ roomId, assets, boardAssets, players, currentUser, onAssetUploaded, onSwitchView }: AdminInterfaceProps) {
   const { toast } = useToast();
   const [selectedAssetType, setSelectedAssetType] = useState<'card' | 'token' | 'map' | 'other'>('card');
 
@@ -42,7 +45,7 @@ export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded 
         
         // Create asset record in database
         const assetData = {
-          roomId: room.id,
+          roomId: roomId,
           name: uploadedFile.name,
           type: selectedAssetType,
           filePath: uploadedFile.uploadURL,
@@ -56,7 +59,7 @@ export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded 
             description: `${uploadedFile.name} has been uploaded successfully.`,
           });
           onAssetUploaded();
-          queryClient.invalidateQueries({ queryKey: ["/api/rooms", room.id, "assets"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "assets"] });
         }
       }
     } catch (error) {
@@ -72,13 +75,24 @@ export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded 
   return (
     <div className="space-y-6" data-testid="admin-interface">
       {/* Admin Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-4">
-        <div className="flex items-center space-x-3">
-          <Shield className="w-6 h-6 text-white" />
-          <div>
-            <h2 className="text-xl font-bold text-white">Game Master Interface</h2>
-            <p className="text-purple-100">You have administrative privileges for this game room</p>
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Settings className="w-6 h-6 text-white" />
+            <div>
+              <h2 className="text-xl font-bold text-white">Admin Interface</h2>
+              <p className="text-blue-100">Upload and manage game assets</p>
+            </div>
           </div>
+          {onSwitchView && (
+            <Button 
+              variant="secondary" 
+              onClick={onSwitchView}
+              data-testid="button-switch-view"
+            >
+              Switch to Game Master Console
+            </Button>
+          )}
         </div>
       </div>
 
@@ -148,14 +162,14 @@ export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded 
           {/* Asset Library */}
           <Card>
             <CardHeader>
-              <CardTitle>Asset Library ({roomAssets.length} items)</CardTitle>
+              <CardTitle>Asset Library ({assets.length} items)</CardTitle>
             </CardHeader>
             <CardContent>
-              {roomAssets.length === 0 ? (
+              {assets.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">No assets uploaded yet. Upload some assets to get started.</p>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {roomAssets.map((asset) => (
+                  {assets.map((asset) => (
                     <div key={asset.id} className="relative group" data-testid={`asset-${asset.id}`}>
                       <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                         <img
@@ -185,7 +199,7 @@ export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded 
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {roomPlayers.map((player) => (
+                {players.map((player) => (
                   <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-testid={`player-${player.playerId}`}>
                     <div className="flex items-center space-x-3">
                       <div className={`w-3 h-3 rounded-full ${player.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />

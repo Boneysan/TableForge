@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 
 import { PlayerInterface } from "@/components/PlayerInterface";
 import { GameMasterInterface } from "@/components/GameMasterInterface";
+import { AdminInterface } from "@/components/AdminInterface";
+import { ViewSelector } from "@/components/ViewSelector";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
@@ -15,6 +17,7 @@ export default function GameRoom() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [userRole, setUserRole] = useState<'admin' | 'player' | null>(null);
+  const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | null>(null);
   const currentPlayer = { id: (user as User)?.id || "unknown", name: (user as User)?.firstName || (user as User)?.email || "Player" };
 
   // Fetch room data
@@ -150,6 +153,16 @@ export default function GameRoom() {
     );
   }
 
+  // Show view selector for admins who haven't chosen a view yet
+  if (userRole === 'admin' && selectedView === null) {
+    return (
+      <ViewSelector
+        onSelectView={setSelectedView}
+        currentUser={user as User}
+      />
+    );
+  }
+
   if (!room) {
     return (
       <div className="min-h-screen bg-[#1F2937] text-gray-100 flex items-center justify-center">
@@ -164,20 +177,35 @@ export default function GameRoom() {
   return (
     <div className="min-h-screen bg-[#1F2937] text-gray-100">
 
-      <div className="container mx-auto px-4 py-6">
-        {userRole === 'admin' ? (
-          <GameMasterInterface
-            roomId={roomId || ''}
-            assets={assets}
-            boardAssets={boardAssets}
-            players={roomPlayers}
-            currentUser={user as User}
-            onAssetUploaded={refetchAssets}
-            onAssetPlaced={handleAssetPlaced}
-            onAssetMoved={handleAssetMoved}
-            onDiceRolled={handleDiceRolled}
-          />
-        ) : (
+      {userRole === 'admin' && selectedView === 'admin' && (
+        <AdminInterface
+          roomId={roomId || ''}
+          assets={assets}
+          boardAssets={boardAssets}
+          players={roomPlayers}
+          currentUser={user as User}
+          onAssetUploaded={refetchAssets}
+          onSwitchView={() => setSelectedView(null)}
+        />
+      )}
+
+      {userRole === 'admin' && selectedView === 'gamemaster' && (
+        <GameMasterInterface
+          roomId={roomId || ''}
+          assets={assets}
+          boardAssets={boardAssets}
+          players={roomPlayers}
+          currentUser={user as User}
+          onAssetUploaded={refetchAssets}
+          onAssetPlaced={handleAssetPlaced}
+          onAssetMoved={handleAssetMoved}
+          onDiceRolled={handleDiceRolled}
+          onSwitchView={() => setSelectedView(null)}
+        />
+      )}
+
+      {userRole === 'player' && (
+        <div className="container mx-auto px-4 py-6">
           <PlayerInterface
             assets={assets}
             boardAssets={boardAssets}
@@ -185,8 +213,8 @@ export default function GameRoom() {
             currentUser={user as User}
             onDiceRolled={handleDiceRolled}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
