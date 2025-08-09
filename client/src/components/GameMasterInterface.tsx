@@ -15,6 +15,7 @@ import { AssetLibrary } from "./AssetLibrary";
 import { ChatComponent } from "./ChatComponent";
 import { CardDeckManager } from "./CardDeckManager";
 import { GameTemplateManager } from "./GameTemplateManager";
+import { GameSystemManager } from "./GameSystemManager";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -230,6 +231,26 @@ export function GameMasterInterface({
               Templates
             </Button>
           </GameTemplateManager>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800"
+                data-testid="button-system-manager"
+              >
+                <Settings className="w-4 h-4 mr-1" />
+                Game Systems
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Game Systems Manager</DialogTitle>
+              </DialogHeader>
+              <GameSystemManager roomId={roomId} currentUser={currentUser} />
+            </DialogContent>
+          </Dialog>
           <Button
             variant="outline"
             size="sm"
