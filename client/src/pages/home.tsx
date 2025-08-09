@@ -27,6 +27,13 @@ export default function Home() {
   const { data: userRooms = [], isLoading } = useQuery<GameRoom[]>({
     queryKey: ["/api/user", userId, "rooms"],
     enabled: !!userId,
+    queryFn: async () => {
+      const response = await authenticatedApiRequest("GET", `/api/user/${userId}/rooms`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rooms: ${response.statusText}`);
+      }
+      return response.json();
+    },
   });
 
   const createRoomMutation = useMutation({
