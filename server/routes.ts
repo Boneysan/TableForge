@@ -633,6 +633,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Draw cards from deck - Player action
+  app.post('/api/rooms/:roomId/decks/:deckId/draw', hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId, deckId } = req.params;
+      const { playerId, count = 1 } = req.body;
+      
+      // Get deck
+      const deck = await storage.getCardDeck(deckId);
+      if (!deck || deck.roomId !== roomId) {
+        return res.status(404).json({ error: 'Deck not found' });
+      }
+
+      const deckOrder = (deck.deckOrder || []) as string[];
+      if (deckOrder.length < count) {
+        return res.status(400).json({ error: 'Not enough cards in deck' });
+      }
+
+      // Draw cards from top of deck
+      const drawnCards = deckOrder.slice(0, count);
+      const remainingCards = deckOrder.slice(count);
+
+      // Update deck
+      await storage.updateCardDeck(deckId, {
+        deckOrder: remainingCards
+      });
+
+      // Find or create player's hand pile
+      const allPiles = await storage.getCardPiles(roomId);
+      let handPile = allPiles.find(pile => 
+        pile.pileType === 'hand' && pile.ownerId === playerId
+      );
+      
+      if (!handPile) {
+        // Create a new hand pile for the player
+        handPile = await storage.createCardPile({
+          roomId,
+          name: `Player Hand`,
+          positionX: 50,
+          positionY: 50,
+          pileType: 'hand',
+          visibility: 'owner',
+          ownerId: playerId,
+          cardOrder: drawnCards,
+          faceDown: true
+        });
+      } else {
+        // Add cards to existing hand
+        const currentCards = (handPile.cardOrder || []) as string[];
+        await storage.updateCardPile(handPile.id, {
+          cardOrder: [...currentCards, ...drawnCards]
+        });
+      }
+
+      res.json({ 
+        success: true, 
+        drawnCards,
+        remainingInDeck: remainingCards.length,
+        handPileId: handPile.id
+      });
+    } catch (error) {
+      console.error('Error drawing cards:', error);
+      res.status(500).json({ error: 'Failed to draw cards' });
+    }
+  });
+
   // Enhanced Board Asset endpoints
   app.patch("/api/board-assets/:id", hybridAuthMiddleware, async (req: any, res) => {
     try {

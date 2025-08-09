@@ -44,6 +44,7 @@ interface CardDeckManagerProps {
   currentUserId: string;
   playerRole: "admin" | "player";
   onCardDealt: (cards: string[], targetPile: string) => void;
+  onCardDrawn?: (deckId: string, playerId: string, count: number) => void;
 }
 
 export function CardDeckManager({ 
@@ -51,7 +52,8 @@ export function CardDeckManager({
   assets, 
   currentUserId, 
   playerRole,
-  onCardDealt 
+  onCardDealt,
+  onCardDrawn
 }: CardDeckManagerProps) {
   const [showCreateDeck, setShowCreateDeck] = useState(false);
   const [showCreatePile, setShowCreatePile] = useState(false);
@@ -144,6 +146,31 @@ export function CardDeckManager({
     },
     onError: () => {
       toast({ title: "Failed to shuffle deck", variant: "destructive" });
+    },
+  });
+
+  // Draw card mutation
+  const drawCardMutation = useMutation({
+    mutationFn: async ({ deckId, count = 1 }: { deckId: string; count?: number }) => {
+      const response = await fetch(`/api/rooms/${roomId}/decks/${deckId}/draw`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId: currentUserId, count }),
+      });
+      if (!response.ok) throw new Error("Failed to draw card");
+      return response.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "decks"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      onCardDrawn?.(variables.deckId, currentUserId, variables.count || 1);
+      toast({ 
+        title: `Drew ${variables.count || 1} card${(variables.count || 1) > 1 ? 's' : ''}!`,
+        description: `Cards added to your hand`
+      });
+    },
+    onError: () => {
+      toast({ title: "Failed to draw card", variant: "destructive" });
     },
   });
 
@@ -328,26 +355,42 @@ export function CardDeckManager({
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    {canManageDecks && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => shuffleDeckMutation.mutate(deck.id)}
-                        disabled={shuffleDeckMutation.isPending}
-                        data-testid={`button-shuffle-${deck.id}`}
-                      >
-                        <Shuffle className="w-3 h-3" />
-                      </Button>
-                    )}
+                    {/* Draw card button - available to all players */}
                     <Button
                       size="sm"
-                      variant="ghost"
-                      onClick={() => dealCardsMutation.mutate({ deckId: deck.id, count: 1, targetPile: "board" })}
-                      disabled={dealCardsMutation.isPending}
-                      data-testid={`button-deal-${deck.id}`}
+                      variant="outline"
+                      onClick={() => drawCardMutation.mutate({ deckId: deck.id, count: 1 })}
+                      disabled={drawCardMutation.isPending || (deck.deckOrder as string[] || []).length === 0}
+                      data-testid={`button-draw-${deck.id}`}
+                      title="Draw 1 card to your hand"
                     >
-                      <Play className="w-3 h-3" />
+                      <User className="w-3 h-3" />
                     </Button>
+                    
+                    {canManageDecks && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => shuffleDeckMutation.mutate(deck.id)}
+                          disabled={shuffleDeckMutation.isPending}
+                          data-testid={`button-shuffle-${deck.id}`}
+                          title="Shuffle deck"
+                        >
+                          <Shuffle className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => dealCardsMutation.mutate({ deckId: deck.id, count: 1, targetPile: "board" })}
+                          disabled={dealCardsMutation.isPending}
+                          data-testid={`button-deal-${deck.id}`}
+                          title="Deal 1 card to board"
+                        >
+                          <Play className="w-3 h-3" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))
