@@ -11,9 +11,7 @@ import { GameSystemManager } from "@/components/GameSystemManager";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import type { GameRoom, GameAsset, RoomPlayer } from "@shared/schema";
-
-type RoomPlayerWithName = RoomPlayer & { playerName: string; playerEmail: string };
+import type { GameRoom, GameAsset, RoomPlayerWithName } from "@shared/schema";
 
 interface AdminInterfaceProps {
   roomId: string;

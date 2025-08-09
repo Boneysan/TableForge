@@ -239,6 +239,7 @@ export type InsertGameAsset = z.infer<typeof insertGameAssetSchema>;
 
 export type RoomPlayer = typeof roomPlayers.$inferSelect;
 export type InsertRoomPlayer = typeof roomPlayers.$inferInsert;
+export type RoomPlayerWithName = RoomPlayer & { playerName: string; playerEmail: string };
 
 export type BoardAsset = typeof boardAssets.$inferSelect;
 export type InsertBoardAsset = z.infer<typeof insertBoardAssetSchema>;

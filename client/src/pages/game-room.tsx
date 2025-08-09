@@ -11,7 +11,7 @@ import { AdminInterface } from "@/components/AdminInterface";
 import { ViewSelector } from "@/components/ViewSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { authenticatedApiRequest } from "@/lib/authClient";
-import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
+import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, RoomPlayerWithName, User } from "@shared/schema";
 
 export default function GameRoom() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -43,7 +43,7 @@ export default function GameRoom() {
     enabled: !!roomId,
   });
 
-  const { data: roomPlayers = [] } = useQuery<RoomPlayer[]>({
+  const { data: roomPlayers = [] } = useQuery<RoomPlayerWithName[]>({
     queryKey: ["/api/rooms", roomId, "players"],
     enabled: !!roomId,
   });
@@ -134,7 +134,7 @@ export default function GameRoom() {
 
   const handleAssetMoved = (assetId: string, x: number, y: number) => {
     // Use the actual room UUID, not the room name/param
-    const actualRoomId = room?.id || roomId;
+    const actualRoomId = (room as GameRoom)?.id || roomId;
     sendMessage({
       type: 'asset_moved',
       roomId: actualRoomId,
@@ -144,7 +144,7 @@ export default function GameRoom() {
 
   const handleDiceRolled = (diceType: string, diceCount: number, results: number[], total: number) => {
     // Use the actual room UUID, not the room name/param
-    const actualRoomId = room?.id || roomId;
+    const actualRoomId = (room as GameRoom)?.id || roomId;
     console.log('Sending dice roll:', { diceType, diceCount, results, total, actualRoomId });
     sendMessage({
       type: 'dice_rolled',

@@ -3,12 +3,16 @@
 This is a comprehensive multiplayer virtual tabletop gaming platform called "Vorpal Board" designed for browser-based real-time tabletop gaming with digital components. The platform supports rules-agnostic gameplay with advanced features for cards, tokens, dice, and board management. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and hybrid authentication supporting both Firebase Google OAuth and Replit Auth with automatic fallback.
 
 ## Recent Changes (January 2025)
-- **FIREBASE AUTHENTICATION FULLY RESOLVED (Jan 9, 2025)**: Complete resolution of Firebase Admin SDK initialization issues
-  - Fixed critical module loading problem by changing `import * as admin` to `import admin` 
+- **AUTHENTICATION SYSTEM COMPLETED (Jan 9, 2025)**: Complete resolution of all authentication issues including auto-login and room access
+  - Fixed critical Firebase/Replit authentication issues with proper logout functionality using Firebase signOut instead of Replit logout
+  - Resolved user room access denied (403) errors by using Firebase user ID instead of database user ID in API endpoints
+  - Fixed React hooks order violations causing black screen after login by moving all hooks before conditional returns
+  - Updated cache invalidation to use Firebase user ID for proper query key management
   - Firebase Admin SDK now properly initializes with all credential modules available
   - Server successfully verifies Firebase ID tokens and authenticates users with 200 status codes
   - End-to-end authentication flow from client Google OAuth to server token verification working perfectly
   - Hybrid authentication system provides robust fallback to Replit Auth when needed
+  - TypeScript errors in room components resolved with proper RoomPlayerWithName type definitions
 - **GAME SYSTEM IMPLEMENTATION COMPLETED (Jan 9, 2025)**: Complete game system management separate from templates with rules upload support
 - **GAME TEMPLATE SYSTEM COMPLETED (Jan 9, 2025)**: Fully implemented comprehensive game template system with complete frontend and backend integration
 - **COMPREHENSIVE IMPLEMENTATION COMPLETED (Jan 9, 2025)**: Successfully implemented the complete Vorpal Board specification including all advanced features

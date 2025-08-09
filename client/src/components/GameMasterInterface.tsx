@@ -21,9 +21,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLocation } from "wouter";
-import type { GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
-
-type RoomPlayerWithName = RoomPlayer & { playerName: string; playerEmail: string };
+import type { GameAsset, BoardAsset, RoomPlayerWithName } from "@shared/schema";
 
 interface GameMasterInterfaceProps {
   roomId: string;
@@ -528,6 +526,7 @@ export function GameMasterInterface({
                     assets={assets}
                     currentUserId={currentUser.id}
                     playerRole="admin"
+                    onCardDealt={() => {}} // Placeholder for now
                   />
                 </TabsContent>
 
