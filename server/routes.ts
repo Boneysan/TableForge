@@ -245,22 +245,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log("📊 [Auth User] Found existing user by email (likely from Replit auth):", JSON.stringify(userByEmail, null, 2));
             console.log("📊 [Auth User] Merging accounts - this user will now be accessible via both Replit and Firebase auth");
             
-            // Instead of changing the ID (which could break FK constraints), 
-            // we'll create a mapping by using Firebase UID as the new primary ID
-            // and preserving all existing data
+            // Don't change the user ID to avoid foreign key constraint violations
+            // Instead, just update the existing account with new Firebase profile info
+            console.log("📊 [Auth User] Updating existing Replit account with Firebase profile info");
             
-            // First, let's upsert with Firebase UID while preserving existing data
-            const mergedUserData = {
-              id: req.user.uid, // Use Firebase UID as primary ID going forward
-              email: req.user.email,
+            const updatedUserData = {
               firstName: userByEmail.firstName || req.user.displayName?.split(' ')[0] || req.user.displayName || null,
               lastName: userByEmail.lastName || req.user.displayName?.split(' ')[1] || null,
               profileImageUrl: req.user.photoURL || userByEmail.profileImageUrl || null
             };
             
-            console.log("📊 [Auth User] Creating merged account with Firebase UID:", JSON.stringify(mergedUserData, null, 2));
-            user = await storage.upsertUser(mergedUserData);
-            console.log("📊 [Auth User] Successfully merged accounts:", JSON.stringify(user, null, 2));
+            console.log("📊 [Auth User] Updating user with data:", JSON.stringify(updatedUserData, null, 2));
+            user = await storage.updateUser(userByEmail.id, updatedUserData);
+            console.log("📊 [Auth User] Successfully updated account:", JSON.stringify(user, null, 2));
           }
         } catch (emailError) {
           console.log("📊 [Auth User] No existing user found by email, will create new account");
