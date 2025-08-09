@@ -12,6 +12,7 @@ This is a comprehensive multiplayer virtual tabletop gaming platform called "Vor
   - Admin Interface Players tab now shows proper names
   - Game Master Console Players tab displays readable names  
   - Current Player section in GM Console shows only names (no UUID below)
+  - Player Interface now includes complete players list with role badges
   - Consistent player identification throughout the platform
 
 ### Phase 1-3 Core Features ✅ COMPLETE
