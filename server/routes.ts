@@ -17,7 +17,8 @@ import {
   insertGameRoomSchema, 
   insertGameAssetSchema, 
   insertBoardAssetSchema,
-  insertDiceRollSchema 
+  insertDiceRollSchema,
+  insertChatMessageSchema
 } from "@shared/schema";
 
 // Store WebSocket connections by room
@@ -125,6 +126,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
             type: 'dice_rolled',
             payload: diceRoll
           } as DiceRolledMessage);
+        }
+        break;
+
+      case 'chat_message':
+        if (roomId && payload.playerId) {
+          // Save chat message to storage
+          const chatMessage = await storage.createChatMessage({
+            roomId,
+            message: payload.message,
+            messageType: payload.messageType || 'chat',
+            targetPlayerId: payload.targetPlayerId,
+          }, payload.playerId);
+
+          // Get player name for broadcasting
+          const player = await storage.getUser(payload.playerId);
+          const playerName = player?.firstName && player?.lastName 
+            ? `${player.firstName} ${player.lastName}`
+            : player?.firstName 
+            ? player.firstName
+            : player?.email || "Player";
+
+          // Broadcast to all clients in room
+          broadcastToRoom(roomId, {
+            type: 'chat_message',
+            payload: { ...chatMessage, playerName }
+          });
         }
         break;
     }
@@ -440,6 +467,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting dice rolls:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Chat Message Routes
+  app.get("/api/rooms/:roomId/chat", hybridAuthMiddleware, async (req, res) => {
+    try {
+      const { roomId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 100;
+      
+      const messages = await storage.getRoomChatMessages(roomId, limit);
+      res.json(messages.reverse()); // Return in chronological order
+    } catch (error) {
+      console.error("Error getting chat messages:", error);
+      res.status(500).json({ message: "Failed to get chat messages" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/chat", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const validatedData = insertChatMessageSchema.parse({
+        roomId,
+        ...req.body
+      });
+
+      const message = await storage.createChatMessage(validatedData, userId);
+      
+      // Get player name for response
+      const player = await storage.getUser(userId);
+      const playerName = player?.firstName && player?.lastName 
+        ? `${player.firstName} ${player.lastName}`
+        : player?.firstName 
+        ? player.firstName
+        : player?.email || "Player";
+
+      const messageWithName = { ...message, playerName };
+
+      // Broadcast via WebSocket
+      broadcastToRoom(roomId, {
+        type: 'chat_message',
+        payload: messageWithName
+      });
+
+      res.json(messageWithName);
+    } catch (error) {
+      console.error("Error sending chat message:", error);
+      res.status(500).json({ message: "Failed to send chat message" });
     }
   });
 

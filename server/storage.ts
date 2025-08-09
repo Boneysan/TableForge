@@ -10,13 +10,16 @@ import {
   type InsertBoardAsset,
   type DiceRoll,
   type InsertDiceRoll,
+  type ChatMessage,
+  type InsertChatMessage,
   type RoomPlayer,
   users,
   gameRooms,
   gameAssets,
   boardAssets,
   roomPlayers,
-  diceRolls
+  diceRolls,
+  chatMessages
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -62,6 +65,10 @@ export interface IStorage {
   // Dice Rolls
   createDiceRoll(roll: InsertDiceRoll, playerId: string): Promise<DiceRoll>;
   getRoomDiceRolls(roomId: string, limit?: number): Promise<DiceRoll[]>;
+
+  // Chat Messages
+  createChatMessage(message: InsertChatMessage, playerId: string): Promise<ChatMessage>;
+  getRoomChatMessages(roomId: string, limit?: number): Promise<Array<ChatMessage & { playerName: string }>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -322,6 +329,45 @@ export class DatabaseStorage implements IStorage {
       .where(eq(diceRolls.roomId, roomId))
       .orderBy(desc(diceRolls.rolledAt))
       .limit(limit);
+  }
+
+  // Chat Messages
+  async createChatMessage(messageData: InsertChatMessage, playerId: string): Promise<ChatMessage> {
+    const [message] = await db.insert(chatMessages).values({
+      ...messageData,
+      playerId,
+    }).returning();
+    return message;
+  }
+
+  async getRoomChatMessages(roomId: string, limit: number = 100): Promise<Array<ChatMessage & { playerName: string }>> {
+    const result = await db
+      .select({
+        id: chatMessages.id,
+        roomId: chatMessages.roomId,
+        playerId: chatMessages.playerId,
+        message: chatMessages.message,
+        messageType: chatMessages.messageType,
+        targetPlayerId: chatMessages.targetPlayerId,
+        sentAt: chatMessages.sentAt,
+        playerFirstName: users.firstName,
+        playerLastName: users.lastName,
+        playerEmail: users.email,
+      })
+      .from(chatMessages)
+      .innerJoin(users, eq(chatMessages.playerId, users.id))
+      .where(eq(chatMessages.roomId, roomId))
+      .orderBy(desc(chatMessages.sentAt))
+      .limit(limit);
+    
+    return result.map(msg => ({
+      ...msg,
+      playerName: msg.playerFirstName && msg.playerLastName 
+        ? `${msg.playerFirstName} ${msg.playerLastName}`
+        : msg.playerFirstName 
+        ? msg.playerFirstName
+        : msg.playerEmail || "Player"
+    }));
   }
 }
 

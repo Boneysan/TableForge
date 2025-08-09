@@ -48,7 +48,7 @@ export default function GameRoom() {
   });
 
   // WebSocket for real-time updates
-  const { sendMessage, connected } = useWebSocket({
+  const { sendMessage, connected, websocket } = useWebSocket({
     onMessage: (message) => {
       switch (message.type) {
         case 'asset_moved':
@@ -190,6 +190,7 @@ export default function GameRoom() {
           boardAssets={boardAssets as BoardAsset[]}
           roomPlayers={roomPlayers}
           currentUser={user as User}
+          websocket={websocket}
           onDiceRoll={handleDiceRoll}
           connected={connected}
         />
@@ -217,6 +218,7 @@ export default function GameRoom() {
           boardAssets={boardAssets as BoardAsset[]}
           roomPlayers={roomPlayers}
           currentUser={user as User}
+          websocket={websocket}
           onDiceRoll={handleDiceRoll}
           connected={connected}
         />
@@ -257,6 +259,7 @@ export default function GameRoom() {
           boardAssets={boardAssets as BoardAsset[]}
           players={roomPlayers}
           currentUser={user as User}
+          websocket={websocket}
           onAssetUploaded={refetchAssets}
           onAssetPlaced={handleAssetPlaced}
           onAssetMoved={handleAssetMoved}
@@ -273,6 +276,7 @@ export default function GameRoom() {
             boardAssets={boardAssets as BoardAsset[]}
             roomPlayers={roomPlayers}
             currentUser={user as User}
+            websocket={websocket}
             onDiceRoll={handleDiceRoll}
             connected={connected}
           />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit } from "lucide-react";
+import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +12,7 @@ import { ObjectUploader } from "./ObjectUploader";
 import { GameBoard } from "./GameBoard";
 import { GameControls } from "./GameControls";
 import { AssetLibrary } from "./AssetLibrary";
+import { ChatComponent } from "./ChatComponent";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -23,6 +24,7 @@ interface GameMasterInterfaceProps {
   boardAssets: BoardAsset[];
   players: RoomPlayer[];
   currentUser: { id: string; firstName?: string | null; lastName?: string | null };
+  websocket: WebSocket | null;
   onAssetUploaded: () => void;
   onAssetPlaced: (assetId: string, x: number, y: number) => void;
   onAssetMoved: (assetId: string, x: number, y: number) => void;
@@ -36,6 +38,7 @@ export function GameMasterInterface({
   boardAssets,
   players,
   currentUser,
+  websocket,
   onAssetUploaded,
   onAssetPlaced,
   onAssetMoved,
@@ -259,7 +262,7 @@ export function GameMasterInterface({
         {isGMPanelVisible && (
           <div className="w-80 border-l bg-gray-50 dark:bg-gray-900/50 flex flex-col">
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col">
-              <TabsList className="grid w-full grid-cols-3 m-2">
+              <TabsList className="grid w-full grid-cols-4 m-2">
                 <TabsTrigger value="game" className="text-xs">
                   <Dice6 className="w-4 h-4 mr-1" />
                   Game
@@ -271,6 +274,10 @@ export function GameMasterInterface({
                 <TabsTrigger value="players" className="text-xs">
                   <Users className="w-4 h-4 mr-1" />
                   Players
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="text-xs">
+                  <MessageCircle className="w-4 h-4 mr-1" />
+                  Chat
                 </TabsTrigger>
               </TabsList>
 
@@ -429,6 +436,17 @@ export function GameMasterInterface({
                       </Button>
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                {/* Chat Tab */}
+                <TabsContent value="chat" className="h-full">
+                  <div className="h-full p-4">
+                    <ChatComponent 
+                      roomId={roomId}
+                      websocket={websocket}
+                      currentUserId={currentUser.id}
+                    />
+                  </div>
                 </TabsContent>
               </div>
             </Tabs>

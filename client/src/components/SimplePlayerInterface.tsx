@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Dices, Users, Edit } from "lucide-react";
+import { Eye, Dices, Users, Edit, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
+import { ChatComponent } from "./ChatComponent";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
 interface SimplePlayerInterfaceProps {
@@ -16,6 +17,7 @@ interface SimplePlayerInterfaceProps {
   boardAssets: BoardAsset[];
   roomPlayers: RoomPlayer[];
   currentUser: User;
+  websocket: WebSocket | null;
   onDiceRoll: (diceType: string, count: number) => void;
   connected: boolean;
 }
@@ -26,6 +28,7 @@ export function SimplePlayerInterface({
   boardAssets, 
   roomPlayers, 
   currentUser,
+  websocket,
   onDiceRoll,
   connected 
 }: SimplePlayerInterfaceProps) {
@@ -309,6 +312,15 @@ export function SimplePlayerInterface({
               )}
             </CardContent>
           </Card>
+
+          {/* Chat */}
+          <div className="h-80 bg-[#1F2937] rounded-lg border border-gray-600 overflow-hidden">
+            <ChatComponent 
+              roomId={room.id}
+              websocket={websocket}
+              currentUserId={currentUser.id}
+            />
+          </div>
         </div>
       </div>
     </div>

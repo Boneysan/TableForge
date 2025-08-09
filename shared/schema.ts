@@ -81,6 +81,16 @@ export const diceRolls = pgTable("dice_rolls", {
   rolledAt: timestamp("rolled_at").notNull().default(sql`now()`),
 });
 
+export const chatMessages = pgTable("chat_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  roomId: varchar("room_id").references(() => gameRooms.id, { onDelete: "cascade" }).notNull(),
+  playerId: varchar("player_id").references(() => users.id).notNull(),
+  message: varchar("message", { length: 1000 }).notNull(),
+  messageType: varchar("message_type").default("chat").notNull(), // chat, whisper, system
+  targetPlayerId: varchar("target_player_id").references(() => users.id), // for whispers
+  sentAt: timestamp("sent_at").defaultNow(),
+});
+
 // Insert schemas for Replit Auth
 export const upsertUserSchema = createInsertSchema(users).pick({
   id: true,
@@ -134,6 +144,13 @@ export const insertDiceRollSchema = createInsertSchema(diceRolls).pick({
   total: true,
 });
 
+export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
+  roomId: true,
+  message: true,
+  messageType: true,
+  targetPlayerId: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
@@ -154,6 +171,9 @@ export type InsertBoardAsset = z.infer<typeof insertBoardAssetSchema>;
 export type DiceRoll = typeof diceRolls.$inferSelect;
 export type InsertDiceRoll = z.infer<typeof insertDiceRollSchema>;
 
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+
 // WebSocket message types
 export interface WebSocketMessage {
   type: string;
@@ -171,6 +191,11 @@ export interface AssetMovedMessage extends WebSocketMessage {
     rotation?: number;
     scale?: number;
   };
+}
+
+export interface ChatMessageEvent extends WebSocketMessage {
+  type: 'chat_message';
+  payload: ChatMessage & { playerName: string };
 }
 
 export interface AssetFlippedMessage extends WebSocketMessage {
