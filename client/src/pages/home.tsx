@@ -144,7 +144,7 @@ export default function Home() {
         {/* Subtitle */}
         <div className="text-center mb-12">
           <p className="text-gray-300 text-lg">
-            Create or join a virtual tabletop for board games with real-time multiplayer support
+            Create rooms as a Game Master or join existing rooms as a Player for real-time multiplayer gaming
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-gray-100">
                 <Plus className="w-5 h-5 text-[#2563EB]" />
-                <span>Create New Room</span>
+                <span>Create New Room (Game Master)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -186,7 +186,7 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-gray-100">
                 <Users className="w-5 h-5 text-[#10B981]" />
-                <span>Join Existing Room</span>
+                <span>Join Existing Room (Player)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -180,8 +180,8 @@ export default function GameRoom() {
       {userRole === 'admin' && selectedView === 'admin' && (
         <AdminInterface
           roomId={roomId || ''}
-          assets={assets}
-          boardAssets={boardAssets}
+          assets={assets as GameAsset[]}
+          boardAssets={boardAssets as BoardAsset[]}
           players={roomPlayers}
           currentUser={user as User}
           onAssetUploaded={refetchAssets}
@@ -192,8 +192,8 @@ export default function GameRoom() {
       {userRole === 'admin' && selectedView === 'gamemaster' && (
         <GameMasterInterface
           roomId={roomId || ''}
-          assets={assets}
-          boardAssets={boardAssets}
+          assets={assets as GameAsset[]}
+          boardAssets={boardAssets as BoardAsset[]}
           players={roomPlayers}
           currentUser={user as User}
           onAssetUploaded={refetchAssets}
@@ -207,8 +207,8 @@ export default function GameRoom() {
       {userRole === 'player' && (
         <div className="container mx-auto px-4 py-6">
           <PlayerInterface
-            assets={assets}
-            boardAssets={boardAssets}
+            assets={assets as GameAsset[]}
+            boardAssets={boardAssets as BoardAsset[]}
             players={roomPlayers}
             currentUser={user as User}
             onDiceRolled={handleDiceRolled}
