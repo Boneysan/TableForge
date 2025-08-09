@@ -232,10 +232,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Game Assets Routes
-  app.post("/api/assets", async (req, res) => {
+  app.post("/api/assets", hybridAuthMiddleware, async (req: any, res) => {
     try {
       const assetData = insertGameAssetSchema.parse(req.body);
-      const userId = req.body.uploadedBy; // In a real app, get from auth
+      const userId = req.user.uid;
+      
+      // Check if user has admin role in room (only admins can upload)
+      const userRole = await storage.getPlayerRole(assetData.roomId, userId);
+      if (userRole !== 'admin') {
+        return res.status(403).json({ error: "Only game masters can upload assets" });
+      }
       
       // Normalize the object path
       const objectStorageService = new ObjectStorageService();
@@ -260,6 +266,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting room assets:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Room player routes
+  app.post('/api/rooms/:roomId/join', hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const userId = req.user.uid;
+      
+      const roomPlayer = await storage.addPlayerToRoom(roomId, userId);
+      
+      res.json({ success: true, role: roomPlayer.role });
+    } catch (error) {
+      console.error("Error joining room:", error);
+      res.status(500).json({ message: "Failed to join room" });
+    }
+  });
+
+  app.get('/api/rooms/:roomId/role', hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const userId = req.user.uid;
+      
+      const role = await storage.getPlayerRole(roomId, userId);
+      
+      res.json({ role });
+    } catch (error) {
+      console.error("Error getting player role:", error);
+      res.status(500).json({ message: "Failed to get player role" });
+    }
+  });
+
+  app.get('/api/rooms/:roomId/players', async (req, res) => {
+    try {
+      const players = await storage.getRoomPlayers(req.params.roomId);
+      res.json(players);
+    } catch (error) {
+      console.error("Error getting room players:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Object storage routes for file uploads
+  app.post("/api/objects/upload", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
     }
   });
 

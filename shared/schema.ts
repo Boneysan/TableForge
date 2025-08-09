@@ -50,6 +50,7 @@ export const roomPlayers = pgTable("room_players", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   roomId: varchar("room_id").notNull().references(() => gameRooms.id),
   playerId: varchar("player_id").notNull().references(() => users.id),
+  role: text("role").notNull().default("player"), // 'admin' or 'player'
   isOnline: boolean("is_online").notNull().default(true),
   joinedAt: timestamp("joined_at").notNull().default(sql`now()`),
 });
@@ -138,6 +139,7 @@ export type GameAsset = typeof gameAssets.$inferSelect;
 export type InsertGameAsset = z.infer<typeof insertGameAssetSchema>;
 
 export type RoomPlayer = typeof roomPlayers.$inferSelect;
+export type InsertRoomPlayer = typeof roomPlayers.$inferInsert;
 
 export type BoardAsset = typeof boardAssets.$inferSelect;
 export type InsertBoardAsset = z.infer<typeof insertBoardAssetSchema>;

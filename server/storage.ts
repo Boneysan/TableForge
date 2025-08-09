@@ -49,9 +49,10 @@ export interface IStorage {
   deleteBoardAsset(id: string): Promise<void>;
 
   // Room Players
-  addPlayerToRoom(roomId: string, playerId: string): Promise<RoomPlayer>;
+  addPlayerToRoom(roomId: string, playerId: string, role?: 'admin' | 'player'): Promise<RoomPlayer>;
   removePlayerFromRoom(roomId: string, playerId: string): Promise<void>;
   getRoomPlayers(roomId: string): Promise<RoomPlayer[]>;
+  getPlayerRole(roomId: string, playerId: string): Promise<'admin' | 'player' | null>;
   updatePlayerStatus(roomId: string, playerId: string, isOnline: boolean): Promise<void>;
 
   // Dice Rolls
@@ -185,10 +186,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Room Players
-  async addPlayerToRoom(roomId: string, playerId: string): Promise<RoomPlayer> {
+  async addPlayerToRoom(roomId: string, playerId: string, role: 'admin' | 'player' = 'player'): Promise<RoomPlayer> {
+    // Check if user is room creator to set admin role
+    const room = await this.getGameRoom(roomId);
+    const actualRole = room?.createdBy === playerId ? 'admin' : role;
+    
     const [player] = await db
       .insert(roomPlayers)
-      .values({ roomId, playerId })
+      .values({ roomId, playerId, role: actualRole })
+      .onConflictDoUpdate({
+        target: [roomPlayers.roomId, roomPlayers.playerId],
+        set: {
+          isOnline: true,
+          role: actualRole,
+        },
+      })
       .returning();
     return player;
   }
@@ -204,6 +216,19 @@ export class DatabaseStorage implements IStorage {
 
   async getRoomPlayers(roomId: string): Promise<RoomPlayer[]> {
     return db.select().from(roomPlayers).where(eq(roomPlayers.roomId, roomId));
+  }
+
+  async getPlayerRole(roomId: string, playerId: string): Promise<'admin' | 'player' | null> {
+    const [player] = await db
+      .select({ role: roomPlayers.role })
+      .from(roomPlayers)
+      .where(
+        and(
+          eq(roomPlayers.roomId, roomId),
+          eq(roomPlayers.playerId, playerId)
+        )
+      );
+    return player?.role as 'admin' | 'player' || null;
   }
 
   async updatePlayerStatus(roomId: string, playerId: string, isOnline: boolean): Promise<void> {

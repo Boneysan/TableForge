@@ -1,20 +1,20 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Dice1, Users, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { GameBoard } from "@/components/GameBoard";
-import { AssetLibrary } from "@/components/AssetLibrary";
-import { GameControls } from "@/components/GameControls";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
-import type { GameRoom, GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
+import { useAuth } from "@/hooks/useAuth";
+import { AdminInterface } from "@/components/AdminInterface";
+import { PlayerInterface } from "@/components/PlayerInterface";
+import { authenticatedApiRequest } from "@/lib/authClient";
+import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
 export default function GameRoom() {
   const { roomId } = useParams<{ roomId: string }>();
   const { toast } = useToast();
-  const [currentPlayer] = useState({ id: "mock-player-id", name: "Player 1" });
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState<'admin' | 'player' | null>(null);
+  const currentPlayer = { id: (user as User)?.id || "unknown", name: (user as User)?.firstName || (user as User)?.email || "Player" };
 
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({
@@ -29,6 +29,11 @@ export default function GameRoom() {
 
   const { data: boardAssets = [], refetch: refetchBoardAssets } = useQuery({
     queryKey: ["/api/rooms", roomId, "board-assets"],
+    enabled: !!roomId,
+  });
+
+  const { data: roomPlayers = [] } = useQuery<RoomPlayer[]>({
+    queryKey: ["/api/rooms", roomId, "players"],
     enabled: !!roomId,
   });
 
@@ -64,7 +69,35 @@ export default function GameRoom() {
     }
   });
 
-  // Join room on connection
+  // Join room and get user role
+  useEffect(() => {
+    const joinRoomAndGetRole = async () => {
+      if (roomId && user) {
+        try {
+          // Join the room first
+          const joinResponse = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/join`);
+          const joinData = await joinResponse.json();
+          
+          // Get user role
+          const roleResponse = await authenticatedApiRequest("GET", `/api/rooms/${roomId}/role`);
+          const roleData = await roleResponse.json();
+          
+          setUserRole(roleData.role);
+        } catch (error) {
+          console.error("Error joining room or getting role:", error);
+          toast({
+            title: "Error",
+            description: "Failed to join room. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    joinRoomAndGetRole();
+  }, [roomId, user, toast]);
+
+  // Join room on WebSocket connection
   useEffect(() => {
     if (connected && roomId) {
       sendMessage({
@@ -77,10 +110,6 @@ export default function GameRoom() {
 
   const handleAssetUploaded = () => {
     refetchAssets();
-    toast({
-      title: "Asset Uploaded",
-      description: "Your asset has been uploaded successfully",
-    });
   };
 
   const handleAssetPlaced = (assetId: string, x: number, y: number) => {
@@ -92,14 +121,6 @@ export default function GameRoom() {
       type: 'asset_moved',
       roomId,
       payload: { assetId, positionX: x, positionY: y }
-    });
-  };
-
-  const handleAssetFlipped = (assetId: string, isFlipped: boolean) => {
-    sendMessage({
-      type: 'asset_flipped',
-      roomId,
-      payload: { assetId, isFlipped }
     });
   };
 
@@ -117,7 +138,7 @@ export default function GameRoom() {
     });
   };
 
-  if (roomLoading) {
+  if (roomLoading || userRole === null) {
     return (
       <div className="min-h-screen bg-[#1F2937] text-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -140,72 +161,33 @@ export default function GameRoom() {
   }
 
   return (
-    <div className="h-screen bg-[#1F2937] text-gray-100 overflow-hidden">
-      {/* Header */}
-      <header className="bg-[#374151] border-b border-gray-600 px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Dice1 className="text-[#2563EB] text-2xl" />
-            <h1 className="text-xl font-bold">Virtual Tabletop</h1>
-          </div>
-          <div className="text-sm text-gray-300">
-            Room: <span className="text-[#10B981] font-medium" data-testid="text-room-name">{room.name}</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {/* Connection Status */}
-          <Badge 
-            variant={connected ? "default" : "destructive"}
-            className={connected ? "bg-[#10B981]" : ""}
-            data-testid="badge-connection-status"
-          >
-            {connected ? "Connected" : "Disconnected"}
-          </Badge>
+    <div className="min-h-screen bg-[#1F2937] text-gray-100">
 
-          {/* Mock players */}
-          <div className="flex items-center space-x-3">
-            <Badge className="bg-[#4B5563] text-gray-100" data-testid="badge-player-1">
-              <div className="w-2 h-2 bg-[#10B981] rounded-full mr-1"></div>
-              {currentPlayer.name}
-            </Badge>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="border-gray-600 text-gray-300 hover:bg-[#4B5563]"
-            data-testid="button-invite-players"
-          >
-            <Users className="w-4 h-4 mr-2" />
-            Invite Players
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex h-[calc(100vh-64px)]">
-        {/* Asset Library */}
-        <AssetLibrary
-          roomId={roomId!}
-          assets={assets}
-          onAssetUploaded={handleAssetUploaded}
-        />
-
-        {/* Game Board */}
-        <GameBoard
-          roomId={roomId!}
-          assets={assets}
-          boardAssets={boardAssets}
-          onAssetPlaced={handleAssetPlaced}
-          onAssetMoved={handleAssetMoved}
-          onAssetFlipped={handleAssetFlipped}
-        />
-
-        {/* Game Controls */}
-        <GameControls
-          roomId={roomId!}
-          onDiceRolled={handleDiceRolled}
-        />
+      <div className="container mx-auto px-4 py-6">
+        {userRole === 'admin' ? (
+          <AdminInterface
+            room={room}
+            roomAssets={assets}
+            roomPlayers={roomPlayers}
+            onAssetUploaded={handleAssetUploaded}
+          />
+        ) : (
+          <PlayerInterface
+            room={room}
+            roomAssets={assets}
+            boardAssets={boardAssets}
+            roomPlayers={roomPlayers}
+            currentPlayer={currentPlayer}
+            onAssetMove={handleAssetMoved}
+            onAssetPlace={handleAssetPlaced}
+            onDiceRoll={(type: string, count: number) => {
+              const results = Array.from({ length: count }, () => Math.floor(Math.random() * parseInt(type.substring(1))) + 1);
+              const total = results.reduce((sum, roll) => sum + roll, 0);
+              handleDiceRolled(type, count, results, total);
+            }}
+            connected={connected}
+          />
+        )}
       </div>
     </div>
   );

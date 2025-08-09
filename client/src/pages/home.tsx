@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dice1, Plus, Users, Clock, Trash2, LogOut, User } from "lucide-react";
+import { Dice1, Plus, Users, Clock, Trash2, LogOut, User as UserIcon } from "lucide-react";
 import { signOutUser } from "@/lib/firebase";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -121,7 +121,7 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-gray-300">
-              <User className="w-5 h-5" />
+              <UserIcon className="w-5 h-5" />
               <span>{(user as User)?.firstName || (user as User)?.email || 'User'}</span>
             </div>
             <Button 

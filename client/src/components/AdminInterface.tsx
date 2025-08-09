@@ -1,0 +1,245 @@
+import { useState } from "react";
+import { Upload, Plus, Settings, Users, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import { authenticatedApiRequest } from "@/lib/authClient";
+import { queryClient } from "@/lib/queryClient";
+import type { GameRoom, GameAsset, RoomPlayer } from "@shared/schema";
+
+interface AdminInterfaceProps {
+  room: GameRoom;
+  roomAssets: GameAsset[];
+  roomPlayers: RoomPlayer[];
+  onAssetUploaded: () => void;
+}
+
+export function AdminInterface({ room, roomAssets, roomPlayers, onAssetUploaded }: AdminInterfaceProps) {
+  const { toast } = useToast();
+  const [selectedAssetType, setSelectedAssetType] = useState<'card' | 'token' | 'map' | 'other'>('card');
+
+  const handleGetUploadParameters = async () => {
+    try {
+      const response = await authenticatedApiRequest("POST", "/api/objects/upload");
+      const data = await response.json();
+      return {
+        method: 'PUT' as const,
+        url: data.uploadURL,
+      };
+    } catch (error) {
+      console.error("Error getting upload parameters:", error);
+      throw error;
+    }
+  };
+
+  const handleUploadComplete = async (result: any) => {
+    try {
+      if (result.successful.length > 0) {
+        const uploadedFile = result.successful[0];
+        
+        // Create asset record in database
+        const assetData = {
+          roomId: room.id,
+          name: uploadedFile.name,
+          type: selectedAssetType,
+          filePath: uploadedFile.uploadURL,
+        };
+
+        const response = await authenticatedApiRequest("POST", "/api/assets", assetData);
+        
+        if (response.ok) {
+          toast({
+            title: "Asset Uploaded",
+            description: `${uploadedFile.name} has been uploaded successfully.`,
+          });
+          onAssetUploaded();
+          queryClient.invalidateQueries({ queryKey: ["/api/rooms", room.id, "assets"] });
+        }
+      }
+    } catch (error) {
+      console.error("Error saving asset:", error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to save asset. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6" data-testid="admin-interface">
+      {/* Admin Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-4">
+        <div className="flex items-center space-x-3">
+          <Shield className="w-6 h-6 text-white" />
+          <div>
+            <h2 className="text-xl font-bold text-white">Game Master Interface</h2>
+            <p className="text-purple-100">You have administrative privileges for this game room</p>
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="assets" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="assets" data-testid="tab-assets">
+            <Upload className="w-4 h-4 mr-2" />
+            Assets
+          </TabsTrigger>
+          <TabsTrigger value="players" data-testid="tab-players">
+            <Users className="w-4 h-4 mr-2" />
+            Players
+          </TabsTrigger>
+          <TabsTrigger value="settings" data-testid="tab-settings">
+            <Settings className="w-4 h-4 mr-2" />
+            Game Settings
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="assets" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Upload className="w-5 h-5" />
+                <span>Upload Game Assets</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Asset Type Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Asset Type</label>
+                <div className="flex space-x-2">
+                  {(['card', 'token', 'map', 'other'] as const).map((type) => (
+                    <Button
+                      key={type}
+                      variant={selectedAssetType === type ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedAssetType(type)}
+                      data-testid={`asset-type-${type}`}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Upload Button */}
+              <ObjectUploader
+                maxNumberOfFiles={10}
+                maxFileSize={10485760} // 10MB
+                onGetUploadParameters={handleGetUploadParameters}
+                onComplete={handleUploadComplete}
+                buttonClassName="w-full"
+              >
+                <div className="flex items-center justify-center space-x-2 py-4">
+                  <Upload className="w-5 h-5" />
+                  <span>Upload {selectedAssetType} Assets</span>
+                </div>
+              </ObjectUploader>
+
+              <p className="text-sm text-gray-500">
+                Upload cards, tokens, maps, or other game assets. Supports PNG, JPG, and PDF files up to 10MB each.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Asset Library */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Asset Library ({roomAssets.length} items)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {roomAssets.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No assets uploaded yet. Upload some assets to get started.</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {roomAssets.map((asset) => (
+                    <div key={asset.id} className="relative group" data-testid={`asset-${asset.id}`}>
+                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                        <img
+                          src={asset.filePath}
+                          alt={asset.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <p className="text-sm font-medium truncate">{asset.name}</p>
+                        <Badge variant="secondary" className="text-xs">
+                          {asset.type}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="players" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Player Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {roomPlayers.map((player) => (
+                  <div key={player.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-testid={`player-${player.playerId}`}>
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${player.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+                      <div>
+                        <p className="font-medium">Player {player.playerId}</p>
+                        <p className="text-sm text-gray-500">
+                          {player.role === 'admin' ? 'Game Master' : 'Player'} • 
+                          {player.isOnline ? ' Online' : ' Offline'}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant={player.role === 'admin' ? 'default' : 'secondary'}>
+                      {player.role === 'admin' ? 'GM' : 'Player'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Game Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Room Name</label>
+                <p className="text-sm text-gray-600">{room.name}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Room ID</label>
+                <p className="text-sm text-gray-600 font-mono">{room.id}</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <Badge variant={room.isActive ? "default" : "secondary"}>
+                  {room.isActive ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+
+              <div className="pt-4 border-t">
+                <Button variant="outline" className="w-full" data-testid="button-room-settings">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Advanced Room Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

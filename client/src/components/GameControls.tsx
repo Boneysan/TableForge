@@ -1,157 +1,113 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Zap, Save, FolderOpen, Shuffle, Eye, Hand } from "lucide-react";
+import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DiceRoller } from "@/components/DiceRoller";
-import type { DiceRoll } from "@shared/schema";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface GameControlsProps {
-  roomId: string;
   onDiceRolled: (diceType: string, diceCount: number, results: number[], total: number) => void;
+  currentPlayer: { id: string; name: string };
+  'data-testid'?: string;
 }
 
-export function GameControls({ roomId, onDiceRolled }: GameControlsProps) {
-  const [handVisible, setHandVisible] = useState(true);
+export function GameControls({ 
+  onDiceRolled, 
+  currentPlayer,
+  'data-testid': testId 
+}: GameControlsProps) {
+  const [selectedDie, setSelectedDie] = useState<string>("d6");
+  const [diceCount, setDiceCount] = useState<number>(1);
 
-  // Fetch recent dice rolls
-  const { data: diceRolls = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "dice-rolls"],
-    refetchInterval: 5000, // Refresh every 5 seconds
-  });
+  const diceOptions = [
+    { value: "d4", label: "d4", sides: 4 },
+    { value: "d6", label: "d6", sides: 6 },
+    { value: "d8", label: "d8", sides: 8 },
+    { value: "d10", label: "d10", sides: 10 },
+    { value: "d12", label: "d12", sides: 12 },
+    { value: "d20", label: "d20", sides: 20 },
+  ];
 
-  const handleClearBoard = () => {
-    if (confirm("Are you sure you want to clear the board? This action cannot be undone.")) {
-      // TODO: Implement clear board functionality
-      console.log("Clear board");
+  const handleRollDice = () => {
+    const sides = parseInt(selectedDie.substring(1));
+    const results = Array.from({ length: diceCount }, () => 
+      Math.floor(Math.random() * sides) + 1
+    );
+    const total = results.reduce((sum, roll) => sum + roll, 0);
+    
+    onDiceRolled(selectedDie, diceCount, results, total);
+  };
+
+  const getDiceIcon = (value: number) => {
+    switch (value) {
+      case 1: return <Dice1 className="w-4 h-4" />;
+      case 2: return <Dice2 className="w-4 h-4" />;
+      case 3: return <Dice3 className="w-4 h-4" />;
+      case 4: return <Dice4 className="w-4 h-4" />;
+      case 5: return <Dice5 className="w-4 h-4" />;
+      case 6: return <Dice6 className="w-4 h-4" />;
+      default: return <Dice1 className="w-4 h-4" />;
     }
   };
 
-  const handleSaveGameState = () => {
-    // TODO: Implement save game state
-    console.log("Save game state");
-  };
-
-  const handleLoadGameState = () => {
-    // TODO: Implement load game state
-    console.log("Load game state");
-  };
-
-  const handleShuffleCards = () => {
-    // TODO: Implement shuffle cards functionality
-    console.log("Shuffle selected cards");
-  };
-
-  const toggleHandVisibility = () => {
-    setHandVisible(!handVisible);
-  };
-
-  // Mock player hand - in a real app this would come from game state
-  const playerHand = [
-    { id: "1", name: "Lightning Bolt", type: "Spell" },
-    { id: "2", name: "Warrior's Sword", type: "Equipment" },
-    { id: "3", name: "Healing Potion", type: "Item" },
-  ];
-
   return (
-    <aside className="w-72 bg-[#374151] border-l border-gray-600 flex flex-col" data-testid="game-controls">
-      {/* Dice Roller */}
-      <DiceRoller onDiceRolled={onDiceRolled} diceRolls={diceRolls} />
-      
-      {/* Quick Actions */}
-      <div className="p-4 border-b border-gray-600">
-        <h3 className="text-lg font-semibold mb-3 flex items-center">
-          <Zap className="mr-2 text-[#7C3AED]" />
-          Quick Actions
-        </h3>
+    <div className="space-y-4" data-testid={testId}>
+      {/* Dice Rolling */}
+      <div className="space-y-3">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Dice Type</label>
+          <Select value={selectedDie} onValueChange={setSelectedDie}>
+            <SelectTrigger data-testid="select-dice-type">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {diceOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         
         <div className="space-y-2">
-          <Button
-            variant="outline"
-            onClick={handleClearBoard}
-            className="w-full bg-[#4B5563] border-gray-600 text-gray-300 hover:bg-[#374151] justify-start"
-            data-testid="button-clear-board"
+          <label className="text-sm font-medium">Number of Dice</label>
+          <Select 
+            value={diceCount.toString()} 
+            onValueChange={(value) => setDiceCount(parseInt(value))}
           >
-            <span className="text-red-400 mr-2">🗑️</span>
-            Clear Board
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={handleSaveGameState}
-            className="w-full bg-[#4B5563] border-gray-600 text-gray-300 hover:bg-[#374151] justify-start"
-            data-testid="button-save-game"
-          >
-            <Save className="mr-2 text-[#10B981] w-4 h-4" />
-            Save Game State
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={handleLoadGameState}
-            className="w-full bg-[#4B5563] border-gray-600 text-gray-300 hover:bg-[#374151] justify-start"
-            data-testid="button-load-game"
-          >
-            <FolderOpen className="mr-2 text-[#F59E0B] w-4 h-4" />
-            Load Game State
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={handleShuffleCards}
-            className="w-full bg-[#4B5563] border-gray-600 text-gray-300 hover:bg-[#374151] justify-start"
-            data-testid="button-shuffle-cards"
-          >
-            <Shuffle className="mr-2 text-[#7C3AED] w-4 h-4" />
-            Shuffle Selected Cards
-          </Button>
+            <SelectTrigger data-testid="select-dice-count">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5, 6].map((num) => (
+                <SelectItem key={num} value={num.toString()}>
+                  {num}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        <Button 
+          onClick={handleRollDice}
+          className="w-full"
+          data-testid="button-roll-dice"
+        >
+          {getDiceIcon(diceCount)}
+          <span className="ml-2">Roll {diceCount}{selectedDie}</span>
+        </Button>
       </div>
-      
-      {/* Player Hand */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        <h3 className="text-lg font-semibold mb-3 flex items-center justify-between">
-          <span className="flex items-center">
-            <Hand className="mr-2 text-[#10B981]" />
-            Your Hand
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleHandVisibility}
-            className="bg-[#4B5563] border-gray-600 text-gray-300 hover:bg-[#374151]"
-            data-testid="button-toggle-hand"
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
-        </h3>
-        
-        {handVisible && (
-          <div className="space-y-2">
-            {playerHand.length === 0 ? (
-              <div className="text-gray-500 text-sm italic text-center py-4">
-                No cards in hand
-              </div>
-            ) : (
-              playerHand.map((card) => (
-                <div
-                  key={card.id}
-                  className="bg-[#4B5563] rounded-lg p-2 cursor-pointer hover:bg-[#2563EB] transition-colors"
-                  onClick={() => console.log("Play card:", card.name)}
-                  data-testid={`card-hand-${card.id}`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-8 bg-gray-600 rounded"></div>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-100">{card.name}</div>
-                      <div className="text-xs text-gray-400">{card.type}</div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    </aside>
+
+      {/* Player Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Current Player</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm font-medium">{currentPlayer.name}</p>
+          <p className="text-xs text-gray-500">{currentPlayer.id}</p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
