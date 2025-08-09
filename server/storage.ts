@@ -19,6 +19,8 @@ import {
   type InsertCardPile,
   type GameTemplate,
   type InsertGameTemplate,
+  type GameSystem,
+  type InsertGameSystem,
   users,
   gameRooms,
   gameAssets,
@@ -29,7 +31,8 @@ import {
   cardDecks,
   cardPiles,
   gameTemplates,
-  templateUsage
+  templateUsage,
+  gameSystems
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or } from "drizzle-orm";
@@ -101,6 +104,14 @@ export interface IStorage {
   updateGameTemplate(id: string, updates: Partial<GameTemplate>): Promise<GameTemplate>;
   deleteGameTemplate(id: string): Promise<void>;
   applyTemplateToRoom(templateId: string, roomId: string, userId: string): Promise<void>;
+
+  // Game Systems
+  createGameSystem(system: InsertGameSystem, createdBy: string): Promise<GameSystem>;
+  getGameSystems(userId?: string, isPublic?: boolean): Promise<GameSystem[]>;
+  getGameSystem(id: string): Promise<GameSystem | undefined>;
+  updateGameSystem(id: string, updates: Partial<GameSystem>): Promise<GameSystem>;
+  deleteGameSystem(id: string): Promise<void>;
+  applySystemToRoom(systemId: string, roomId: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -614,6 +625,116 @@ export class DatabaseStorage implements IStorage {
         });
       }
     }
+  }
+
+  // Game Systems
+  async createGameSystem(system: InsertGameSystem, createdBy: string): Promise<GameSystem> {
+    const [newSystem] = await db
+      .insert(gameSystems)
+      .values({ ...system, createdBy })
+      .returning();
+    return newSystem;
+  }
+
+  async getGameSystems(userId?: string, isPublic?: boolean): Promise<GameSystem[]> {
+    if (userId && isPublic !== undefined) {
+      // Get user's own systems OR public systems
+      if (isPublic) {
+        return db.select().from(gameSystems)
+          .where(eq(gameSystems.isPublic, true))
+          .orderBy(desc(gameSystems.createdAt));
+      } else {
+        return db.select().from(gameSystems)
+          .where(eq(gameSystems.createdBy, userId))
+          .orderBy(desc(gameSystems.createdAt));
+      }
+    } else if (userId) {
+      // Get all systems accessible to the user (their own + public)
+      return db.select().from(gameSystems)
+        .where(
+          or(
+            eq(gameSystems.createdBy, userId),
+            eq(gameSystems.isPublic, true)
+          )
+        )
+        .orderBy(desc(gameSystems.createdAt));
+    } else if (isPublic !== undefined) {
+      return db.select().from(gameSystems)
+        .where(eq(gameSystems.isPublic, isPublic))
+        .orderBy(desc(gameSystems.createdAt));
+    }
+    
+    return db.select().from(gameSystems)
+      .orderBy(desc(gameSystems.createdAt));
+  }
+
+  async getGameSystem(id: string): Promise<GameSystem | undefined> {
+    const [system] = await db
+      .select()
+      .from(gameSystems)
+      .where(eq(gameSystems.id, id));
+    return system;
+  }
+
+  async updateGameSystem(id: string, updates: Partial<GameSystem>): Promise<GameSystem> {
+    const [updated] = await db
+      .update(gameSystems)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(gameSystems.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteGameSystem(id: string): Promise<void> {
+    await db.delete(gameSystems).where(eq(gameSystems.id, id));
+  }
+
+  async applySystemToRoom(systemId: string, roomId: string, userId: string): Promise<void> {
+    const system = await this.getGameSystem(systemId);
+    if (!system) {
+      throw new Error("System not found");
+    }
+
+    const room = await this.getGameRoom(roomId);
+    if (!room) {
+      throw new Error("Room not found");
+    }
+
+    // Apply system configuration to the room
+    if (system.systemConfig) {
+      await this.updateGameRoom(roomId, {
+        gameState: system.systemConfig
+      });
+    }
+
+    // Apply default assets from system if present
+    if (system.assetLibrary) {
+      // Logic to apply default assets would go here
+      console.log("System assets would be applied:", system.assetLibrary);
+    }
+
+    // Apply deck templates if present
+    if (system.deckTemplates) {
+      // Logic to create card decks from templates would go here
+      console.log("Deck templates would be applied:", system.deckTemplates);
+    }
+
+    // Apply token types if present
+    if (system.tokenTypes) {
+      // Logic to create default tokens would go here
+      console.log("Token types would be applied:", system.tokenTypes);
+    }
+
+    // Apply board defaults if present
+    if (system.boardDefaults) {
+      // Logic to configure board defaults would go here
+      console.log("Board defaults would be applied:", system.boardDefaults);
+    }
+
+    // Increment download count
+    await this.updateGameSystem(systemId, {
+      downloadCount: (system.downloadCount || 0) + 1
+    });
   }
 }
 

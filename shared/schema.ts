@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, json, jsonb, timestamp, integer, boolean, index, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, json, jsonb, timestamp, integer, boolean, index, unique, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -332,6 +332,37 @@ export const gameTemplates = pgTable("game_templates", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Game Systems - Administrative game configurations and setups (separate from templates)
+export const gameSystems = pgTable("game_systems", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  createdBy: varchar("created_by").references(() => users.id, { onDelete: "cascade" }),
+  isPublic: boolean("is_public").default(false),
+  category: varchar("category", { length: 100 }), // e.g., "D&D 5e", "Pathfinder", "Custom"
+  tags: text("tags").array(), // searchable tags
+  thumbnailUrl: varchar("thumbnail_url"),
+  
+  // System content - JSON configurations for game systems
+  systemConfig: jsonb("system_config"), // core system rules and settings
+  assetLibrary: jsonb("asset_library"), // default assets for this system
+  deckTemplates: jsonb("deck_templates"), // card deck templates
+  tokenTypes: jsonb("token_types"), // standard token types for this system
+  boardDefaults: jsonb("board_defaults"), // default board configurations
+  
+  // System metadata
+  version: varchar("version", { length: 20 }).default("1.0"),
+  isOfficial: boolean("is_official").default(false), // official vs community systems
+  complexity: varchar("complexity", { length: 20 }).default("medium"), // "simple", "medium", "complex"
+  
+  // Usage stats
+  downloadCount: integer("download_count").default(0),
+  rating: decimal("rating", { precision: 3, scale: 2 }), // average rating
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Template usage tracking
 export const templateUsage = pgTable("template_usage", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -357,5 +388,24 @@ export const insertGameTemplateSchema = createInsertSchema(gameTemplates).pick({
   estimatedDuration: true,
 });
 
+export const insertGameSystemSchema = createInsertSchema(gameSystems).pick({
+  name: true,
+  description: true,
+  isPublic: true,
+  category: true,
+  tags: true,
+  thumbnailUrl: true,
+  systemConfig: true,
+  assetLibrary: true,
+  deckTemplates: true,
+  tokenTypes: true,
+  boardDefaults: true,
+  version: true,
+  isOfficial: true,
+  complexity: true,
+});
+
 export type GameTemplate = typeof gameTemplates.$inferSelect;
 export type InsertGameTemplate = z.infer<typeof insertGameTemplateSchema>;
+export type GameSystem = typeof gameSystems.$inferSelect;
+export type InsertGameSystem = z.infer<typeof insertGameSystemSchema>;

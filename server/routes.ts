@@ -19,7 +19,8 @@ import {
   insertBoardAssetSchema,
   insertDiceRollSchema,
   insertChatMessageSchema,
-  insertGameTemplateSchema
+  insertGameTemplateSchema,
+  insertGameSystemSchema
 } from "@shared/schema";
 
 // Store WebSocket connections by room
@@ -916,6 +917,183 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error saving room as template:", error);
       res.status(500).json({ error: "Failed to save room as template" });
+    }
+  });
+
+  // Game Systems API Routes
+  app.get("/api/systems", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      const isPublic = req.query.public === 'true' ? true : req.query.public === 'false' ? false : undefined;
+      
+      const systems = await storage.getGameSystems(userId, isPublic);
+      res.json(systems);
+    } catch (error) {
+      console.error("Error fetching game systems:", error);
+      res.status(500).json({ error: "Failed to fetch game systems" });
+    }
+  });
+
+  app.post("/api/systems", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      const systemData = insertGameSystemSchema.parse(req.body);
+      const system = await storage.createGameSystem(systemData, userId);
+      
+      res.json(system);
+    } catch (error) {
+      console.error("Error creating game system:", error);
+      res.status(500).json({ error: "Failed to create game system" });
+    }
+  });
+
+  app.get("/api/systems/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const system = await storage.getGameSystem(req.params.id);
+      
+      if (!system) {
+        return res.status(404).json({ error: "System not found" });
+      }
+
+      res.json(system);
+    } catch (error) {
+      console.error("Error fetching game system:", error);
+      res.status(500).json({ error: "Failed to fetch game system" });
+    }
+  });
+
+  app.put("/api/systems/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      const system = await storage.getGameSystem(req.params.id);
+      
+      if (!system) {
+        return res.status(404).json({ error: "System not found" });
+      }
+
+      // Check if user owns the system
+      if (system.createdBy !== userId) {
+        return res.status(403).json({ error: "Not authorized to edit this system" });
+      }
+
+      const updates = req.body;
+      const updatedSystem = await storage.updateGameSystem(req.params.id, updates);
+      
+      res.json(updatedSystem);
+    } catch (error) {
+      console.error("Error updating game system:", error);
+      res.status(500).json({ error: "Failed to update game system" });
+    }
+  });
+
+  app.delete("/api/systems/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      const system = await storage.getGameSystem(req.params.id);
+      
+      if (!system) {
+        return res.status(404).json({ error: "System not found" });
+      }
+
+      // Check if user owns the system
+      if (system.createdBy !== userId) {
+        return res.status(403).json({ error: "Not authorized to delete this system" });
+      }
+
+      await storage.deleteGameSystem(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting game system:", error);
+      res.status(500).json({ error: "Failed to delete game system" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/apply-system", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { systemId } = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      if (!systemId) {
+        return res.status(400).json({ error: "System ID is required" });
+      }
+
+      // Verify user has access to the room
+      const playerRole = await storage.getPlayerRole(roomId, userId);
+      if (!playerRole) {
+        return res.status(403).json({ error: "Not authorized to modify this room" });
+      }
+
+      await storage.applySystemToRoom(systemId, roomId, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error applying system to room:", error);
+      res.status(500).json({ error: "Failed to apply system to room" });
+    }
+  });
+
+  // Save current room as game system
+  app.post("/api/rooms/:roomId/save-system", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { name, description, isPublic, category, tags, version, complexity } = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      if (!name?.trim()) {
+        return res.status(400).json({ error: "System name is required" });
+      }
+
+      // Verify user has access to the room
+      const playerRole = await storage.getPlayerRole(roomId, userId);
+      if (playerRole !== 'admin') {
+        return res.status(403).json({ error: "Only room admin can save systems" });
+      }
+
+      // Gather room data for system
+      const assets = await storage.getRoomAssets(roomId);
+      const boardAssets = await storage.getRoomBoardAssets(roomId);
+      const decks = await storage.getCardDecks(roomId);
+      const piles = await storage.getCardPiles(roomId);
+      const room = await storage.getGameRoom(roomId);
+
+      // Create system data
+      const systemData = {
+        name: name.trim(),
+        description: description || "",
+        isPublic: Boolean(isPublic),
+        category: category || "Custom",
+        tags: Array.isArray(tags) ? tags : [],
+        version: version || "1.0",
+        complexity: complexity || "medium",
+        systemConfig: room?.gameState as any,
+        assetLibrary: assets,
+        deckTemplates: decks,
+        tokenTypes: boardAssets.filter(asset => asset.assetType === 'token'),
+        boardDefaults: {
+          piles: piles,
+          gridSettings: {},
+          measurementUnits: "inches"
+        }
+      };
+
+      const system = await storage.createGameSystem(systemData, userId);
+      res.json(system);
+    } catch (error) {
+      console.error("Error saving room as system:", error);
+      res.status(500).json({ error: "Failed to save room as system" });
     }
   });
 
