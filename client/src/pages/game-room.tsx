@@ -17,8 +17,11 @@ export default function GameRoom() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [userRole, setUserRole] = useState<'admin' | 'player' | null>(null);
-  const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | null>(null);
+  const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | 'player' | null>(null);
   const currentPlayer = { id: (user as User)?.id || "unknown", name: (user as User)?.firstName || (user as User)?.email || "Player" };
+  
+  // Check if this is a "join" navigation (from home page join button)
+  const isJoiningRoom = sessionStorage.getItem('joining-room') === 'true';
 
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({
@@ -87,8 +90,12 @@ export default function GameRoom() {
           const roleData = await roleResponse.json();
           
           setUserRole(roleData.role);
+          
+          // Clear the joining flag after successfully joining
+          sessionStorage.removeItem('joining-room');
         } catch (error) {
           console.error("Error joining room or getting role:", error);
+          sessionStorage.removeItem('joining-room');
           toast({
             title: "Error",
             description: "Failed to join room. Please try again.",
@@ -153,8 +160,13 @@ export default function GameRoom() {
     );
   }
 
-  // Show view selector for admins who haven't chosen a view yet
-  if (userRole === 'admin' && selectedView === null) {
+  // If joining room, always show player interface regardless of role
+  if (isJoiningRoom && selectedView === null) {
+    setSelectedView('player');
+  }
+
+  // Show view selector for admins who haven't chosen a view yet (unless they're joining)
+  if (userRole === 'admin' && selectedView === null && !isJoiningRoom) {
     return (
       <ViewSelector
         onSelectView={setSelectedView}
@@ -204,10 +216,9 @@ export default function GameRoom() {
         />
       )}
 
-      {userRole === 'player' && (
+      {(userRole === 'player' || selectedView === 'player') && (
         <div className="container mx-auto px-4 py-6">
           <PlayerInterface
-            assets={assets as GameAsset[]}
             boardAssets={boardAssets as BoardAsset[]}
             players={roomPlayers}
             currentUser={user as User}

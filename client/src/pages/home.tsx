@@ -104,6 +104,8 @@ export default function Home() {
       });
       return;
     }
+    // Set flag to indicate this is a join operation
+    sessionStorage.setItem('joining-room', 'true');
     setLocation(`/room/${encodeURIComponent(joinRoomInput.trim())}`);
   };
 
