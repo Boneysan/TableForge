@@ -79,6 +79,18 @@ export const boardAssets = pgTable("board_assets", {
   placedBy: varchar("placed_by").references(() => users.id),
 });
 
+// Deck theme interface
+export interface DeckTheme {
+  name?: string;
+  cardBackColor: string;
+  cardBorderColor: string;
+  deckBackgroundColor: string;
+  textColor: string;
+  borderStyle: string;
+  cornerRadius: number;
+  shadowIntensity: string;
+}
+
 // Card decks - predefined collections of cards
 export const cardDecks = pgTable("card_decks", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -88,6 +100,7 @@ export const cardDecks = pgTable("card_decks", {
   createdBy: varchar("created_by").notNull().references(() => users.id),
   isShuffled: boolean("is_shuffled").default(false),
   deckOrder: json("deck_order"), // Array of card asset IDs in order
+  theme: json("theme").$type<DeckTheme>(), // Deck visual theme
   createdAt: timestamp("created_at").defaultNow(),
 });
 

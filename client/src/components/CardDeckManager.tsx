@@ -36,7 +36,9 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { CardDeck, CardPile, GameAsset } from "@shared/schema";
+import { DeckThemeCustomizer } from "./DeckThemeCustomizer";
+import { ThemedDeckCard } from "./ThemedDeckCard";
+import type { CardDeck, CardPile, GameAsset, DeckTheme } from "@shared/schema";
 
 interface CardDeckManagerProps {
   roomId: string;
@@ -45,6 +47,7 @@ interface CardDeckManagerProps {
   playerRole: "admin" | "player";
   onCardDealt: (cards: string[], targetPile: string) => void;
   onCardDrawn?: (deckId: string, playerId: string, count: number) => void;
+  onThemeUpdated?: (deckId: string, theme: DeckTheme) => void;
 }
 
 export function CardDeckManager({ 
@@ -53,7 +56,8 @@ export function CardDeckManager({
   currentUserId, 
   playerRole,
   onCardDealt,
-  onCardDrawn
+  onCardDrawn,
+  onThemeUpdated
 }: CardDeckManagerProps) {
   const [showCreateDeck, setShowCreateDeck] = useState(false);
   const [showCreatePile, setShowCreatePile] = useState(false);
@@ -332,28 +336,12 @@ export function CardDeckManager({
                 No decks created yet
               </div>
             ) : (
-              (decks as CardDeck[]).map((deck) => (
-                <div
+              decks.map((deck: CardDeck) => (
+                <ThemedDeckCard
                   key={deck.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                  data-testid={`deck-${deck.id}`}
+                  deck={deck}
+                  className="mb-3"
                 >
-                  <div className="flex-1">
-                    <div className="font-medium">{deck.name}</div>
-                    {deck.description && (
-                      <div className="text-sm text-gray-600">{deck.description}</div>
-                    )}
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {(deck.deckOrder as string[] || []).length} cards
-                      </Badge>
-                      {deck.isShuffled && (
-                        <Badge variant="secondary" className="text-xs">
-                          Shuffled
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
                   <div className="flex items-center gap-1">
                     {/* Draw card button - available to all players */}
                     <Button
@@ -389,10 +377,15 @@ export function CardDeckManager({
                         >
                           <Play className="w-3 h-3" />
                         </Button>
+                        <DeckThemeCustomizer
+                          deck={deck}
+                          roomId={roomId}
+                          onThemeUpdated={onThemeUpdated}
+                        />
                       </>
                     )}
                   </div>
-                </div>
+                </ThemedDeckCard>
               ))
             )}
           </div>
@@ -478,7 +471,7 @@ export function CardDeckManager({
                 No card piles created yet
               </div>
             ) : (
-              (piles as CardPile[]).map((pile) => (
+              piles.map((pile: CardPile) => (
                 <div
                   key={pile.id}
                   className="flex items-center justify-between p-3 border rounded-lg"

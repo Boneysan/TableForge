@@ -415,6 +415,15 @@ export class DatabaseStorage implements IStorage {
     return deck;
   }
 
+  async updateCardDeck(id: string, updates: Partial<CardDeck>): Promise<CardDeck> {
+    const [updatedDeck] = await db
+      .update(cardDecks)
+      .set(updates)
+      .where(eq(cardDecks.id, id))
+      .returning();
+    return updatedDeck;
+  }
+
   async shuffleCardDeck(id: string): Promise<CardDeck | undefined> {
     const deck = await this.getCardDeck(id);
     if (!deck) return undefined;
@@ -456,6 +465,15 @@ export class DatabaseStorage implements IStorage {
       .from(cardPiles)
       .where(eq(cardPiles.id, id));
     return pile;
+  }
+
+  async updateCardPile(id: string, updates: Partial<CardPile>): Promise<CardPile> {
+    const [updatedPile] = await db
+      .update(cardPiles)
+      .set(updates)
+      .where(eq(cardPiles.id, id))
+      .returning();
+    return updatedPile;
   }
 
   // Enhanced Board Asset operations

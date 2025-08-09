@@ -633,6 +633,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update deck theme
+  app.put('/api/rooms/:roomId/decks/:deckId/theme', hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId, deckId } = req.params;
+      const { theme } = req.body;
+      
+      // Validate theme object
+      if (!theme || typeof theme !== 'object') {
+        return res.status(400).json({ error: 'Invalid theme data' });
+      }
+
+      // Get deck to verify ownership/permissions
+      const deck = await storage.getCardDeck(deckId);
+      if (!deck || deck.roomId !== roomId) {
+        return res.status(404).json({ error: 'Deck not found' });
+      }
+
+      // Update deck theme
+      const updatedDeck = await storage.updateCardDeck(deckId, { theme });
+      
+      res.json({ 
+        success: true, 
+        deck: updatedDeck,
+        theme 
+      });
+    } catch (error) {
+      console.error('Error updating deck theme:', error);
+      res.status(500).json({ error: 'Failed to update deck theme' });
+    }
+  });
+
   // Draw cards from deck - Player action
   app.post('/api/rooms/:roomId/decks/:deckId/draw', hybridAuthMiddleware, async (req: any, res) => {
     try {
