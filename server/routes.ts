@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { ObjectStorageService } from "./objectStorage";
 import type { 
   WebSocketMessage, 
@@ -23,6 +24,9 @@ const roomConnections = new Map<string, Set<WebSocket>>();
 const connectionRooms = new Map<WebSocket, string>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+  
   const httpServer = createServer(app);
 
   // WebSocket server for real-time multiplayer
@@ -159,11 +163,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ uploadURL });
   });
 
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Game Room Routes
-  app.post("/api/rooms", async (req, res) => {
+  app.post("/api/rooms", isAuthenticated, async (req: any, res) => {
     try {
       const roomData = insertGameRoomSchema.parse(req.body);
-      const userId = req.body.userId; // In a real app, get from auth
+      const userId = req.user.claims.sub;
       const room = await storage.createGameRoom(roomData, userId);
       res.json(room);
     } catch (error) {
@@ -185,9 +201,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/user/:userId/rooms", async (req, res) => {
+  app.get("/api/user/:userId/rooms", isAuthenticated, async (req: any, res) => {
     try {
-      const rooms = await storage.getUserRooms(req.params.userId);
+      const userId = req.user.claims.sub;
+      // Ensure users can only access their own rooms
+      if (req.params.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      const rooms = await storage.getUserRooms(userId);
       res.json(rooms);
     } catch (error) {
       console.error("Error getting user rooms:", error);

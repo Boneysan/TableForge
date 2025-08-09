@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dice1, Plus, Users, Clock, Trash2 } from "lucide-react";
+import { Dice1, Plus, Users, Clock, Trash2, LogOut, User } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { GameRoom } from "@shared/schema";
@@ -15,9 +16,17 @@ export default function Home() {
   const [roomName, setRoomName] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
   const { toast } = useToast();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
-  // Mock user ID - in a real app this would come from authentication
-  const userId = "mock-user-id";
+  const userId = user?.id;
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#1F2937] flex items-center justify-center">
+        <div className="text-gray-400">Loading...</div>
+      </div>
+    );
+  }
 
   const { data: userRooms = [], isLoading } = useQuery<GameRoom[]>({
     queryKey: ["/api/user", userId, "rooms"],
@@ -25,7 +34,7 @@ export default function Home() {
   });
 
   const createRoomMutation = useMutation({
-    mutationFn: async (data: { name: string; userId: string }) => {
+    mutationFn: async (data: { name: string }) => {
       const response = await apiRequest("POST", "/api/rooms", data);
       return response.json();
     },
@@ -76,7 +85,8 @@ export default function Home() {
       });
       return;
     }
-    createRoomMutation.mutate({ name: roomName, userId });
+    createRoomMutation.mutate({ name: roomName });
+    setRoomName("");
   };
 
   const handleJoinRoom = () => {
@@ -101,12 +111,32 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#1F2937] text-gray-100">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-3 mb-4">
+        {/* Header with User Info */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
             <Dice1 className="text-[#2563EB] text-4xl" />
             <h1 className="text-4xl font-bold">Virtual Tabletop</h1>
           </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 text-gray-300">
+              <User className="w-5 h-5" />
+              <span>{user?.firstName || user?.email || 'User'}</span>
+            </div>
+            <Button 
+              onClick={() => window.location.href = '/api/logout'}
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:text-white"
+              data-testid="button-logout"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+
+        {/* Subtitle */}
+        <div className="text-center mb-12">
           <p className="text-gray-300 text-lg">
             Create or join a virtual tabletop for board games with real-time multiplayer support
           </p>

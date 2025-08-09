@@ -1,6 +1,7 @@
 import { 
   type User, 
   type InsertUser,
+  type UpsertUser,
   type GameRoom,
   type InsertGameRoom,
   type GameAsset,
@@ -9,15 +10,23 @@ import {
   type InsertBoardAsset,
   type DiceRoll,
   type InsertDiceRoll,
-  type RoomPlayer
+  type RoomPlayer,
+  users,
+  gameRooms,
+  gameAssets,
+  boardAssets,
+  roomPlayers,
+  diceRolls
 } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
 
   // Game Rooms
   getGameRoom(id: string): Promise<GameRoom | undefined>;
@@ -50,204 +59,182 @@ export interface IStorage {
   getRoomDiceRolls(roomId: string, limit?: number): Promise<DiceRoll[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User> = new Map();
-  private gameRooms: Map<string, GameRoom> = new Map();
-  private gameAssets: Map<string, GameAsset> = new Map();
-  private boardAssets: Map<string, BoardAsset> = new Map();
-  private roomPlayers: Map<string, RoomPlayer> = new Map();
-  private diceRolls: Map<string, DiceRoll> = new Map();
-
+export class DatabaseStorage implements IStorage {
   // Users
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.email, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
     return user;
   }
 
   // Game Rooms
   async getGameRoom(id: string): Promise<GameRoom | undefined> {
-    return this.gameRooms.get(id);
+    const [room] = await db.select().from(gameRooms).where(eq(gameRooms.id, id));
+    return room || undefined;
   }
 
   async createGameRoom(room: InsertGameRoom, createdBy: string): Promise<GameRoom> {
-    const id = randomUUID();
-    const gameRoom: GameRoom = {
-      ...room,
-      id,
-      createdBy,
-      isActive: true,
-      gameState: null,
-      createdAt: new Date(),
-    };
-    this.gameRooms.set(id, gameRoom);
-    return gameRoom;
+    const [newRoom] = await db
+      .insert(gameRooms)
+      .values({ ...room, createdBy })
+      .returning();
+    return newRoom;
   }
 
   async updateGameRoom(id: string, updates: Partial<GameRoom>): Promise<GameRoom> {
-    const room = this.gameRooms.get(id);
-    if (!room) throw new Error("Room not found");
-    const updatedRoom = { ...room, ...updates };
-    this.gameRooms.set(id, updatedRoom);
+    const [updatedRoom] = await db
+      .update(gameRooms)
+      .set(updates)
+      .where(eq(gameRooms.id, id))
+      .returning();
     return updatedRoom;
   }
 
   async deleteGameRoom(id: string): Promise<void> {
-    const room = this.gameRooms.get(id);
-    if (!room) throw new Error("Room not found");
-    
-    // Delete all related data
-    // Delete room assets
-    const roomAssets = Array.from(this.gameAssets.values()).filter(asset => asset.roomId === id);
-    roomAssets.forEach(asset => this.gameAssets.delete(asset.id));
-    
-    // Delete board assets  
-    const roomBoardAssets = Array.from(this.boardAssets.values()).filter(asset => asset.roomId === id);
-    roomBoardAssets.forEach(asset => this.boardAssets.delete(asset.id));
-    
-    // Delete room players
-    const roomPlayerEntries = Array.from(this.roomPlayers.values()).filter(rp => rp.roomId === id);
-    roomPlayerEntries.forEach(rp => this.roomPlayers.delete(`${rp.roomId}_${rp.playerId}`));
-    
-    // Delete dice rolls
-    const roomDiceRolls = Array.from(this.diceRolls.values()).filter(roll => roll.roomId === id);
-    roomDiceRolls.forEach(roll => this.diceRolls.delete(roll.id));
-    
-    // Finally delete the room
-    this.gameRooms.delete(id);
+    // Delete related data first
+    await db.delete(diceRolls).where(eq(diceRolls.roomId, id));
+    await db.delete(boardAssets).where(eq(boardAssets.roomId, id));
+    await db.delete(gameAssets).where(eq(gameAssets.roomId, id));
+    await db.delete(roomPlayers).where(eq(roomPlayers.roomId, id));
+    await db.delete(gameRooms).where(eq(gameRooms.id, id));
   }
 
   async getUserRooms(userId: string): Promise<GameRoom[]> {
-    return Array.from(this.gameRooms.values()).filter(room => room.createdBy === userId);
+    return db.select().from(gameRooms).where(eq(gameRooms.createdBy, userId));
   }
 
   // Game Assets
   async getGameAsset(id: string): Promise<GameAsset | undefined> {
-    return this.gameAssets.get(id);
+    const [asset] = await db.select().from(gameAssets).where(eq(gameAssets.id, id));
+    return asset || undefined;
   }
 
   async createGameAsset(asset: InsertGameAsset, uploadedBy: string): Promise<GameAsset> {
-    const id = randomUUID();
-    const gameAsset: GameAsset = {
-      ...asset,
-      id,
-      uploadedBy,
-      createdAt: new Date(),
-      width: asset.width ?? null,
-      height: asset.height ?? null,
-    };
-    this.gameAssets.set(id, gameAsset);
-    return gameAsset;
+    const [newAsset] = await db
+      .insert(gameAssets)
+      .values({ ...asset, uploadedBy })
+      .returning();
+    return newAsset;
   }
 
   async getRoomAssets(roomId: string): Promise<GameAsset[]> {
-    return Array.from(this.gameAssets.values()).filter(asset => asset.roomId === roomId);
+    return db.select().from(gameAssets).where(eq(gameAssets.roomId, roomId));
   }
 
   async deleteGameAsset(id: string): Promise<void> {
-    this.gameAssets.delete(id);
+    await db.delete(boardAssets).where(eq(boardAssets.assetId, id));
+    await db.delete(gameAssets).where(eq(gameAssets.id, id));
   }
 
   // Board Assets
   async getBoardAsset(id: string): Promise<BoardAsset | undefined> {
-    return this.boardAssets.get(id);
+    const [asset] = await db.select().from(boardAssets).where(eq(boardAssets.id, id));
+    return asset || undefined;
   }
 
   async createBoardAsset(asset: InsertBoardAsset): Promise<BoardAsset> {
-    const id = randomUUID();
-    const boardAsset: BoardAsset = { 
-      ...asset, 
-      id, 
-      ownedBy: null,
-      rotation: asset.rotation ?? 0,
-      scale: asset.scale ?? 1,
-      isFlipped: asset.isFlipped ?? false,
-      zIndex: asset.zIndex ?? 0,
-    };
-    this.boardAssets.set(id, boardAsset);
-    return boardAsset;
+    const [newAsset] = await db
+      .insert(boardAssets)
+      .values(asset)
+      .returning();
+    return newAsset;
   }
 
   async updateBoardAsset(id: string, updates: Partial<BoardAsset>): Promise<BoardAsset> {
-    const asset = this.boardAssets.get(id);
-    if (!asset) throw new Error("Board asset not found");
-    const updatedAsset = { ...asset, ...updates };
-    this.boardAssets.set(id, updatedAsset);
+    const [updatedAsset] = await db
+      .update(boardAssets)
+      .set(updates)
+      .where(eq(boardAssets.id, id))
+      .returning();
     return updatedAsset;
   }
 
   async getRoomBoardAssets(roomId: string): Promise<BoardAsset[]> {
-    return Array.from(this.boardAssets.values()).filter(asset => asset.roomId === roomId);
+    return db.select().from(boardAssets).where(eq(boardAssets.roomId, roomId));
   }
 
   async deleteBoardAsset(id: string): Promise<void> {
-    this.boardAssets.delete(id);
+    await db.delete(boardAssets).where(eq(boardAssets.id, id));
   }
 
   // Room Players
   async addPlayerToRoom(roomId: string, playerId: string): Promise<RoomPlayer> {
-    const id = randomUUID();
-    const roomPlayer: RoomPlayer = {
-      id,
-      roomId,
-      playerId,
-      isOnline: true,
-      joinedAt: new Date(),
-    };
-    this.roomPlayers.set(id, roomPlayer);
-    return roomPlayer;
+    const [player] = await db
+      .insert(roomPlayers)
+      .values({ roomId, playerId })
+      .returning();
+    return player;
   }
 
   async removePlayerFromRoom(roomId: string, playerId: string): Promise<void> {
-    for (const [id, player] of this.roomPlayers.entries()) {
-      if (player.roomId === roomId && player.playerId === playerId) {
-        this.roomPlayers.delete(id);
-        break;
-      }
-    }
+    await db.delete(roomPlayers).where(
+      and(
+        eq(roomPlayers.roomId, roomId),
+        eq(roomPlayers.playerId, playerId)
+      )
+    );
   }
 
   async getRoomPlayers(roomId: string): Promise<RoomPlayer[]> {
-    return Array.from(this.roomPlayers.values()).filter(player => player.roomId === roomId);
+    return db.select().from(roomPlayers).where(eq(roomPlayers.roomId, roomId));
   }
 
   async updatePlayerStatus(roomId: string, playerId: string, isOnline: boolean): Promise<void> {
-    for (const [id, player] of this.roomPlayers.entries()) {
-      if (player.roomId === roomId && player.playerId === playerId) {
-        this.roomPlayers.set(id, { ...player, isOnline });
-        break;
-      }
-    }
+    await db
+      .update(roomPlayers)
+      .set({ isOnline })
+      .where(
+        and(
+          eq(roomPlayers.roomId, roomId),
+          eq(roomPlayers.playerId, playerId)
+        )
+      );
   }
 
   // Dice Rolls
   async createDiceRoll(roll: InsertDiceRoll, playerId: string): Promise<DiceRoll> {
-    const id = randomUUID();
-    const diceRoll: DiceRoll = {
-      ...roll,
-      id,
-      playerId,
-      rolledAt: new Date(),
-    };
-    this.diceRolls.set(id, diceRoll);
-    return diceRoll;
+    const [newRoll] = await db
+      .insert(diceRolls)
+      .values({ ...roll, playerId })
+      .returning();
+    return newRoll;
   }
 
-  async getRoomDiceRolls(roomId: string, limit: number = 10): Promise<DiceRoll[]> {
-    return Array.from(this.diceRolls.values())
-      .filter(roll => roll.roomId === roomId)
-      .sort((a, b) => b.rolledAt.getTime() - a.rolledAt.getTime())
-      .slice(0, limit);
+  async getRoomDiceRolls(roomId: string, limit: number = 50): Promise<DiceRoll[]> {
+    return db
+      .select()
+      .from(diceRolls)
+      .where(eq(diceRolls.roomId, roomId))
+      .orderBy(desc(diceRolls.rolledAt))
+      .limit(limit);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
