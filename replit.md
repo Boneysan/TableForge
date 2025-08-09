@@ -5,6 +5,7 @@ This is a comprehensive multiplayer virtual tabletop gaming platform called "Vor
 ## Recent Changes (January 2025)
 - **COMPREHENSIVE IMPLEMENTATION COMPLETED (Jan 9, 2025)**: Successfully implemented the complete Vorpal Board specification including all advanced features:
 - **DARK MODE THEME SYSTEM COMPLETED (Jan 9, 2025)**: Integrated comprehensive site-wide dark mode with ThemeProvider, theme toggles on all interfaces, and proper CSS variable support
+- **NAVIGATION SYSTEM COMPLETED (Jan 9, 2025)**: Added consistent navigation controls across all interfaces with Leave Room buttons and proper GM view switching
 
 ### Phase 1-3 Core Features ✅ COMPLETE
 - **Authentication System**: Robust hybrid authentication with Firebase Google OAuth and Replit Auth fallback
@@ -40,6 +41,12 @@ This is a comprehensive multiplayer virtual tabletop gaming platform called "Vor
 - **Chat System**: Real-time text chat across all interfaces with message history and timestamps
 - **State Synchronization**: WebSocket message handling for all game actions with proper authentication
 - **Player Updates**: Real-time player list updates, name changes, and connection management
+
+### Navigation System ✅ COMPLETE
+- **Universal Leave Room Buttons**: All interfaces (Player, Admin, Game Master) have navigation back to home page
+- **GM View Switching**: Direct switching between Admin Interface and Game Master Console without ViewSelector
+- **Consistent UX**: Theme toggles and navigation controls positioned consistently across all interfaces
+- **Proper Routing**: wouter-based navigation with clean URL management and state preservation
 
 ### Theme System ✅ COMPLETE
 - **Comprehensive Dark Mode**: Site-wide dark/light/system theme support with localStorage persistence
