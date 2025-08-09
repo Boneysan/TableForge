@@ -27,7 +27,7 @@ export const users = pgTable("users", {
 
 export const gameRooms = pgTable("game_rooms", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   createdBy: varchar("created_by").notNull().references(() => users.id),
   isActive: boolean("is_active").notNull().default(true),
   gameState: json("game_state"),

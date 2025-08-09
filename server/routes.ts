@@ -185,13 +185,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(room);
     } catch (error) {
       console.error("Error creating room:", error);
-      res.status(400).json({ error: "Invalid room data" });
+      if (error instanceof Error && error.message.includes("unique constraint")) {
+        res.status(409).json({ error: "A room with this name already exists" });
+      } else {
+        res.status(400).json({ error: "Invalid room data" });
+      }
     }
   });
 
   app.get("/api/rooms/:id", async (req, res) => {
     try {
-      const room = await storage.getGameRoom(req.params.id);
+      const room = await storage.getGameRoomByIdOrName(req.params.id);
       if (!room) {
         return res.status(404).json({ error: "Room not found" });
       }
@@ -261,7 +265,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/rooms/:roomId/assets", async (req, res) => {
     try {
-      const assets = await storage.getRoomAssets(req.params.roomId);
+      // First, check if room exists and get the actual room ID
+      const room = await storage.getGameRoomByIdOrName(req.params.roomId);
+      if (!room) {
+        return res.status(404).json({ error: "Room not found" });
+      }
+      
+      const assets = await storage.getRoomAssets(room.id);
       res.json(assets);
     } catch (error) {
       console.error("Error getting room assets:", error);
@@ -275,7 +285,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { roomId } = req.params;
       const userId = req.user.uid;
       
-      const roomPlayer = await storage.addPlayerToRoom(roomId, userId);
+      // First, check if room exists and get the actual room ID
+      const room = await storage.getGameRoomByIdOrName(roomId);
+      if (!room) {
+        return res.status(404).json({ message: "Room not found" });
+      }
+      
+      const roomPlayer = await storage.addPlayerToRoom(room.id, userId);
       
       res.json({ success: true, role: roomPlayer.role });
     } catch (error) {
@@ -289,7 +305,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { roomId } = req.params;
       const userId = req.user.uid;
       
-      const role = await storage.getPlayerRole(roomId, userId);
+      // First, check if room exists and get the actual room ID
+      const room = await storage.getGameRoomByIdOrName(roomId);
+      if (!room) {
+        return res.status(404).json({ message: "Room not found" });
+      }
+      
+      const role = await storage.getPlayerRole(room.id, userId);
       
       res.json({ role });
     } catch (error) {
@@ -300,7 +322,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/rooms/:roomId/players', async (req, res) => {
     try {
-      const players = await storage.getRoomPlayers(req.params.roomId);
+      // First, check if room exists and get the actual room ID
+      const room = await storage.getGameRoomByIdOrName(req.params.roomId);
+      if (!room) {
+        return res.status(404).json({ error: "Room not found" });
+      }
+      
+      const players = await storage.getRoomPlayers(room.id);
       res.json(players);
     } catch (error) {
       console.error("Error getting room players:", error);

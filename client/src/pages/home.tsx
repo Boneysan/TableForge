@@ -16,7 +16,7 @@ import type { GameRoom, User } from "@shared/schema";
 export default function Home() {
   const [, setLocation] = useLocation();
   const [roomName, setRoomName] = useState("");
-  const [joinRoomId, setJoinRoomId] = useState("");
+  const [joinRoomInput, setJoinRoomInput] = useState("");
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading } = useAuth();
 
@@ -48,10 +48,14 @@ export default function Home() {
         description: `Successfully created room "${room.name}"`,
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      let description = "Failed to create room. Please try again.";
+      if (error?.message?.includes("unique constraint") || error?.message?.includes("duplicate")) {
+        description = "A room with this name already exists. Please choose a different name.";
+      }
       toast({
         title: "Error",
-        description: "Failed to create room. Please try again.",
+        description,
         variant: "destructive",
       });
     },
@@ -92,15 +96,15 @@ export default function Home() {
   };
 
   const handleJoinRoom = () => {
-    if (!joinRoomId.trim()) {
+    if (!joinRoomInput.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a room ID",
+        description: "Please enter a room name or ID",
         variant: "destructive",
       });
       return;
     }
-    setLocation(`/room/${joinRoomId}`);
+    setLocation(`/room/${encodeURIComponent(joinRoomInput.trim())}`);
   };
 
   const handleDeleteRoom = (e: React.MouseEvent, roomId: string) => {
@@ -187,15 +191,15 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="room-id" className="text-gray-300">Room ID</Label>
+                <Label htmlFor="room-input" className="text-gray-300">Room Name or ID</Label>
                 <Input
-                  id="room-id"
+                  id="room-input"
                   type="text"
-                  placeholder="Enter room ID..."
-                  value={joinRoomId}
-                  onChange={(e) => setJoinRoomId(e.target.value)}
+                  placeholder="Enter room name or ID..."
+                  value={joinRoomInput}
+                  onChange={(e) => setJoinRoomInput(e.target.value)}
                   className="bg-[#4B5563] border-gray-600 text-gray-100 placeholder-gray-400"
-                  data-testid="input-room-id"
+                  data-testid="input-room-input"
                 />
               </div>
               <Button

@@ -30,6 +30,8 @@ export interface IStorage {
 
   // Game Rooms
   getGameRoom(id: string): Promise<GameRoom | undefined>;
+  getGameRoomByName(name: string): Promise<GameRoom | undefined>;
+  getGameRoomByIdOrName(identifier: string): Promise<GameRoom | undefined>;
   createGameRoom(room: InsertGameRoom, createdBy: string): Promise<GameRoom>;
   updateGameRoom(id: string, updates: Partial<GameRoom>): Promise<GameRoom>;
   deleteGameRoom(id: string): Promise<void>;
@@ -99,6 +101,20 @@ export class DatabaseStorage implements IStorage {
   async getGameRoom(id: string): Promise<GameRoom | undefined> {
     const [room] = await db.select().from(gameRooms).where(eq(gameRooms.id, id));
     return room || undefined;
+  }
+
+  async getGameRoomByName(name: string): Promise<GameRoom | undefined> {
+    const [room] = await db.select().from(gameRooms).where(eq(gameRooms.name, name));
+    return room || undefined;
+  }
+
+  async getGameRoomByIdOrName(identifier: string): Promise<GameRoom | undefined> {
+    // First try by ID (UUID format)
+    if (identifier.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      return this.getGameRoom(identifier);
+    }
+    // Then try by name
+    return this.getGameRoomByName(identifier);
   }
 
   async createGameRoom(room: InsertGameRoom, createdBy: string): Promise<GameRoom> {
