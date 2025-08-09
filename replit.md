@@ -2,6 +2,12 @@
 
 Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences.
 
+## Recent Changes (August 2025)
+- **Enhanced Admin Dashboard**: Added comprehensive room creator information display showing both usernames and UUIDs for better user identification
+- **Improved Database Queries**: Enhanced admin room queries with JOIN operations to fetch creator details from both Firebase and Replit user accounts
+- **Fixed TypeScript Issues**: Resolved all type safety errors in admin dashboard components and storage layer
+- **Streamlined Router Configuration**: Simplified authentication-based routing for better reliability and user experience
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
