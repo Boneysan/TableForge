@@ -1,7 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { authenticatedApiRequest } from "@/lib/authClient";
+import { onAuthChange } from "@/lib/firebase";
 
 export function useAuth() {
+  const queryClient = useQueryClient();
+
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
@@ -23,6 +27,24 @@ export function useAuth() {
     },
     retry: false,
   });
+
+  // Listen for Firebase auth state changes and refetch user data
+  useEffect(() => {
+    console.log("🔐 [useAuth] Setting up Firebase auth state listener...");
+    
+    const unsubscribe = onAuthChange((firebaseUser) => {
+      console.log("🔐 [useAuth] Firebase auth state changed:", {
+        hasFirebaseUser: !!firebaseUser,
+        uid: firebaseUser?.uid,
+        email: firebaseUser?.email
+      });
+      
+      // Refetch user data when Firebase auth state changes
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    });
+
+    return unsubscribe;
+  }, [queryClient]);
 
   console.log("🔐 [useAuth] Hook state:", { 
     hasUser: !!user, 
