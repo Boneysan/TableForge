@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft } from "lucide-react";
+import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,14 @@ export function SimplePlayerInterface({
   const [showNameEdit, setShowNameEdit] = useState(false);
   const [newFirstName, setNewFirstName] = useState(currentUser.firstName || "");
   const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
+  const [showHandViewer, setShowHandViewer] = useState(false);
+  
+  // Placeholder hand data - in a real implementation this would come from the server
+  const [playerHand] = useState([
+    { id: '1', name: 'Ace of Spades', imageUrl: null, faceUp: true },
+    { id: '2', name: 'King of Hearts', imageUrl: null, faceUp: true },
+    { id: '3', name: 'Hidden Card', imageUrl: null, faceUp: false }
+  ]);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -217,6 +225,76 @@ export function SimplePlayerInterface({
 
         {/* Player Controls */}
         <div className="space-y-4">
+          {/* Player Hand */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-gray-100">
+                <Hand className="w-4 h-4" />
+                <span>Your Hand</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {/* Hand cards display */}
+                {playerHand.length > 0 ? (
+                  <div className="min-h-[120px] bg-[#374151] rounded-lg p-3">
+                    <div className="flex flex-wrap gap-2">
+                      {playerHand.map((card) => (
+                        <div key={card.id} className="relative">
+                          <div className="w-16 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg border border-gray-600 flex items-center justify-center text-white text-xs font-medium shadow-lg">
+                            {card.faceUp ? (
+                              <div className="text-center">
+                                <div className="text-lg">🂡</div>
+                                <div className="text-[10px] leading-tight">{card.name.split(' ')[0]}</div>
+                              </div>
+                            ) : (
+                              <div className="text-center">
+                                <div className="text-lg">🂠</div>
+                                <div className="text-[10px]">Hidden</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">{playerHand.length} cards in hand</p>
+                  </div>
+                ) : (
+                  <div className="min-h-[120px] bg-[#374151] rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center">
+                    <div className="text-center text-gray-400">
+                      <Hand className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-sm">No cards in hand</p>
+                      <p className="text-xs mt-1">Cards dealt by GM will appear here</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Hand actions */}
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                    data-testid="button-sort-hand"
+                  >
+                    <Eye className="w-3 h-3 mr-1" />
+                    Sort
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                    onClick={() => setShowHandViewer(true)}
+                    data-testid="button-expand-hand"
+                  >
+                    <Hand className="w-3 h-3 mr-1" />
+                    View Large
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Players List */}
           <Card>
             <CardHeader>
@@ -337,6 +415,94 @@ export function SimplePlayerInterface({
           </div>
         </div>
       </div>
+
+      {/* Large Hand Viewer Dialog */}
+      <Dialog open={showHandViewer} onOpenChange={setShowHandViewer}>
+        <DialogContent className="max-w-4xl max-h-[80vh] bg-white dark:bg-[#1F2937] border-gray-300 dark:border-gray-600">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+              <Hand className="w-5 h-5" />
+              <span>Your Hand - Large View</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {playerHand.length > 0 ? (
+              <div className="grid grid-cols-6 gap-4 p-4 bg-gray-50 dark:bg-[#374151] rounded-lg max-h-[60vh] overflow-y-auto">
+                {playerHand.map((card) => (
+                  <div key={card.id} className="relative group">
+                    <div className="w-24 h-32 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg border-2 border-gray-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                      {card.faceUp ? (
+                        <div className="text-center">
+                          <div className="text-3xl mb-1">🂡</div>
+                          <div className="text-xs leading-tight font-medium">{card.name}</div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <div className="text-3xl mb-1">🂠</div>
+                          <div className="text-xs">Hidden</div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Card actions on hover */}
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <div className="space-x-1">
+                        <Button 
+                          size="sm" 
+                          variant="secondary" 
+                          className="text-xs h-6 px-2"
+                          data-testid={`button-play-card-${card.id}`}
+                        >
+                          Play
+                        </Button>
+                        {card.faceUp && (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs h-6 px-2"
+                            data-testid={`button-flip-card-${card.id}`}
+                          >
+                            Flip
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <Hand className="w-16 h-16 mx-auto mb-4" />
+                <p className="text-lg">No cards in hand</p>
+                <p className="text-sm mt-2">Cards dealt by the Game Master will appear here</p>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {playerHand.length} cards in hand
+              </div>
+              <div className="space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowHandViewer(false)}
+                  className="border-gray-300 dark:border-gray-600"
+                  data-testid="button-close-hand-viewer"
+                >
+                  Close
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-gray-300 dark:border-gray-600"
+                  data-testid="button-organize-hand"
+                >
+                  <Eye className="w-4 h-4 mr-1" />
+                  Sort by Value
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
