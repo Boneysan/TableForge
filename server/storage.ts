@@ -23,6 +23,7 @@ export interface IStorage {
   getGameRoom(id: string): Promise<GameRoom | undefined>;
   createGameRoom(room: InsertGameRoom, createdBy: string): Promise<GameRoom>;
   updateGameRoom(id: string, updates: Partial<GameRoom>): Promise<GameRoom>;
+  deleteGameRoom(id: string): Promise<void>;
   getUserRooms(userId: string): Promise<GameRoom[]>;
 
   // Game Assets
@@ -100,6 +101,31 @@ export class MemStorage implements IStorage {
     return updatedRoom;
   }
 
+  async deleteGameRoom(id: string): Promise<void> {
+    const room = this.gameRooms.get(id);
+    if (!room) throw new Error("Room not found");
+    
+    // Delete all related data
+    // Delete room assets
+    const roomAssets = Array.from(this.gameAssets.values()).filter(asset => asset.roomId === id);
+    roomAssets.forEach(asset => this.gameAssets.delete(asset.id));
+    
+    // Delete board assets  
+    const roomBoardAssets = Array.from(this.boardAssets.values()).filter(asset => asset.roomId === id);
+    roomBoardAssets.forEach(asset => this.boardAssets.delete(asset.id));
+    
+    // Delete room players
+    const roomPlayerEntries = Array.from(this.roomPlayers.values()).filter(rp => rp.roomId === id);
+    roomPlayerEntries.forEach(rp => this.roomPlayers.delete(`${rp.roomId}_${rp.playerId}`));
+    
+    // Delete dice rolls
+    const roomDiceRolls = Array.from(this.diceRolls.values()).filter(roll => roll.roomId === id);
+    roomDiceRolls.forEach(roll => this.diceRolls.delete(roll.id));
+    
+    // Finally delete the room
+    this.gameRooms.delete(id);
+  }
+
   async getUserRooms(userId: string): Promise<GameRoom[]> {
     return Array.from(this.gameRooms.values()).filter(room => room.createdBy === userId);
   }
@@ -116,6 +142,8 @@ export class MemStorage implements IStorage {
       id,
       uploadedBy,
       createdAt: new Date(),
+      width: asset.width ?? null,
+      height: asset.height ?? null,
     };
     this.gameAssets.set(id, gameAsset);
     return gameAsset;
@@ -136,7 +164,15 @@ export class MemStorage implements IStorage {
 
   async createBoardAsset(asset: InsertBoardAsset): Promise<BoardAsset> {
     const id = randomUUID();
-    const boardAsset: BoardAsset = { ...asset, id, ownedBy: null };
+    const boardAsset: BoardAsset = { 
+      ...asset, 
+      id, 
+      ownedBy: null,
+      rotation: asset.rotation ?? 0,
+      scale: asset.scale ?? 1,
+      isFlipped: asset.isFlipped ?? false,
+      zIndex: asset.zIndex ?? 0,
+    };
     this.boardAssets.set(id, boardAsset);
     return boardAsset;
   }

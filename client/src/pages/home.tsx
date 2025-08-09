@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dice1, Plus, Users, Clock } from "lucide-react";
+import { Dice1, Plus, Users, Clock, Trash2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { GameRoom } from "@shared/schema";
@@ -19,7 +19,7 @@ export default function Home() {
   // Mock user ID - in a real app this would come from authentication
   const userId = "mock-user-id";
 
-  const { data: userRooms, isLoading } = useQuery({
+  const { data: userRooms = [], isLoading } = useQuery<GameRoom[]>({
     queryKey: ["/api/user", userId, "rooms"],
     enabled: !!userId,
   });
@@ -41,6 +41,27 @@ export default function Home() {
       toast({
         title: "Error",
         description: "Failed to create room. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteRoomMutation = useMutation({
+    mutationFn: async (roomId: string) => {
+      const response = await apiRequest("DELETE", `/api/rooms/${roomId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user", userId, "rooms"] });
+      toast({
+        title: "Room Deleted",
+        description: "Room has been deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error", 
+        description: "Failed to delete room. Please try again.",
         variant: "destructive",
       });
     },
@@ -68,6 +89,13 @@ export default function Home() {
       return;
     }
     setLocation(`/room/${joinRoomId}`);
+  };
+
+  const handleDeleteRoom = (e: React.MouseEvent, roomId: string) => {
+    e.stopPropagation(); // Prevent card click navigation
+    if (confirm("Are you sure you want to delete this room? This action cannot be undone.")) {
+      deleteRoomMutation.mutate(roomId);
+    }
   };
 
   return (
@@ -165,20 +193,33 @@ export default function Home() {
                   data-testid={`card-room-${room.id}`}
                 >
                   <CardContent className="flex items-center justify-between p-4">
-                    <div>
+                    <div className="flex-1" onClick={() => setLocation(`/room/${room.id}`)}>
                       <h3 className="font-semibold text-gray-100">{room.name}</h3>
                       <p className="text-sm text-gray-400">
                         Created {new Date(room.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-600 text-gray-300 hover:bg-[#4B5563]"
-                      data-testid={`button-enter-room-${room.id}`}
-                    >
-                      Enter Room
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setLocation(`/room/${room.id}`)}
+                        className="border-gray-600 text-gray-300 hover:bg-[#2563EB] hover:text-white"
+                        data-testid={`button-enter-room-${room.id}`}
+                      >
+                        Enter
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => handleDeleteRoom(e, room.id)}
+                        disabled={deleteRoomMutation.isPending}
+                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                        data-testid={`button-delete-room-${room.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}

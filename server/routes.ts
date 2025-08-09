@@ -195,6 +195,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/rooms/:id", async (req, res) => {
+    try {
+      await storage.deleteGameRoom(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      if (error instanceof Error && error.message === "Room not found") {
+        res.status(404).json({ error: "Room not found" });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
   // Game Assets Routes
   app.post("/api/assets", async (req, res) => {
     try {
