@@ -12,8 +12,9 @@ try {
     // In development, Firebase Admin SDK will use the default credentials
     // In production, you might need to provide service account credentials
     admin.initializeApp({
-      // You can add your Firebase config here if needed
-      // credential: admin.credential.applicationDefault(),
+      projectId: "board-games-f2082", // Explicit project ID
+      // In production, you would need service account credentials
+      // credential: admin.credential.cert(serviceAccountKey),
     });
     firebaseAdminInitialized = true;
     console.log("✅ [Firebase Admin] Firebase Admin SDK initialized successfully");
