@@ -34,15 +34,25 @@ export const signInWithGoogle = () => {
   console.log('Initiating Google sign-in from:', window.location.origin);
   console.log('Auth domain:', `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`);
   
-  // Use popup for development domains, redirect for production
-  const isDev = window.location.hostname.includes('.janeway.replit.dev') || window.location.hostname.includes('.replit.dev');
+  // Check if we're in Replit development environment
+  const isReplitDev = window.location.hostname.includes('.janeway.replit.dev') || 
+                      window.location.hostname.includes('.replit.dev');
   
-  if (isDev) {
-    console.log('Using popup authentication for development environment');
-    return signInWithPopup(auth, googleProvider);
+  if (isReplitDev) {
+    console.log('Development environment detected - redirecting to Firebase auth page');
+    // Create direct Firebase auth URL for development
+    const authUrl = `https://${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com/__/auth/handler?` +
+      `apiKey=${import.meta.env.VITE_FIREBASE_API_KEY}&` +
+      `providerId=google.com&` +
+      `scopes=email,profile&` +
+      `customParameter=%7B%7D&` +
+      `redirectUrl=${encodeURIComponent(window.location.origin)}`;
+    
+    window.location.href = authUrl;
+    return Promise.resolve();
   } else {
-    console.log('Using redirect authentication for production environment');
-    return signInWithRedirect(auth, googleProvider);
+    console.log('Using popup authentication for production environment');
+    return signInWithPopup(auth, googleProvider);
   }
 };
 

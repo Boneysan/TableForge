@@ -21,6 +21,15 @@ export default function FirebaseLanding() {
       await signInWithGoogle();
     } catch (error) {
       console.error("Sign in error:", error);
+      
+      // If Firebase fails in development, fall back to Replit Auth
+      const isReplitDev = window.location.hostname.includes('.replit.dev');
+      if (isReplitDev) {
+        console.log('Firebase failed, redirecting to Replit Auth...');
+        window.location.href = '/api/login';
+        return;
+      }
+      
       toast({
         title: "Sign In Error",
         description: `Failed to initiate Google sign-in: ${(error as Error).message}`,
