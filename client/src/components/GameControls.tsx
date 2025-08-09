@@ -105,7 +105,6 @@ export function GameControls({
         </CardHeader>
         <CardContent>
           <p className="text-sm font-medium">{currentPlayer.name}</p>
-          <p className="text-xs text-gray-500">{currentPlayer.id}</p>
         </CardContent>
       </Card>
     </div>
