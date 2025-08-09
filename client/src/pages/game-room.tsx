@@ -22,6 +22,9 @@ export default function GameRoom() {
   
   // Check if this is a "join" navigation (from home page join button)
   const isJoiningRoom = sessionStorage.getItem('joining-room') === 'true';
+  
+  // Debug logging
+  console.log('isJoiningRoom:', isJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
 
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({
@@ -149,6 +152,14 @@ export default function GameRoom() {
     });
   };
 
+  // Wrapper function to match PlayerInterface props
+  const handleDiceRoll = (diceType: string, count: number) => {
+    // Simple dice roll implementation for PlayerInterface
+    const results = Array.from({ length: count }, () => Math.floor(Math.random() * parseInt(diceType.replace('d', ''))) + 1);
+    const total = results.reduce((sum, roll) => sum + roll, 0);
+    handleDiceRolled(diceType, count, results, total);
+  };
+
   if (roomLoading || userRole === null) {
     return (
       <div className="min-h-screen bg-[#1F2937] text-gray-100 flex items-center justify-center">
@@ -160,11 +171,6 @@ export default function GameRoom() {
     );
   }
 
-  // If joining room, always show player interface regardless of role
-  if (isJoiningRoom && selectedView === null) {
-    setSelectedView('player');
-  }
-
   // Show view selector for admins who haven't chosen a view yet (unless they're joining)
   if (userRole === 'admin' && selectedView === null && !isJoiningRoom) {
     return (
@@ -172,6 +178,47 @@ export default function GameRoom() {
         onSelectView={setSelectedView}
         currentUser={user as User}
       />
+    );
+  }
+
+  // If joining room, force player interface regardless of role
+  if (isJoiningRoom && userRole === 'admin') {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-4 p-3 bg-green-600 text-white rounded-lg">
+          <p>Joined as Player (using Join Room button)</p>
+        </div>
+        <PlayerInterface
+          room={room as GameRoom}
+          roomAssets={assets as GameAsset[]}
+          boardAssets={boardAssets as BoardAsset[]}
+          roomPlayers={roomPlayers}
+          currentPlayer={currentPlayer}
+          onAssetMove={handleAssetMoved}
+          onAssetPlace={handleAssetPlaced}
+          onDiceRoll={handleDiceRoll}
+          connected={connected}
+        />
+      </div>
+    );
+  }
+
+  // Default player interface for regular players
+  if (userRole === 'player' && selectedView === null) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <PlayerInterface
+          room={room as GameRoom}
+          roomAssets={assets as GameAsset[]}
+          boardAssets={boardAssets as BoardAsset[]}
+          roomPlayers={roomPlayers}
+          currentPlayer={currentPlayer}
+          onAssetMove={handleAssetMoved}
+          onAssetPlace={handleAssetPlaced}
+          onDiceRoll={handleDiceRoll}
+          connected={connected}
+        />
+      </div>
     );
   }
 
@@ -216,13 +263,18 @@ export default function GameRoom() {
         />
       )}
 
-      {(userRole === 'player' || selectedView === 'player') && (
+      {selectedView === 'player' && (
         <div className="container mx-auto px-4 py-6">
           <PlayerInterface
+            room={room as GameRoom}
+            roomAssets={assets as GameAsset[]}
             boardAssets={boardAssets as BoardAsset[]}
-            players={roomPlayers}
-            currentUser={user as User}
-            onDiceRolled={handleDiceRolled}
+            roomPlayers={roomPlayers}
+            currentPlayer={currentPlayer}
+            onAssetMove={handleAssetMoved}
+            onAssetPlace={handleAssetPlaced}
+            onDiceRoll={handleDiceRoll}
+            connected={connected}
           />
         </div>
       )}

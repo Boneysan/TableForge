@@ -106,6 +106,7 @@ export default function Home() {
     }
     // Set flag to indicate this is a join operation
     sessionStorage.setItem('joining-room', 'true');
+    console.log('Setting joining-room flag to true');
     setLocation(`/room/${encodeURIComponent(joinRoomInput.trim())}`);
   };
 
