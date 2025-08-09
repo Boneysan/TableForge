@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, json, jsonb, timestamp, integer, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, json, jsonb, timestamp, integer, boolean, index, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -53,7 +53,9 @@ export const roomPlayers = pgTable("room_players", {
   role: text("role").notNull().default("player"), // 'admin' or 'player'
   isOnline: boolean("is_online").notNull().default(true),
   joinedAt: timestamp("joined_at").notNull().default(sql`now()`),
-});
+}, (table) => ({
+  unique: unique().on(table.roomId, table.playerId)
+}));
 
 export const boardAssets = pgTable("board_assets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
