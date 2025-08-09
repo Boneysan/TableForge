@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { AdminInterface } from "@/components/AdminInterface";
+
 import { PlayerInterface } from "@/components/PlayerInterface";
+import { GameMasterInterface } from "@/components/GameMasterInterface";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
@@ -165,27 +166,24 @@ export default function GameRoom() {
 
       <div className="container mx-auto px-4 py-6">
         {userRole === 'admin' ? (
-          <AdminInterface
-            room={room}
-            roomAssets={assets}
-            roomPlayers={roomPlayers}
-            onAssetUploaded={handleAssetUploaded}
+          <GameMasterInterface
+            roomId={roomId || ''}
+            assets={assets}
+            boardAssets={boardAssets}
+            players={roomPlayers}
+            currentUser={user as User}
+            onAssetUploaded={refetchAssets}
+            onAssetPlaced={handleAssetPlaced}
+            onAssetMoved={handleAssetMoved}
+            onDiceRolled={handleDiceRolled}
           />
         ) : (
           <PlayerInterface
-            room={room}
-            roomAssets={assets}
+            assets={assets}
             boardAssets={boardAssets}
-            roomPlayers={roomPlayers}
-            currentPlayer={currentPlayer}
-            onAssetMove={handleAssetMoved}
-            onAssetPlace={handleAssetPlaced}
-            onDiceRoll={(type: string, count: number) => {
-              const results = Array.from({ length: count }, () => Math.floor(Math.random() * parseInt(type.substring(1))) + 1);
-              const total = results.reduce((sum, roll) => sum + roll, 0);
-              handleDiceRolled(type, count, results, total);
-            }}
-            connected={connected}
+            players={roomPlayers}
+            currentUser={user as User}
+            onDiceRolled={handleDiceRolled}
           />
         )}
       </div>
