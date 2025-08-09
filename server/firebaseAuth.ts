@@ -2,14 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import * as admin from "firebase-admin";
 
 // Initialize Firebase Admin SDK if not already initialized
+let firebaseAdminInitialized = false;
 try {
-  if (!admin.apps.length) {
+  if (admin.apps && admin.apps.length === 0) {
     // In development, Firebase Admin SDK will use the default credentials
     // In production, you might need to provide service account credentials
     admin.initializeApp({
       // You can add your Firebase config here if needed
       // credential: admin.credential.applicationDefault(),
     });
+    firebaseAdminInitialized = true;
+  } else if (admin.apps && admin.apps.length > 0) {
+    firebaseAdminInitialized = true;
   }
 } catch (error) {
   console.warn("Firebase Admin SDK initialization skipped:", error);
@@ -24,6 +28,11 @@ export interface FirebaseUser {
 
 export async function verifyFirebaseToken(idToken: string): Promise<FirebaseUser | null> {
   try {
+    if (!firebaseAdminInitialized) {
+      console.warn("Firebase Admin not initialized, skipping token verification");
+      return null;
+    }
+    
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     return {
       uid: decodedToken.uid,

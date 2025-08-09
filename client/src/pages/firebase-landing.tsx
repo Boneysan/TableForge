@@ -8,14 +8,6 @@ export default function FirebaseLanding() {
   const { toast } = useToast();
   
   const handleGoogleSignIn = async () => {
-    console.log("Sign in button clicked");
-    console.log("Firebase configured:", isFirebaseConfigured());
-    console.log("Environment vars:", {
-      apiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
-      projectId: !!import.meta.env.VITE_FIREBASE_PROJECT_ID,
-      appId: !!import.meta.env.VITE_FIREBASE_APP_ID
-    });
-    
     if (!isFirebaseConfigured()) {
       toast({
         title: "Configuration Required",
@@ -26,9 +18,7 @@ export default function FirebaseLanding() {
     }
     
     try {
-      console.log("Attempting Google sign in...");
       await signInWithGoogle();
-      console.log("Sign in initiated successfully");
     } catch (error) {
       console.error("Sign in error:", error);
       toast({
