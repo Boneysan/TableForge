@@ -35,7 +35,7 @@ import {
   gameSystems
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or } from "drizzle-orm";
+import { eq, desc, and, or, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -753,8 +753,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Admin functions  
-  async getAllRooms(): Promise<GameRoom[]> {
-    return await db.select().from(gameRooms).orderBy(desc(gameRooms.createdAt));
+  async getAllRooms(): Promise<any[]> {
+    const roomsWithCreators = await db
+      .select({
+        id: gameRooms.id,
+        name: gameRooms.name,
+        createdBy: gameRooms.createdBy,
+        isActive: gameRooms.isActive,
+        gameState: gameRooms.gameState,
+        createdAt: gameRooms.createdAt,
+        creatorName: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email}, ${gameRooms.createdBy})`,
+        creatorEmail: users.email,
+      })
+      .from(gameRooms)
+      .leftJoin(users, eq(gameRooms.createdBy, users.id))
+      .orderBy(desc(gameRooms.createdAt));
+    
+    return roomsWithCreators;
   }
 
   async getAllTemplates(): Promise<GameTemplate[]> {

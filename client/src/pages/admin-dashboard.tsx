@@ -120,8 +120,15 @@ export default function AdminDashboard() {
     system.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString() + " " + new Date(date).toLocaleTimeString();
+  const formatDate = (date: Date | string | null) => {
+    if (!date) return 'Unknown';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -222,11 +229,9 @@ export default function AdminDashboard() {
                             Created: {formatDate(room.createdAt)}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Created by: {room.createdBy}
+                            Created by: {(room as any).creatorName || room.createdBy} ({room.createdBy})
                           </p>
-                          {room.description && (
-                            <p className="text-sm">{room.description}</p>
-                          )}
+
                         </div>
                         <div className="flex space-x-2">
                           <Button

@@ -24,15 +24,9 @@ function Router() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <Route path="/" component={FirebaseLanding} />
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/room/:roomId" component={GameRoom} />
-        </>
-      )}
+      <Route path="/" component={isAuthenticated ? Home : FirebaseLanding} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/room/:roomId" component={GameRoom} />
       <Route component={NotFound} />
     </Switch>
   );
