@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRedirectResult, signOut, onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 
 // Check if Firebase configuration is available
@@ -33,7 +33,17 @@ export const signInWithGoogle = () => {
   }
   console.log('Initiating Google sign-in from:', window.location.origin);
   console.log('Auth domain:', `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`);
-  return signInWithRedirect(auth, googleProvider);
+  
+  // Use popup for development domains, redirect for production
+  const isDev = window.location.hostname.includes('.janeway.replit.dev') || window.location.hostname.includes('.replit.dev');
+  
+  if (isDev) {
+    console.log('Using popup authentication for development environment');
+    return signInWithPopup(auth, googleProvider);
+  } else {
+    console.log('Using redirect authentication for production environment');
+    return signInWithRedirect(auth, googleProvider);
+  }
 };
 
 export const handleRedirectResult = () => {

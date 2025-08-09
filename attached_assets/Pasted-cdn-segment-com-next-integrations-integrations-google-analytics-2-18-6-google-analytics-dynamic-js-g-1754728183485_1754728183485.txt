@@ -1,0 +1,130 @@
+cdn.segment.com/next-integrations/integrations/google-analytics/2.18.6/google-analytics.dynamic.js.gz:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+event-queue.js:41 Google Analytics Error: Failed to load https://cdn.segment.com/next-integrations/integrations/google-analytics/2.18.6/google-analytics.dynamic.js.gz
+    at i.6238.o.onerror (load-script.ts:53:24)
+i @ event-queue.js:41
+www.googletagmanager.com/gtag/js?id=AW-11411994397:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+_app-c29f3c490dda2b49.js:13 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+_app-c29f3c490dda2b49.js:13 [LaunchDarkly] LaunchDarkly client initialized
+TabletopForge:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+Grammarly-check.js:1 [Violation] Permissions policy violation: unload is not allowed in this document.
+(anonymous) @ Grammarly-check.js:1
+framework-54876941e2149c9a.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'battery'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-54876941e2149c9a.js:1
+framework-54876941e2149c9a.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-54876941e2149c9a.js:1
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+Network.js:227 WebSocket connection to 'wss://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/?token=_TgieiwQz-Lr' failed: 
+t @ Network.js:227
+Network.js:227 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=_TgieiwQz-Lr' is invalid.
+    at new t (Network.js:227:18)
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+Console.js:61 Initiating Google sign-in from: https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev
+Console.js:61 Auth domain: 1:192522119321:web:371d5a0153526209983008.firebaseapp.com
+Console.js:61 Sign in error: FirebaseError: Firebase: Error (auth/unauthorized-domain).
+    at createErrorInternal (firebase_auth.js?v=f9a126ee:697:37)
+    at _fail (firebase_auth.js?v=f9a126ee:659:9)
+    at _validateOrigin (firebase_auth.js?v=f9a126ee:7358:3)
+    at async BrowserPopupRedirectResolver._openRedirect (firebase_auth.js?v=f9a126ee:7678:5)
+    at async handleGoogleSignIn (firebase-landing.tsx:21:7)
+Mt.forEach.n.<computed> @ Console.js:61
+handleGoogleSignIn @ firebase-landing.tsx:23
+await in handleGoogleSignIn
+callCallback2 @ chunk-RPCDYKBN.js?v=f9a126ee:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=f9a126ee:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=f9a126ee:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=f9a126ee:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=f9a126ee:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=f9a126ee:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=f9a126ee:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=f9a126ee:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=f9a126ee:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=f9a126ee:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=f9a126ee:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=f9a126ee:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=f9a126ee:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=f9a126ee:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=f9a126ee:5449
+Console.js:61 Initiating Google sign-in from: https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev
+Console.js:61 Auth domain: 1:192522119321:web:371d5a0153526209983008.firebaseapp.com
+Console.js:61 Sign in error: FirebaseError: Firebase: Error (auth/unauthorized-domain).
+    at createErrorInternal (firebase_auth.js?v=f9a126ee:697:37)
+    at _fail (firebase_auth.js?v=f9a126ee:659:9)
+    at _validateOrigin (firebase_auth.js?v=f9a126ee:7358:3)
+    at async BrowserPopupRedirectResolver._openRedirect (firebase_auth.js?v=f9a126ee:7678:5)
+    at async handleGoogleSignIn (firebase-landing.tsx:21:7)
+Mt.forEach.n.<computed> @ Console.js:61
+handleGoogleSignIn @ firebase-landing.tsx:23
+await in handleGoogleSignIn
+callCallback2 @ chunk-RPCDYKBN.js?v=f9a126ee:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=f9a126ee:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=f9a126ee:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=f9a126ee:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=f9a126ee:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=f9a126ee:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=f9a126ee:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=f9a126ee:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=f9a126ee:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=f9a126ee:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=f9a126ee:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=f9a126ee:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=f9a126ee:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=f9a126ee:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=f9a126ee:5449
