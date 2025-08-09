@@ -38,7 +38,9 @@ export function useAuth() {
           console.log("ℹ️ [useAuth] User not authenticated, returning null");
           return null;
         }
-        throw error;
+        // Don't throw any errors to prevent unhandled rejections
+        console.log("ℹ️ [useAuth] Returning null due to error");
+        return null;
       }
     },
     retry: false,
@@ -70,13 +72,29 @@ export function useAuth() {
           console.log("🔐 [useAuth] Refetch timestamp:", new Date().toISOString());
           console.log("🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change");
           
-          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          // Force a complete cache invalidation and refetch
+          queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
           queryClient.refetchQueries({ queryKey: ["/api/auth/user"] }).then(() => {
             console.log("✅ [useAuth] Refetch completed successfully");
+            // Also manually trigger a fetch to ensure it happens
+            queryClient.fetchQuery({ 
+              queryKey: ["/api/auth/user"],
+              queryFn: async () => {
+                console.log("🔐 [useAuth] Manual fetch triggered");
+                const response = await authenticatedApiRequest("GET", "/api/auth/user");
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  throw new Error(`${response.status}: ${response.statusText} - ${errorText}`);
+                }
+                return await response.json();
+              }
+            });
           }).catch((error) => {
             console.error("❌ [useAuth] Refetch failed:", error);
           });
-        }, 500); // Increase delay to ensure Firebase auth is fully settled
+        }, 1000).catch((error) => {
+          console.error("❌ [useAuth] Timeout error in auth state change:", error);
+        }); // Increase delay even more to ensure Firebase auth is fully settled
       } else {
         // If user signed out, invalidate immediately
         console.log("🔐 [useAuth] User signed out, invalidating queries immediately");

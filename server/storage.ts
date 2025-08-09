@@ -145,9 +145,12 @@ export class DatabaseStorage implements IStorage {
       .insert(users)
       .values(userData)
       .onConflictDoUpdate({
-        target: users.id,
+        target: users.email, // Conflict on email since that's the unique constraint causing issues
         set: {
-          ...userData,
+          id: userData.id, // Update the ID to the new Firebase UID
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          profileImageUrl: userData.profileImageUrl,
           updatedAt: new Date(),
         },
       })
