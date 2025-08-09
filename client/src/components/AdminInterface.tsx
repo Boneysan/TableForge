@@ -73,7 +73,8 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
   };
 
   return (
-    <div className="space-y-6" data-testid="admin-interface">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 py-6 space-y-6" data-testid="admin-interface">
       {/* Admin Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4">
         <div className="flex items-center justify-between">
@@ -228,20 +229,18 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Room Name</label>
-                <p className="text-sm text-gray-600">{room.name}</p>
-              </div>
-              
-              <div className="space-y-2">
                 <label className="text-sm font-medium">Room ID</label>
-                <p className="text-sm text-gray-600 font-mono">{room.id}</p>
+                <p className="text-sm text-gray-600 font-mono">{roomId}</p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Status</label>
-                <Badge variant={room.isActive ? "default" : "secondary"}>
-                  {room.isActive ? "Active" : "Inactive"}
-                </Badge>
+                <label className="text-sm font-medium">Connected Players</label>
+                <p className="text-sm text-gray-600">{players.filter(p => p.isOnline).length} online</p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Total Assets</label>
+                <p className="text-sm text-gray-600">{assets.length} files</p>
               </div>
 
               <div className="pt-4 border-t">
@@ -254,6 +253,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
