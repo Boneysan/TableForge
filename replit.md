@@ -24,7 +24,7 @@ This is a comprehensive multiplayer virtual tabletop gaming platform called "Vor
 - **Multi-layer Board System**: Background layer, game assets layer, overlay layers with proper z-indexing
 - **Grid System**: GridOverlay component with configurable grid size, snap-to-grid functionality, visibility controls
 - **Measurement Tools**: MeasurementTool component with ruler functionality, distance calculations, multiple measurement support
-- **Annotation System**: AnnotationSystem with freehand drawing, sticky notes, text annotations, color controls, and deletion
+- **Annotation System**: AnnotationSystem with freehand drawing, sticky notes, text annotations, color controls, undo button for last drawing, and deletion
 
 ### Asset Pipeline ✅ COMPLETE
 - **AssetPipeline Component**: Library, upload, and builder tabs with comprehensive functionality

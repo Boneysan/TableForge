@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PenTool, StickyNote, Type, Palette, Trash2 } from "lucide-react";
+import { PenTool, StickyNote, Type, Palette, Trash2, Undo } from "lucide-react";
 
 interface Point {
   x: number;
@@ -159,6 +159,12 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
     setIsDrawing(false);
   };
 
+  const undoLastDrawing = () => {
+    if (drawings.length > 0) {
+      setDrawings(prev => prev.slice(0, -1));
+    }
+  };
+
   const renderPath = (points: Point[]) => {
     if (points.length < 2) return '';
     
@@ -304,6 +310,18 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
               >
                 {isActive ? "Active" : "Activate"}
               </Button>
+              
+              {drawings.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={undoLastDrawing}
+                  data-testid="button-undo-drawing"
+                  title="Undo last drawing"
+                >
+                  <Undo className="w-3 h-3" />
+                </Button>
+              )}
               
               {(drawings.length > 0 || notes.length > 0 || textAnnotations.length > 0) && (
                 <Button
