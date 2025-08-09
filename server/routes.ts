@@ -224,10 +224,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user', hybridAuthMiddleware, async (req: any, res) => {
     try {
       const userId = req.user.uid;
-      const user = await storage.getUser(userId);
+      console.log("📊 [Auth User] Fetching user data for UID:", userId);
+      console.log("📊 [Auth User] Authenticated user object:", req.user);
+      
+      let user = await storage.getUser(userId);
+      console.log("📊 [Auth User] User from storage:", user);
+      
+      // If user doesn't exist in storage, create them from authenticated data
+      if (!user) {
+        console.log("📊 [Auth User] User not found in storage, creating new user...");
+        
+        // Create user from authenticated data
+        const newUserData = {
+          id: req.user.uid,
+          email: req.user.email,
+          firstName: req.user.displayName?.split(' ')[0] || req.user.displayName || null,
+          lastName: req.user.displayName?.split(' ')[1] || null,
+          profileImageUrl: req.user.photoURL || null
+        };
+        
+        console.log("📊 [Auth User] Creating user with data:", newUserData);
+        user = await storage.createUser(newUserData);
+        console.log("📊 [Auth User] Created new user:", user);
+      }
+      
+      console.log("📊 [Auth User] Returning user data:", user);
       res.json(user);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      console.error("❌ [Auth User] Error fetching/creating user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
