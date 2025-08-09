@@ -328,34 +328,6 @@ export function SimplePlayerInterface({
             </CardContent>
           </Card>
 
-          {/* Players */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-gray-100">
-                <Users className="w-4 h-4" />
-                <span>Players</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {roomPlayers.map((player) => (
-                  <div key={player.id} className="flex items-center justify-between p-2 bg-[#374151] rounded">
-                    <span className="text-gray-100 text-sm font-medium">{player.name}</span>
-                    <div className="flex items-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${
-                        player.userId === currentUser.id ? 'bg-green-400' : 'bg-gray-400'
-                      }`} />
-                      <span className="text-xs text-gray-400">
-                        {player.userId === currentUser.id ? 'You' : 'Player'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-gray-400 mt-2">{roomPlayers.length} players in game</p>
-            </CardContent>
-          </Card>
-
           {/* Dice Rolling */}
           <Card>
             <CardHeader>
