@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft } from "lucide-react";
+import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +53,15 @@ export function GameMasterInterface({
   const [showNameEdit, setShowNameEdit] = useState(false);
   const [newFirstName, setNewFirstName] = useState(currentUser.firstName || "");
   const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
+  const [showHandViewer, setShowHandViewer] = useState(false);
+  
+  // GM hand data - in a real implementation this would come from the server
+  const [gmHand] = useState([
+    { id: 'gm1', name: 'Event Card: Storm', imageUrl: null, faceUp: true },
+    { id: 'gm2', name: 'Quest: Dragon Hunt', imageUrl: null, faceUp: true },
+    { id: 'gm3', name: 'Hidden Plot Card', imageUrl: null, faceUp: false },
+    { id: 'gm4', name: 'NPC: Mysterious Stranger', imageUrl: null, faceUp: true }
+  ]);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -277,10 +286,14 @@ export function GameMasterInterface({
         {isGMPanelVisible && (
           <div className="w-80 border-l bg-gray-50 dark:bg-gray-900/50 flex flex-col">
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col">
-              <TabsList className="grid w-full grid-cols-5 m-2">
+              <TabsList className="grid w-full grid-cols-6 m-2">
                 <TabsTrigger value="game" className="text-xs">
                   <Dice6 className="w-4 h-4 mr-1" />
                   Game
+                </TabsTrigger>
+                <TabsTrigger value="hand" className="text-xs">
+                  <Hand className="w-4 h-4 mr-1" />
+                  Hand
                 </TabsTrigger>
                 <TabsTrigger value="assets" className="text-xs">
                   <Upload className="w-4 h-4 mr-1" />
@@ -344,6 +357,96 @@ export function GameMasterInterface({
                         data-testid="button-reset-dice"
                       >
                         Clear Dice History
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* GM Hand Tab */}
+                <TabsContent value="hand" className="h-full p-4 space-y-4 overflow-y-auto">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm flex items-center space-x-2">
+                          <Hand className="w-4 h-4" />
+                          <span>GM Hand</span>
+                        </CardTitle>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setShowHandViewer(true)}
+                          className="text-xs"
+                          data-testid="button-expand-gm-hand"
+                        >
+                          View Large
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {gmHand.length > 0 ? (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            {gmHand.map((card) => (
+                              <div key={card.id} className="relative">
+                                <div className="w-full h-16 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border border-gray-600 flex items-center justify-center text-white text-xs font-medium shadow-lg">
+                                  {card.faceUp ? (
+                                    <div className="text-center p-1">
+                                      <div className="text-sm">🎴</div>
+                                      <div className="text-[10px] leading-tight">{card.name.length > 15 ? card.name.substring(0, 15) + '...' : card.name}</div>
+                                    </div>
+                                  ) : (
+                                    <div className="text-center">
+                                      <div className="text-sm">🂠</div>
+                                      <div className="text-[10px]">Hidden</div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{gmHand.length} cards in GM hand</p>
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-gray-400">
+                          <Hand className="w-6 h-6 mx-auto mb-2" />
+                          <p className="text-sm">No cards in GM hand</p>
+                          <p className="text-xs mt-1">Draw cards from decks</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Hand Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start text-xs"
+                        data-testid="button-draw-card"
+                      >
+                        <Hand className="w-3 h-3 mr-2" />
+                        Draw from Deck
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start text-xs"
+                        data-testid="button-shuffle-hand"
+                      >
+                        <Settings className="w-3 h-3 mr-2" />
+                        Organize Hand
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start text-xs"
+                        data-testid="button-deal-cards"
+                      >
+                        <Users className="w-3 h-3 mr-2" />
+                        Deal to Players
                       </Button>
                     </CardContent>
                   </Card>
@@ -482,6 +585,110 @@ export function GameMasterInterface({
           </div>
         )}
       </div>
+
+      {/* Large GM Hand Viewer Dialog */}
+      <Dialog open={showHandViewer} onOpenChange={setShowHandViewer}>
+        <DialogContent className="max-w-4xl max-h-[80vh] bg-white dark:bg-[#1F2937] border-gray-300 dark:border-gray-600">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+              <Hand className="w-5 h-5" />
+              <span>Game Master Hand - Large View</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {gmHand.length > 0 ? (
+              <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-[#374151] rounded-lg max-h-[60vh] overflow-y-auto">
+                {gmHand.map((card) => (
+                  <div key={card.id} className="relative group">
+                    <div className="w-32 h-40 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border-2 border-gray-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                      {card.faceUp ? (
+                        <div className="text-center p-2">
+                          <div className="text-4xl mb-2">🎴</div>
+                          <div className="text-xs leading-tight font-medium">{card.name}</div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">🂠</div>
+                          <div className="text-xs">Hidden</div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Card actions on hover */}
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <div className="space-x-1">
+                        <Button 
+                          size="sm" 
+                          variant="secondary" 
+                          className="text-xs h-6 px-2"
+                          data-testid={`button-play-gm-card-${card.id}`}
+                        >
+                          Play
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-xs h-6 px-2"
+                          data-testid={`button-deal-card-${card.id}`}
+                        >
+                          Deal
+                        </Button>
+                        {card.faceUp && (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-xs h-6 px-2"
+                            data-testid={`button-flip-gm-card-${card.id}`}
+                          >
+                            Flip
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <Hand className="w-16 h-16 mx-auto mb-4" />
+                <p className="text-lg">No cards in GM hand</p>
+                <p className="text-sm mt-2">Draw cards from decks to manage game state</p>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {gmHand.length} cards in GM hand
+              </div>
+              <div className="space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowHandViewer(false)}
+                  className="border-gray-300 dark:border-gray-600"
+                  data-testid="button-close-gm-hand-viewer"
+                >
+                  Close
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-gray-300 dark:border-gray-600"
+                  data-testid="button-deal-all-cards"
+                >
+                  <Users className="w-4 h-4 mr-1" />
+                  Deal to All Players
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-gray-300 dark:border-gray-600"
+                  data-testid="button-organize-gm-hand"
+                >
+                  <Settings className="w-4 h-4 mr-1" />
+                  Organize by Type
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
