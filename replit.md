@@ -1,6 +1,11 @@
 # Overview
 
-This is a multiplayer tabletop gaming application that allows users to create and join game rooms where they can share game assets (cards, tokens, maps), place them on a shared game board, and interact in real-time. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and Google OAuth authentication via Firebase.
+This is a multiplayer tabletop gaming application that allows users to create and join game rooms where they can share game assets (cards, tokens, maps), place them on a shared game board, and interact in real-time. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and hybrid authentication supporting both Firebase Google OAuth and Replit Auth with automatic fallback.
+
+## Recent Changes (January 2025)
+- **Authentication System Completed**: Implemented robust hybrid authentication with Firebase Google OAuth and Replit Auth fallback
+- **Domain Resolution**: Resolved Firebase unauthorized domain issues in development environment with automatic fallback mechanism
+- **Production Ready**: Authentication works seamlessly in both development and production environments
 
 # User Preferences
 
@@ -36,11 +41,13 @@ Preferred communication style: Simple, everyday language.
   - Dice roll history
 
 ## Authentication and Authorization
-- **Firebase Authentication**: Google OAuth sign-in with Firebase client SDK
-- **Hybrid Authentication**: Backend supports both Firebase and Replit Auth for flexibility
+- **Hybrid Authentication System**: Primary Firebase Google OAuth with automatic Replit Auth fallback
+- **Development Environment Support**: Automatic domain detection and fallback for Replit development domains
+- **Production Ready**: Firebase Google OAuth for production with proper domain authorization
+- **Smart Fallback**: When Firebase fails due to domain issues, automatically redirects to Replit Auth
 - **File Access Control**: Custom ACL (Access Control List) system for object storage
 - **Room-based Permissions**: Players can only access assets and board state for rooms they've joined
-- **Secure API Endpoints**: All protected routes use Firebase ID token verification
+- **Secure API Endpoints**: All protected routes support both Firebase ID tokens and Replit Auth verification
 
 ## External Dependencies
 
