@@ -21,11 +21,12 @@ import {
 } from "@/components/ui/select";
 import { Palette, Eye, Save, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { CardDeck, DeckTheme } from "@shared/schema";
+import type { CardDeck, DeckTheme, GameAsset } from "@shared/schema";
 
 interface DeckThemeCustomizerProps {
   deck: CardDeck;
   roomId: string;
+  assets: GameAsset[];
   onThemeUpdated?: (deckId: string, theme: DeckTheme) => void;
 }
 
@@ -86,6 +87,7 @@ const THEME_TEMPLATES = {
 export function DeckThemeCustomizer({ 
   deck, 
   roomId, 
+  assets,
   onThemeUpdated 
 }: DeckThemeCustomizerProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -140,6 +142,11 @@ export function DeckThemeCustomizer({
   const updateThemeProperty = (property: keyof DeckTheme, value: any) => {
     setCurrentTheme(prev => ({ ...prev, [property]: value }));
   };
+
+  // Get the card assets for this deck
+  const deckCards = (deck.deckOrder as string[] || [])
+    .map(cardId => assets.find(asset => asset.id === cardId))
+    .filter(Boolean) as GameAsset[];
 
   // Generate preview styles
   const previewCardStyle = {
@@ -371,21 +378,44 @@ export function DeckThemeCustomizer({
                   </Badge>
                 </div>
 
-                {/* Card preview stack */}
+                {/* Card preview stack with actual images */}
                 <div className="relative w-32 h-44 mx-auto">
-                  {[0, 1, 2].map((index) => (
-                    <div
-                      key={index}
-                      className="absolute border-2 w-full h-full flex items-center justify-center text-xs font-medium"
-                      style={{
-                        ...previewCardStyle,
-                        transform: `translateX(${index * 2}px) translateY(${index * 2}px)`,
-                        zIndex: 3 - index,
-                      }}
-                    >
-                      {index === 0 && "Top Card"}
-                    </div>
-                  ))}
+                  {[0, 1, 2].map((index) => {
+                    const cardAsset = deckCards[index];
+                    return (
+                      <div
+                        key={index}
+                        className="absolute border-2 w-full h-full overflow-hidden"
+                        style={{
+                          ...previewCardStyle,
+                          transform: `translateX(${index * 3}px) translateY(${index * 3}px)`,
+                          zIndex: 3 - index,
+                        }}
+                      >
+                        {cardAsset ? (
+                          <img
+                            src={cardAsset.filePath}
+                            alt={cardAsset.name}
+                            className="w-full h-full object-cover"
+                            style={{
+                              filter: index > 0 ? 'brightness(0.7) contrast(0.8)' : 'none'
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs font-medium">
+                            {index === 0 && "No Cards"}
+                          </div>
+                        )}
+                        {/* Theme overlay for visual effect */}
+                        <div 
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            background: `linear-gradient(135deg, ${currentTheme.cardBackColor}15, transparent 50%, ${currentTheme.cardBorderColor}10)`,
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="text-center text-xs" style={{ color: currentTheme.textColor }}>

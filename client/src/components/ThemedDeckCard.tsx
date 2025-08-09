@@ -1,9 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { CardDeck, DeckTheme } from "@shared/schema";
+import type { CardDeck, DeckTheme, GameAsset } from "@shared/schema";
 
 interface ThemedDeckCardProps {
   deck: CardDeck;
+  assets: GameAsset[];
   children?: React.ReactNode;
   className?: string;
 }
@@ -20,8 +21,13 @@ const DEFAULT_THEME: DeckTheme = {
   shadowIntensity: "medium"
 };
 
-export function ThemedDeckCard({ deck, children, className = "" }: ThemedDeckCardProps) {
+export function ThemedDeckCard({ deck, assets, children, className = "" }: ThemedDeckCardProps) {
   const theme = deck.theme || DEFAULT_THEME;
+  
+  // Get the card assets for this deck
+  const deckCards = (deck.deckOrder as string[] || [])
+    .map(cardId => assets.find(asset => asset.id === cardId))
+    .filter(Boolean) as GameAsset[];
   
   // Generate CSS styles from theme
   const deckStyle = {
@@ -61,28 +67,40 @@ export function ThemedDeckCard({ deck, children, className = "" }: ThemedDeckCar
             )}
           </div>
           
-          {/* Mini card stack preview */}
-          <div className="relative w-12 h-16 ml-3">
-            {[0, 1, 2].map((index) => (
-              <div
-                key={index}
-                className="absolute w-full h-full"
-                style={{
-                  ...cardPreviewStyle,
-                  transform: `translateX(${index * 1}px) translateY(${index * 1}px)`,
-                  zIndex: 3 - index,
-                }}
-              >
-                {index === 0 && (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div 
-                      className="w-2 h-2 rounded-full opacity-50"
-                      style={{ backgroundColor: theme.textColor }}
+          {/* Card stack preview with actual images */}
+          <div className="relative w-16 h-20 ml-3">
+            {[0, 1, 2].map((index) => {
+              const cardAsset = deckCards[index];
+              return (
+                <div
+                  key={index}
+                  className="absolute w-full h-full overflow-hidden"
+                  style={{
+                    ...cardPreviewStyle,
+                    transform: `translateX(${index * 2}px) translateY(${index * 2}px)`,
+                    zIndex: 3 - index,
+                  }}
+                >
+                  {cardAsset ? (
+                    <img
+                      src={cardAsset.filePath}
+                      alt={cardAsset.name}
+                      className="w-full h-full object-cover"
+                      style={{
+                        filter: index > 0 ? 'brightness(0.8)' : 'none'
+                      }}
                     />
-                  </div>
-                )}
-              </div>
-            ))}
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xs">
+                      <div 
+                        className="w-3 h-3 rounded-full opacity-50"
+                        style={{ backgroundColor: theme.textColor }}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

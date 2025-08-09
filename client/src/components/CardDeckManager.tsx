@@ -340,6 +340,7 @@ export function CardDeckManager({
                 <ThemedDeckCard
                   key={deck.id}
                   deck={deck}
+                  assets={assets}
                   className="mb-3"
                 >
                   <div className="flex items-center gap-1">
@@ -380,6 +381,7 @@ export function CardDeckManager({
                         <DeckThemeCustomizer
                           deck={deck}
                           roomId={roomId}
+                          assets={assets}
                           onThemeUpdated={onThemeUpdated}
                         />
                       </>
