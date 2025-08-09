@@ -23,14 +23,7 @@ export default function Home() {
 
   const userId = (user as User)?.id;
 
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
+  // All hooks must be called before any early returns
   const { data: userRooms = [], isLoading } = useQuery<GameRoom[]>({
     queryKey: ["/api/user", userId, "rooms"],
     enabled: !!userId,
@@ -82,6 +75,15 @@ export default function Home() {
       });
     },
   });
+
+  // Early return after all hooks are declared
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   const handleCreateRoom = () => {
     if (!roomName.trim()) {
