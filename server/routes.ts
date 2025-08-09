@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth } from "./replitAuth";
+import { hybridAuthMiddleware } from "./hybridAuth";
 import { ObjectStorageService } from "./objectStorage";
 import type { 
   WebSocketMessage, 
@@ -164,9 +165,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', hybridAuthMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.uid;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -176,10 +177,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Game Room Routes
-  app.post("/api/rooms", isAuthenticated, async (req: any, res) => {
+  app.post("/api/rooms", hybridAuthMiddleware, async (req: any, res) => {
     try {
       const roomData = insertGameRoomSchema.parse(req.body);
-      const userId = req.user.claims.sub;
+      const userId = req.user.uid;
       const room = await storage.createGameRoom(roomData, userId);
       res.json(room);
     } catch (error) {
@@ -201,9 +202,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/user/:userId/rooms", isAuthenticated, async (req: any, res) => {
+  app.get("/api/user/:userId/rooms", hybridAuthMiddleware, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.uid;
       // Ensure users can only access their own rooms
       if (req.params.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });

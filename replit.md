@@ -1,6 +1,6 @@
 # Overview
 
-This is a multiplayer tabletop gaming application that allows users to create and join game rooms where they can share game assets (cards, tokens, maps), place them on a shared game board, and interact in real-time. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, and Google Cloud Storage for file uploads.
+This is a multiplayer tabletop gaming application that allows users to create and join game rooms where they can share game assets (cards, tokens, maps), place them on a shared game board, and interact in real-time. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and Google OAuth authentication via Firebase.
 
 # User Preferences
 
@@ -36,18 +36,22 @@ Preferred communication style: Simple, everyday language.
   - Dice roll history
 
 ## Authentication and Authorization
+- **Firebase Authentication**: Google OAuth sign-in with Firebase client SDK
+- **Hybrid Authentication**: Backend supports both Firebase and Replit Auth for flexibility
 - **File Access Control**: Custom ACL (Access Control List) system for object storage
 - **Room-based Permissions**: Players can only access assets and board state for rooms they've joined
-- **Mock Authentication**: Currently uses placeholder user IDs (ready for integration with real auth system)
+- **Secure API Endpoints**: All protected routes use Firebase ID token verification
 
 ## External Dependencies
 
 ### Cloud Services
+- **Firebase**: Google OAuth authentication service with free tier (50k MAU)
 - **Google Cloud Storage**: File storage with custom ACL policies for secure asset management
 - **Neon Database**: Serverless PostgreSQL hosting
 - **Replit Sidecar**: Authentication mechanism for Google Cloud services
 
 ### Frontend Libraries
+- **Firebase SDK**: Client-side authentication with Google OAuth and ID token management
 - **Radix UI**: Comprehensive set of unstyled, accessible UI primitives
 - **TanStack React Query**: Server state management with caching and synchronization
 - **Uppy**: File upload handling with progress tracking and cloud integration
@@ -55,6 +59,7 @@ Preferred communication style: Simple, everyday language.
 - **React Hook Form**: Form state management with validation
 
 ### Backend Libraries
+- **Firebase Admin SDK**: Server-side Firebase authentication and token verification
 - **Drizzle ORM**: Type-safe database toolkit with migrations
 - **WebSocket (ws)**: Real-time bidirectional communication
 - **Express.js**: Web application framework

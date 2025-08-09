@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dice1, Plus, Users, Clock, Trash2, LogOut, User } from "lucide-react";
+import { signOutUser } from "@/lib/firebase";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { authenticatedApiRequest } from "@/lib/authClient";
 import { useToast } from "@/hooks/use-toast";
 import type { GameRoom } from "@shared/schema";
 
@@ -16,9 +18,9 @@ export default function Home() {
   const [roomName, setRoomName] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useFirebaseAuth();
 
-  const userId = user?.id;
+  const userId = user?.uid;
 
   if (isAuthLoading) {
     return (
@@ -35,7 +37,7 @@ export default function Home() {
 
   const createRoomMutation = useMutation({
     mutationFn: async (data: { name: string }) => {
-      const response = await apiRequest("POST", "/api/rooms", data);
+      const response = await authenticatedApiRequest("POST", "/api/rooms", data);
       return response.json();
     },
     onSuccess: (room: GameRoom) => {
@@ -57,7 +59,7 @@ export default function Home() {
 
   const deleteRoomMutation = useMutation({
     mutationFn: async (roomId: string) => {
-      const response = await apiRequest("DELETE", `/api/rooms/${roomId}`);
+      const response = await authenticatedApiRequest("DELETE", `/api/rooms/${roomId}`);
       return response.json();
     },
     onSuccess: () => {
@@ -120,10 +122,10 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-gray-300">
               <User className="w-5 h-5" />
-              <span>{user?.firstName || user?.email || 'User'}</span>
+              <span>{user?.displayName || user?.email || 'User'}</span>
             </div>
             <Button 
-              onClick={() => window.location.href = '/api/logout'}
+              onClick={() => signOutUser()}
               variant="ghost"
               size="sm"
               className="text-gray-300 hover:text-white"
