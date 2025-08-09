@@ -9,6 +9,7 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Enhanced Admin Dashboard**: Added comprehensive room creator information display showing both usernames and UUIDs for better user identification
 - **Improved Database Queries**: Enhanced admin room queries with JOIN operations to fetch creator details from both Firebase and Replit user accounts
 - **Streamlined Router Configuration**: Simplified authentication-based routing for better reliability and user experience
+- **Create Game System Feature (August 9, 2025)**: Added comprehensive game system creation with categorized asset uploads (Cards, Tokens, Maps, Rules), accessible from home page and admin dashboard
 
 # User Preferences
 
@@ -55,6 +56,7 @@ Preferred communication style: Simple, everyday language.
 - **Asset Pipeline**: Library, upload, and builder tabs with search, filtering, tagging, and bulk operations.
 - **Turn & Timer System**: Turn order management, round counting, configurable timers.
 - **Game Template System**: Save/load/browse functionality for game templates, accessible from Admin and GM interfaces.
+- **Game System Creation**: Dedicated page for creating custom game systems with categorized asset uploads (Cards, Tokens, Maps, Rules) and comprehensive metadata management.
 - **Chat System**: Real-time text chat with message history.
 - **Player Hand System**: Compact and large views for player and GM hands with card actions.
 - **Theme System**: Site-wide dark/light/system theme support with persistence and universal controls.
