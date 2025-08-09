@@ -9,13 +9,29 @@ try {
   
   if (admin.apps && admin.apps.length === 0) {
     console.log("🔥 [Firebase Admin] No existing apps found, initializing new app...");
-    // In development, Firebase Admin SDK will use the default credentials
-    // In production, you might need to provide service account credentials
-    admin.initializeApp({
-      projectId: "board-games-f2082", // Explicit project ID
-      // In production, you would need service account credentials
-      // credential: admin.credential.cert(serviceAccountKey),
-    });
+    
+    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    if (serviceAccountKey) {
+      console.log("🔥 [Firebase Admin] Service account key found, using credential authentication...");
+      console.log("🔥 [Firebase Admin] Service account key length:", serviceAccountKey.length);
+      try {
+        const serviceAccount = JSON.parse(serviceAccountKey);
+        console.log("🔥 [Firebase Admin] Service account parsed successfully");
+        console.log("🔥 [Firebase Admin] Project ID from service account:", serviceAccount.project_id);
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
+        console.log("✅ [Firebase Admin] Initialized with service account credentials");
+      } catch (parseError) {
+        console.error("❌ [Firebase Admin] Failed to parse service account key:", parseError);
+        throw parseError;
+      }
+    } else {
+      console.log("🔥 [Firebase Admin] No service account key found, using default credentials...");
+      admin.initializeApp({
+        projectId: process.env.VITE_FIREBASE_PROJECT_ID || "board-games-f2082",
+      });
+    }
     firebaseAdminInitialized = true;
     console.log("✅ [Firebase Admin] Firebase Admin SDK initialized successfully");
   } else if (admin.apps && admin.apps.length > 0) {
@@ -24,12 +40,14 @@ try {
   }
 } catch (error) {
   console.error("❌ [Firebase Admin] Firebase Admin SDK initialization failed:", error);
-  console.error("❌ [Firebase Admin] Error details:", {
-    name: error.name,
-    message: error.message,
-    code: error.code,
-    stack: error.stack
-  });
+  if (error instanceof Error) {
+    console.error("❌ [Firebase Admin] Error details:", {
+      name: error.name,
+      message: error.message,
+      code: (error as any).code,
+      stack: error.stack
+    });
+  }
 }
 
 export interface FirebaseUser {
@@ -73,12 +91,14 @@ export async function verifyFirebaseToken(idToken: string): Promise<FirebaseUser
     };
   } catch (error) {
     console.error("❌ [Firebase Auth] Error verifying Firebase token:", error);
-    console.error("❌ [Firebase Auth] Error details:", {
-      name: error.name,
-      message: error.message,
-      code: error.code,
-      stack: error.stack
-    });
+    if (error instanceof Error) {
+      console.error("❌ [Firebase Auth] Error details:", {
+        name: error.name,
+        message: error.message,
+        code: (error as any).code,
+        stack: error.stack
+      });
+    }
     return null;
   }
 }
