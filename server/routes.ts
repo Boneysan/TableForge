@@ -176,6 +176,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/auth/user', hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user.uid;
+      const updates = req.body;
+      
+      // Validate the updates
+      if (!updates.firstName && !updates.lastName) {
+        return res.status(400).json({ message: "firstName or lastName is required" });
+      }
+      
+      const user = await storage.updateUser(userId, updates);
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
   // Game Room Routes
   app.post("/api/rooms", hybridAuthMiddleware, async (req: any, res) => {
     try {

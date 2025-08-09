@@ -97,6 +97,11 @@ export const insertUserSchema = createInsertSchema(users).pick({
   profileImageUrl: true,
 });
 
+export const updateUserSchema = createInsertSchema(users).pick({
+  firstName: true,
+  lastName: true,
+}).partial();
+
 export const insertGameRoomSchema = createInsertSchema(gameRooms).pick({
   name: true,
 });

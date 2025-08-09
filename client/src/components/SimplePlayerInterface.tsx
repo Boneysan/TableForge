@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Eye, Dices, Users } from "lucide-react";
+import { Eye, Dices, Users, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
 interface SimplePlayerInterfaceProps {
@@ -27,6 +32,12 @@ export function SimplePlayerInterface({
   const [selectedDice, setSelectedDice] = useState<string>("d6");
   const [diceCount, setDiceCount] = useState<number>(1);
   const [lastRoll, setLastRoll] = useState<{ results: number[]; total: number; diceType: string; count: number } | null>(null);
+  const [showNameEdit, setShowNameEdit] = useState(false);
+  const [newFirstName, setNewFirstName] = useState(currentUser.firstName || "");
+  const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const diceTypes = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
@@ -42,6 +53,51 @@ export function SimplePlayerInterface({
     onDiceRoll(selectedDice, diceCount);
   };
 
+  const updateNameMutation = useMutation({
+    mutationFn: async (updates: { firstName?: string; lastName?: string }) => {
+      const response = await authenticatedApiRequest("PUT", "/api/auth/user", updates);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setShowNameEdit(false);
+      toast({
+        title: "Success",
+        description: "Your name has been updated successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update your name. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleNameSubmit = () => {
+    const updates: { firstName?: string; lastName?: string } = {};
+    if (newFirstName.trim()) updates.firstName = newFirstName.trim();
+    if (newLastName.trim()) updates.lastName = newLastName.trim();
+    
+    if (Object.keys(updates).length === 0) {
+      toast({
+        title: "Error",
+        description: "Please enter at least a first name or last name.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    updateNameMutation.mutate(updates);
+  };
+
+  const displayName = currentUser.firstName && currentUser.lastName 
+    ? `${currentUser.firstName} ${currentUser.lastName}`
+    : currentUser.firstName 
+    ? currentUser.firstName
+    : currentUser.email || "Player";
+
   return (
     <div className="space-y-6" data-testid="simple-player-interface">
       {/* Player Header */}
@@ -49,9 +105,69 @@ export function SimplePlayerInterface({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Eye className="w-6 h-6 text-white" />
-            <div>
+            <div className="flex-1">
               <h2 className="text-xl font-bold text-white">Player View</h2>
-              <p className="text-green-100">Welcome to {room.name}</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-green-100">Welcome {displayName}</p>
+                <Dialog open={showNameEdit} onOpenChange={setShowNameEdit}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 w-6 p-0 text-green-100 hover:text-white hover:bg-green-700"
+                      data-testid="edit-name-button"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-[#1F2937] border-gray-600">
+                    <DialogHeader>
+                      <DialogTitle className="text-gray-100">Change Your Name</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm text-gray-300 mb-1 block">First Name</label>
+                        <Input
+                          value={newFirstName}
+                          onChange={(e) => setNewFirstName(e.target.value)}
+                          placeholder="Enter your first name"
+                          className="bg-[#374151] border-gray-600 text-gray-100"
+                          data-testid="first-name-input"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-300 mb-1 block">Last Name</label>
+                        <Input
+                          value={newLastName}
+                          onChange={(e) => setNewLastName(e.target.value)}
+                          placeholder="Enter your last name"
+                          className="bg-[#374151] border-gray-600 text-gray-100"
+                          data-testid="last-name-input"
+                        />
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button 
+                          onClick={handleNameSubmit}
+                          disabled={updateNameMutation.isPending}
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          data-testid="save-name-button"
+                        >
+                          {updateNameMutation.isPending ? "Saving..." : "Save"}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setShowNameEdit(false)}
+                          className="flex-1 border-gray-600 text-gray-100 hover:bg-gray-700"
+                          data-testid="cancel-name-button"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <p className="text-green-100 text-sm">Playing in {room.name}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
