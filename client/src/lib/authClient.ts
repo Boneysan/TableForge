@@ -40,11 +40,16 @@ export async function authenticatedApiRequest(
   endpoint: string,
   data?: any
 ): Promise<Response> {
+  console.log("🌐 [API Request] ===== STARTING API REQUEST =====");
+  console.log("🌐 [API Request] Request timestamp:", new Date().toISOString());
   console.log(`🌐 [API Request] ${method} ${endpoint}`);
   
   const token = await getAuthToken();
   console.log("🌐 [API Request] Token available:", !!token);
   console.log("🌐 [API Request] Token length:", token?.length || 0);
+  if (token) {
+    console.log("🌐 [API Request] Token preview:", `${token.substring(0, 50)}...`);
+  }
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -67,11 +72,24 @@ export async function authenticatedApiRequest(
     console.log("🌐 [API Request] Request body length:", JSON.stringify(data).length);
   }
   
+  console.log("🌐 [API Request] Final headers:", headers);
   console.log("🌐 [API Request] Making fetch request...");
-  const response = await fetch(endpoint, config);
   
-  console.log("🌐 [API Request] Response status:", response.status);
-  console.log("🌐 [API Request] Response headers:", Object.fromEntries(response.headers.entries()));
+  try {
+    const response = await fetch(endpoint, config);
+    
+    console.log("🌐 [API Request] ===== RESPONSE RECEIVED =====");
+    console.log("🌐 [API Request] Response timestamp:", new Date().toISOString());
+    console.log("🌐 [API Request] Response status:", response.status);
+    console.log("🌐 [API Request] Response statusText:", response.statusText);
+    console.log("🌐 [API Request] Response headers:", Object.fromEntries(response.headers.entries()));
+    console.log("🌐 [API Request] Response ok:", response.ok);
+    
+    return response;
+  } catch (error) {
+    console.error("❌ [API Request] Fetch failed:", error);
+    throw error;
+  }
   
   if (!response.ok) {
     const errorText = await response.text();

@@ -223,19 +223,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', hybridAuthMiddleware, async (req: any, res) => {
     try {
+      console.log("📊 [Auth User] ===== AUTH USER ENDPOINT CALLED =====");
+      console.log("📊 [Auth User] Request timestamp:", new Date().toISOString());
+      console.log("📊 [Auth User] Request method:", req.method);
+      console.log("📊 [Auth User] Request URL:", req.url);
+      console.log("📊 [Auth User] Request headers:", req.headers);
+      
       const userId = req.user.uid;
       console.log("📊 [Auth User] Fetching user data for UID:", userId);
-      console.log("📊 [Auth User] Authenticated user object:", req.user);
+      console.log("📊 [Auth User] Full authenticated user object:", JSON.stringify(req.user, null, 2));
       
       let user = await storage.getUser(userId);
-      console.log("📊 [Auth User] User from storage:", user);
+      console.log("📊 [Auth User] User from storage:", JSON.stringify(user, null, 2));
       
-      // If user doesn't exist in storage, create them from authenticated data
+      // Try to find user by email if not found by UID (for existing users)
       if (!user) {
-        console.log("📊 [Auth User] User not found in storage, creating new user...");
+        console.log("📊 [Auth User] User not found by UID, trying email lookup...");
+        try {
+          const userByEmail = await storage.getUserByEmail(req.user.email);
+          if (userByEmail) {
+            console.log("📊 [Auth User] Found existing user by email:", JSON.stringify(userByEmail, null, 2));
+            // Update the user's ID to match the current Firebase UID
+            user = await storage.updateUser(userByEmail.id, { id: req.user.uid });
+            console.log("📊 [Auth User] Updated user ID to match Firebase UID:", JSON.stringify(user, null, 2));
+          }
+        } catch (emailError) {
+          console.log("📊 [Auth User] No existing user found by email");
+        }
+      }
+      
+      // If still no user found, use upsert to handle conflicts gracefully
+      if (!user) {
+        console.log("📊 [Auth User] No existing user found, using upsert...");
         
-        // Create user from authenticated data
-        const newUserData = {
+        // Use upsert to handle potential conflicts
+        const upsertUserData = {
           id: req.user.uid,
           email: req.user.email,
           firstName: req.user.displayName?.split(' ')[0] || req.user.displayName || null,
@@ -243,15 +265,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           profileImageUrl: req.user.photoURL || null
         };
         
-        console.log("📊 [Auth User] Creating user with data:", newUserData);
-        user = await storage.createUser(newUserData);
-        console.log("📊 [Auth User] Created new user:", user);
+        console.log("📊 [Auth User] Upserting user with data:", JSON.stringify(upsertUserData, null, 2));
+        user = await storage.upsertUser(upsertUserData);
+        console.log("📊 [Auth User] Upserted user:", JSON.stringify(user, null, 2));
+      } else {
+        console.log("📊 [Auth User] Existing user found in storage");
       }
       
-      console.log("📊 [Auth User] Returning user data:", user);
-      res.json(user);
+      console.log("📊 [Auth User] ===== SENDING RESPONSE =====");
+      console.log("📊 [Auth User] Response timestamp:", new Date().toISOString());
+      console.log("📊 [Auth User] Returning user data:", JSON.stringify(user, null, 2));
+      console.log("📊 [Auth User] Response status: 200");
+      
+      res.status(200).json(user);
+      
+      console.log("📊 [Auth User] Response sent successfully");
     } catch (error) {
+      console.error("❌ [Auth User] ===== ERROR IN AUTH USER ENDPOINT =====");
+      console.error("❌ [Auth User] Error timestamp:", new Date().toISOString());
       console.error("❌ [Auth User] Error fetching/creating user:", error);
+      console.error("❌ [Auth User] Error type:", typeof error);
+      console.error("❌ [Auth User] Error constructor:", error?.constructor?.name);
+      console.error("❌ [Auth User] Error message:", error instanceof Error ? error.message : String(error));
+      console.error("❌ [Auth User] Error stack:", error instanceof Error ? error.stack : "No stack trace");
+      
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
