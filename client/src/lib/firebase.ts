@@ -28,9 +28,17 @@ if (googleProvider) {
 }
 
 export const signInWithGoogle = () => {
+  console.log("signInWithGoogle called");
+  console.log("auth:", !!auth);
+  console.log("googleProvider:", !!googleProvider);
+  console.log("hasFirebaseConfig:", hasFirebaseConfig);
+  
   if (!auth || !googleProvider) {
+    console.error('Firebase not configured properly');
     throw new Error('Firebase not configured. Please add Firebase secrets.');
   }
+  
+  console.log("Initiating signInWithRedirect...");
   return signInWithRedirect(auth, googleProvider);
 };
 
