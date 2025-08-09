@@ -146,7 +146,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
               {/* Asset Type Selection */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Asset Type</label>
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap gap-2">
                   {(['card', 'token', 'map', 'rules', 'other'] as const).map((type) => (
                     <Button
                       key={type}
