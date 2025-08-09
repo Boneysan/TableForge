@@ -26,7 +26,9 @@ export default function FirebaseLanding() {
       const isReplitDev = window.location.hostname.includes('.replit.dev');
       if (isReplitDev) {
         console.log('Firebase failed, redirecting to Replit Auth...');
-        window.location.href = '/api/login';
+        setTimeout(() => {
+          window.location.href = '/api/login';
+        }, 1000);
         return;
       }
       
