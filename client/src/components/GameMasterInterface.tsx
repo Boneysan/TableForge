@@ -1,15 +1,20 @@
 import { useState } from "react";
-import { Upload, Settings, Users, Dice6, Eye, EyeOff } from "lucide-react";
+import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { ObjectUploader } from "./ObjectUploader";
 import { GameBoard } from "./GameBoard";
 import { GameControls } from "./GameControls";
 import { AssetLibrary } from "./AssetLibrary";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
 
 interface GameMasterInterfaceProps {
@@ -39,6 +44,12 @@ export function GameMasterInterface({
 }: GameMasterInterfaceProps) {
   const [isGMPanelVisible, setIsGMPanelVisible] = useState(true);
   const [selectedTab, setSelectedTab] = useState("game");
+  const [showNameEdit, setShowNameEdit] = useState(false);
+  const [newFirstName, setNewFirstName] = useState(currentUser.firstName || "");
+  const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleGetUploadParameters = async () => {
     const response = await fetch("/api/objects/upload", {
@@ -72,6 +83,45 @@ export function GameMasterInterface({
     }
   };
 
+  const updateNameMutation = useMutation({
+    mutationFn: async (updates: { firstName?: string; lastName?: string }) => {
+      const response = await authenticatedApiRequest("PUT", "/api/auth/user", updates);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      setShowNameEdit(false);
+      toast({
+        title: "Success",
+        description: "Your name has been updated successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update your name. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleNameSubmit = () => {
+    const updates: { firstName?: string; lastName?: string } = {};
+    if (newFirstName.trim()) updates.firstName = newFirstName.trim();
+    if (newLastName.trim()) updates.lastName = newLastName.trim();
+    
+    if (Object.keys(updates).length === 0) {
+      toast({
+        title: "Error",
+        description: "Please enter at least a first name or last name.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    updateNameMutation.mutate(updates);
+  };
+
   const currentPlayerName = currentUser.firstName || currentUser.lastName 
     ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
     : 'Game Master';
@@ -82,9 +132,73 @@ export function GameMasterInterface({
       <div className="flex items-center justify-between p-4 border-b bg-purple-50 dark:bg-purple-900/20">
         <div className="flex items-center gap-3">
           <Settings className="w-5 h-5 text-purple-600" />
-          <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-200">
-            Game Master Console
-          </h2>
+          <div>
+            <h2 className="text-lg font-semibold text-purple-800 dark:text-purple-200">
+              Game Master Console
+            </h2>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-purple-600 dark:text-purple-300">
+                GM: {currentPlayerName}
+              </span>
+              <Dialog open={showNameEdit} onOpenChange={setShowNameEdit}>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-5 w-5 p-0 text-purple-600 hover:text-purple-800 hover:bg-purple-100 dark:text-purple-300 dark:hover:text-purple-100 dark:hover:bg-purple-800"
+                    data-testid="edit-gm-name-button"
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-white dark:bg-[#1F2937] border-gray-300 dark:border-gray-600">
+                  <DialogHeader>
+                    <DialogTitle className="text-gray-900 dark:text-gray-100">Change Your Name</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm text-gray-700 dark:text-gray-300 mb-1 block">First Name</label>
+                      <Input
+                        value={newFirstName}
+                        onChange={(e) => setNewFirstName(e.target.value)}
+                        placeholder="Enter your first name"
+                        className="bg-white dark:bg-[#374151] border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                        data-testid="gm-first-name-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-700 dark:text-gray-300 mb-1 block">Last Name</label>
+                      <Input
+                        value={newLastName}
+                        onChange={(e) => setNewLastName(e.target.value)}
+                        placeholder="Enter your last name"
+                        className="bg-white dark:bg-[#374151] border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                        data-testid="gm-last-name-input"
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={handleNameSubmit}
+                        disabled={updateNameMutation.isPending}
+                        className="flex-1 bg-purple-600 hover:bg-purple-700"
+                        data-testid="gm-save-name-button"
+                      >
+                        {updateNameMutation.isPending ? "Saving..." : "Save"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowNameEdit(false)}
+                        className="flex-1 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        data-testid="gm-cancel-name-button"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           {onSwitchView && (
