@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { ChatComponent } from "./ChatComponent";
+import { ThemeToggle } from "./ThemeToggle";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
 interface SimplePlayerInterfaceProps {
@@ -178,6 +179,7 @@ export function SimplePlayerInterface({
             <span className="text-white text-sm">
               {connected ? 'Connected' : 'Disconnected'}
             </span>
+            <ThemeToggle />
           </div>
         </div>
       </div>
