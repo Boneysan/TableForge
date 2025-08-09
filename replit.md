@@ -1,230 +1,82 @@
 # Overview
 
-This is a comprehensive multiplayer virtual tabletop gaming platform called "Vorpal Board" designed for browser-based real-time tabletop gaming with digital components. The platform supports rules-agnostic gameplay with advanced features for cards, tokens, dice, and board management. The application features a React frontend with a Node.js/Express backend, real-time WebSocket communication, PostgreSQL database storage via Drizzle ORM, Google Cloud Storage for file uploads, and hybrid authentication supporting both Firebase Google OAuth and Replit Auth with automatic fallback.
-
-## Recent Changes (January 2025)
-- **AUTHENTICATION SYSTEM COMPLETED (Jan 9, 2025)**: Complete resolution of all authentication issues including auto-login and room access
-  - Fixed critical Firebase/Replit authentication issues with proper logout functionality using Firebase signOut instead of Replit logout
-  - Resolved user room access denied (403) errors by using Firebase user ID instead of database user ID in API endpoints
-  - Fixed React hooks order violations causing black screen after login by moving all hooks before conditional returns
-  - Updated cache invalidation to use Firebase user ID for proper query key management
-  - Firebase Admin SDK now properly initializes with all credential modules available
-  - Server successfully verifies Firebase ID tokens and authenticates users with 200 status codes
-  - End-to-end authentication flow from client Google OAuth to server token verification working perfectly
-  - Hybrid authentication system provides robust fallback to Replit Auth when needed
-  - TypeScript errors in room components resolved with proper RoomPlayerWithName type definitions
-- **GAME SYSTEM IMPLEMENTATION COMPLETED (Jan 9, 2025)**: Complete game system management separate from templates with rules upload support
-- **GAME TEMPLATE SYSTEM COMPLETED (Jan 9, 2025)**: Fully implemented comprehensive game template system with complete frontend and backend integration
-- **COMPREHENSIVE IMPLEMENTATION COMPLETED (Jan 9, 2025)**: Successfully implemented the complete Vorpal Board specification including all advanced features
-- **DARK MODE THEME SYSTEM COMPLETED (Jan 9, 2025)**: Integrated comprehensive site-wide dark mode with ThemeProvider, theme toggles on all interfaces, and proper CSS variable support
-- **NAVIGATION SYSTEM COMPLETED (Jan 9, 2025)**: Added consistent navigation controls across all interfaces with Leave Room buttons and proper GM view switching
-- **PLAYER DISPLAY IMPROVEMENTS (Jan 9, 2025)**: Fixed player names display across all interfaces to show actual names instead of UUIDs
-  - Admin Interface Players tab now shows proper names
-  - Game Master Console Players tab displays readable names  
-  - Current Player section in GM Console shows only names (no UUID below)
-  - Player Interface now includes complete players list with role badges
-  - Consistent player identification throughout the platform
-
-### Phase 1-3 Core Features ✅ COMPLETE
-- **Authentication System**: Robust hybrid authentication with Firebase Google OAuth and Replit Auth fallback
-- **Room Management**: Full room creation, joining by name/UUID, host controls, and reconnection handling
-- **Three-Interface System**: ViewSelector, Admin Interface (blue), Game Master Console (purple), and Player Interface
-- **Real-Time Communication**: WebSocket server with room-based connections and state synchronization
-- **File Upload System**: ObjectUploader with Google Cloud Storage, 10MB limits, ACL security
-
-### Advanced Game Objects ✅ COMPLETE
-- **Enhanced Card/Deck System**: Complete CardDeckManager with face-up/down states, server-side shuffling, pile management, ownership rules, and dealing system
-- **Enhanced Token System**: Rotation controls, z-order management, snap-to-grid, lock/unlock functionality
-- **Database Schema**: Comprehensive tables for cardDecks, cardPiles, deckCards with full relationships
-- **API Integration**: Complete REST endpoints with authentication for all card operations
-
-### Advanced Board Features ✅ COMPLETE
-- **Multi-layer Board System**: Background layer, game assets layer, overlay layers with proper z-indexing
-- **Grid System**: GridOverlay component with configurable grid size, snap-to-grid functionality, visibility controls
-- **Measurement Tools**: MeasurementTool component with ruler functionality, distance calculations, multiple measurement support
-- **Annotation System**: AnnotationSystem with freehand drawing, sticky notes, text annotations, color controls, undo button for last drawing, and deletion
-
-### Asset Pipeline ✅ COMPLETE
-- **AssetPipeline Component**: Library, upload, and builder tabs with comprehensive functionality
-- **Search & Filtering**: Category, tag, and visibility-based filtering with bulk operations
-- **Asset Organization**: Tag system with color coding, metadata management, thumbnail generation
-- **Bulk Operations**: Multi-select with tag, duplicate, and delete actions
-
-### Turn & Timer System ✅ COMPLETE
-- **TurnTracker Component**: Full turn order management, round counting, active player highlighting
-- **Timer System**: Configurable turn timers with start/pause/stop controls, visual countdown warnings
-- **Player Management**: Real-time updates, name changes, role detection, connection status
-
-### Game Template System ✅ COMPLETE
-- **GameTemplateManager Component**: Full template save/load/browse functionality with tabbed interface
-- **Template Database Schema**: Complete tables for gameTemplates with JSON storage for game data
-- **Template API Routes**: RESTful endpoints for all template operations (CRUD, apply, save from room)
-- **GM Integration**: Template manager accessible from Game Master Console with Templates button
-- **Admin Integration**: "Game System" tab in Admin Interface with template save/browse functionality
-- **Dual Interface Access**: Template system available in both Admin Interface and Game Master Console
-- **Browse & Save Interface**: Browse public/private templates and save current room state as reusable template
-- **Template Metadata**: Support for categories, tags, visibility settings, and template descriptions
-
-### Real-Time Features ✅ COMPLETE
-- **Chat System**: Real-time text chat across all interfaces with message history and timestamps
-- **State Synchronization**: WebSocket message handling for all game actions with proper authentication
-- **Player Updates**: Real-time player list updates, name changes, and connection management
-
-### Navigation System ✅ COMPLETE
-- **Universal Leave Room Buttons**: All interfaces (Player, Admin, Game Master) have navigation back to home page
-- **GM View Switching**: Direct switching between Admin Interface and Game Master Console without ViewSelector
-- **Consistent UX**: Theme toggles and navigation controls positioned consistently across all interfaces
-- **Proper Routing**: wouter-based navigation with clean URL management and state preservation
-
-### Player Hand System ✅ COMPLETE
-- **Compact Hand View**: Dedicated "Your Hand" section in player interface sidebar with card thumbnails
-- **Large Hand Viewer**: Full-screen modal dialog for detailed card viewing and interaction
-- **Card Display**: Visual card representations with face-up/face-down states and hover actions
-- **Hand Management**: Sort, organize, and individual card actions (Play, Flip) ready for backend integration
-- **Hand Actions**: Draw Card and Organize buttons available in both compact and large views
-- **Responsive Design**: Optimized for both compact sidebar and large modal views with theme support
-
-### Game Master Hand System ✅ COMPLETE
-- **GM Hand Tab**: New "Hand" tab in Game Master Console for GM card management
-- **Compact GM Hand View**: 2x2 grid display in sidebar showing GM cards with purple theme
-- **Large GM Hand Viewer**: Full-screen modal with 4-column layout for detailed GM card management
-- **GM-Specific Actions**: Play, Deal to players, Flip cards, and organize by type functionality
-- **Enhanced Card Actions**: Deal to All Players and Organize by Type options for game management
-
-### Theme System ✅ COMPLETE
-- **Comprehensive Dark Mode**: Site-wide dark/light/system theme support with localStorage persistence
-- **Universal Theme Controls**: Theme toggle buttons integrated into all interfaces (Home, Admin, Game Master, Player)
-- **CSS Variables**: All components use theme-aware CSS variables for consistent styling
-- **ThemeProvider**: Context-based theme management with automatic system preference detection
-- **Cross-Interface Consistency**: Theme preferences persist across all views and page transitions
-
-### Database & Security ✅ COMPLETE
-- **Complete Schema**: All tables implemented with proper relationships and constraints
-- **API Security**: Hybrid authentication middleware on all protected endpoints
-- **Data Integrity**: Foreign key constraints, cascade deletes, and validation
-- **Real-time Persistence**: All game state changes saved and synchronized
+Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences.
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-# Project Roadmap (Based on Vorpal Board Specification)
-
-## Phase 1: Core Foundation (Current - Mostly Complete)
-✓ Basic room creation and joining
-✓ User authentication and role management
-✓ Basic file upload system
-✓ Simple dice rolling
-✓ Basic player interface and game master console
-✓ Real-time WebSocket communication
-✓ Player name management
-✓ Real-time text chat system across all interfaces
-
-## Phase 2: Enhanced Game Objects (Next Priority)
-- Card system with decks, piles, and face-up/down states
-- Enhanced token system with rotation and z-order
-- Snap-to-grid functionality
-- Card/token ownership and visibility rules
-- Server-authoritative shuffling
-
-## Phase 3: Advanced Board Features
-- Multi-layer board system (background + overlay layers)
-- Measurement tools and rulers
-- Annotation system (drawing, sticky notes)
-- Fog of war and hide/reveal functionality
-- Search and filtering for game objects
-
-## Phase 4: Asset Pipeline Enhancement
-- Bulk import system (ZIP files)
-- Web-based card builder with cropping
-- Asset tagging and versioning
-- Thumbnail generation
-- Asset library permissions (private/shared)
-
-## Phase 5: Advanced Real-time Features
-- Optimistic UI with conflict resolution
-- Undo/redo system with action logs
-- Turn tracker and timer system
-- Auto-save checkpoints
-- Session save/restore
-
-## Phase 6: Commercial & Security Features
-- Subscription plans and billing
-- Advanced ACL system
-- Anti-cheat measures
-- Audit trails and tamper detection
-- Usage caps and quotas
-
-## Phase 7: Polish & Advanced Features
-- Accessibility improvements
-- Macro/automation system
-- Module marketplace
-- Advanced moderation tools
-- Performance optimizations
-
 # System Architecture
 
 ## Frontend Architecture
-- **Framework**: React with TypeScript using Vite as the build tool
-- **UI Components**: Shadcn/ui component library built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom CSS variables for theming
-- **Routing**: Wouter for client-side routing (lightweight React router)
-- **State Management**: TanStack React Query for server state management
-- **Real-time Communication**: Custom WebSocket hook for multiplayer features
+- **Framework**: React with TypeScript (Vite build tool)
+- **UI Components**: Shadcn/ui (built on Radix UI)
+- **Styling**: Tailwind CSS with custom CSS variables
+- **Routing**: Wouter
+- **State Management**: TanStack React Query for server state
+- **Real-time Communication**: Custom WebSocket hook
 
 ## Backend Architecture
-- **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules
-- **API Design**: RESTful API with real-time WebSocket support
-- **WebSocket Server**: Built-in WebSocket server for multiplayer game state synchronization
-- **File Uploads**: Uppy integration for client-side file handling
+- **Runtime**: Node.js with Express.js
+- **Language**: TypeScript (ES modules)
+- **API Design**: RESTful API with integrated WebSocket server for real-time game state synchronization
+- **File Uploads**: Uppy integration for client-side handling
 
 ## Data Storage Solutions
-- **Primary Database**: PostgreSQL accessed via Neon serverless
-- **ORM**: Drizzle ORM with schema-first approach
+- **Primary Database**: PostgreSQL (Neon serverless)
+- **ORM**: Drizzle ORM (schema-first approach)
 - **File Storage**: Google Cloud Storage for game assets
-- **Schema Structure**: 
-  - Users and authentication
-  - Game rooms with state management
-  - Game assets (files) linked to rooms
-  - Board assets (positioned game pieces)
-  - Room players for multiplayer sessions
-  - Dice roll history
+- **Schema Structure**: Comprehensive tables for users, game rooms, assets, board elements, players, and dice roll history.
 
 ## Authentication and Authorization
-- **Hybrid Authentication System**: Primary Firebase Google OAuth with automatic Replit Auth fallback
-- **Development Environment Support**: Automatic domain detection and fallback for Replit development domains
-- **Production Ready**: Firebase Google OAuth for production with proper domain authorization
-- **Smart Fallback**: When Firebase fails due to domain issues, automatically redirects to Replit Auth
-- **File Access Control**: Custom ACL (Access Control List) system for object storage
-- **Room-based Permissions**: Players can only access assets and board state for rooms they've joined
-- **Secure API Endpoints**: All protected routes support both Firebase ID tokens and Replit Auth verification
+- **Hybrid Authentication**: Primary Firebase Google OAuth with automatic Replit Auth fallback.
+- **Environment Support**: Automatic domain detection for Replit development and production environments.
+- **Access Control**: Custom ACL for object storage and room-based permissions.
+- **Security**: All protected API routes verify Firebase ID tokens or Replit Auth.
 
-## External Dependencies
+## Core Features
+- **Three-Interface System**: ViewSelector, Admin Interface, Game Master Console, and Player Interface.
+- **Real-Time Communication**: WebSocket server for room-based connections and state synchronization.
+- **File Upload System**: ObjectUploader with Google Cloud Storage and ACL security.
+- **Enhanced Card/Deck System**: Server-side shuffling, pile management, ownership, dealing.
+- **Enhanced Token System**: Rotation, z-order, snap-to-grid, lock/unlock.
+- **Multi-layer Board System**: Background, game assets, overlay layers with z-indexing.
+- **Grid System**: Configurable grid, snap-to-grid, visibility controls.
+- **Measurement Tools**: Ruler functionality and distance calculations.
+- **Annotation System**: Freehand drawing, sticky notes, text annotations.
+- **Asset Pipeline**: Library, upload, and builder tabs with search, filtering, tagging, and bulk operations.
+- **Turn & Timer System**: Turn order management, round counting, configurable timers.
+- **Game Template System**: Save/load/browse functionality for game templates, accessible from Admin and GM interfaces.
+- **Chat System**: Real-time text chat with message history.
+- **Player Hand System**: Compact and large views for player and GM hands with card actions.
+- **Theme System**: Site-wide dark/light/system theme support with persistence and universal controls.
+- **Navigation System**: Universal "Leave Room" buttons and GM view switching for consistent UX.
 
-### Cloud Services
-- **Firebase**: Google OAuth authentication service with free tier (50k MAU)
-- **Google Cloud Storage**: File storage with custom ACL policies for secure asset management
-- **Neon Database**: Serverless PostgreSQL hosting
-- **Replit Sidecar**: Authentication mechanism for Google Cloud services
+# External Dependencies
 
-### Frontend Libraries
-- **Firebase SDK**: Client-side authentication with Google OAuth and ID token management
-- **Radix UI**: Comprehensive set of unstyled, accessible UI primitives
-- **TanStack React Query**: Server state management with caching and synchronization
-- **Uppy**: File upload handling with progress tracking and cloud integration
-- **Wouter**: Lightweight routing library
-- **React Hook Form**: Form state management with validation
+## Cloud Services
+- **Firebase**: Google OAuth authentication.
+- **Google Cloud Storage**: File storage for game assets.
+- **Neon Database**: Serverless PostgreSQL hosting.
+- **Replit Sidecar**: Authentication mechanism for Google Cloud services in development.
 
-### Backend Libraries
-- **Firebase Admin SDK**: Server-side Firebase authentication and token verification
-- **Drizzle ORM**: Type-safe database toolkit with migrations
-- **WebSocket (ws)**: Real-time bidirectional communication
-- **Express.js**: Web application framework
-- **Zod**: Runtime type validation for API schemas
+## Frontend Libraries
+- **Firebase SDK**: Client-side authentication.
+- **Radix UI**: Unstyled, accessible UI primitives.
+- **TanStack React Query**: Server state management.
+- **Uppy**: File upload handling.
+- **Wouter**: Lightweight routing.
+- **React Hook Form**: Form state management.
 
-### Development Tools
-- **Vite**: Fast build tool with HMR (Hot Module Replacement)
-- **TypeScript**: Static typing across the entire application
-- **ESBuild**: Fast JavaScript bundler for production builds
-- **Tailwind CSS**: Utility-first CSS framework
+## Backend Libraries
+- **Firebase Admin SDK**: Server-side Firebase authentication.
+- **Drizzle ORM**: Type-safe database toolkit.
+- **WebSocket (ws)**: Real-time communication.
+- **Express.js**: Web application framework.
+- **Zod**: Runtime type validation.
+
+## Development Tools
+- **Vite**: Fast build tool.
+- **TypeScript**: Static typing.
+- **ESBuild**: Fast JavaScript bundler.
+- **Tailwind CSS**: Utility-first CSS framework.
