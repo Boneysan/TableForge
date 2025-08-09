@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Upload, Plus, Settings, Users, Shield } from "lucide-react";
+import { Upload, Plus, Settings, Users, Shield, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import type { GameRoom, GameAsset, RoomPlayer } from "@shared/schema";
 
 interface AdminInterfaceProps {
@@ -22,6 +24,7 @@ interface AdminInterfaceProps {
 
 export function AdminInterface({ roomId, assets, boardAssets, players, currentUser, onAssetUploaded, onSwitchView }: AdminInterfaceProps) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [selectedAssetType, setSelectedAssetType] = useState<'card' | 'token' | 'map' | 'other'>('card');
 
   const handleGetUploadParameters = async () => {
@@ -85,15 +88,28 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
               <p className="text-blue-100">Upload and manage game assets</p>
             </div>
           </div>
-          {onSwitchView && (
-            <Button 
-              variant="secondary" 
-              onClick={onSwitchView}
-              data-testid="button-switch-view"
+          <div className="flex items-center space-x-2">
+            <ThemeToggle />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/')}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              data-testid="button-leave-room"
             >
-              Switch to Game Master Console
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Leave Room
             </Button>
-          )}
+            {onSwitchView && (
+              <Button 
+                variant="secondary" 
+                onClick={onSwitchView}
+                data-testid="button-switch-view"
+              >
+                Switch to Game Master Console
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

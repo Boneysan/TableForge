@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle } from "lucide-react";
+import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,8 @@ import { CardDeckManager } from "./CardDeckManager";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useLocation } from "wouter";
 import type { GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
 
 interface GameMasterInterfaceProps {
@@ -54,6 +56,7 @@ export function GameMasterInterface({
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const handleGetUploadParameters = async () => {
     const response = await fetch("/api/objects/upload", {
@@ -205,6 +208,17 @@ export function GameMasterInterface({
           </div>
         </div>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setLocation('/')}
+            className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800"
+            data-testid="button-leave-room"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Leave Room
+          </Button>
           {onSwitchView && (
             <Button 
               variant="outline" 
