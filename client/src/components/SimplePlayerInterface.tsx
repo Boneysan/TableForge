@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Dices, Users, Edit, MessageCircle } from "lucide-react";
+import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { ChatComponent } from "./ChatComponent";
 import { ThemeToggle } from "./ThemeToggle";
+import { useLocation } from "wouter";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
 
 interface SimplePlayerInterfaceProps {
@@ -42,6 +43,7 @@ export function SimplePlayerInterface({
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const diceTypes = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
@@ -180,6 +182,16 @@ export function SimplePlayerInterface({
               {connected ? 'Connected' : 'Disconnected'}
             </span>
             <ThemeToggle />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/')}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              data-testid="button-leave-room"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Leave Room
+            </Button>
           </div>
         </div>
       </div>
