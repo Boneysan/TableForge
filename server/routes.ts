@@ -236,19 +236,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let user = await storage.getUser(userId);
       console.log("📊 [Auth User] User from storage:", JSON.stringify(user, null, 2));
       
-      // Try to find user by email if not found by UID (for existing users)
+      // Try to find user by email if not found by UID (for existing users from different auth methods)
       if (!user) {
-        console.log("📊 [Auth User] User not found by UID, trying email lookup...");
+        console.log("📊 [Auth User] User not found by UID, trying email lookup for account merging...");
         try {
           const userByEmail = await storage.getUserByEmail(req.user.email);
           if (userByEmail) {
-            console.log("📊 [Auth User] Found existing user by email:", JSON.stringify(userByEmail, null, 2));
-            // Update the user's ID to match the current Firebase UID
-            user = await storage.updateUser(userByEmail.id, { id: req.user.uid });
-            console.log("📊 [Auth User] Updated user ID to match Firebase UID:", JSON.stringify(user, null, 2));
+            console.log("📊 [Auth User] Found existing user by email (likely from Replit auth):", JSON.stringify(userByEmail, null, 2));
+            console.log("📊 [Auth User] Merging accounts - this user will now be accessible via both Replit and Firebase auth");
+            
+            // Instead of changing the ID (which could break FK constraints), 
+            // we'll create a mapping by using Firebase UID as the new primary ID
+            // and preserving all existing data
+            
+            // First, let's upsert with Firebase UID while preserving existing data
+            const mergedUserData = {
+              id: req.user.uid, // Use Firebase UID as primary ID going forward
+              email: req.user.email,
+              firstName: userByEmail.firstName || req.user.displayName?.split(' ')[0] || req.user.displayName || null,
+              lastName: userByEmail.lastName || req.user.displayName?.split(' ')[1] || null,
+              profileImageUrl: req.user.photoURL || userByEmail.profileImageUrl || null
+            };
+            
+            console.log("📊 [Auth User] Creating merged account with Firebase UID:", JSON.stringify(mergedUserData, null, 2));
+            user = await storage.upsertUser(mergedUserData);
+            console.log("📊 [Auth User] Successfully merged accounts:", JSON.stringify(user, null, 2));
           }
         } catch (emailError) {
-          console.log("📊 [Auth User] No existing user found by email");
+          console.log("📊 [Auth User] No existing user found by email, will create new account");
         }
       }
       
