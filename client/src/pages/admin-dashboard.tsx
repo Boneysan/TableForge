@@ -30,12 +30,14 @@ import { authenticatedApiRequest } from "@/lib/authClient";
 import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import type { GameRoom, GameTemplate, GameSystem } from "@shared/schema";
+import { ObjectUploader } from "@/components/ObjectUploader";
 
 export default function AdminDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("rooms");
+  const [showCreateGameSystem, setShowCreateGameSystem] = useState(false);
   
   // Fetch all data
   const { data: allRooms = [], isLoading: roomsLoading } = useQuery<GameRoom[]>({
@@ -104,6 +106,37 @@ export default function AdminDashboard() {
       toast({ title: "Failed to delete game system", variant: "destructive" });
     },
   });
+
+  // Handle asset upload for game systems
+  const handleGameSystemAssetUpload = async () => {
+    try {
+      const response = await authenticatedApiRequest("GET", "/api/upload/presigned-url");
+      if (!response.ok) {
+        throw new Error("Failed to get upload parameters");
+      }
+      const data = await response.json();
+      return {
+        method: "PUT" as const,
+        url: data.uploadUrl,
+      };
+    } catch (error) {
+      console.error("Error getting upload parameters:", error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to prepare upload. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const handleUploadComplete = (result: any) => {
+    toast({
+      title: "Upload Complete",
+      description: "Game system assets uploaded successfully. You can now organize them into your asset library.",
+    });
+    setShowCreateGameSystem(false);
+  };
 
   // Filter functions
   const filteredRooms = allRooms.filter(room => 
@@ -356,6 +389,26 @@ export default function AdminDashboard() {
 
         {/* Game Systems Tab */}
         <TabsContent value="systems" className="space-y-4">
+          {/* Create Game System Button */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <h2 className="text-xl font-semibold">Game Systems</h2>
+              <Badge variant="secondary">{filteredGameSystems.length} systems</Badge>
+            </div>
+            <div className="flex space-x-2">
+              <ObjectUploader
+                maxNumberOfFiles={50}
+                maxFileSize={50485760} // 50MB
+                onGetUploadParameters={handleGameSystemAssetUpload}
+                onComplete={handleUploadComplete}
+                buttonClassName="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Create Game System
+              </ObjectUploader>
+            </div>
+          </div>
+          
           {systemsLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
