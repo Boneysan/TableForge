@@ -26,7 +26,7 @@ interface AdminInterfaceProps {
 export function AdminInterface({ roomId, assets, boardAssets, players, currentUser, onAssetUploaded, onSwitchView }: AdminInterfaceProps) {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [selectedAssetType, setSelectedAssetType] = useState<'card' | 'token' | 'map' | 'other'>('card');
+  const [selectedAssetType, setSelectedAssetType] = useState<'card' | 'token' | 'map' | 'rules' | 'other'>('card');
 
   const handleGetUploadParameters = async () => {
     try {
@@ -147,7 +147,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
               <div className="space-y-2">
                 <label className="text-sm font-medium">Asset Type</label>
                 <div className="flex space-x-2">
-                  {(['card', 'token', 'map', 'other'] as const).map((type) => (
+                  {(['card', 'token', 'map', 'rules', 'other'] as const).map((type) => (
                     <Button
                       key={type}
                       variant={selectedAssetType === type ? "default" : "outline"}
@@ -176,7 +176,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
               </ObjectUploader>
 
               <p className="text-sm text-gray-500">
-                Upload cards, tokens, maps, or other game assets. Supports PNG, JPG, and PDF files up to 10MB each.
+                Upload cards, tokens, maps, rules, or other game assets. Supports PNG, JPG, and PDF files up to 10MB each.
               </p>
             </CardContent>
           </Card>
