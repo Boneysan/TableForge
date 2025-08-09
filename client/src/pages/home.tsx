@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dice1, Plus, Users, Clock, Trash2, LogOut, User as UserIcon } from "lucide-react";
+import { Dice1, Plus, Users, Clock, Trash2, LogOut, User as UserIcon, Settings } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { signOutUser } from "@/lib/firebase";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -143,6 +143,15 @@ export default function Home() {
               <UserIcon className="w-5 h-5" />
               <span>{(user as User)?.firstName || (user as User)?.email || 'User'}</span>
             </div>
+            <Button 
+              onClick={() => setLocation("/create-game-system")}
+              variant="outline"
+              size="sm"
+              data-testid="button-create-game-system"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Create Game System
+            </Button>
             <Button 
               onClick={() => setLocation("/admin")}
               variant="outline"
