@@ -270,25 +270,36 @@ export function SimplePlayerInterface({
                 )}
                 
                 {/* Hand actions */}
-                <div className="flex space-x-2">
+                <div className="space-y-2">
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                      data-testid="button-draw-from-deck"
+                    >
+                      <Hand className="w-3 h-3 mr-1" />
+                      Draw Card
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                      data-testid="button-organize-hand"
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Organize
+                    </Button>
+                  </div>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
-                    data-testid="button-sort-hand"
-                  >
-                    <Eye className="w-3 h-3 mr-1" />
-                    Sort
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
+                    className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
                     onClick={() => setShowHandViewer(true)}
                     data-testid="button-expand-hand"
                   >
                     <Hand className="w-3 h-3 mr-1" />
-                    View Large
+                    View Large Hand
                   </Button>
                 </div>
               </div>
@@ -493,10 +504,18 @@ export function SimplePlayerInterface({
                 <Button 
                   variant="outline"
                   className="border-gray-300 dark:border-gray-600"
-                  data-testid="button-organize-hand"
+                  data-testid="button-organize-hand-large"
                 >
                   <Eye className="w-4 h-4 mr-1" />
                   Sort by Value
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-gray-300 dark:border-gray-600"
+                  data-testid="button-draw-card-large"
+                >
+                  <Hand className="w-4 h-4 mr-1" />
+                  Draw from Deck
                 </Button>
               </div>
             </div>

@@ -53,6 +53,7 @@ This is a comprehensive multiplayer virtual tabletop gaming platform called "Vor
 - **Large Hand Viewer**: Full-screen modal dialog for detailed card viewing and interaction
 - **Card Display**: Visual card representations with face-up/face-down states and hover actions
 - **Hand Management**: Sort, organize, and individual card actions (Play, Flip) ready for backend integration
+- **Hand Actions**: Draw Card and Organize buttons available in both compact and large views
 - **Responsive Design**: Optimized for both compact sidebar and large modal views with theme support
 
 ### Game Master Hand System ✅ COMPLETE
