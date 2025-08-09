@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Plus, Settings, Users, Shield, ArrowLeft } from "lucide-react";
+import { Upload, Plus, Settings, Users, Shield, ArrowLeft, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GameTemplateManager } from "@/components/GameTemplateManager";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -15,7 +16,7 @@ import type { GameRoom, GameAsset, RoomPlayer } from "@shared/schema";
 interface AdminInterfaceProps {
   roomId: string;
   assets: GameAsset[];
-  boardAssets: BoardAsset[];
+  boardAssets: any[];
   players: RoomPlayer[];
   currentUser: { id: string; firstName?: string | null; lastName?: string | null };
   onAssetUploaded: () => void;
@@ -114,10 +115,14 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
       </div>
 
       <Tabs defaultValue="assets" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="assets" data-testid="tab-assets">
             <Upload className="w-4 h-4 mr-2" />
             Assets
+          </TabsTrigger>
+          <TabsTrigger value="system" data-testid="tab-system">
+            <FolderOpen className="w-4 h-4 mr-2" />
+            Game System
           </TabsTrigger>
           <TabsTrigger value="players" data-testid="tab-players">
             <Users className="w-4 h-4 mr-2" />
@@ -205,6 +210,78 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="system" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <FolderOpen className="w-5 h-5" />
+                <span>Game Template System</span>
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                Save your current room setup as a reusable template or apply existing templates to quickly set up games.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card className="p-4">
+                  <h3 className="font-medium mb-2">Save Current Setup</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Save your current room configuration (assets, layout, decks) as a template for future use.
+                  </p>
+                  <GameTemplateManager roomId={roomId}>
+                    <Button 
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      data-testid="button-save-template-admin"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Save as Template
+                    </Button>
+                  </GameTemplateManager>
+                </Card>
+
+                <Card className="p-4">
+                  <h3 className="font-medium mb-2">Browse Templates</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Browse and apply existing game templates to quickly set up your room.
+                  </p>
+                  <GameTemplateManager roomId={roomId}>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                      data-testid="button-browse-templates-admin"
+                    >
+                      <FolderOpen className="w-4 h-4 mr-2" />
+                      Browse Templates
+                    </Button>
+                  </GameTemplateManager>
+                </Card>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="font-medium mb-3">Template Benefits</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <span>Save complete room setups including all assets and board layout</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <span>Share templates publicly or keep them private to your account</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <span>Quickly set up recurring games with consistent configurations</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <span>Organize templates with categories and tags for easy discovery</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -43,6 +43,8 @@ This is a comprehensive multiplayer virtual tabletop gaming platform called "Vor
 - **Template Database Schema**: Complete tables for gameTemplates with JSON storage for game data
 - **Template API Routes**: RESTful endpoints for all template operations (CRUD, apply, save from room)
 - **GM Integration**: Template manager accessible from Game Master Console with Templates button
+- **Admin Integration**: "Game System" tab in Admin Interface with template save/browse functionality
+- **Dual Interface Access**: Template system available in both Admin Interface and Game Master Console
 - **Browse & Save Interface**: Browse public/private templates and save current room state as reusable template
 - **Template Metadata**: Support for categories, tags, visibility settings, and template descriptions
 
