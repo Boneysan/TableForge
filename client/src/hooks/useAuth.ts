@@ -45,11 +45,14 @@ export function useAuth() {
         setTimeout(() => {
           console.log("🔐 [useAuth] Refetching user data after Firebase auth state change");
           queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-        }, 100); // Small delay to ensure Firebase auth is fully settled
+          // Also manually refetch to ensure immediate update
+          queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+        }, 500); // Increase delay to ensure Firebase auth is fully settled
       } else {
         // If user signed out, invalidate immediately
         console.log("🔐 [useAuth] User signed out, invalidating queries immediately");
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
       }
     });
 
