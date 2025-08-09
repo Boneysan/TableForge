@@ -1,13 +1,34 @@
 import { Request, Response, NextFunction } from "express";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 
 // Initialize Firebase Admin SDK if not already initialized
 let firebaseAdminInitialized = false;
+
+// Add global error handlers to catch Firebase Admin errors
+process.on('unhandledRejection', (reason, promise) => {
+  console.error("❌ [Global] Unhandled rejection:", reason);
+});
+
+console.log("🔥 [Firebase Admin] Starting initialization process...");
+console.log("🔥 [Firebase Admin] Service account key available:", !!process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+
+// Initialize Firebase Admin with safer approach
 try {
-  console.log("🔥 [Firebase Admin] Attempting to initialize Firebase Admin SDK...");
-  console.log("🔥 [Firebase Admin] Current apps count:", admin.apps ? admin.apps.length : 0);
+  console.log("🔥 [Firebase Admin] Attempting to access Firebase Admin apps...");
+  // Use try-catch to handle undefined admin.apps gracefully
+  let currentApps = [];
+  try {
+    currentApps = admin.apps || [];
+    console.log("🔥 [Firebase Admin] admin.apps is available, current count:", currentApps.length);
+  } catch (appsError) {
+    console.log("⚠️ [Firebase Admin] Cannot access admin.apps, initializing directly");
+    currentApps = [];
+  }
   
-  if (admin.apps && admin.apps.length === 0) {
+  console.log("🔥 [Firebase Admin] Attempting to initialize Firebase Admin SDK...");
+  console.log("🔥 [Firebase Admin] Current apps count:", currentApps.length);
+  
+  if (currentApps.length === 0) {
     console.log("🔥 [Firebase Admin] No existing apps found, initializing new app...");
     
     const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
@@ -18,10 +39,34 @@ try {
         const serviceAccount = JSON.parse(serviceAccountKey);
         console.log("🔥 [Firebase Admin] Service account parsed successfully");
         console.log("🔥 [Firebase Admin] Project ID from service account:", serviceAccount.project_id);
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-        });
-        console.log("✅ [Firebase Admin] Initialized with service account credentials");
+        console.log("🔥 [Firebase Admin] Creating credential with service account...");
+        console.log("🔥 [Firebase Admin] Checking admin.credential availability:", !!admin.credential);
+        
+        if (!admin.credential) {
+          console.error("❌ [Firebase Admin] admin.credential is undefined - Firebase Admin SDK not properly loaded");
+          throw new Error("Firebase Admin credential module not available");
+        }
+        
+        let credential;
+        try {
+          console.log("🔥 [Firebase Admin] Calling admin.credential.cert()...");
+          credential = admin.credential.cert(serviceAccount);
+          console.log("🔥 [Firebase Admin] Credential created successfully");
+        } catch (credError) {
+          console.error("❌ [Firebase Admin] Error creating credential:", credError);
+          throw credError;
+        }
+        
+        console.log("🔥 [Firebase Admin] Initializing Firebase app...");
+        try {
+          admin.initializeApp({
+            credential: credential,
+          });
+          console.log("✅ [Firebase Admin] Firebase app initialized successfully");
+        } catch (initError) {
+          console.error("❌ [Firebase Admin] Error initializing app:", initError);
+          throw initError;
+        }
       } catch (parseError) {
         console.error("❌ [Firebase Admin] Failed to parse service account key:", parseError);
         throw parseError;
@@ -34,20 +79,20 @@ try {
     }
     firebaseAdminInitialized = true;
     console.log("✅ [Firebase Admin] Firebase Admin SDK initialized successfully");
-  } else if (admin.apps && admin.apps.length > 0) {
+  } else if (currentApps.length > 0) {
     firebaseAdminInitialized = true;
     console.log("✅ [Firebase Admin] Firebase Admin SDK already initialized, using existing app");
   }
 } catch (error) {
-  console.error("❌ [Firebase Admin] Firebase Admin SDK initialization failed:", error);
-  if (error instanceof Error) {
-    console.error("❌ [Firebase Admin] Error details:", {
-      name: error.name,
-      message: error.message,
-      code: (error as any).code,
-      stack: error.stack
-    });
-  }
+    console.error("❌ [Firebase Admin] Firebase Admin SDK initialization failed:", error);
+    if (error instanceof Error) {
+      console.error("❌ [Firebase Admin] Error details:", {
+        name: error.name,
+        message: error.message,
+        code: (error as any).code,
+        stack: error.stack
+      });
+    }
 }
 
 export interface FirebaseUser {

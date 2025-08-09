@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./replitAuth";
 import { hybridAuthMiddleware } from "./hybridAuth";
 import { ObjectStorageService } from "./objectStorage";
+import * as admin from "firebase-admin";
 import type { 
   WebSocketMessage, 
   AssetMovedMessage, 
@@ -170,6 +171,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   }
+
+  // Debug endpoint to check Firebase Admin status
+  app.get('/api/test-firebase-admin', async (req, res) => {
+    try {
+      // Import Firebase Admin with the correct syntax to get current status
+      const adminModule = await import('../server/firebaseAuth.js');
+      
+      res.json({ 
+        firebaseAdminInitialized: admin.apps && admin.apps.length > 0,
+        appCount: admin.apps ? admin.apps.length : 0,
+        hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
+        nodeEnv: process.env.NODE_ENV,
+        defaultApp: (admin.apps && admin.apps.length > 0) ? 'exists' : 'none',
+        credentialAvailable: !!(admin.credential),
+        appsProperty: !!(admin.apps),
+        adminType: typeof admin
+      });
+    } catch (error) {
+      res.json({ 
+        error: error.message,
+        firebaseAdminInitialized: false,
+        hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
+        importError: true
+      });
+    }
+  });
 
   // Object Storage Routes
   app.get("/public-objects/:filePath(*)", async (req, res) => {
