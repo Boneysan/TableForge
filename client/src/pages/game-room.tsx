@@ -131,17 +131,21 @@ export default function GameRoom() {
   };
 
   const handleAssetMoved = (assetId: string, x: number, y: number) => {
+    // Use the actual room UUID, not the room name/param
+    const actualRoomId = room?.id || roomId;
     sendMessage({
       type: 'asset_moved',
-      roomId,
+      roomId: actualRoomId,
       payload: { assetId, positionX: x, positionY: y }
     });
   };
 
   const handleDiceRolled = (diceType: string, diceCount: number, results: number[], total: number) => {
+    // Use the actual room UUID, not the room name/param
+    const actualRoomId = room?.id || roomId;
     sendMessage({
       type: 'dice_rolled',
-      roomId,
+      roomId: actualRoomId,
       payload: {
         playerId: currentPlayer.id,
         diceType,
