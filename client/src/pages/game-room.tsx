@@ -253,7 +253,7 @@ export default function GameRoom() {
           players={roomPlayers}
           currentUser={user as User}
           onAssetUploaded={refetchAssets}
-          onSwitchView={() => setSelectedView(null)}
+          onSwitchView={() => setSelectedView('gamemaster')}
         />
       )}
 
@@ -269,7 +269,7 @@ export default function GameRoom() {
           onAssetPlaced={handleAssetPlaced}
           onAssetMoved={handleAssetMoved}
           onDiceRolled={handleDiceRolled}
-          onSwitchView={() => setSelectedView(null)}
+          onSwitchView={() => setSelectedView('admin')}
         />
       )}
 
