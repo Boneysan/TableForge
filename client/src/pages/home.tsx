@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,9 +18,9 @@ export default function Home() {
   const [roomName, setRoomName] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useFirebaseAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
-  const userId = user?.uid;
+  const userId = user?.id;
 
   if (isAuthLoading) {
     return (
@@ -122,10 +122,10 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-gray-300">
               <User className="w-5 h-5" />
-              <span>{user?.displayName || user?.email || 'User'}</span>
+              <span>{user?.firstName || user?.email || 'User'}</span>
             </div>
             <Button 
-              onClick={() => signOutUser()}
+              onClick={() => window.location.href = '/api/logout'}
               variant="ghost"
               size="sm"
               className="text-gray-300 hover:text-white"
