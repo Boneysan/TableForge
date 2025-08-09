@@ -11,7 +11,7 @@ import { signOutUser } from "@/lib/firebase";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { useToast } from "@/hooks/use-toast";
-import type { GameRoom } from "@shared/schema";
+import type { GameRoom, User } from "@shared/schema";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -20,7 +20,7 @@ export default function Home() {
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading } = useAuth();
 
-  const userId = user?.id;
+  const userId = (user as User)?.id;
 
   if (isAuthLoading) {
     return (
@@ -122,7 +122,7 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-gray-300">
               <User className="w-5 h-5" />
-              <span>{user?.firstName || user?.email || 'User'}</span>
+              <span>{(user as User)?.firstName || (user as User)?.email || 'User'}</span>
             </div>
             <Button 
               onClick={() => window.location.href = '/api/logout'}
