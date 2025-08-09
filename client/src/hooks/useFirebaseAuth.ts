@@ -26,6 +26,9 @@ export function useFirebaseAuth() {
       })
       .catch((error) => {
         console.error("Error handling redirect:", error);
+        console.log("Current domain:", window.location.hostname);
+        console.log("Current origin:", window.location.origin);
+        console.log("Error details:", error.code, error.message);
         toast({
           title: "Sign in failed",
           description: "There was an error signing in with Google",

@@ -31,6 +31,8 @@ export const signInWithGoogle = () => {
   if (!auth || !googleProvider) {
     throw new Error('Firebase not configured. Please add Firebase secrets.');
   }
+  console.log('Initiating Google sign-in from:', window.location.origin);
+  console.log('Auth domain:', `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`);
   return signInWithRedirect(auth, googleProvider);
 };
 
