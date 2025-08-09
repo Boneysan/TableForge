@@ -3,11 +3,18 @@ import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRe
 import type { User } from "firebase/auth";
 
 // Check if Firebase configuration is available
+console.log("🔥 [Firebase Client] Checking Firebase configuration...");
+console.log("🔥 [Firebase Client] VITE_FIREBASE_API_KEY present:", !!import.meta.env.VITE_FIREBASE_API_KEY);
+console.log("🔥 [Firebase Client] VITE_FIREBASE_PROJECT_ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID || "NOT_SET");
+console.log("🔥 [Firebase Client] VITE_FIREBASE_APP_ID present:", !!import.meta.env.VITE_FIREBASE_APP_ID);
+
 const hasFirebaseConfig = !!(
   import.meta.env.VITE_FIREBASE_API_KEY &&
   import.meta.env.VITE_FIREBASE_PROJECT_ID &&
   import.meta.env.VITE_FIREBASE_APP_ID
 );
+
+console.log("🔥 [Firebase Client] Has complete Firebase config:", hasFirebaseConfig);
 
 const firebaseConfig = hasFirebaseConfig ? {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,9 +24,19 @@ const firebaseConfig = hasFirebaseConfig ? {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 } : null;
 
+console.log("🔥 [Firebase Client] Firebase config object:", firebaseConfig ? {
+  ...firebaseConfig,
+  apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 8)}...` : "NOT_SET"
+} : "NULL");
+
 const app = firebaseConfig ? initializeApp(firebaseConfig) : null;
+console.log("🔥 [Firebase Client] Firebase app initialized:", !!app);
+
 export const auth = app ? getAuth(app) : null;
+console.log("🔥 [Firebase Client] Firebase Auth instance created:", !!auth);
+
 export const googleProvider = auth ? new GoogleAuthProvider() : null;
+console.log("🔥 [Firebase Client] Google Auth Provider created:", !!googleProvider);
 
 // Configure Google provider
 if (googleProvider) {
@@ -28,15 +45,44 @@ if (googleProvider) {
 }
 
 export const signInWithGoogle = () => {
+  console.log("🔐 [Google Auth] Starting Google sign-in process...");
+  
   if (!auth || !googleProvider) {
+    console.error("❌ [Google Auth] Firebase not configured - auth:", !!auth, "provider:", !!googleProvider);
     throw new Error('Firebase not configured. Please add Firebase secrets.');
   }
-  console.log('Initiating Google sign-in from:', window.location.origin);
-  console.log('Auth domain:', `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`);
+  
+  console.log("🔐 [Google Auth] Firebase components available:");
+  console.log("🔐 [Google Auth] - Auth instance:", !!auth);
+  console.log("🔐 [Google Auth] - Google provider:", !!googleProvider);
+  console.log("🔐 [Google Auth] - Current URL:", window.location.origin);
+  console.log("🔐 [Google Auth] - Auth domain:", `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`);
   
   // Always try popup first, let the error handler in the calling code deal with failures
-  console.log('Using popup authentication');
-  return signInWithPopup(auth, googleProvider);
+  console.log("🔐 [Google Auth] Using popup authentication method");
+  
+  const authPromise = signInWithPopup(auth, googleProvider);
+  
+  authPromise.then((result) => {
+    console.log("✅ [Google Auth] Sign-in successful!");
+    console.log("✅ [Google Auth] User info:", {
+      uid: result.user.uid,
+      email: result.user.email,
+      displayName: result.user.displayName,
+      photoURL: result.user.photoURL
+    });
+    console.log("✅ [Google Auth] Access token:", result.user.accessToken ? "Present" : "Not available");
+  }).catch((error) => {
+    console.error("❌ [Google Auth] Sign-in failed:", error);
+    console.error("❌ [Google Auth] Error details:", {
+      code: error.code,
+      message: error.message,
+      email: error.email,
+      credential: error.credential
+    });
+  });
+  
+  return authPromise;
 };
 
 export const handleRedirectResult = () => {
@@ -54,11 +100,28 @@ export const signOutUser = () => {
 };
 
 export const onAuthChange = (callback: (user: User | null) => void) => {
+  console.log("🔐 [Auth State] Setting up auth state listener...");
+  
   if (!auth) {
+    console.log("⚠️ [Auth State] No auth instance, calling callback with null");
     callback(null);
     return () => {};
   }
-  return onAuthStateChanged(auth, callback);
+  
+  return onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("✅ [Auth State] User signed in:", {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        emailVerified: user.emailVerified,
+        isAnonymous: user.isAnonymous
+      });
+    } else {
+      console.log("ℹ️ [Auth State] User signed out");
+    }
+    callback(user);
+  });
 };
 
 export const isFirebaseConfigured = () => hasFirebaseConfig;

@@ -3,14 +3,33 @@ import { auth } from "./firebase";
 // Helper to get the current Firebase ID token for API requests
 export async function getAuthToken(): Promise<string | null> {
   try {
-    if (!auth) return null;
-    const user = auth.currentUser;
-    if (!user) return null;
+    console.log("🔐 [Auth Token] Getting Firebase ID token...");
+    console.log("🔐 [Auth Token] Auth instance available:", !!auth);
     
+    if (!auth) {
+      console.log("⚠️ [Auth Token] No auth instance available");
+      return null;
+    }
+    
+    const user = auth.currentUser;
+    console.log("🔐 [Auth Token] Current user:", user ? {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName
+    } : "null");
+    
+    if (!user) {
+      console.log("⚠️ [Auth Token] No current user");
+      return null;
+    }
+    
+    console.log("🔐 [Auth Token] Calling getIdToken()...");
     const token = await user.getIdToken();
+    console.log("✅ [Auth Token] Token retrieved, length:", token?.length || 0);
+    
     return token;
   } catch (error) {
-    console.error("Error getting auth token:", error);
+    console.error("❌ [Auth Token] Error getting auth token:", error);
     return null;
   }
 }
@@ -21,7 +40,11 @@ export async function authenticatedApiRequest(
   endpoint: string,
   data?: any
 ): Promise<Response> {
+  console.log(`🌐 [API Request] ${method} ${endpoint}`);
+  
   const token = await getAuthToken();
+  console.log("🌐 [API Request] Token available:", !!token);
+  console.log("🌐 [API Request] Token length:", token?.length || 0);
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -29,6 +52,9 @@ export async function authenticatedApiRequest(
   
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+    console.log("🌐 [API Request] Authorization header added");
+  } else {
+    console.log("⚠️ [API Request] No token available - proceeding without auth header");
   }
   
   const config: RequestInit = {
@@ -38,14 +64,25 @@ export async function authenticatedApiRequest(
   
   if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
     config.body = JSON.stringify(data);
+    console.log("🌐 [API Request] Request body length:", JSON.stringify(data).length);
   }
   
+  console.log("🌐 [API Request] Making fetch request...");
   const response = await fetch(endpoint, config);
+  
+  console.log("🌐 [API Request] Response status:", response.status);
+  console.log("🌐 [API Request] Response headers:", Object.fromEntries(response.headers.entries()));
   
   if (!response.ok) {
     const errorText = await response.text();
+    console.error("❌ [API Request] Request failed:", {
+      status: response.status,
+      statusText: response.statusText,
+      errorText: errorText
+    });
     throw new Error(`${response.status}: ${errorText}`);
   }
   
+  console.log("✅ [API Request] Request successful");
   return response;
 }
