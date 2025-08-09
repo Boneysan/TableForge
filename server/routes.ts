@@ -190,7 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.json({ 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         firebaseAdminInitialized: false,
         hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
         importError: true
@@ -1194,6 +1194,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error saving room as system:", error);
       res.status(500).json({ error: "Failed to save room as system" });
+    }
+  });
+
+  // Admin dashboard API routes
+  app.get("/api/admin/rooms", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      // For now, return all rooms - in production you'd check admin privileges
+      const allRooms = await storage.getAllRooms();
+      res.json(allRooms);
+    } catch (error) {
+      console.error("Error fetching all rooms:", error);
+      res.status(500).json({ error: "Failed to fetch rooms" });
+    }
+  });
+
+  app.get("/api/admin/templates", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const allTemplates = await storage.getAllTemplates();
+      res.json(allTemplates);
+    } catch (error) {
+      console.error("Error fetching all templates:", error);
+      res.status(500).json({ error: "Failed to fetch templates" });
+    }
+  });
+
+  app.get("/api/admin/game-systems", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const allGameSystems = await storage.getAllGameSystems();
+      res.json(allGameSystems);
+    } catch (error) {
+      console.error("Error fetching all game systems:", error);
+      res.status(500).json({ error: "Failed to fetch game systems" });
     }
   });
 

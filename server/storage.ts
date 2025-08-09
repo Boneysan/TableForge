@@ -113,6 +113,12 @@ export interface IStorage {
   updateGameSystem(id: string, updates: Partial<GameSystem>): Promise<GameSystem>;
   deleteGameSystem(id: string): Promise<void>;
   applySystemToRoom(systemId: string, roomId: string, userId: string): Promise<void>;
+
+  // Admin functions
+  getAllRooms(): Promise<GameRoom[]>;
+  getAllTemplates(): Promise<GameTemplate[]>;
+  getAllGameSystems(): Promise<GameSystem[]>;
+  updateRoom(id: string, updates: Partial<GameRoom>): Promise<GameRoom>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -744,6 +750,28 @@ export class DatabaseStorage implements IStorage {
     await this.updateGameSystem(systemId, {
       downloadCount: (system.downloadCount || 0) + 1
     });
+  }
+
+  // Admin functions
+  async getAllRooms(): Promise<GameRoom[]> {
+    return await db.select().from(gameRooms).orderBy(desc(gameRooms.createdAt));
+  }
+
+  async getAllTemplates(): Promise<GameTemplate[]> {
+    return await db.select().from(gameTemplates).orderBy(desc(gameTemplates.createdAt));
+  }
+
+  async getAllGameSystems(): Promise<GameSystem[]> {
+    return await db.select().from(gameSystems).orderBy(desc(gameSystems.createdAt));
+  }
+
+  async updateRoom(id: string, updates: Partial<GameRoom>): Promise<GameRoom> {
+    const [room] = await db
+      .update(gameRooms)
+      .set(updates)
+      .where(eq(gameRooms.id, id))
+      .returning();
+    return room;
   }
 }
 

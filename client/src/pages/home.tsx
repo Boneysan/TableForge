@@ -143,6 +143,14 @@ export default function Home() {
               <UserIcon className="w-5 h-5" />
               <span>{(user as User)?.firstName || (user as User)?.email || 'User'}</span>
             </div>
+            <Button 
+              onClick={() => setLocation("/admin")}
+              variant="outline"
+              size="sm"
+              data-testid="button-admin-dashboard"
+            >
+              Admin Dashboard
+            </Button>
             <ThemeToggle />
             <Button 
               onClick={async () => {

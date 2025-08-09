@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import FirebaseLanding from "@/pages/firebase-landing";
 import GameRoom from "@/pages/game-room";
+import AdminDashboard from "@/pages/admin-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,6 +29,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/admin" component={AdminDashboard} />
           <Route path="/room/:roomId" component={GameRoom} />
         </>
       )}
