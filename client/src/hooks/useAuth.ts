@@ -80,34 +80,11 @@ export function useAuth() {
           queryClient.refetchQueries({ 
             queryKey: ["/api/auth/user"],
             type: 'active'
-          }).then((results) => {
-            console.log("✅ [useAuth] Refetch completed, results:", results.length);
-            if (results.length === 0) {
-              // If no active queries, manually fetch
-              console.log("🔐 [useAuth] No active queries, manually fetching...");
-              queryClient.fetchQuery({ 
-                queryKey: ["/api/auth/user"],
-                staleTime: 0,
-                gcTime: 0
-              }).then((userData) => {
-                console.log("✅ [useAuth] Manual fetch successful:", userData);
-                // Force component re-render by triggering refetch
-                refetch();
-              }).catch((fetchError) => {
-                console.error("❌ [useAuth] Manual fetch failed:", fetchError);
-              });
-            } else {
-              // Direct refetch if active queries exist
-              refetch();
-            }
-          }).catch((error) => {
-            console.error("❌ [useAuth] Refetch failed:", error);
-            // Fallback: direct refetch
-            refetch();
           });
-        }, 1000).catch((error) => {
-          console.error("❌ [useAuth] Timeout error in auth state change:", error);
-        }); // Increase delay even more to ensure Firebase auth is fully settled
+          
+          // Always trigger a direct refetch for this component
+          refetch();
+        }, 1000); // Increase delay even more to ensure Firebase auth is fully settled
       } else {
         // If user signed out, invalidate immediately
         console.log("🔐 [useAuth] User signed out, invalidating queries immediately");
