@@ -212,7 +212,7 @@ export function SimplePlayerInterface({
               {roomPlayers.map((player) => (
                 <div key={player.id} className="flex items-center justify-between p-2 bg-[#374151] rounded">
                   <span className="text-gray-100 text-sm">
-                    Player {player.playerId}
+                    {(player as any).playerName || `Player ${player.playerId}`}
                   </span>
                   <Badge variant={player.role === 'admin' ? 'default' : 'secondary'}>
                     {player.role === 'admin' ? 'GM' : 'Player'}

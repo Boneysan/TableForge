@@ -346,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Room not found" });
       }
       
-      const players = await storage.getRoomPlayers(room.id);
+      const players = await storage.getRoomPlayersWithNames(room.id);
       res.json(players);
     } catch (error) {
       console.error("Error getting room players:", error);
