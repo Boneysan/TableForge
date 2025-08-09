@@ -15,7 +15,11 @@ import {
   Plus,
   X,
   FileImage,
-  Settings
+  Settings,
+  CreditCard,
+  Circle,
+  Map,
+  FileText
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
@@ -28,6 +32,7 @@ interface UploadedAsset {
   url: string;
   type: string;
   size: number;
+  category: 'cards' | 'tokens' | 'maps' | 'rules';
 }
 
 export default function CreateGameSystem() {
@@ -41,6 +46,7 @@ export default function CreateGameSystem() {
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
 
   // Handle asset upload
   const handleAssetUpload = async () => {
@@ -72,11 +78,12 @@ export default function CreateGameSystem() {
         url: file.uploadURL,
         type: file.type,
         size: file.size,
+        category: selectedCategory,
       }));
       setUploadedAssets(prev => [...prev, ...newAssets]);
       toast({
         title: "Assets Uploaded",
-        description: `Successfully uploaded ${result.successful.length} asset(s)`,
+        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s)`,
       });
     }
   };
@@ -153,6 +160,17 @@ export default function CreateGameSystem() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const assetCategories = [
+    { id: 'cards' as const, name: 'Cards', icon: CreditCard, description: 'Playing cards, character cards, action cards' },
+    { id: 'tokens' as const, name: 'Tokens', icon: Circle, description: 'Game pieces, markers, counters' },
+    { id: 'maps' as const, name: 'Maps', icon: Map, description: 'Game boards, battlefields, terrain' },
+    { id: 'rules' as const, name: 'Rules', icon: FileText, description: 'Rulebooks, guides, reference sheets' },
+  ];
+
+  const getAssetsByCategory = (category: string) => {
+    return uploadedAssets.filter(asset => asset.category === category);
   };
 
   return (
@@ -261,10 +279,37 @@ export default function CreateGameSystem() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileImage className="w-5 h-5" />
-              Upload Assets
+              Upload Assets by Category
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {/* Category Selection */}
+            <div className="space-y-3">
+              <Label>Select Asset Category</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {assetCategories.map((category) => {
+                  const Icon = category.icon;
+                  const isSelected = selectedCategory === category.id;
+                  return (
+                    <Button
+                      key={category.id}
+                      variant={isSelected ? "default" : "outline"}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className="flex flex-col h-auto p-4 text-center"
+                      data-testid={`button-category-${category.id}`}
+                    >
+                      <Icon className="w-6 h-6 mb-2" />
+                      <span className="font-medium">{category.name}</span>
+                      <span className="text-xs text-muted-foreground mt-1">
+                        {category.description}
+                      </span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Upload Button */}
             <div className="flex justify-center">
               <ObjectUploader
                 maxNumberOfFiles={50}
@@ -274,39 +319,58 @@ export default function CreateGameSystem() {
                 buttonClassName="flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
-                Upload Game Assets
+                Upload {assetCategories.find(c => c.id === selectedCategory)?.name} Assets
               </ObjectUploader>
             </div>
 
+            {/* Assets by Category */}
             {uploadedAssets.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium">Uploaded Assets ({uploadedAssets.length})</h4>
-                <div className="grid gap-2">
-                  {uploadedAssets.map((asset, index) => (
-                    <div 
-                      key={index} 
-                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <FileImage className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">{asset.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatFileSize(asset.size)} • {asset.type}
-                          </p>
-                        </div>
+              <div className="space-y-4">
+                <h4 className="font-medium">Uploaded Assets ({uploadedAssets.length} total)</h4>
+                {assetCategories.map((category) => {
+                  const categoryAssets = getAssetsByCategory(category.id);
+                  const Icon = category.icon;
+                  
+                  if (categoryAssets.length === 0) return null;
+                  
+                  return (
+                    <div key={category.id} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Icon className="w-4 h-4 text-primary" />
+                        <h5 className="font-medium">{category.name} ({categoryAssets.length})</h5>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAsset(index)}
-                        data-testid={`button-remove-asset-${index}`}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
+                      <div className="grid gap-2">
+                        {categoryAssets.map((asset, index) => {
+                          const globalIndex = uploadedAssets.indexOf(asset);
+                          return (
+                            <div 
+                              key={globalIndex} 
+                              className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <Icon className="w-4 h-4 text-muted-foreground" />
+                                <div>
+                                  <p className="text-sm font-medium">{asset.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatFileSize(asset.size)} • {asset.type}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeAsset(globalIndex)}
+                                data-testid={`button-remove-asset-${globalIndex}`}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             )}
           </CardContent>
