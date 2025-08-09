@@ -305,3 +305,57 @@ export interface PlayerLeftMessage extends WebSocketMessage {
     playerId: string;
   };
 }
+
+// Game Templates - Reusable game setups created by GMs
+export const gameTemplates = pgTable("game_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  createdBy: varchar("created_by").references(() => users.id, { onDelete: "cascade" }),
+  isPublic: boolean("is_public").default(false),
+  category: varchar("category", { length: 100 }), // e.g., "RPG", "Board Game", "Card Game"
+  tags: text("tags").array(), // searchable tags
+  thumbnailUrl: varchar("thumbnail_url"),
+  
+  // Template content - JSON snapshots of game state
+  boardConfig: jsonb("board_config"), // board settings, background, grid config
+  decksData: jsonb("decks_data"), // all card decks and their cards
+  tokensData: jsonb("tokens_data"), // token types and default positions
+  assetsData: jsonb("assets_data"), // uploaded assets (maps, images, etc.)
+  
+  // Metadata
+  playersMin: integer("players_min").default(1),
+  playersMax: integer("players_max").default(8),
+  estimatedDuration: varchar("estimated_duration"), // e.g., "2-4 hours"
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Template usage tracking
+export const templateUsage = pgTable("template_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").references(() => gameTemplates.id, { onDelete: "cascade" }),
+  roomId: varchar("room_id").references(() => gameRooms.id, { onDelete: "cascade" }),
+  usedBy: varchar("used_by").references(() => users.id, { onDelete: "cascade" }),
+  usedAt: timestamp("used_at").defaultNow(),
+});
+
+export const insertGameTemplateSchema = createInsertSchema(gameTemplates).pick({
+  name: true,
+  description: true,
+  isPublic: true,
+  category: true,
+  tags: true,
+  thumbnailUrl: true,
+  boardConfig: true,
+  decksData: true,
+  tokensData: true,
+  assetsData: true,
+  playersMin: true,
+  playersMax: true,
+  estimatedDuration: true,
+});
+
+export type GameTemplate = typeof gameTemplates.$inferSelect;
+export type InsertGameTemplate = z.infer<typeof insertGameTemplateSchema>;

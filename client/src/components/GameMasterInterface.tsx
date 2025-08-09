@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft, Hand } from "lucide-react";
+import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft, Hand, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,7 @@ import { GameControls } from "./GameControls";
 import { AssetLibrary } from "./AssetLibrary";
 import { ChatComponent } from "./ChatComponent";
 import { CardDeckManager } from "./CardDeckManager";
+import { GameTemplateManager } from "./GameTemplateManager";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -218,6 +219,17 @@ export function GameMasterInterface({
         </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
+          <GameTemplateManager roomId={roomId}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-800"
+              data-testid="button-template-manager"
+            >
+              <FolderOpen className="w-4 h-4 mr-1" />
+              Templates
+            </Button>
+          </GameTemplateManager>
           <Button
             variant="outline"
             size="sm"

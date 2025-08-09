@@ -18,7 +18,8 @@ import {
   insertGameAssetSchema, 
   insertBoardAssetSchema,
   insertDiceRollSchema,
-  insertChatMessageSchema
+  insertChatMessageSchema,
+  insertGameTemplateSchema
 } from "@shared/schema";
 
 // Store WebSocket connections by room
@@ -744,6 +745,177 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating board asset:", error);
       res.status(500).json({ error: "Failed to update board asset" });
+    }
+  });
+
+  // Game Template endpoints
+  app.get("/api/templates", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      const isPublic = req.query.public === 'true' ? true : req.query.public === 'false' ? false : undefined;
+      
+      const templates = await storage.getGameTemplates(userId, isPublic);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching game templates:", error);
+      res.status(500).json({ error: "Failed to fetch game templates" });
+    }
+  });
+
+  app.post("/api/templates", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      const templateData = insertGameTemplateSchema.parse(req.body);
+      const template = await storage.createGameTemplate(templateData, userId);
+      
+      res.json(template);
+    } catch (error) {
+      console.error("Error creating game template:", error);
+      res.status(500).json({ error: "Failed to create game template" });
+    }
+  });
+
+  app.get("/api/templates/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const template = await storage.getGameTemplate(req.params.id);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+
+      res.json(template);
+    } catch (error) {
+      console.error("Error fetching game template:", error);
+      res.status(500).json({ error: "Failed to fetch game template" });
+    }
+  });
+
+  app.put("/api/templates/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      const template = await storage.getGameTemplate(req.params.id);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+
+      // Check if user owns the template
+      if (template.createdBy !== userId) {
+        return res.status(403).json({ error: "Not authorized to edit this template" });
+      }
+
+      const updates = req.body;
+      const updatedTemplate = await storage.updateGameTemplate(req.params.id, updates);
+      
+      res.json(updatedTemplate);
+    } catch (error) {
+      console.error("Error updating game template:", error);
+      res.status(500).json({ error: "Failed to update game template" });
+    }
+  });
+
+  app.delete("/api/templates/:id", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      const template = await storage.getGameTemplate(req.params.id);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+
+      // Check if user owns the template
+      if (template.createdBy !== userId) {
+        return res.status(403).json({ error: "Not authorized to delete this template" });
+      }
+
+      await storage.deleteGameTemplate(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting game template:", error);
+      res.status(500).json({ error: "Failed to delete game template" });
+    }
+  });
+
+  app.post("/api/rooms/:roomId/apply-template", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { templateId } = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      if (!templateId) {
+        return res.status(400).json({ error: "Template ID is required" });
+      }
+
+      // Verify user has access to the room
+      const playerRole = await storage.getPlayerRole(roomId, userId);
+      if (!playerRole) {
+        return res.status(403).json({ error: "Not authorized to modify this room" });
+      }
+
+      await storage.applyTemplateToRoom(templateId, roomId, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error applying template to room:", error);
+      res.status(500).json({ error: "Failed to apply template to room" });
+    }
+  });
+
+  // Save current room as template
+  app.post("/api/rooms/:roomId/save-template", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { name, description, isPublic, category, tags } = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      if (!name?.trim()) {
+        return res.status(400).json({ error: "Template name is required" });
+      }
+
+      // Verify user has access to the room
+      const playerRole = await storage.getPlayerRole(roomId, userId);
+      if (playerRole !== 'admin') {
+        return res.status(403).json({ error: "Only room admin can save templates" });
+      }
+
+      // Gather room data for template
+      const assets = await storage.getRoomAssets(roomId);
+      const boardAssets = await storage.getRoomBoardAssets(roomId);
+      const decks = await storage.getCardDecks(roomId);
+      const piles = await storage.getCardPiles(roomId);
+
+      // Create template data
+      const templateData = {
+        name: name.trim(),
+        description: description || "",
+        isPublic: Boolean(isPublic),
+        category: category || "Custom",
+        tags: Array.isArray(tags) ? tags : [],
+        assetsData: assets,
+        tokensData: boardAssets.filter(asset => asset.assetType === 'token'),
+        decksData: decks,
+        boardConfig: {
+          piles: piles
+        }
+      };
+
+      const template = await storage.createGameTemplate(templateData, userId);
+      res.json(template);
+    } catch (error) {
+      console.error("Error saving room as template:", error);
+      res.status(500).json({ error: "Failed to save room as template" });
     }
   });
 

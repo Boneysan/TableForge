@@ -17,6 +17,8 @@ import {
   type InsertCardDeck,
   type CardPile,
   type InsertCardPile,
+  type GameTemplate,
+  type InsertGameTemplate,
   users,
   gameRooms,
   gameAssets,
@@ -25,10 +27,12 @@ import {
   diceRolls,
   chatMessages,
   cardDecks,
-  cardPiles
+  cardPiles,
+  gameTemplates,
+  templateUsage
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, or } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -89,6 +93,14 @@ export interface IStorage {
 
   // Enhanced Board Asset operations
   updateBoardAssetProperties(id: string, updates: Partial<BoardAsset>): Promise<BoardAsset | undefined>;
+
+  // Game Templates
+  createGameTemplate(template: InsertGameTemplate, createdBy: string): Promise<GameTemplate>;
+  getGameTemplates(userId?: string, isPublic?: boolean): Promise<GameTemplate[]>;
+  getGameTemplate(id: string): Promise<GameTemplate | undefined>;
+  updateGameTemplate(id: string, updates: Partial<GameTemplate>): Promise<GameTemplate>;
+  deleteGameTemplate(id: string): Promise<void>;
+  applyTemplateToRoom(templateId: string, roomId: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -484,6 +496,124 @@ export class DatabaseStorage implements IStorage {
       .where(eq(boardAssets.id, id))
       .returning();
     return updated;
+  }
+
+  // Game Templates
+  async createGameTemplate(template: InsertGameTemplate, createdBy: string): Promise<GameTemplate> {
+    const [newTemplate] = await db
+      .insert(gameTemplates)
+      .values({ ...template, createdBy })
+      .returning();
+    return newTemplate;
+  }
+
+  async getGameTemplates(userId?: string, isPublic?: boolean): Promise<GameTemplate[]> {
+    if (userId && isPublic !== undefined) {
+      // Get user's own templates OR public templates
+      if (isPublic) {
+        return db.select().from(gameTemplates)
+          .where(eq(gameTemplates.isPublic, true))
+          .orderBy(desc(gameTemplates.createdAt));
+      } else {
+        return db.select().from(gameTemplates)
+          .where(eq(gameTemplates.createdBy, userId))
+          .orderBy(desc(gameTemplates.createdAt));
+      }
+    } else if (userId) {
+      // Get all templates accessible to the user (their own + public)
+      return db.select().from(gameTemplates)
+        .where(
+          or(
+            eq(gameTemplates.createdBy, userId),
+            eq(gameTemplates.isPublic, true)
+          )
+        )
+        .orderBy(desc(gameTemplates.createdAt));
+    } else if (isPublic !== undefined) {
+      return db.select().from(gameTemplates)
+        .where(eq(gameTemplates.isPublic, isPublic))
+        .orderBy(desc(gameTemplates.createdAt));
+    }
+    
+    return db.select().from(gameTemplates)
+      .orderBy(desc(gameTemplates.createdAt));
+  }
+
+  async getGameTemplate(id: string): Promise<GameTemplate | undefined> {
+    const [template] = await db
+      .select()
+      .from(gameTemplates)
+      .where(eq(gameTemplates.id, id));
+    return template;
+  }
+
+  async updateGameTemplate(id: string, updates: Partial<GameTemplate>): Promise<GameTemplate> {
+    const [updated] = await db
+      .update(gameTemplates)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(gameTemplates.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteGameTemplate(id: string): Promise<void> {
+    await db.delete(templateUsage).where(eq(templateUsage.templateId, id));
+    await db.delete(gameTemplates).where(eq(gameTemplates.id, id));
+  }
+
+  async applyTemplateToRoom(templateId: string, roomId: string, userId: string): Promise<void> {
+    const template = await this.getGameTemplate(templateId);
+    if (!template) throw new Error('Template not found');
+
+    // Track template usage
+    await db.insert(templateUsage).values({
+      templateId,
+      roomId,
+      usedBy: userId
+    });
+
+    // Apply template data to the room
+    if (template.decksData) {
+      const decks = template.decksData as any[];
+      for (const deckData of decks) {
+        await this.createCardDeck({
+          roomId,
+          name: deckData.name,
+          description: deckData.description,
+          deckOrder: deckData.deckOrder,
+        }, userId);
+      }
+    }
+
+    if (template.assetsData) {
+      const assets = template.assetsData as any[];
+      for (const assetData of assets) {
+        await this.createGameAsset({
+          roomId,
+          name: assetData.name,
+          type: assetData.type,
+          filePath: assetData.filePath,
+          width: assetData.width,
+          height: assetData.height,
+        }, userId);
+      }
+    }
+
+    if (template.tokensData) {
+      const tokens = template.tokensData as any[];
+      for (const tokenData of tokens) {
+        await this.createBoardAsset({
+          roomId,
+          assetId: tokenData.assetId,
+          positionX: tokenData.positionX,
+          positionY: tokenData.positionY,
+          rotation: tokenData.rotation || 0,
+          scale: tokenData.scale || 100,
+          assetType: 'token',
+          visibility: 'public',
+        });
+      }
+    }
   }
 }
 
