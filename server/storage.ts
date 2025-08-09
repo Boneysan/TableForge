@@ -752,7 +752,7 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // Admin functions
+  // Admin functions  
   async getAllRooms(): Promise<GameRoom[]> {
     return await db.select().from(gameRooms).orderBy(desc(gameRooms.createdAt));
   }
