@@ -87,11 +87,17 @@ export function BulkUploader({
           getUploadParameters: onGetUploadParameters,
         })
         .on("complete", (result) => {
+          console.log('📦 [BulkUploader] Batch completed:', {
+            batchIndex,
+            successful: result.successful?.length || 0,
+            failed: result.failed?.length || 0
+          });
           resolve(result);
           batchUppy.destroy(); // Clean up this batch instance
         });
 
       // Add files to this batch
+      console.log('📁 [BulkUploader] Adding files to batch:', files.length);
       files.forEach(file => {
         batchUppy.addFile(file);
       });
@@ -156,7 +162,8 @@ export function BulkUploader({
         
         if (onBatchComplete) {
           try {
-            onBatchComplete(result);
+            console.log('🔄 [BulkUploader] Attempting to call onBatchComplete...');
+            await onBatchComplete(result);
             console.log('✅ [BulkUploader] onBatchComplete called successfully');
           } catch (error) {
             console.error('❌ [BulkUploader] onBatchComplete failed:', error);
