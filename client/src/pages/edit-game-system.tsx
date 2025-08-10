@@ -72,6 +72,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const [deckDescription, setDeckDescription] = useState("");
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [selectedCardBack, setSelectedCardBack] = useState<string | null>(null);
+  const [previewCard, setPreviewCard] = useState<{ url: string; name: string } | null>(null);
 
   // Fetch existing game system data
   const { data: systemData, isLoading: isLoadingSystem, error: systemError } = useQuery({
@@ -1020,16 +1021,20 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                           className={`relative border rounded p-1 cursor-pointer transition-all ${
                                             isSelected ? 'border-primary bg-primary/20 ring-2 ring-primary/50' : 'border-border hover:border-primary/50'
                                           }`}
-                                          onClick={() => setSelectedCardBack(isSelected ? null : card.url)}
                                           data-testid={`card-back-select-${index}`}
                                           title={`${isSelected ? 'Remove' : 'Select'} "${card.name}" as card back`}
                                         >
-                                          <div className="w-full h-12 bg-muted rounded flex items-center justify-center">
+                                          <div 
+                                            className="w-full h-12 bg-muted rounded flex items-center justify-center"
+                                            onClick={() => setSelectedCardBack(isSelected ? null : card.url)}
+                                          >
                                             <img 
                                               src={card.url} 
                                               alt={card.name}
                                               className="w-full h-12 object-cover rounded"
+                                              onLoad={() => console.log(`✅ Card back loaded: ${card.name}`, card.url)}
                                               onError={(e) => {
+                                                console.log(`❌ Card back failed to load: ${card.name}`, card.url);
                                                 const target = e.target as HTMLImageElement;
                                                 target.style.display = 'none';
                                                 const parent = target.parentElement as HTMLElement;
@@ -1038,6 +1043,20 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                                 }
                                               }}
                                             />
+                                          </div>
+                                          <div className="absolute top-0 right-0 p-1">
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setPreviewCard({ url: card.url, name: card.name });
+                                              }}
+                                              title="Preview image"
+                                            >
+                                              👁️
+                                            </Button>
                                           </div>
                                           {isSelected && (
                                             <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md">
@@ -1067,18 +1086,22 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                   return (
                                     <div 
                                       key={index} 
-                                      className={`border rounded-lg p-2 cursor-pointer transition-all ${
+                                      className={`relative border rounded-lg p-2 cursor-pointer transition-all ${
                                         isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
                                       }`}
-                                      onClick={() => toggleCardSelection(card.url)}
                                       data-testid={`card-select-${index}`}
                                     >
-                                      <div className="w-full h-20 bg-muted rounded mb-2 flex items-center justify-center">
+                                      <div 
+                                        className="w-full h-20 bg-muted rounded mb-2 flex items-center justify-center"
+                                        onClick={() => toggleCardSelection(card.url)}
+                                      >
                                         <img 
                                           src={card.url} 
                                           alt={card.name}
-                                          className="w-full h-20 object-cover rounded mb-2"
+                                          className="w-full h-20 object-cover rounded"
+                                          onLoad={() => console.log(`✅ Card loaded: ${card.name}`, card.url)}
                                           onError={(e) => {
+                                            console.log(`❌ Card failed to load: ${card.name}`, card.url);
                                             const target = e.target as HTMLImageElement;
                                             target.style.display = 'none';
                                             const parent = target.parentElement as HTMLElement;
@@ -1088,7 +1111,21 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                           }}
                                         />
                                       </div>
-                                      <p className="text-xs font-medium truncate">{card.name}</p>
+                                      <div className="flex justify-between items-center">
+                                        <p className="text-xs font-medium truncate flex-1">{card.name}</p>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-6 w-6 p-0 ml-1"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setPreviewCard({ url: card.url, name: card.name });
+                                          }}
+                                          title="Preview image"
+                                        >
+                                          👁️
+                                        </Button>
+                                      </div>
                                       {isSelected && (
                                         <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
                                           ✓
@@ -1187,6 +1224,30 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
             )}
           </Button>
         </div>
+
+        {/* Image Preview Dialog */}
+        {previewCard && (
+          <Dialog open={!!previewCard} onOpenChange={() => setPreviewCard(null)}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Preview: {previewCard.name}</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center">
+                <img 
+                  src={previewCard.url} 
+                  alt={previewCard.name}
+                  className="max-w-full max-h-96 object-contain rounded"
+                  onError={(e) => {
+                    console.log(`❌ Preview image failed to load: ${previewCard.name}`, previewCard.url);
+                  }}
+                />
+              </div>
+              <div className="text-sm text-muted-foreground mt-2">
+                <strong>URL:</strong> {previewCard.url}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
