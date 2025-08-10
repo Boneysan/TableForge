@@ -749,13 +749,16 @@ export class DatabaseStorage implements IStorage {
       });
     }
 
+    // Track created assets for lookups
+    const createdAssets = new Map<string, string>(); // url -> assetId
+
     // Apply default assets from system if present
     if (system.assetLibrary) {
       console.log("System assets would be applied:", system.assetLibrary);
       const assetLibrary = system.assetLibrary as any;
       if (assetLibrary.assets && Array.isArray(assetLibrary.assets)) {
         for (const assetData of assetLibrary.assets) {
-          await this.createGameAsset({
+          const newAsset = await this.createGameAsset({
             roomId,
             name: assetData.name,
             type: assetData.type || assetData.category || 'image',
@@ -763,6 +766,9 @@ export class DatabaseStorage implements IStorage {
             width: assetData.width || null,
             height: assetData.height || null,
           }, userId);
+          
+          // Store the mapping from URL to asset ID
+          createdAssets.set(assetData.url || assetData.filePath, newAsset.id);
         }
       }
     }
@@ -773,13 +779,16 @@ export class DatabaseStorage implements IStorage {
       const deckTemplates = system.deckTemplates as any;
       if (deckTemplates.decks && Array.isArray(deckTemplates.decks)) {
         for (const deckData of deckTemplates.decks) {
+          // Find the card back asset ID if it exists
+          const cardBackAssetId = deckData.cardBack ? createdAssets.get(deckData.cardBack) || null : null;
+          
           // Create the deck
           const newDeck = await this.createCardDeck({
             roomId,
             name: deckData.name,
             description: deckData.description || '',
             deckOrder: deckData.deckOrder || 0,
-            cardBackAssetId: deckData.cardBack || null,
+            cardBackAssetId: cardBackAssetId,
           }, userId);
 
           // Create card piles for the deck if it has cards
@@ -791,7 +800,6 @@ export class DatabaseStorage implements IStorage {
               positionX: Math.random() * 200 + 100,
               positionY: Math.random() * 200 + 100,
               pileType: 'deck',
-              deckId: newDeck.id,
               cards: deckData.cardAssets.map((asset: any) => ({
                 url: asset.url || asset.filePath,
                 name: asset.name,
@@ -808,7 +816,6 @@ export class DatabaseStorage implements IStorage {
               positionX: Math.random() * 200 + 300,
               positionY: Math.random() * 200 + 100,
               pileType: 'discard',
-              deckId: newDeck.id,
               cards: [],
               isShuffled: false,
               visibility: 'public',
