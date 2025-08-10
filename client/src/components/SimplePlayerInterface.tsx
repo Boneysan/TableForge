@@ -252,22 +252,24 @@ export function SimplePlayerInterface({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Game Board Area */}
         <div className="lg:col-span-2">
-          <Card className="h-[500px]">
+          <Card>
             <CardHeader>
               <CardTitle className="text-gray-100">Game Board</CardTitle>
             </CardHeader>
-            <CardContent className="h-full p-0 overflow-auto">
-              <GameBoard
-                assets={roomAssets}
-                boardAssets={boardAssets}
-                onAssetMoved={() => {}} // Players can't move assets
-                onAssetPlaced={() => {}} // Players can't place assets
-                playerRole="player"
-                roomId={room.id}
-                roomBoardWidth={room.boardWidth}
-                roomBoardHeight={room.boardHeight}
-                data-testid="game-board-player"
-              />
+            <CardContent className="p-0">
+              <div className="overflow-auto max-h-[80vh] border rounded-lg">
+                <GameBoard
+                  assets={roomAssets}
+                  boardAssets={boardAssets}
+                  onAssetMoved={() => {}} // Players can't move assets
+                  onAssetPlaced={() => {}} // Players can't place assets
+                  playerRole="player"
+                  roomId={room.id}
+                  roomBoardWidth={room.boardWidth}
+                  roomBoardHeight={room.boardHeight}
+                  data-testid="game-board-player"
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
