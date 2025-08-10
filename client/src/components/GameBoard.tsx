@@ -124,11 +124,10 @@ export function GameBoard({
       
       {/* Game Board Controls */}
       <div className="absolute top-2 right-2 z-40 flex gap-2">
-        {/* Resize Controls */}
-        <div className="flex gap-1 items-center bg-gray-800 rounded px-2 py-1">
-          <span className="text-white text-xs">
-            Size: {playerRole === 'admin' ? '(GM controls)' : '(view only)'}
-          </span>
+        {/* Resize Controls - Only show for GMs */}
+        {playerRole === 'admin' && (
+          <div className="flex gap-1 items-center bg-gray-800 rounded px-2 py-1">
+            <span className="text-white text-xs">Size:</span>
           {!customSizeMode ? (
             <select
               value={`${boardWidth}x${boardHeight}`}
@@ -206,6 +205,7 @@ export function GameBoard({
             </div>
           )}
         </div>
+        )}
         
         {/* Admin-only tools */}
         {playerRole === 'admin' && (
