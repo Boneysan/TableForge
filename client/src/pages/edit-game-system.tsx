@@ -90,16 +90,15 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       setDescription(systemData.description || "");
       setIsPublic(systemData.isPublic || false);
       setTags(systemData.tags || []);
-      // Convert existing assets to the expected format
-      if (systemData.assets) {
-        const formattedAssets = systemData.assets.map((asset: any) => ({
-          name: asset.name,
-          url: asset.filePath || asset.url,
-          type: asset.type,
-          size: asset.size || 0,
-          category: asset.category || 'cards',
-        }));
-        setUploadedAssets(formattedAssets);
+      
+      // Load assets from assetLibrary
+      if (systemData.assetLibrary?.assets) {
+        setUploadedAssets(systemData.assetLibrary.assets);
+      }
+      
+      // Load existing decks from deckTemplates
+      if (systemData.deckTemplates?.decks) {
+        setDecks(systemData.deckTemplates.decks);
       }
     }
   }, [systemData]);
@@ -229,12 +228,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       cardBack: selectedCardBack,
     };
     
-    console.log('Creating new deck:', newDeck);
-    setDecks(prev => {
-      const updated = [...prev, newDeck];
-      console.log('Updated decks array:', updated);
-      return updated;
-    });
+    setDecks(prev => [...prev, newDeck]);
     setDeckName("");
     setDeckDescription("");
     setSelectedCards([]);
@@ -271,7 +265,12 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         description: description.trim(),
         isPublic,
         tags,
-        assets: uploadedAssets,
+        assetLibrary: uploadedAssets.length > 0 ? {
+          assets: uploadedAssets
+        } : null,
+        deckTemplates: decks.length > 0 ? {
+          decks: decks
+        } : null,
       };
 
       const response = await authenticatedApiRequest("PUT", `/api/systems/${systemId}`, gameSystemData);
@@ -745,15 +744,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                     <Badge variant="outline">{getAssetsByCategory('cards').length} cards</Badge>
                   </div>
                   
-                  {/* Debug Information */}
-                  <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-                    Debug: Decks array length: {decks.length} | Card assets: {getAssetsByCategory('cards').length} | Total assets: {uploadedAssets.length}
-                    {uploadedAssets.length > 0 && (
-                      <div className="mt-1">
-                        Assets by category: {assetCategories.map(cat => `${cat.name}: ${getAssetsByCategory(cat.id).length}`).join(', ')}
-                      </div>
-                    )}
-                  </div>
+
                   
                   {getAssetsByCategory('cards').length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
@@ -775,10 +766,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                       <div className="flex justify-between items-center">
                         <h5 className="font-medium">Card Decks</h5>
                         <Button 
-                          onClick={() => {
-                            console.log('Create deck button clicked');
-                            setShowCreateDeck(true);
-                          }}
+                          onClick={() => setShowCreateDeck(true)}
                           size="sm"
                           data-testid="button-create-deck"
                         >
