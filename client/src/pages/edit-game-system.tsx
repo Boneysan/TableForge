@@ -229,7 +229,12 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       cardBack: selectedCardBack,
     };
     
-    setDecks(prev => [...prev, newDeck]);
+    console.log('Creating new deck:', newDeck);
+    setDecks(prev => {
+      const updated = [...prev, newDeck];
+      console.log('Updated decks array:', updated);
+      return updated;
+    });
     setDeckName("");
     setDeckDescription("");
     setSelectedCards([]);
@@ -738,6 +743,11 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                     <Badge variant="outline">{getAssetsByCategory('cards').length} cards</Badge>
                   </div>
                   
+                  {/* Debug Information */}
+                  <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
+                    Debug: Decks array length: {decks.length} | Card assets: {getAssetsByCategory('cards').length}
+                  </div>
+                  
                   {getAssetsByCategory('cards').length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
                       <CreditCard className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
@@ -758,7 +768,10 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                       <div className="flex justify-between items-center">
                         <h5 className="font-medium">Card Decks</h5>
                         <Button 
-                          onClick={() => setShowCreateDeck(true)}
+                          onClick={() => {
+                            console.log('Create deck button clicked');
+                            setShowCreateDeck(true);
+                          }}
                           size="sm"
                           data-testid="button-create-deck"
                         >
@@ -770,7 +783,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                       {/* Existing Decks */}
                       {decks.length > 0 && (
                         <div className="space-y-4">
-                          <h6 className="font-medium">Your Decks</h6>
+                          <h6 className="font-medium">Your Decks ({decks.length})</h6>
                           <div className="grid gap-4">
                             {decks.map((deck) => (
                               <Card key={deck.id} className="border">
