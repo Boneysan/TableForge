@@ -120,6 +120,7 @@ export interface IStorage {
   getAllTemplates(): Promise<GameTemplate[]>;
   getAllGameSystems(): Promise<GameSystem[]>;
   updateRoom(id: string, updates: Partial<GameRoom>): Promise<GameRoom>;
+  updateRoomBoardSize(roomId: string, width: number, height: number): Promise<GameRoom>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -800,6 +801,15 @@ export class DatabaseStorage implements IStorage {
       .update(gameRooms)
       .set(updates)
       .where(eq(gameRooms.id, id))
+      .returning();
+    return room;
+  }
+
+  async updateRoomBoardSize(roomId: string, width: number, height: number): Promise<GameRoom> {
+    const [room] = await db
+      .update(gameRooms)
+      .set({ boardWidth: width, boardHeight: height })
+      .where(eq(gameRooms.id, roomId))
       .returning();
     return room;
   }

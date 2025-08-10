@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GridOverlay, snapToGrid } from "./GridOverlay";
 import { MeasurementTool } from "./MeasurementTool";
@@ -13,6 +13,8 @@ interface GameBoardProps {
   onAssetPlaced: (assetId: string, x: number, y: number) => void;
   playerRole: 'admin' | 'player';
   roomId: string;
+  roomBoardWidth?: number;
+  roomBoardHeight?: number;
   'data-testid'?: string;
 }
 
@@ -23,6 +25,8 @@ export function GameBoard({
   onAssetPlaced, 
   playerRole,
   roomId,
+  roomBoardWidth = 800,
+  roomBoardHeight = 600,
   'data-testid': testId 
 }: GameBoardProps) {
   // Board Tools State
@@ -30,12 +34,20 @@ export function GameBoard({
   const [gridSize, setGridSize] = useState(20);
   const [measurementActive, setMeasurementActive] = useState(false);
   const [annotationActive, setAnnotationActive] = useState(false);
-  const [boardWidth, setBoardWidth] = useState(800);
-  const [boardHeight, setBoardHeight] = useState(600);
+  const [boardWidth, setBoardWidth] = useState(roomBoardWidth);
+  const [boardHeight, setBoardHeight] = useState(roomBoardHeight);
   const [isResizing, setIsResizing] = useState(false);
   const [customSizeMode, setCustomSizeMode] = useState(false);
-  const [customWidth, setCustomWidth] = useState('800');
-  const [customHeight, setCustomHeight] = useState('600');
+  const [customWidth, setCustomWidth] = useState(roomBoardWidth.toString());
+  const [customHeight, setCustomHeight] = useState(roomBoardHeight.toString());
+
+  // Update local state when room dimensions change
+  useEffect(() => {
+    setBoardWidth(roomBoardWidth);
+    setBoardHeight(roomBoardHeight);
+    setCustomWidth(roomBoardWidth.toString());
+    setCustomHeight(roomBoardHeight.toString());
+  }, [roomBoardWidth, roomBoardHeight]);
   
   const queryClient = useQueryClient();
 
@@ -62,6 +74,20 @@ export function GameBoard({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+    },
+  });
+
+  // Board size mutation - only for admins
+  const updateBoardSizeMutation = useMutation({
+    mutationFn: async ({ width, height }: { width: number; height: number }) => {
+      const response = await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/board-size`, {
+        width,
+        height,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId] });
     },
   });
 
@@ -98,9 +124,11 @@ export function GameBoard({
       
       {/* Game Board Controls */}
       <div className="absolute top-2 right-2 z-40 flex gap-2">
-        {/* Resize Controls - Available for all users */}
+        {/* Resize Controls */}
         <div className="flex gap-1 items-center bg-gray-800 rounded px-2 py-1">
-          <span className="text-white text-xs">Size:</span>
+          <span className="text-white text-xs">
+            Size: {playerRole === 'admin' ? '(GM controls)' : '(view only)'}
+          </span>
           {!customSizeMode ? (
             <select
               value={`${boardWidth}x${boardHeight}`}
@@ -111,8 +139,12 @@ export function GameBoard({
                   setCustomHeight(boardHeight.toString());
                 } else {
                   const [width, height] = e.target.value.split('x').map(Number);
-                  setBoardWidth(width);
-                  setBoardHeight(height);
+                  if (playerRole === 'admin') {
+                    updateBoardSizeMutation.mutate({ width, height });
+                  } else {
+                    setBoardWidth(width);
+                    setBoardHeight(height);
+                  }
                 }
               }}
               className="bg-gray-700 text-white text-xs px-1 py-0.5 rounded border-0"
@@ -149,10 +181,14 @@ export function GameBoard({
               />
               <button
                 onClick={() => {
-                  const width = parseInt(customWidth) || 800;
-                  const height = parseInt(customHeight) || 600;
-                  setBoardWidth(Math.max(200, Math.min(3000, width)));
-                  setBoardHeight(Math.max(200, Math.min(3000, height)));
+                  const width = Math.max(200, Math.min(3000, parseInt(customWidth) || 800));
+                  const height = Math.max(200, Math.min(3000, parseInt(customHeight) || 600));
+                  if (playerRole === 'admin') {
+                    updateBoardSizeMutation.mutate({ width, height });
+                  } else {
+                    setBoardWidth(width);
+                    setBoardHeight(height);
+                  }
                   setCustomSizeMode(false);
                 }}
                 className="bg-green-600 text-white text-xs px-1 py-0.5 rounded hover:bg-green-500"

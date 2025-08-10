@@ -279,6 +279,7 @@ export default function GameRoom() {
           onAssetMoved={handleAssetMoved}
           onDiceRolled={handleDiceRolled}
           onSwitchView={() => setSelectedView('admin')}
+          room={room}
         />
       )}
 

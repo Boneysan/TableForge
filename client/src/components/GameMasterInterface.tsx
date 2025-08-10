@@ -36,6 +36,7 @@ interface GameMasterInterfaceProps {
   onAssetMoved: (assetId: string, x: number, y: number) => void;
   onDiceRolled: (diceType: string, diceCount: number, results: number[], total: number) => void;
   onSwitchView?: () => void;
+  room?: any; // Room data with board dimensions
 }
 
 export function GameMasterInterface({
@@ -50,6 +51,7 @@ export function GameMasterInterface({
   onAssetMoved,
   onDiceRolled,
   onSwitchView,
+  room,
 }: GameMasterInterfaceProps) {
   const [isGMPanelVisible, setIsGMPanelVisible] = useState(true);
   const [selectedTab, setSelectedTab] = useState("game");
@@ -345,6 +347,8 @@ export function GameMasterInterface({
                   onAssetPlaced={onAssetPlaced}
                   playerRole="admin"
                   roomId={roomId}
+                  roomBoardWidth={room?.boardWidth}
+                  roomBoardHeight={room?.boardHeight}
                   data-testid="game-board-gm"
                 />
               </div>

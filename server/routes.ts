@@ -814,6 +814,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Room board size endpoint
+  app.patch("/api/rooms/:roomId/board-size", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const { width, height } = req.body;
+      const userId = req.user?.claims?.sub || req.user?.id;
+
+      // Validate user has admin role in the room
+      const userRole = await storage.getPlayerRole(roomId, userId);
+      if (userRole !== 'admin') {
+        return res.status(403).json({ error: "Only admins can change board size" });
+      }
+
+      // Validate dimensions
+      if (!width || !height || width < 200 || height < 200 || width > 3000 || height > 3000) {
+        return res.status(400).json({ error: "Invalid board dimensions" });
+      }
+
+      const room = await storage.updateRoomBoardSize(roomId, width, height);
+      res.json(room);
+    } catch (error) {
+      console.error("Error updating board size:", error);
+      res.status(500).json({ error: "Failed to update board size" });
+    }
+  });
+
   // Card Pile endpoints
   app.get("/api/rooms/:roomId/piles", hybridAuthMiddleware, async (req: any, res) => {
     try {

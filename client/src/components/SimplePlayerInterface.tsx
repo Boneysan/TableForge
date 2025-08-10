@@ -11,6 +11,7 @@ import { authenticatedApiRequest } from "@/lib/authClient";
 import { ChatComponent } from "./ChatComponent";
 import { ThemeToggle } from "./ThemeToggle";
 import { PlayerScoreboard } from "./PlayerScoreboard";
+import { GameBoard } from "./GameBoard";
 import { useLocation } from "wouter";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayerWithName, User } from "@shared/schema";
 
@@ -255,14 +256,18 @@ export function SimplePlayerInterface({
             <CardHeader>
               <CardTitle className="text-gray-100">Game Board</CardTitle>
             </CardHeader>
-            <CardContent className="h-full bg-green-800 rounded-lg flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="text-4xl mb-4">🎲</div>
-                <p className="text-lg">Interactive game board</p>
-                <p className="text-sm text-gray-300 mt-2">
-                  {boardAssets.length} pieces on board
-                </p>
-              </div>
+            <CardContent className="h-full p-0 overflow-auto">
+              <GameBoard
+                assets={roomAssets}
+                boardAssets={boardAssets}
+                onAssetMoved={() => {}} // Players can't move assets
+                onAssetPlaced={() => {}} // Players can't place assets
+                playerRole="player"
+                roomId={room.id}
+                roomBoardWidth={room.boardWidth}
+                roomBoardHeight={room.boardHeight}
+                data-testid="game-board-player"
+              />
             </CardContent>
           </Card>
         </div>

@@ -31,6 +31,8 @@ export const gameRooms = pgTable("game_rooms", {
   createdBy: varchar("created_by").notNull().references(() => users.id),
   isActive: boolean("is_active").notNull().default(true),
   gameState: json("game_state"),
+  boardWidth: integer("board_width").notNull().default(800),
+  boardHeight: integer("board_height").notNull().default(600),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
