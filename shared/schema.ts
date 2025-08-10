@@ -102,6 +102,7 @@ export const cardDecks = pgTable("card_decks", {
   isShuffled: boolean("is_shuffled").default(false),
   deckOrder: json("deck_order"), // Array of card asset IDs in order
   theme: json("theme").$type<DeckTheme>(), // Deck visual theme
+  cardBackAssetId: varchar("card_back_asset_id").references(() => gameAssets.id), // Custom card back image
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -197,6 +198,7 @@ export const insertCardDeckSchema = createInsertSchema(cardDecks).pick({
   name: true,
   description: true,
   deckOrder: true,
+  cardBackAssetId: true,
 });
 
 export const insertCardPileSchema = createInsertSchema(cardPiles).pick({

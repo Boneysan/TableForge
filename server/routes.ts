@@ -666,7 +666,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/rooms/:roomId/decks", hybridAuthMiddleware, async (req: any, res) => {
     try {
       const { roomId } = req.params;
-      const { name, description, deckOrder } = req.body;
+      const { name, description, deckOrder, cardBackAssetId } = req.body;
       const userId = req.user?.claims?.sub || req.user?.id;
 
       if (!name?.trim() || !Array.isArray(deckOrder)) {
@@ -678,6 +678,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name,
         description: description || "",
         deckOrder,
+        cardBackAssetId: cardBackAssetId || null,
       }, userId);
 
       res.json(deck);

@@ -32,7 +32,8 @@ import {
   Play,
   Square,
   Users,
-  User
+  User,
+  X
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -66,6 +67,7 @@ export function CardDeckManager({
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [cardFilter, setCardFilter] = useState("");
   const [quickTemplate, setQuickTemplate] = useState<string | null>(null);
+  const [selectedCardBack, setSelectedCardBack] = useState<string | null>(null);
   const [pileName, setPileName] = useState("");
   const [showDeckPresets, setShowDeckPresets] = useState(false);
   const [pileType, setPileType] = useState<"deck" | "discard" | "hand" | "custom">("custom");
@@ -207,6 +209,14 @@ export function CardDeckManager({
     asset.type === "card" || asset.name.toLowerCase().includes("card")
   );
 
+  // Card back assets - these could be any image asset that would work as a card back
+  const cardBackAssets = assets.filter(asset => 
+    asset.type === "card" || 
+    asset.name.toLowerCase().includes("back") ||
+    asset.name.toLowerCase().includes("cardback") ||
+    asset.type === "other" // Allow any image asset to be used as card back
+  );
+
   const handleCreateDeck = () => {
     if (!deckName.trim() || selectedCards.length === 0) {
       toast({ title: "Please provide a deck name and select cards", variant: "destructive" });
@@ -217,6 +227,7 @@ export function CardDeckManager({
       name: deckName,
       description: deckDescription,
       deckOrder: selectedCards,
+      cardBackAssetId: selectedCardBack || undefined,
     });
   };
 
@@ -435,6 +446,68 @@ export function CardDeckManager({
                         placeholder="Describe this deck..."
                         data-testid="textarea-deck-description"
                       />
+                    </div>
+                    
+                    {/* Card Back Selection */}
+                    <div>
+                      <Label>Card Back (Optional)</Label>
+                      <p className="text-xs text-gray-500 mb-2">Choose an image to use as the card back for this deck</p>
+                      
+                      {selectedCardBack && (
+                        <div className="mb-2 p-2 border rounded bg-blue-50">
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={cardBackAssets.find(asset => asset.id === selectedCardBack)?.filePath}
+                              alt="Selected card back"
+                              className="w-8 h-8 object-cover rounded"
+                            />
+                            <span className="text-sm font-medium">
+                              {cardBackAssets.find(asset => asset.id === selectedCardBack)?.name}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setSelectedCardBack(null)}
+                              data-testid="button-remove-card-back"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto border rounded p-2">
+                        {cardBackAssets.length > 0 ? (
+                          cardBackAssets.map((asset) => (
+                            <div
+                              key={asset.id}
+                              className={`
+                                cursor-pointer rounded border-2 p-1 text-center transition-colors
+                                ${selectedCardBack === asset.id 
+                                  ? "border-blue-500 bg-blue-50" 
+                                  : "border-gray-200 hover:border-gray-300"
+                                }
+                              `}
+                              onClick={() => setSelectedCardBack(asset.id)}
+                              data-testid={`card-back-selector-${asset.id}`}
+                            >
+                              <img
+                                src={asset.filePath}
+                                alt={asset.name}
+                                className="w-full h-12 object-cover rounded mb-1"
+                              />
+                              <div className="text-xs truncate">
+                                {asset.name}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="col-span-4 text-center py-4 text-gray-500 text-xs">
+                            No assets available for card backs.<br />
+                            Upload some images to use as card backs.
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
                     {/* Quick Templates */}
