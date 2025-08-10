@@ -212,7 +212,7 @@ export function BulkUploader({
 
   // Set up event handlers after startBulkUpload is defined
   useEffect(() => {
-    console.log('🔧 [BulkUploader] Setting up event handlers...');
+    console.log('🔧 [BulkUploader] Component mounted, setting up event handlers...');
     
     const handleFilesAdded = (files: any[]) => {
       console.log('📁 [BulkUploader] Files added to Uppy:', files.length);
@@ -252,7 +252,10 @@ export function BulkUploader({
   return (
     <div>
       <Button 
-        onClick={() => setShowModal(true)} 
+        onClick={() => {
+          console.log('🎯 [BulkUploader] Button clicked, opening modal...');
+          setShowModal(true);
+        }} 
         className={buttonClassName} 
         data-testid="bulk-upload-button"
         disabled={isProcessing}
