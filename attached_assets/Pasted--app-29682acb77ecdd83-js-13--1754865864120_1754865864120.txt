@@ -1,0 +1,1241 @@
+_app-29682acb77ecdd83.js:13 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+cdn.segment.com/next-integrations/integrations/google-analytics/2.18.6/google-analytics.dynamic.js.gz:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+_app-29682acb77ecdd83.js:13 Google Analytics Error: Failed to load https://cdn.segment.com/next-integrations/integrations/google-analytics/2.18.6/google-analytics.dynamic.js.gz
+    at i.6238.o.onerror (load-script.ts:53:24)
+(anonymous) @ _app-29682acb77ecdd83.js:13
+www.googletagmanager.com/gtag/js?id=AW-11411994397:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+_app-29682acb77ecdd83.js:13 [LaunchDarkly] LaunchDarkly client initialized
+TabletopForge:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+Grammarly-check.js:1 [Violation] Permissions policy violation: unload is not allowed in this document.
+(anonymous) @ Grammarly-check.js:1
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'battery'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-9d3251a6078e5ccb.js:1
+framework-9d3251a6078e5ccb.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-9d3251a6078e5ccb.js:1
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'ambient-light-sensor'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'battery'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'execution-while-not-rendered'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'layout-animations'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'legacy-image-formats'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'navigation-override'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'oversized-images'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'publickey-credentials'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'speaker-selection'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'unoptimized-images'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Unrecognized feature: 'unsized-media'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Allow attribute will take precedence over 'allowfullscreen'.
+bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/__replco/workspace_iframe.html?initialPath=%2F&id=%3Ar6v%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+eruda.js:2 WebSocket connection to 'wss://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/?token=F5XCrBZKvPCu' failed: 
+t @ eruda.js:2
+eruda.js:2 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=F5XCrBZKvPCu' is invalid.
+    at new t (eruda.js:2:218737)
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+eruda.js:2 🔥 [Firebase Client] Checking Firebase configuration...
+eruda.js:2 🔥 [Firebase Client] VITE_FIREBASE_API_KEY present: true
+eruda.js:2 🔥 [Firebase Client] VITE_FIREBASE_PROJECT_ID: board-games-f2082
+eruda.js:2 🔥 [Firebase Client] VITE_FIREBASE_APP_ID present: true
+eruda.js:2 🔥 [Firebase Client] Has complete Firebase config: true
+eruda.js:2 🔥 [Firebase Client] Firebase config object: Object
+eruda.js:2 🔥 [Firebase Client] Firebase app initialized: true
+eruda.js:2 🔥 [Firebase Client] Firebase Auth instance created: true
+eruda.js:2 🔥 [Firebase Client] Google Auth Provider created: true
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:13.929Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] Fetching user data with Firebase auth...
+eruda.js:2 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:39:13.930Z
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:13.930Z
+eruda.js:2 🌐 [API Request] GET /api/auth/user
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: null
+eruda.js:2 ⚠️ [Auth Token] No current user
+eruda.js:2 🔐 [useAuth] Setting up Firebase auth state listener...
+eruda.js:2 🔐 [Auth State] Setting up auth state listener...
+eruda.js:2 🌐 [API Request] Token available: false
+eruda.js:2 🌐 [API Request] Token length: 0
+eruda.js:2 ⚠️ [API Request] No token available - proceeding without auth header
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 ✅ [Auth State] User signed in: Object
+eruda.js:2 🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====
+eruda.js:2 🔐 [useAuth] Change timestamp: 2025-08-10T22:39:14.063Z
+eruda.js:2 🔐 [useAuth] Firebase auth state changed: Object
+eruda.js:2 🔐 [useAuth] User signed in, waiting for auth state to settle...
+eruda.js:2 🔐 [useAuth] Starting 500ms delay before refetch...
+user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:14.145Z
+eruda.js:2 🌐 [API Request] Response status: 401
+eruda.js:2 🌐 [API Request] Response statusText: Unauthorized
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: false
+eruda.js:2 ❌ [API Request] Request failed: Object
+Mt.forEach.n.<computed> @ eruda.js:2
+eruda.js:2 ❌ [API Request] Fetch failed: Error: 401: Unauthorized - {"message":"Unauthorized"}
+    at authenticatedApiRequest (authClient.ts:73:13)
+    at async queryFn (useAuth.ts:13:26)
+Mt.forEach.n.<computed> @ eruda.js:2
+eruda.js:2 ❌ [useAuth] Failed to fetch user data: Error: 401: Unauthorized - {"message":"Unauthorized"}
+    at authenticatedApiRequest (authClient.ts:73:13)
+    at async queryFn (useAuth.ts:13:26)
+Mt.forEach.n.<computed> @ eruda.js:2
+eruda.js:2 ❌ [useAuth] Error type: object
+Mt.forEach.n.<computed> @ eruda.js:2
+eruda.js:2 ❌ [useAuth] Error constructor: Error
+Mt.forEach.n.<computed> @ eruda.js:2
+eruda.js:2 ❌ [useAuth] Error message: 401: Unauthorized - {"message":"Unauthorized"}
+Mt.forEach.n.<computed> @ eruda.js:2
+eruda.js:2 ℹ️ [useAuth] User not authenticated, returning null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:14.147Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] ===== REFETCHING USER DATA =====
+eruda.js:2 🔐 [useAuth] Refetch timestamp: 2025-08-10T22:39:15.065Z
+eruda.js:2 🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change
+eruda.js:2 🔐 [useAuth] Fetching user data with Firebase auth...
+eruda.js:2 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:39:15.066Z
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:15.066Z
+eruda.js:2 🌐 [API Request] GET /api/auth/user
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:15.068Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:15.681Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] API response received, status: 200
+eruda.js:2 ✅ [useAuth] User data fetched successfully: Object
+eruda.js:2 ✅ [useAuth] User data type: object
+eruda.js:2 ✅ [useAuth] User data keys: Array(7)
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:15.683Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:15.684Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] Fetching user data with Firebase auth...
+eruda.js:2 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:39:15.688Z
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:15.688Z
+eruda.js:2 🌐 [API Request] GET /api/auth/user
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [useAuth] Setting up Firebase auth state listener...
+eruda.js:2 🔐 [Auth State] Setting up auth state listener...
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:15.688Z
+eruda.js:2 🌐 [API Request] GET /api/user/DbSUo6yNeUOUv1QrzKWLDfkqcf02/rooms
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:15.688Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:15.689Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 ✅ [Auth State] User signed in: Object
+eruda.js:2 🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====
+eruda.js:2 🔐 [useAuth] Change timestamp: 2025-08-10T22:39:15.691Z
+eruda.js:2 🔐 [useAuth] Firebase auth state changed: Object
+eruda.js:2 🔐 [useAuth] User signed in, waiting for auth state to settle...
+eruda.js:2 🔐 [useAuth] Starting 500ms delay before refetch...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:15.973Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] API response received, status: 200
+eruda.js:2 ✅ [useAuth] User data fetched successfully: Object
+eruda.js:2 ✅ [useAuth] User data type: object
+eruda.js:2 ✅ [useAuth] User data keys: Array(7)
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:16.191Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:16.192Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] ===== REFETCHING USER DATA =====
+eruda.js:2 🔐 [useAuth] Refetch timestamp: 2025-08-10T22:39:16.692Z
+eruda.js:2 🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change
+eruda.js:2 🔐 [useAuth] Fetching user data with Firebase auth...
+eruda.js:2 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:39:16.693Z
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:16.693Z
+eruda.js:2 🌐 [API Request] GET /api/auth/user
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:16.695Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:16.977Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] API response received, status: 200
+eruda.js:2 ✅ [useAuth] User data fetched successfully: Object
+eruda.js:2 ✅ [useAuth] User data type: object
+eruda.js:2 ✅ [useAuth] User data keys: Array(7)
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:16.979Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:30.850Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] Fetching user data with Firebase auth...
+eruda.js:2 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:39:30.851Z
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:30.851Z
+eruda.js:2 🌐 [API Request] GET /api/auth/user
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [useAuth] Setting up Firebase auth state listener...
+eruda.js:2 🔐 [Auth State] Setting up auth state listener...
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:30.852Z
+eruda.js:2 🌐 [API Request] POST /api/rooms/4b015073-552d-4c9e-958d-b5c0c887ba23/join
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth State] User signed in: Object
+eruda.js:2 🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====
+eruda.js:2 🔐 [useAuth] Change timestamp: 2025-08-10T22:39:30.852Z
+eruda.js:2 🔐 [useAuth] Firebase auth state changed: Object
+eruda.js:2 🔐 [useAuth] User signed in, waiting for auth state to settle...
+eruda.js:2 🔐 [useAuth] Starting 500ms delay before refetch...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 WebSocket connected
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:31.118Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] ===== REFETCHING USER DATA =====
+eruda.js:2 🔐 [useAuth] Refetch timestamp: 2025-08-10T22:39:31.853Z
+eruda.js:2 🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change
+eruda.js:2 🔐 [useAuth] Fetching user data with Firebase auth...
+eruda.js:2 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:39:31.853Z
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:31.853Z
+eruda.js:2 🌐 [API Request] GET /api/auth/user
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:31.854Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:31.893Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:31.894Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] API response received, status: 200
+eruda.js:2 ✅ [useAuth] User data fetched successfully: Object
+eruda.js:2 ✅ [useAuth] User data type: object
+eruda.js:2 ✅ [useAuth] User data keys: Array(7)
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:31.895Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:31.905Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:31.978Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:32.119Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:32.169Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:32.185Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] API response received, status: 200
+eruda.js:2 ✅ [useAuth] User data fetched successfully: Object
+eruda.js:2 ✅ [useAuth] User data type: object
+eruda.js:2 ✅ [useAuth] User data keys: Array(7)
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:32.186Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: null selectedView: null
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:32.186Z
+eruda.js:2 🌐 [API Request] POST /api/rooms/4b015073-552d-4c9e-958d-b5c0c887ba23/join
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:32.337Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:32.337Z
+eruda.js:2 🌐 [API Request] GET /api/rooms/4b015073-552d-4c9e-958d-b5c0c887ba23/role
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:32.609Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🌐 [API Request] ===== STARTING API REQUEST =====
+eruda.js:2 🌐 [API Request] Request timestamp: 2025-08-10T22:39:32.610Z
+eruda.js:2 🌐 [API Request] GET /api/rooms/4b015073-552d-4c9e-958d-b5c0c887ba23/role
+eruda.js:2 🔐 [Auth Token] Getting Firebase ID token...
+eruda.js:2 🔐 [Auth Token] Auth instance available: true
+eruda.js:2 🔐 [Auth Token] Current user: Object
+eruda.js:2 🔐 [Auth Token] Calling getIdToken()...
+eruda.js:2 ✅ [Auth Token] Token retrieved, length: 1149
+eruda.js:2 🌐 [API Request] Token available: true
+eruda.js:2 🌐 [API Request] Token length: 1149
+eruda.js:2 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+eruda.js:2 🌐 [API Request] Authorization header added
+eruda.js:2 🌐 [API Request] Final headers: Object
+eruda.js:2 🌐 [API Request] Making fetch request...
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:32.683Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:32.685Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: admin selectedView: null
+eruda.js:2 🌐 [API Request] ===== RESPONSE RECEIVED =====
+eruda.js:2 🌐 [API Request] Response timestamp: 2025-08-10T22:39:33.031Z
+eruda.js:2 🌐 [API Request] Response status: 200
+eruda.js:2 🌐 [API Request] Response statusText: OK
+eruda.js:2 🌐 [API Request] Response headers: Object
+eruda.js:2 🌐 [API Request] Response ok: true
+eruda.js:2 ✅ [API Request] Request successful
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:33.033Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: admin selectedView: null
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:39:33.912Z
+eruda.js:2 🔐 [useAuth] Hook state: Object
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: admin selectedView: admin
+eruda.js:2 WebSocket disconnected: 1006 
+eruda.js:2 Attempting to reconnect (1/5)...
+eruda.js:2 🔐 [useAuth] ===== HOOK STATE =====
+eruda.js:2 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:41:52.259Z
+eruda.js:2 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+eruda.js:2 🔐 [useAuth] ==============================
+eruda.js:2 wasJoiningRoom: false userRole: admin selectedView: admin
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+client:536 WebSocket connection to 'wss://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/?token=1A1IJumF5ajs' failed: 
+t @ Network.js:227
+setupWebSocket @ client:536
+(anonymous) @ client:531
+Network.js:227 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=1A1IJumF5ajs' is invalid.
+    at new t (Network.js:227:18)
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+t @ Network.js:227
+setupWebSocket @ client:536
+fallback @ client:509
+(anonymous) @ client:555
+Console.js:61 🔥 [Firebase Client] Checking Firebase configuration...
+Console.js:61 🔥 [Firebase Client] VITE_FIREBASE_API_KEY present: true
+Console.js:61 🔥 [Firebase Client] VITE_FIREBASE_PROJECT_ID: board-games-f2082
+Console.js:61 🔥 [Firebase Client] VITE_FIREBASE_APP_ID present: true
+Console.js:61 🔥 [Firebase Client] Has complete Firebase config: true
+Console.js:61 🔥 [Firebase Client] Firebase config object: {apiKey: 'AIzaSyC4...', authDomain: 'board-games-f2082.firebaseapp.com', projectId: 'board-games-f2082', storageBucket: 'board-games-f2082.firebasestorage.app', appId: '1:192522119321:web:371d5a0153526209983008'}
+Console.js:61 🔥 [Firebase Client] Firebase app initialized: true
+Console.js:61 🔥 [Firebase Client] Firebase Auth instance created: true
+Console.js:61 🔥 [Firebase Client] Google Auth Provider created: true
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:06.078Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: false, isLoading: true, hasError: false, isAuthenticated: false, userData: undefined, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] Fetching user data with Firebase auth...
+Console.js:61 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:42:06.079Z
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:42:06.079Z
+Console.js:61 🌐 [API Request] GET /api/auth/user
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: null
+Console.js:61 ⚠️ [Auth Token] No current user
+Console.js:61 🔐 [useAuth] Setting up Firebase auth state listener...
+Console.js:61 🔐 [Auth State] Setting up auth state listener...
+Console.js:61 🌐 [API Request] Token available: false
+Console.js:61 🌐 [API Request] Token length: 0
+Console.js:61 ⚠️ [API Request] No token available - proceeding without auth header
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json'}
+Console.js:61 🌐 [API Request] Making fetch request...
+injected.js:253  GET https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/api/auth/user 401 (Unauthorized)
+window.fetch @ Network.js:219
+apply @ injected.js:253
+authenticatedApiRequest @ authClient.ts:79
+await in authenticatedApiRequest
+queryFn @ useAuth.ts:15
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:42:06.288Z
+Console.js:61 🌐 [API Request] Response status: 401
+Console.js:61 🌐 [API Request] Response statusText: Unauthorized
+Console.js:61 🌐 [API Request] Response headers: {content-length: '26', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:42:06 GMT', etag: 'W/"1a-pljHtlo127JYJR4E/RYOPb6ucbw"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: false
+Console.js:61 ❌ [API Request] Request failed: {status: 401, statusText: 'Unauthorized', errorText: '{"message":"Unauthorized"}'}
+Mt.forEach.n.<computed> @ Console.js:61
+authenticatedApiRequest @ authClient.ts:90
+await in authenticatedApiRequest
+queryFn @ useAuth.ts:15
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 ❌ [API Request] Fetch failed: Error: 401: Unauthorized - {"message":"Unauthorized"}
+    at authenticatedApiRequest (authClient.ts:95:13)
+    at async queryFn (useAuth.ts:15:26)
+Mt.forEach.n.<computed> @ Console.js:61
+authenticatedApiRequest @ authClient.ts:101
+await in authenticatedApiRequest
+queryFn @ useAuth.ts:15
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 ❌ [useAuth] Failed to fetch user data: Error: 401: Unauthorized - {"message":"Unauthorized"}
+    at authenticatedApiRequest (authClient.ts:95:13)
+    at async queryFn (useAuth.ts:15:26)
+Mt.forEach.n.<computed> @ Console.js:61
+queryFn @ useAuth.ts:31
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 ❌ [useAuth] Error type: object
+Mt.forEach.n.<computed> @ Console.js:61
+queryFn @ useAuth.ts:32
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 ❌ [useAuth] Error constructor: Error
+Mt.forEach.n.<computed> @ Console.js:61
+queryFn @ useAuth.ts:33
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 ❌ [useAuth] Error message: 401: Unauthorized - {"message":"Unauthorized"}
+Mt.forEach.n.<computed> @ Console.js:61
+queryFn @ useAuth.ts:34
+await in queryFn
+fetchFn @ @tanstack_react-query.js?v=b216aa02:840
+run @ @tanstack_react-query.js?v=b216aa02:494
+start @ @tanstack_react-query.js?v=b216aa02:536
+fetch @ @tanstack_react-query.js?v=b216aa02:926
+executeFetch_fn @ @tanstack_react-query.js?v=b216aa02:2211
+onSubscribe @ @tanstack_react-query.js?v=b216aa02:1898
+subscribe @ @tanstack_react-query.js?v=b216aa02:24
+(anonymous) @ @tanstack_react-query.js?v=b216aa02:3022
+subscribeToStore @ chunk-RPCDYKBN.js?v=b216aa02:11984
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=b216aa02:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=b216aa02:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=b216aa02:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=b216aa02:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19432
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=b216aa02:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18718
+workLoop @ chunk-RPCDYKBN.js?v=b216aa02:197
+flushWork @ chunk-RPCDYKBN.js?v=b216aa02:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=b216aa02:384
+Console.js:61 ℹ️ [useAuth] User not authenticated, returning null
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:06.290Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: false, isLoading: false, hasError: false, isAuthenticated: false, userData: null, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 ✅ [Auth State] User signed in: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer', emailVerified: true, isAnonymous: false}
+Console.js:61 🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====
+Console.js:61 🔐 [useAuth] Change timestamp: 2025-08-10T22:42:06.301Z
+Console.js:61 🔐 [useAuth] Firebase auth state changed: {hasFirebaseUser: true, uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer', emailVerified: true}
+Console.js:61 🔐 [useAuth] User signed in, waiting for auth state to settle...
+Console.js:61 🔐 [useAuth] Starting 500ms delay before refetch...
+Console.js:61 🔐 [useAuth] ===== REFETCHING USER DATA =====
+Console.js:61 🔐 [useAuth] Refetch timestamp: 2025-08-10T22:42:07.302Z
+Console.js:61 🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change
+Console.js:61 🔐 [useAuth] Fetching user data with Firebase auth...
+Console.js:61 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:42:07.304Z
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:42:07.304Z
+Console.js:61 🌐 [API Request] GET /api/auth/user
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:07.308Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: false, isLoading: true, hasError: false, isAuthenticated: false, userData: undefined, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:42:07.953Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '305', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:42:07 GMT', etag: 'W/"131-uLXAuxStPSw30ki1dGzccL7ijtE"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] API response received, status: 200
+Console.js:61 ✅ [useAuth] User data fetched successfully: {id: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'mike.firebase@temp.local', firstName: 'Mike', lastName: 'Zomer', profileImageUrl: 'https://lh3.googleusercontent.com/a/ACg8ocKTpt7TA6Lh3ap5xybyL2d9ojAgo1JiKl69DYSR7CvE_RarRw=s96-c', …}
+Console.js:61 ✅ [useAuth] User data type: object
+Console.js:61 ✅ [useAuth] User data keys: (7) ['id', 'email', 'firstName', 'lastName', 'profileImageUrl', 'createdAt', 'updatedAt']
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:07.955Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:07.956Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] Fetching user data with Firebase auth...
+Console.js:61 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:42:07.960Z
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:42:07.960Z
+Console.js:61 🌐 [API Request] GET /api/auth/user
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 🔐 [useAuth] Setting up Firebase auth state listener...
+Console.js:61 🔐 [Auth State] Setting up auth state listener...
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:42:07.961Z
+Console.js:61 🌐 [API Request] GET /api/user/DbSUo6yNeUOUv1QrzKWLDfkqcf02/rooms
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:07.961Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:07.962Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 ✅ [Auth State] User signed in: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer', emailVerified: true, isAnonymous: false}
+Console.js:61 🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====
+Console.js:61 🔐 [useAuth] Change timestamp: 2025-08-10T22:42:07.964Z
+Console.js:61 🔐 [useAuth] Firebase auth state changed: {hasFirebaseUser: true, uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer', emailVerified: true}
+Console.js:61 🔐 [useAuth] User signed in, waiting for auth state to settle...
+Console.js:61 🔐 [useAuth] Starting 500ms delay before refetch...
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:42:08.262Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '305', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:42:08 GMT', etag: 'W/"131-uLXAuxStPSw30ki1dGzccL7ijtE"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] API response received, status: 200
+Console.js:61 ✅ [useAuth] User data fetched successfully: {id: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'mike.firebase@temp.local', firstName: 'Mike', lastName: 'Zomer', profileImageUrl: 'https://lh3.googleusercontent.com/a/ACg8ocKTpt7TA6Lh3ap5xybyL2d9ojAgo1JiKl69DYSR7CvE_RarRw=s96-c', …}
+Console.js:61 ✅ [useAuth] User data type: object
+Console.js:61 ✅ [useAuth] User data keys: (7) ['id', 'email', 'firstName', 'lastName', 'profileImageUrl', 'createdAt', 'updatedAt']
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:42:08.491Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '218', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:42:08 GMT', etag: 'W/"da-kCMXQd2YEastBuPJ1Nq57Be9juM"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:08.492Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] ===== REFETCHING USER DATA =====
+Console.js:61 🔐 [useAuth] Refetch timestamp: 2025-08-10T22:42:08.967Z
+Console.js:61 🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change
+Console.js:61 🔐 [useAuth] Fetching user data with Firebase auth...
+Console.js:61 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:42:08.967Z
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:42:08.967Z
+Console.js:61 🌐 [API Request] GET /api/auth/user
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:08.969Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: false, isLoading: true, hasError: false, isAuthenticated: false, userData: undefined, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:42:09.246Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '305', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:42:09 GMT', etag: 'W/"131-uLXAuxStPSw30ki1dGzccL7ijtE"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] API response received, status: 200
+Console.js:61 ✅ [useAuth] User data fetched successfully: {id: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'mike.firebase@temp.local', firstName: 'Mike', lastName: 'Zomer', profileImageUrl: 'https://lh3.googleusercontent.com/a/ACg8ocKTpt7TA6Lh3ap5xybyL2d9ojAgo1JiKl69DYSR7CvE_RarRw=s96-c', …}
+Console.js:61 ✅ [useAuth] User data type: object
+Console.js:61 ✅ [useAuth] User data keys: (7) ['id', 'email', 'firstName', 'lastName', 'profileImageUrl', 'createdAt', 'updatedAt']
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:42:09.247Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:43:51.923Z
+Console.js:61 🌐 [API Request] GET /api/admin/rooms
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:43:51.924Z
+Console.js:61 🌐 [API Request] GET /api/admin/templates
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:43:51.925Z
+Console.js:61 🌐 [API Request] GET /api/admin/game-systems
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:56.156Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: false, isLoading: true, hasError: false, isAuthenticated: false, userData: undefined, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] Fetching user data with Firebase auth...
+Console.js:61 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:43:56.158Z
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:43:56.159Z
+Console.js:61 🌐 [API Request] GET /api/auth/user
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 🔐 [useAuth] Setting up Firebase auth state listener...
+Console.js:61 🔐 [Auth State] Setting up auth state listener...
+Console.js:61 ✅ [Auth State] User signed in: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer', emailVerified: true, isAnonymous: false}
+Console.js:61 🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====
+Console.js:61 🔐 [useAuth] Change timestamp: 2025-08-10T22:43:56.160Z
+Console.js:61 🔐 [useAuth] Firebase auth state changed: {hasFirebaseUser: true, uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer', emailVerified: true}
+Console.js:61 🔐 [useAuth] User signed in, waiting for auth state to settle...
+Console.js:61 🔐 [useAuth] Starting 500ms delay before refetch...
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:43:56.696Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '305', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:43:56 GMT', etag: 'W/"131-uLXAuxStPSw30ki1dGzccL7ijtE"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] API response received, status: 200
+Console.js:61 ✅ [useAuth] User data fetched successfully: {id: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'mike.firebase@temp.local', firstName: 'Mike', lastName: 'Zomer', profileImageUrl: 'https://lh3.googleusercontent.com/a/ACg8ocKTpt7TA6Lh3ap5xybyL2d9ojAgo1JiKl69DYSR7CvE_RarRw=s96-c', …}
+Console.js:61 ✅ [useAuth] User data type: object
+Console.js:61 ✅ [useAuth] User data keys: (7) ['id', 'email', 'firstName', 'lastName', 'profileImageUrl', 'createdAt', 'updatedAt']
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:56.698Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🔐 [useAuth] ===== REFETCHING USER DATA =====
+Console.js:61 🔐 [useAuth] Refetch timestamp: 2025-08-10T22:43:57.161Z
+Console.js:61 🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change
+Console.js:61 🔐 [useAuth] Fetching user data with Firebase auth...
+Console.js:61 🔐 [useAuth] Query execution timestamp: 2025-08-10T22:43:57.162Z
+Console.js:61 🌐 [API Request] ===== STARTING API REQUEST =====
+Console.js:61 🌐 [API Request] Request timestamp: 2025-08-10T22:43:57.162Z
+Console.js:61 🌐 [API Request] GET /api/auth/user
+Console.js:61 🔐 [Auth Token] Getting Firebase ID token...
+Console.js:61 🔐 [Auth Token] Auth instance available: true
+Console.js:61 🔐 [Auth Token] Current user: {uid: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'bigzome@gmail.com', displayName: 'Mike Zomer'}
+Console.js:61 🔐 [Auth Token] Calling getIdToken()...
+Console.js:61 ✅ [Auth Token] Token retrieved, length: 1149
+Console.js:61 🌐 [API Request] Token available: true
+Console.js:61 🌐 [API Request] Token length: 1149
+Console.js:61 🌐 [API Request] Token preview: eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjEwY2FlMm...
+Console.js:61 🌐 [API Request] Authorization header added
+Console.js:61 🌐 [API Request] Final headers: {Content-Type: 'application/json', Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiN2JhZmIyZjE…-N0NInEgc_PDn9Kb4a5NOdd-VKMPEh7q8hsCS-Hbpaj3kjOAw'}
+Console.js:61 🌐 [API Request] Making fetch request...
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:57.166Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: false, isLoading: true, hasError: false, isAuthenticated: false, userData: undefined, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:43:57.305Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '2', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:43:57 GMT', etag: 'W/"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:43:57.311Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '252', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:43:57 GMT', etag: 'W/"fc-5lrr+x/he21dcUCijZ3xp7gAtkU"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:43:57.453Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '305', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:43:57 GMT', etag: 'W/"131-uLXAuxStPSw30ki1dGzccL7ijtE"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] API response received, status: 200
+Console.js:61 ✅ [useAuth] User data fetched successfully: {id: 'DbSUo6yNeUOUv1QrzKWLDfkqcf02', email: 'mike.firebase@temp.local', firstName: 'Mike', lastName: 'Zomer', profileImageUrl: 'https://lh3.googleusercontent.com/a/ACg8ocKTpt7TA6Lh3ap5xybyL2d9ojAgo1JiKl69DYSR7CvE_RarRw=s96-c', …}
+Console.js:61 ✅ [useAuth] User data type: object
+Console.js:61 ✅ [useAuth] User data keys: (7) ['id', 'email', 'firstName', 'lastName', 'profileImageUrl', 'createdAt', 'updatedAt']
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:57.454Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 🌐 [API Request] ===== RESPONSE RECEIVED =====
+Console.js:61 🌐 [API Request] Response timestamp: 2025-08-10T22:43:57.494Z
+Console.js:61 🌐 [API Request] Response status: 200
+Console.js:61 🌐 [API Request] Response statusText: OK
+Console.js:61 🌐 [API Request] Response headers: {content-length: '58914', content-type: 'application/json; charset=utf-8', date: 'Sun, 10 Aug 2025 22:43:57 GMT', etag: 'W/"e622-VpoLFvUAgWATjWjsj9lYRQY77jk"', replit-cluster: 'janeway', …}
+Console.js:61 🌐 [API Request] Response ok: true
+Console.js:61 ✅ [API Request] Request successful
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:59.047Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 wasJoiningRoom: false userRole: null selectedView: null
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:59.049Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 wasJoiningRoom: false userRole: null selectedView: null
+game-room.tsx:30 Uncaught ReferenceError: Cannot access 'assets' before initialization
+    at GameRoom (game-room.tsx:30:47)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=b216aa02:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=b216aa02:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=b216aa02:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=b216aa02:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=b216aa02:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=b216aa02:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=b216aa02:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=b216aa02:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=b216aa02:19137:13)
+GameRoom @ game-room.tsx:30
+renderWithHooks @ chunk-RPCDYKBN.js?v=b216aa02:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=b216aa02:14926
+beginWork @ chunk-RPCDYKBN.js?v=b216aa02:15914
+callCallback2 @ chunk-RPCDYKBN.js?v=b216aa02:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=b216aa02:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=b216aa02:3733
+beginWork$1 @ chunk-RPCDYKBN.js?v=b216aa02:19765
+performUnitOfWork @ chunk-RPCDYKBN.js?v=b216aa02:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=b216aa02:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=b216aa02:19116
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18874
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=b216aa02:18627
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:59.052Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 wasJoiningRoom: false userRole: null selectedView: null
+Console.js:61 🔐 [useAuth] ===== HOOK STATE =====
+Console.js:61 🔐 [useAuth] Hook execution timestamp: 2025-08-10T22:43:59.052Z
+Console.js:61 🔐 [useAuth] Hook state: {hasUser: true, isLoading: false, hasError: false, isAuthenticated: true, userData: {…}, …}
+Console.js:61 🔐 [useAuth] ==============================
+Console.js:61 wasJoiningRoom: false userRole: null selectedView: null
+game-room.tsx:30 Uncaught ReferenceError: Cannot access 'assets' before initialization
+    at GameRoom (game-room.tsx:30:47)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=b216aa02:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=b216aa02:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=b216aa02:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=b216aa02:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=b216aa02:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=b216aa02:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=b216aa02:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=b216aa02:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=b216aa02:19137:13)
+GameRoom @ game-room.tsx:30
+renderWithHooks @ chunk-RPCDYKBN.js?v=b216aa02:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=b216aa02:14926
+beginWork @ chunk-RPCDYKBN.js?v=b216aa02:15914
+callCallback2 @ chunk-RPCDYKBN.js?v=b216aa02:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=b216aa02:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=b216aa02:3733
+beginWork$1 @ chunk-RPCDYKBN.js?v=b216aa02:19765
+performUnitOfWork @ chunk-RPCDYKBN.js?v=b216aa02:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=b216aa02:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=b216aa02:19116
+recoverFromConcurrentError @ chunk-RPCDYKBN.js?v=b216aa02:18736
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18879
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=b216aa02:18627
+Console.js:61 The above error occurred in the <GameRoom> component:
+
+    at GameRoom (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/src/pages/game-room.tsx:32:22)
+    at Route (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=b216aa02:191:16)
+    at Switch (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=b216aa02:247:17)
+    at Router (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/src/App.tsx?v=fahBuKn-r7uYPuk7B62Bu:34:42)
+    at Provider (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=b216aa02:38:15)
+    at TooltipProvider (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b216aa02:67:5)
+    at QueryClientProvider (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=b216aa02:2805:3)
+    at ThemeProvider (https://bea60ebb-2b54-4cd3-962f-b7b4da90040f-00-15pvan985bzsg.janeway.replit.dev/src/components/ThemeProvider.tsx:25:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Mt.forEach.n.<computed> @ Console.js:61
+logCapturedError @ chunk-RPCDYKBN.js?v=b216aa02:14032
+update.callback @ chunk-RPCDYKBN.js?v=b216aa02:14052
+callCallback @ chunk-RPCDYKBN.js?v=b216aa02:11248
+commitUpdateQueue @ chunk-RPCDYKBN.js?v=b216aa02:11265
+commitLayoutEffectOnFiber @ chunk-RPCDYKBN.js?v=b216aa02:17093
+commitLayoutMountEffects_complete @ chunk-RPCDYKBN.js?v=b216aa02:17980
+commitLayoutEffects_begin @ chunk-RPCDYKBN.js?v=b216aa02:17969
+commitLayoutEffects @ chunk-RPCDYKBN.js?v=b216aa02:17920
+commitRootImpl @ chunk-RPCDYKBN.js?v=b216aa02:19353
+commitRoot @ chunk-RPCDYKBN.js?v=b216aa02:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=b216aa02:18627
+chunk-RPCDYKBN.js?v=b216aa02:9129 Uncaught ReferenceError: Cannot access 'assets' before initialization
+    at GameRoom (game-room.tsx:30:47)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=b216aa02:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=b216aa02:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=b216aa02:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=b216aa02:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=b216aa02:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=b216aa02:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=b216aa02:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=b216aa02:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=b216aa02:18879:28)
+GameRoom @ game-room.tsx:30
+renderWithHooks @ chunk-RPCDYKBN.js?v=b216aa02:11548
+mountIndeterminateComponent @ chunk-RPCDYKBN.js?v=b216aa02:14926
+beginWork @ chunk-RPCDYKBN.js?v=b216aa02:15914
+beginWork$1 @ chunk-RPCDYKBN.js?v=b216aa02:19753
+performUnitOfWork @ chunk-RPCDYKBN.js?v=b216aa02:19198
+workLoopSync @ chunk-RPCDYKBN.js?v=b216aa02:19137
+renderRootSync @ chunk-RPCDYKBN.js?v=b216aa02:19116
+recoverFromConcurrentError @ chunk-RPCDYKBN.js?v=b216aa02:18736
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=b216aa02:18879
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=b216aa02:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=b216aa02:18627

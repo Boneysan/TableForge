@@ -25,10 +25,6 @@ export default function GameRoom() {
   // Check if this is a "join" navigation (from home page join button) - check on component mount
   const [wasJoiningRoom] = useState(() => sessionStorage.getItem('joining-room') === 'true');
   
-  // Debug logging
-  console.log('wasJoiningRoom:', wasJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
-  console.log(`🏠 [GameRoom] Assets loaded: ${assets.length}`);
-
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({
     queryKey: ["/api/rooms", roomId],
@@ -60,6 +56,10 @@ export default function GameRoom() {
     queryKey: ["/api/rooms", roomId, "decks"],
     enabled: !!roomId,
   });
+
+  // Debug logging (after assets are initialized)
+  console.log('wasJoiningRoom:', wasJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
+  console.log(`🏠 [GameRoom] Assets loaded: ${assets.length}`);
 
   // WebSocket for real-time updates
   const { sendMessage, connected, websocket } = useWebSocket({
