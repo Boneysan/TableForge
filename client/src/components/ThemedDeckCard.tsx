@@ -83,7 +83,9 @@ export function ThemedDeckCard({ deck, assets, children, className = "" }: Theme
                 >
                   {cardAsset ? (
                     <img
-                      src={cardAsset.filePath}
+                      src={cardAsset.filePath.includes('storage.googleapis.com') && cardAsset.filePath.includes('.private/uploads/') 
+                        ? `/api/image-proxy?url=${encodeURIComponent(cardAsset.filePath)}`
+                        : cardAsset.filePath}
                       alt={cardAsset.name}
                       className="w-full h-full object-cover"
                       style={{

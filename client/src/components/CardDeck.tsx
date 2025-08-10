@@ -153,7 +153,9 @@ export function CardDeck({
             </div>
           ) : (
             <img
-              src={asset.gameAsset.filePath}
+              src={asset.gameAsset.filePath.includes('storage.googleapis.com') && asset.gameAsset.filePath.includes('.private/uploads/') 
+                ? `/api/image-proxy?url=${encodeURIComponent(asset.gameAsset.filePath)}`
+                : asset.gameAsset.filePath}
               alt={asset.gameAsset.name}
               className="w-full h-full object-cover"
               draggable={false}

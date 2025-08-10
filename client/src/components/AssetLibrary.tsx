@@ -118,6 +118,13 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
     other: "text-gray-400",
   };
 
+  const getProxiedImageUrl = (originalUrl: string) => {
+    if (originalUrl.includes('storage.googleapis.com') && originalUrl.includes('.private/uploads/')) {
+      return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
+    }
+    return originalUrl;
+  };
+
   const handleAssetDragStart = (asset: GameAsset, event: React.DragEvent) => {
     dragStart(event, {
       type: 'asset',
@@ -233,10 +240,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                         data-testid={`asset-${asset.id}`}
                       >
                         <img 
-                          src={asset.filePath.startsWith('/objects/') 
-                            ? asset.filePath 
-                            : `/public-objects/${asset.filePath}`
-                          } 
+                          src={getProxiedImageUrl(asset.filePath)} 
                           alt={asset.name}
                           className="w-8 h-8 rounded object-cover mr-2"
                           onError={(e) => {
