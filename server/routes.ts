@@ -835,6 +835,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update pile position
+  app.patch("/api/rooms/:roomId/piles/:pileId/position", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { pileId } = req.params;
+      const { positionX, positionY } = req.body;
+
+      if (typeof positionX !== 'number' || typeof positionY !== 'number') {
+        return res.status(400).json({ error: "Valid positionX and positionY are required" });
+      }
+
+      const updatedPile = await storage.updateCardPile(pileId, {
+        positionX,
+        positionY,
+      });
+
+      if (!updatedPile) {
+        return res.status(404).json({ error: "Pile not found" });
+      }
+
+      res.json(updatedPile);
+    } catch (error) {
+      console.error("Error updating pile position:", error);
+      res.status(500).json({ error: "Failed to update pile position" });
+    }
+  });
+
   // Update deck theme
   app.put('/api/rooms/:roomId/decks/:deckId/theme', hybridAuthMiddleware, async (req: any, res) => {
     try {

@@ -343,6 +343,7 @@ export function GameMasterInterface({
                 onAssetMoved={onAssetMoved}
                 onAssetPlaced={onAssetPlaced}
                 playerRole="admin"
+                roomId={roomId}
                 data-testid="game-board-gm"
               />
             </CardContent>

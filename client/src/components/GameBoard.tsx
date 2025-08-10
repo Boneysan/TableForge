@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GridOverlay, snapToGrid } from "./GridOverlay";
 import { MeasurementTool } from "./MeasurementTool";
 import { AnnotationSystem } from "./AnnotationSystem";
-import type { GameAsset, BoardAsset } from "@shared/schema";
+import { authenticatedApiRequest } from "@/lib/authClient";
+import type { GameAsset, BoardAsset, CardPile, CardDeck } from "@shared/schema";
 
 interface GameBoardProps {
   assets: GameAsset[];
@@ -10,6 +12,7 @@ interface GameBoardProps {
   onAssetMoved: (assetId: string, x: number, y: number) => void;
   onAssetPlaced: (assetId: string, x: number, y: number) => void;
   playerRole: 'admin' | 'player';
+  roomId: string;
   'data-testid'?: string;
 }
 
@@ -19,6 +22,7 @@ export function GameBoard({
   onAssetMoved, 
   onAssetPlaced, 
   playerRole,
+  roomId,
   'data-testid': testId 
 }: GameBoardProps) {
   // Board Tools State
@@ -29,6 +33,34 @@ export function GameBoard({
 
   const boardWidth = 800;
   const boardHeight = 600;
+  
+  const queryClient = useQueryClient();
+
+  // Fetch card piles for the room
+  const { data: cardPiles = [] } = useQuery({
+    queryKey: ["/api/rooms", roomId, "piles"],
+    enabled: !!roomId,
+  });
+
+  // Fetch card decks for the room
+  const { data: cardDecks = [] } = useQuery({
+    queryKey: ["/api/rooms", roomId, "decks"],
+    enabled: !!roomId,
+  });
+
+  // Move pile mutation
+  const movePileMutation = useMutation({
+    mutationFn: async ({ pileId, x, y }: { pileId: string; x: number; y: number }) => {
+      const response = await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/piles/${pileId}/position`, {
+        positionX: x,
+        positionY: y,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+    },
+  });
 
   const handleAssetMove = (assetId: string, x: number, y: number) => {
     // Apply snap-to-grid if enabled
@@ -185,7 +217,7 @@ export function GameBoard({
         })}
         
         {/* Empty state */}
-        {boardAssets.length === 0 && (
+        {boardAssets.length === 0 && (cardPiles as CardPile[]).length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-gray-400">
               <div className="text-lg font-medium mb-2">Empty Game Board</div>
@@ -198,6 +230,106 @@ export function GameBoard({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Card Piles/Deck Spots Layer */}
+      <div className="absolute inset-0 z-20">
+        {(cardPiles as CardPile[]).map((pile) => {
+          const deck = (cardDecks as CardDeck[]).find(d => d.name === pile.name);
+          const cardCount = Array.isArray(pile.cardOrder) ? pile.cardOrder.length : 0;
+          
+          return (
+            <div
+              key={pile.id}
+              className={`absolute transition-all duration-200 ${
+                playerRole === 'admin' ? 'cursor-move hover:scale-105' : 'cursor-pointer'
+              }`}
+              style={{
+                left: `${pile.positionX}px`,
+                top: `${pile.positionY}px`,
+              }}
+              data-testid={`deck-spot-${pile.id}`}
+              onMouseDown={(e) => {
+                if (playerRole === 'admin') {
+                  // Start drag operation for GMs
+                  const startX = e.clientX;
+                  const startY = e.clientY;
+                  const initialX = pile.positionX;
+                  const initialY = pile.positionY;
+
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    const deltaX = moveEvent.clientX - startX;
+                    const deltaY = moveEvent.clientY - startY;
+                    const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
+                    const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
+                    
+                    // Apply snap-to-grid if enabled
+                    if (showGrid) {
+                      const snapped = snapToGrid(newX, newY, gridSize);
+                      movePileMutation.mutate({ pileId: pile.id, x: snapped.x, y: snapped.y });
+                    } else {
+                      movePileMutation.mutate({ pileId: pile.id, x: newX, y: newY });
+                    }
+                  };
+
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                  };
+
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
+                }
+              }}
+            >
+              {/* Deck Spot Visual */}
+              <div className={`relative w-20 h-24 rounded-lg border-2 shadow-lg ${
+                pile.pileType === 'deck' 
+                  ? 'bg-blue-800 border-blue-600' 
+                  : pile.pileType === 'discard'
+                  ? 'bg-red-800 border-red-600'
+                  : 'bg-gray-800 border-gray-600'
+              }`}>
+                {/* Deck stack effect */}
+                {cardCount > 0 && (
+                  <>
+                    <div className="absolute -top-1 -left-1 w-20 h-24 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-60"></div>
+                    <div className="absolute -top-0.5 -left-0.5 w-20 h-24 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-80"></div>
+                  </>
+                )}
+                
+                {/* Main deck area */}
+                <div className="relative w-full h-full rounded-lg flex flex-col items-center justify-center text-white text-xs text-center p-1">
+                  {/* Deck name */}
+                  <div className="font-bold mb-1 line-clamp-2 leading-tight">
+                    {pile.name}
+                  </div>
+                  
+                  {/* Card count */}
+                  <div className="text-xs opacity-75">
+                    {cardCount} {cardCount === 1 ? 'card' : 'cards'}
+                  </div>
+                  
+                  {/* Pile type indicator */}
+                  <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${
+                    pile.pileType === 'deck' 
+                      ? 'bg-blue-400' 
+                      : pile.pileType === 'discard'
+                      ? 'bg-red-400'
+                      : 'bg-gray-400'
+                  }`}></div>
+                </div>
+                
+                {/* GM controls indicator */}
+                {playerRole === 'admin' && (
+                  <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs px-1 rounded font-bold">
+                    GM
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
