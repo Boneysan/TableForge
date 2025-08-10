@@ -428,6 +428,29 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     return originalUrl;
   };
 
+  // Helper function to get cards that are already used in decks
+  const getCardsInDecks = () => {
+    const usedCards = new Set<string>();
+    decks.forEach(deck => {
+      deck.cardAssets.forEach((cardUrl: string) => {
+        usedCards.add(cardUrl);
+      });
+    });
+    return Array.from(usedCards);
+  };
+
+  // Helper function to get cards that are not in any deck
+  const getAvailableCards = () => {
+    const usedCards = new Set(getCardsInDecks());
+    return getAssetsByCategory('cards').filter(card => !usedCards.has(card.url));
+  };
+
+  // Helper function to get cards that are in decks
+  const getCardsUsedInDecks = () => {
+    const usedCards = new Set(getCardsInDecks());
+    return getAssetsByCategory('cards').filter(card => usedCards.has(card.url));
+  };
+
   if (isLoadingSystem) {
     return (
       <div className="min-h-screen bg-background p-6 flex items-center justify-center">
@@ -1080,69 +1103,121 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                               </div>
                             </div>
 
-                            {/* Card Selection */}
-                            <div className="space-y-3">
+                            {/* Card Selection with Organization */}
+                            <div className="space-y-4">
                               <div className="flex items-center justify-between">
                                 <Label>Select Cards for Deck</Label>
-                                <Badge variant="outline">
-                                  {selectedCards.length} selected
-                                </Badge>
+                                <Badge variant="outline">{selectedCards.length} selected</Badge>
                               </div>
                               
-                              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-64 overflow-y-auto">
-                                {getAssetsByCategory('cards').map((card, index) => {
-                                  const isSelected = selectedCards.includes(card.url);
-                                  return (
-                                    <div 
-                                      key={index} 
-                                      className={`relative border rounded-lg p-2 cursor-pointer transition-all ${
-                                        isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
-                                      }`}
-                                      data-testid={`card-select-${index}`}
-                                    >
-                                      <div 
-                                        className="w-full h-20 bg-muted rounded mb-2 flex items-center justify-center"
-                                        onClick={() => toggleCardSelection(card.url)}
-                                      >
-                                        <img 
-                                          src={getProxiedImageUrl(card.url)} 
-                                          alt={card.name}
-                                          className="w-full h-20 object-cover rounded"
-                                          onLoad={() => console.log(`✅ Card loaded: ${card.name}`, card.url)}
-                                          onError={(e) => {
-                                            console.log(`❌ Card failed to load: ${card.name}`, card.url);
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement as HTMLElement;
-                                            if (parent) {
-                                              parent.innerHTML = `<div class="text-xs text-center text-muted-foreground p-2">Image<br/>Loading<br/>Error</div>`;
-                                            }
-                                          }}
-                                        />
-                                      </div>
-                                      <div className="flex justify-between items-center">
-                                        <p className="text-xs font-medium truncate flex-1">{card.name}</p>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-6 w-6 p-0 ml-1"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setPreviewCard({ url: card.url, name: card.name });
-                                          }}
-                                          title="Preview image"
-                                        >
-                                          👁️
-                                        </Button>
-                                      </div>
-                                      {isSelected && (
-                                        <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                                          ✓
-                                        </div>
-                                      )}
+                              <div className="max-h-96 overflow-y-auto border rounded-lg p-4 space-y-6">
+                                {/* Cards Not in Any Deck */}
+                                <div>
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h6 className="font-medium text-green-700 dark:text-green-300">Available Cards</h6>
+                                    <Badge variant="outline" className="text-green-600 border-green-300">
+                                      {getAvailableCards().length} available
+                                    </Badge>
+                                  </div>
+                                  {getAvailableCards().length > 0 ? (
+                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                                      {getAvailableCards().map((card, index) => {
+                                        const isSelected = selectedCards.includes(card.url);
+                                        return (
+                                          <div 
+                                            key={index} 
+                                            className={`relative border rounded-lg p-2 cursor-pointer transition-all bg-green-50 dark:bg-green-950 ${
+                                              isSelected 
+                                                ? 'border-primary bg-primary/10 ring-2 ring-primary' 
+                                                : 'border-green-200 dark:border-green-800 hover:border-primary/50'
+                                            }`}
+                                            onClick={() => toggleCardSelection(card.url)}
+                                          >
+                                            <img 
+                                              src={getProxiedImageUrl(card.url)} 
+                                              alt={card.name}
+                                              className="w-full h-20 object-cover rounded mb-1"
+                                              onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                              }}
+                                            />
+                                            <p className="text-xs font-medium truncate">{card.name}</p>
+                                            <div className="flex items-center mt-1">
+                                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
+                                              <span className="text-xs text-green-600 dark:text-green-400">Free</span>
+                                            </div>
+                                            {isSelected && (
+                                              <div className="absolute top-1 right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                                                <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
                                     </div>
-                                  );
-                                })}
+                                  ) : (
+                                    <div className="text-center text-muted-foreground py-4 border border-dashed rounded-lg">
+                                      All cards are already assigned to decks
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Cards Already in Other Decks */}
+                                {getCardsUsedInDecks().length > 0 && (
+                                  <div>
+                                    <div className="flex items-center justify-between mb-3">
+                                      <h6 className="font-medium text-blue-700 dark:text-blue-300">Cards in Other Decks</h6>
+                                      <Badge variant="secondary" className="text-blue-600 border-blue-300">
+                                        {getCardsUsedInDecks().length} in use
+                                      </Badge>
+                                    </div>
+                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                                      {getCardsUsedInDecks().map((card, index) => {
+                                        const isSelected = selectedCards.includes(card.url);
+                                        return (
+                                          <div 
+                                            key={index} 
+                                            className={`relative border rounded-lg p-2 cursor-pointer transition-all bg-gray-50 dark:bg-gray-900 ${
+                                              isSelected 
+                                                ? 'border-primary bg-primary/10 ring-2 ring-primary' 
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
+                                            }`}
+                                            onClick={() => toggleCardSelection(card.url)}
+                                          >
+                                            <img 
+                                              src={getProxiedImageUrl(card.url)} 
+                                              alt={card.name}
+                                              className="w-full h-20 object-cover rounded mb-1"
+                                              onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                              }}
+                                            />
+                                            <p className="text-xs font-medium truncate">{card.name}</p>
+                                            <div className="flex items-center mt-1">
+                                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
+                                              <span className="text-xs text-blue-600 dark:text-blue-400">Used</span>
+                                            </div>
+                                            {isSelected && (
+                                              <div className="absolute top-1 right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                                                <svg className="w-3 h-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {getAssetsByCategory('cards').length === 0 && (
+                                  <div className="text-center text-muted-foreground py-8">
+                                    No card assets uploaded yet. Upload cards in the Assets tab first.
+                                  </div>
+                                )}
                               </div>
                             </div>
 
@@ -1177,23 +1252,72 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                         </Card>
                       )}
 
-                      {/* Available Cards Preview */}
-                      <div className="space-y-3">
-                        <h6 className="font-medium">Available Card Assets</h6>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                          {getAssetsByCategory('cards').map((card, index) => (
-                            <div key={index} className="border rounded-lg p-2">
-                              <img 
-                                src={getProxiedImageUrl(card.url)} 
-                                alt={card.name}
-                                className="w-full h-24 object-cover rounded mb-2"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                              />
-                              <p className="text-xs font-medium truncate">{card.name}</p>
+                      {/* Card Assets Organization */}
+                      <div className="space-y-6">
+                        {/* Available Cards (Not in any deck) */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h6 className="font-medium">Available Cards (Not in Decks)</h6>
+                            <Badge variant="outline">{getAvailableCards().length} cards</Badge>
+                          </div>
+                          {getAvailableCards().length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                              {getAvailableCards().map((card, index) => (
+                                <div key={index} className="border rounded-lg p-2 bg-green-50 dark:bg-green-950">
+                                  <img 
+                                    src={getProxiedImageUrl(card.url)} 
+                                    alt={card.name}
+                                    className="w-full h-24 object-cover rounded mb-2"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                  />
+                                  <p className="text-xs font-medium truncate">{card.name}</p>
+                                  <div className="flex items-center mt-1">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                                    <span className="text-xs text-green-600 dark:text-green-400">Available</span>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          ) : (
+                            <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
+                              All cards are currently assigned to decks
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Cards Used in Decks */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h6 className="font-medium">Cards in Decks</h6>
+                            <Badge variant="secondary">{getCardsUsedInDecks().length} cards</Badge>
+                          </div>
+                          {getCardsUsedInDecks().length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                              {getCardsUsedInDecks().map((card, index) => (
+                                <div key={index} className="border rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
+                                  <img 
+                                    src={getProxiedImageUrl(card.url)} 
+                                    alt={card.name}
+                                    className="w-full h-24 object-cover rounded mb-2"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                  />
+                                  <p className="text-xs font-medium truncate">{card.name}</p>
+                                  <div className="flex items-center mt-1">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-1"></div>
+                                    <span className="text-xs text-blue-600 dark:text-blue-400">In deck</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
+                              No cards have been assigned to decks yet
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
