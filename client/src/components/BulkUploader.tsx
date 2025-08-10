@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
@@ -99,13 +99,17 @@ export function BulkUploader({
   }, [onGetUploadParameters, batchSize, maxFileSize]);
 
   const startBulkUpload = useCallback(async () => {
+    console.log('🎬 [BulkUploader] Starting bulk upload process...');
     const files = Object.values(uppy.getFiles());
+    console.log('📋 [BulkUploader] Files found:', files.length);
     
     if (files.length === 0) {
+      console.log('⚠️ [BulkUploader] No files found, aborting');
       setStatusMessage("No files selected");
       return;
     }
 
+    console.log('⚙️ [BulkUploader] Setting up bulk upload state...');
     setIsProcessing(true);
     setProgress(0);
     setTotalUploaded(0);
@@ -205,6 +209,28 @@ export function BulkUploader({
       }, 3000);
     }
   }, [uppy, batchSize, processBatch, onBatchComplete, onAllComplete]);
+
+  // Set up event handlers after startBulkUpload is defined
+  useEffect(() => {
+    console.log('🔧 [BulkUploader] Setting up event handlers...');
+    
+    const handleFilesAdded = (files: any[]) => {
+      console.log('📁 [BulkUploader] Files added to Uppy:', files.length);
+    };
+    
+    const handleUpload = () => {
+      console.log('🚀 [BulkUploader] Upload triggered, starting bulk upload process...');
+      startBulkUpload();
+    };
+    
+    uppy.on('files-added', handleFilesAdded);
+    uppy.on('upload', handleUpload);
+    
+    return () => {
+      uppy.off('files-added', handleFilesAdded);
+      uppy.off('upload', handleUpload);
+    };
+  }, [uppy, startBulkUpload]);
 
   const resetProgress = () => {
     setProgress(0);
