@@ -49,6 +49,17 @@ export default function GameRoom() {
     enabled: !!roomId,
   });
 
+  // Fetch card piles and decks
+  const { data: cardPiles = [] } = useQuery({
+    queryKey: ["/api/rooms", roomId, "piles"],
+    enabled: !!roomId,
+  });
+
+  const { data: cardDecks = [] } = useQuery({
+    queryKey: ["/api/rooms", roomId, "decks"],
+    enabled: !!roomId,
+  });
+
   // WebSocket for real-time updates
   const { sendMessage, connected, websocket } = useWebSocket({
     onMessage: (message) => {
