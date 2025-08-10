@@ -27,6 +27,7 @@ export default function GameRoom() {
   
   // Debug logging
   console.log('wasJoiningRoom:', wasJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
+  console.log(`🏠 [GameRoom] Assets loaded: ${assets.length}`);
 
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({

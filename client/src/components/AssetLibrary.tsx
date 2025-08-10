@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Folder, Upload, ChevronDown, ChevronUp, Layers, Coins, Map, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,11 +26,14 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   const { dragStart } = useDragAndDrop();
 
   // Debug logging for assets
-  React.useEffect(() => {
+  useEffect(() => {
+    console.log(`🖼️ [AssetLibrary] Assets prop changed, length: ${assets.length}`);
     if (assets.length > 0) {
       console.log(`🖼️ [AssetLibrary] Loaded ${assets.length} assets`);
       console.log(`🖼️ [AssetLibrary] First 3 assets:`, assets.slice(0, 3));
       console.log(`🖼️ [AssetLibrary] Sample filePaths:`, assets.slice(0, 3).map(a => a.filePath));
+    } else {
+      console.log(`🖼️ [AssetLibrary] No assets loaded yet`);
     }
   }, [assets]);
 

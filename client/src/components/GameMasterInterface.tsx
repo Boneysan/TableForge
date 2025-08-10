@@ -53,6 +53,12 @@ export function GameMasterInterface({
   onSwitchView,
   room,
 }: GameMasterInterfaceProps) {
+  
+  // Debug logging for GameMasterInterface
+  console.log(`🎮 [GameMasterInterface] Assets received: ${assets.length}`);
+  if (assets.length > 0) {
+    console.log(`🎮 [GameMasterInterface] First asset:`, assets[0]);
+  }
   const [isGMPanelVisible, setIsGMPanelVisible] = useState(true);
   const [selectedTab, setSelectedTab] = useState("game");
   const [showNameEdit, setShowNameEdit] = useState(false);
