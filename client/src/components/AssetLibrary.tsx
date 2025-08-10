@@ -242,10 +242,14 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                         <img 
                           src={getProxiedImageUrl(asset.filePath)} 
                           alt={asset.name}
-                          className="w-8 h-8 rounded object-cover mr-2"
+                          className="w-12 h-12 rounded object-cover mr-3"
                           onError={(e) => {
+                            console.error(`Failed to load image for ${asset.name}:`, asset.filePath);
                             const target = e.target as HTMLImageElement;
                             target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjNEI1NTYzIi8+CjxwYXRoIGQ9Ik0xNiA5QzEyLjEzNCA5IDkgMTIuMTM0IDkgMTZTMTIuMTM0IDIzIDE2IDIzUzIzIDE5Ljg2NiAyMyAxNlMxOS44NjYgOSAxNiA5Wk0xNiAyMUMxMy4yMzkgMjEgMTEgMTguNzYxIDExIDE2UzEzLjIzOSAxMSAxNiAxMVMxOSAxMy4yMzkgMTkgMTZTMTguNzYxIDIxIDE2IDIxWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
+                          }}
+                          onLoad={() => {
+                            console.log(`Successfully loaded image for ${asset.name}`);
                           }}
                         />
                         <div className="flex-1">
