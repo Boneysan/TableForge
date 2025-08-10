@@ -12,6 +12,7 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Create Game System Feature (August 9, 2025)**: Added comprehensive game system creation with categorized asset uploads (Cards, Tokens, Maps, Rules), accessible from home page and admin dashboard
 - **Enhanced Tag Input System (August 10, 2025)**: Implemented sophisticated tagging interface with preset suggestions organized by Game Types, Mechanics, Themes, Player Count, Complexity, and Time duration. Supports bulk tag entry via comma-separated lists, semicolon-separated lists, and vertical lists (newline-separated). Smart paste detection automatically processes multiple tags from clipboard.
 - **Game System Edit Feature (August 10, 2025)**: Added comprehensive editing capabilities for existing game systems. Users can now update system details, modify tags, add/remove assets by category, and delete systems. Edit functionality accessible from admin dashboard with full CRUD operations.
+- **Complete Deck Creation & Management System (August 10, 2025)**: Implemented full deck creation workflow with naming, card back selection, and visual card management. Features include: named deck creation with descriptions, custom card back selection from uploaded assets, visual card selection interface with click-to-toggle, deck preview displays with card count and custom back indicators, and complete deck lifecycle management from creation to deletion.
 
 # User Preferences
 
@@ -56,6 +57,7 @@ Preferred communication style: Simple, everyday language.
 - **Measurement Tools**: Ruler functionality and distance calculations.
 - **Annotation System**: Freehand drawing, sticky notes, text annotations.
 - **Asset Pipeline**: Library, upload, and builder tabs with search, filtering, tagging, and bulk operations.
+- **Complete Deck Management System**: Two-tab interface (Assets/Card Decks) with named deck creation, custom card back selection, visual card selection interface, deck preview displays, and full deck lifecycle management.
 - **Turn & Timer System**: Turn order management, round counting, configurable timers.
 - **Game Template System**: Save/load/browse functionality for game templates, accessible from Admin and GM interfaces.
 - **Game System Creation**: Dedicated page for creating custom game systems with categorized asset uploads (Cards, Tokens, Maps, Rules) and comprehensive metadata management.
