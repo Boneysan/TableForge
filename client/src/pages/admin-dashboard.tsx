@@ -431,6 +431,15 @@ export default function AdminDashboard() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => setLocation(`/edit-game-system/${system.id}`)}
+                            data-testid={`button-edit-system-${system.id}`}
+                          >
+                            <Settings className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => {
                               // Download system data as JSON
                               const dataStr = JSON.stringify(system, null, 2);

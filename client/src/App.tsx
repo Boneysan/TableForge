@@ -11,6 +11,7 @@ import FirebaseLanding from "@/pages/firebase-landing";
 import GameRoom from "@/pages/game-room";
 import AdminDashboard from "@/pages/admin-dashboard";
 import CreateGameSystem from "@/pages/create-game-system";
+import EditGameSystem from "@/pages/edit-game-system";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,6 +29,9 @@ function Router() {
       <Route path="/" component={isAuthenticated ? Home : FirebaseLanding} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/create-game-system" component={CreateGameSystem} />
+      <Route path="/edit-game-system/:systemId">
+        {(params) => <EditGameSystem systemId={params.systemId} />}
+      </Route>
       <Route path="/room/:roomId" component={GameRoom} />
       <Route component={NotFound} />
     </Switch>
