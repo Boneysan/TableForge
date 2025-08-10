@@ -22,7 +22,8 @@ import {
   Map,
   FileText,
   Loader2,
-  Trash2
+  Trash2,
+  Shuffle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
@@ -56,6 +57,18 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
   const [selectedTab, setSelectedTab] = useState<'assets' | 'decks'>('assets');
+  const [decks, setDecks] = useState<Array<{
+    id: string;
+    name: string;
+    description: string;
+    cardAssets: string[];
+    cardBack: string | null;
+  }>>([]);
+  const [showCreateDeck, setShowCreateDeck] = useState(false);
+  const [deckName, setDeckName] = useState("");
+  const [deckDescription, setDeckDescription] = useState("");
+  const [selectedCards, setSelectedCards] = useState<string[]>([]);
+  const [selectedCardBack, setSelectedCardBack] = useState<string | null>(null);
 
   // Fetch existing game system data
   const { data: systemData, isLoading: isLoadingSystem, error: systemError } = useQuery({
@@ -193,6 +206,47 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
 
   const removeAsset = (indexToRemove: number) => {
     setUploadedAssets(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  // Deck management functions
+  const createDeck = () => {
+    if (!deckName.trim()) return;
+    
+    const newDeck = {
+      id: `deck-${Date.now()}`,
+      name: deckName,
+      description: deckDescription,
+      cardAssets: selectedCards,
+      cardBack: selectedCardBack,
+    };
+    
+    setDecks(prev => [...prev, newDeck]);
+    setDeckName("");
+    setDeckDescription("");
+    setSelectedCards([]);
+    setSelectedCardBack(null);
+    setShowCreateDeck(false);
+    
+    toast({
+      title: "Deck Created",
+      description: `Created deck "${deckName}" with ${selectedCards.length} cards`,
+    });
+  };
+
+  const deleteDeck = (deckId: string) => {
+    setDecks(prev => prev.filter(deck => deck.id !== deckId));
+    toast({
+      title: "Deck Deleted",
+      description: "Deck has been removed from the system",
+    });
+  };
+
+  const toggleCardSelection = (cardUrl: string) => {
+    setSelectedCards(prev => 
+      prev.includes(cardUrl) 
+        ? prev.filter(url => url !== cardUrl)
+        : [...prev, cardUrl]
+    );
   };
 
   // Update game system
@@ -690,37 +744,195 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                       </Button>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {getAssetsByCategory('cards').map((card, index) => (
-                          <div key={index} className="border rounded-lg p-2">
-                            <img 
-                              src={card.url} 
-                              alt={card.name}
-                              className="w-full h-24 object-cover rounded mb-2"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                              }}
-                            />
-                            <p className="text-xs font-medium truncate">{card.name}</p>
-                          </div>
-                        ))}
+                    <div className="space-y-6">
+                      {/* Create Deck Button */}
+                      <div className="flex justify-between items-center">
+                        <h5 className="font-medium">Card Decks</h5>
+                        <Button 
+                          onClick={() => setShowCreateDeck(true)}
+                          size="sm"
+                          data-testid="button-create-deck"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Deck
+                        </Button>
                       </div>
-                      
-                      <div className="bg-muted p-4 rounded-lg">
-                        <h6 className="font-medium mb-2">Deck Creation</h6>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Card deck functionality will be fully integrated in the next update. For now, your uploaded card assets are stored and can be used when creating game rooms.
-                        </p>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" disabled>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Create Deck (Coming Soon)
-                          </Button>
-                          <Button variant="outline" size="sm" disabled>
-                            <Shuffle className="w-4 h-4 mr-2" />
-                            Import Deck (Coming Soon)
-                          </Button>
+
+                      {/* Existing Decks */}
+                      {decks.length > 0 && (
+                        <div className="space-y-4">
+                          <h6 className="font-medium">Your Decks</h6>
+                          <div className="grid gap-4">
+                            {decks.map((deck) => (
+                              <Card key={deck.id} className="border">
+                                <CardContent className="p-4">
+                                  <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                      <h3 className="font-medium">{deck.name}</h3>
+                                      {deck.description && (
+                                        <p className="text-sm text-muted-foreground mt-1">{deck.description}</p>
+                                      )}
+                                      <Badge variant="outline" className="mt-2">
+                                        {deck.cardAssets.length} cards
+                                      </Badge>
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => deleteDeck(deck.id)}
+                                      data-testid={`button-delete-deck-${deck.id}`}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                  
+                                  {/* Deck Preview */}
+                                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                                    {deck.cardAssets.slice(0, 8).map((cardUrl, index) => (
+                                      <div key={index} className="relative">
+                                        <img 
+                                          src={cardUrl} 
+                                          alt={`Card ${index + 1}`}
+                                          className="w-full h-16 object-cover rounded border"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                          }}
+                                        />
+                                      </div>
+                                    ))}
+                                    {deck.cardAssets.length > 8 && (
+                                      <div className="flex items-center justify-center h-16 bg-muted rounded border text-xs text-muted-foreground">
+                                        +{deck.cardAssets.length - 8}
+                                      </div>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Create Deck Dialog */}
+                      {showCreateDeck && (
+                        <Card className="border-primary">
+                          <CardHeader>
+                            <CardTitle className="flex items-center justify-between">
+                              Create New Deck
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowCreateDeck(false)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            {/* Deck Details */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="deck-name">Deck Name</Label>
+                                <Input
+                                  id="deck-name"
+                                  value={deckName}
+                                  onChange={(e) => setDeckName(e.target.value)}
+                                  placeholder="Enter deck name"
+                                  data-testid="input-deck-name"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="deck-description">Description (Optional)</Label>
+                                <Input
+                                  id="deck-description"
+                                  value={deckDescription}
+                                  onChange={(e) => setDeckDescription(e.target.value)}
+                                  placeholder="Brief description"
+                                  data-testid="input-deck-description"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Card Selection */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Label>Select Cards for Deck</Label>
+                                <Badge variant="outline">
+                                  {selectedCards.length} selected
+                                </Badge>
+                              </div>
+                              
+                              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-64 overflow-y-auto">
+                                {getAssetsByCategory('cards').map((card, index) => {
+                                  const isSelected = selectedCards.includes(card.url);
+                                  return (
+                                    <div 
+                                      key={index} 
+                                      className={`border rounded-lg p-2 cursor-pointer transition-all ${
+                                        isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
+                                      }`}
+                                      onClick={() => toggleCardSelection(card.url)}
+                                      data-testid={`card-select-${index}`}
+                                    >
+                                      <img 
+                                        src={card.url} 
+                                        alt={card.name}
+                                        className="w-full h-20 object-cover rounded mb-2"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                      />
+                                      <p className="text-xs font-medium truncate">{card.name}</p>
+                                      {isSelected && (
+                                        <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                          ✓
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Create Deck Actions */}
+                            <div className="flex gap-2 pt-4">
+                              <Button
+                                onClick={createDeck}
+                                disabled={!deckName.trim() || selectedCards.length === 0}
+                                data-testid="button-save-deck"
+                              >
+                                <Save className="w-4 h-4 mr-2" />
+                                Create Deck ({selectedCards.length} cards)
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => setShowCreateDeck(false)}
+                                data-testid="button-cancel-deck"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Available Cards Preview */}
+                      <div className="space-y-3">
+                        <h6 className="font-medium">Available Card Assets</h6>
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                          {getAssetsByCategory('cards').map((card, index) => (
+                            <div key={index} className="border rounded-lg p-2">
+                              <img 
+                                src={card.url} 
+                                alt={card.name}
+                                className="w-full h-24 object-cover rounded mb-2"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                              />
+                              <p className="text-xs font-medium truncate">{card.name}</p>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
