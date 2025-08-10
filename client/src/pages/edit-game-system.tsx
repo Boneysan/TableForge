@@ -761,7 +761,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                             {asset.type.startsWith('image/') && (
                               <div className="mt-2">
                                 <img 
-                                  src={asset.url} 
+                                  src={getProxiedImageUrl(asset.url)} 
                                   alt={asset.name}
                                   className="w-full h-20 object-cover rounded border"
                                   onError={(e) => {
@@ -988,7 +988,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                   <div className="flex items-center space-x-3">
                                     <div className="relative">
                                       <img 
-                                        src={selectedCardBack} 
+                                        src={getProxiedImageUrl(selectedCardBack)} 
                                         alt="Selected card back"
                                         className="w-16 h-20 object-cover rounded border"
                                       />
