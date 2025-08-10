@@ -232,7 +232,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     setDeckName("");
     setDeckDescription("");
     setSelectedCards([]);
-    setSelectedCardBack(null);
+    setSelectedCardBack(null); // Reset card back selection for next deck
     setShowCreateDeck(false);
     
     toast({
@@ -938,35 +938,42 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                               {/* Card Back Selection Grid */}
                               <div className="space-y-2">
                                 <Label className="text-xs">Available Card Backs:</Label>
-                                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 max-h-32 overflow-y-auto">
-                                  {getAssetsByCategory('cards').map((card, index) => {
-                                    const isSelected = selectedCardBack === card.url;
-                                    return (
-                                      <div 
-                                        key={`back-${index}`} 
-                                        className={`border rounded p-1 cursor-pointer transition-all ${
-                                          isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
-                                        }`}
-                                        onClick={() => setSelectedCardBack(card.url)}
-                                        data-testid={`card-back-select-${index}`}
-                                      >
-                                        <img 
-                                          src={card.url} 
-                                          alt={card.name}
-                                          className="w-full h-12 object-cover rounded"
-                                          onError={(e) => {
-                                            (e.target as HTMLImageElement).style.display = 'none';
-                                          }}
-                                        />
-                                        {isSelected && (
-                                          <div className="absolute top-0 right-0 bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                                            ✓
-                                          </div>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
+                                {getAssetsByCategory('cards').length === 0 ? (
+                                  <div className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
+                                    No card assets uploaded yet. Upload cards in the Assets tab to use them as card backs.
+                                  </div>
+                                ) : (
+                                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 max-h-32 overflow-y-auto">
+                                    {getAssetsByCategory('cards').map((card, index) => {
+                                      const isSelected = selectedCardBack === card.url;
+                                      return (
+                                        <div 
+                                          key={`back-${index}`} 
+                                          className={`relative border rounded p-1 cursor-pointer transition-all ${
+                                            isSelected ? 'border-primary bg-primary/20 ring-2 ring-primary/50' : 'border-border hover:border-primary/50'
+                                          }`}
+                                          onClick={() => setSelectedCardBack(isSelected ? null : card.url)}
+                                          data-testid={`card-back-select-${index}`}
+                                          title={`${isSelected ? 'Remove' : 'Select'} "${card.name}" as card back`}
+                                        >
+                                          <img 
+                                            src={card.url} 
+                                            alt={card.name}
+                                            className="w-full h-12 object-cover rounded"
+                                            onError={(e) => {
+                                              (e.target as HTMLImageElement).style.display = 'none';
+                                            }}
+                                          />
+                                          {isSelected && (
+                                            <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md">
+                                              ✓
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             </div>
 
