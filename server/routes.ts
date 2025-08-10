@@ -823,6 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate user has admin role in the room
       const userRole = await storage.getPlayerRole(roomId, userId);
+      console.log(`[Board Size] User ${userId} role in room ${roomId}: ${userRole}`);
       if (userRole !== 'admin') {
         return res.status(403).json({ error: "Only admins can change board size" });
       }

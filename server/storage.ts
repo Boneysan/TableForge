@@ -351,6 +351,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPlayerRole(roomId: string, playerId: string): Promise<'admin' | 'player' | null> {
+    // First check if user is room creator (auto admin)
+    const [room] = await db
+      .select({ createdBy: gameRooms.createdBy })
+      .from(gameRooms)
+      .where(eq(gameRooms.id, roomId));
+    
+    if (room?.createdBy === playerId) {
+      return 'admin';
+    }
+    
+    // Then check room players table
     const [player] = await db
       .select({ role: roomPlayers.role })
       .from(roomPlayers)
