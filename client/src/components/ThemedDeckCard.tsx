@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { CardDeck, DeckTheme, GameAsset } from "@shared/schema";
+import type { CardDeck, DeckTheme, GameAsset, CardPile } from "@shared/schema";
 
 interface ThemedDeckCardProps {
   deck: CardDeck;
   assets: GameAsset[];
+  piles?: CardPile[];
   children?: React.ReactNode;
   className?: string;
 }
@@ -21,11 +22,15 @@ const DEFAULT_THEME: DeckTheme = {
   shadowIntensity: "medium"
 };
 
-export function ThemedDeckCard({ deck, assets, children, className = "" }: ThemedDeckCardProps) {
+export function ThemedDeckCard({ deck, assets, piles = [], children, className = "" }: ThemedDeckCardProps) {
   const theme = deck.theme || DEFAULT_THEME;
   
+  // Find the main pile for this deck (contains the actual cards)
+  const mainPile = piles.find(pile => pile.name === `${deck.name} - Main`);
+  const cardOrder = mainPile?.cardOrder as string[] || deck.deckOrder as string[] || [];
+  
   // Get the card assets for this deck
-  const deckCards = (deck.deckOrder as string[] || [])
+  const deckCards = cardOrder
     .map(cardId => assets.find(asset => asset.id === cardId))
     .filter(Boolean) as GameAsset[];
   
@@ -115,7 +120,7 @@ export function ThemedDeckCard({ deck, assets, children, className = "" }: Theme
               borderColor: theme.textColor + "40" // 25% opacity
             }}
           >
-            {(deck.deckOrder as string[] || []).length} cards
+            {cardOrder.length} cards
           </Badge>
           {deck.isShuffled && (
             <Badge 

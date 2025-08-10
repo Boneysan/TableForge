@@ -628,6 +628,7 @@ export function CardDeckManager({
                   key={deck.id}
                   deck={deck}
                   assets={assets}
+                  piles={piles}
                   className="mb-3"
                 >
                   <div className="flex items-center gap-1">
@@ -636,7 +637,11 @@ export function CardDeckManager({
                       size="sm"
                       variant="outline"
                       onClick={() => drawCardMutation.mutate({ deckId: deck.id, count: 1 })}
-                      disabled={drawCardMutation.isPending || (deck.deckOrder as string[] || []).length === 0}
+                      disabled={drawCardMutation.isPending || (() => {
+                        const mainPile = piles.find(pile => pile.name === `${deck.name} - Main`);
+                        const cardOrder = mainPile?.cardOrder as string[] || deck.deckOrder as string[] || [];
+                        return cardOrder.length === 0;
+                      })()}
                       data-testid={`button-draw-${deck.id}`}
                       title="Draw 1 card to your hand"
                     >
