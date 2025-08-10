@@ -819,7 +819,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { roomId } = req.params;
       const { width, height } = req.body;
-      const userId = req.user?.claims?.sub || req.user?.id;
+      const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
+      console.log(`[Board Size] Extracted user ID: ${userId} from req.user:`, req.user);
 
       // Validate user has admin role in the room
       const userRole = await storage.getPlayerRole(roomId, userId);
