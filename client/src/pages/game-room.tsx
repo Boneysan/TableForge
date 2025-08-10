@@ -1,5 +1,5 @@
 import { useParams } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,7 @@ export default function GameRoom() {
   const { roomId } = useParams<{ roomId: string }>();
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [userRole, setUserRole] = useState<'admin' | 'player' | null>(null);
   const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | 'player' | null>(null);
   const currentPlayer = { id: (user as User)?.id || "unknown", name: (user as User)?.firstName || (user as User)?.email || "Player" };
@@ -75,6 +76,14 @@ export default function GameRoom() {
           toast({
             title: "Player Left",
             description: "A player left the room",
+          });
+          break;
+        case 'player_score_updated':
+          // Refetch room players to get updated scores
+          queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "players"] });
+          toast({
+            title: "Score Updated",
+            description: `${message.payload.playerName}'s score: ${message.payload.score}`,
           });
           break;
       }

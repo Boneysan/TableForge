@@ -52,6 +52,7 @@ export const roomPlayers = pgTable("room_players", {
   playerId: varchar("player_id").notNull().references(() => users.id),
   role: text("role").notNull().default("player"), // 'admin' or 'player'
   isOnline: boolean("is_online").notNull().default(true),
+  score: integer("score").notNull().default(0),
   joinedAt: timestamp("joined_at").notNull().default(sql`now()`),
 }, (table) => ({
   unique: unique().on(table.roomId, table.playerId)
@@ -304,6 +305,15 @@ export interface PlayerLeftMessage extends WebSocketMessage {
   type: 'player_left';
   payload: {
     playerId: string;
+  };
+}
+
+export interface PlayerScoreUpdatedMessage extends WebSocketMessage {
+  type: 'player_score_updated';
+  payload: {
+    playerId: string;
+    score: number;
+    playerName: string;
   };
 }
 

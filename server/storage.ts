@@ -75,6 +75,7 @@ export interface IStorage {
   getRoomPlayersWithNames(roomId: string): Promise<Array<RoomPlayer & { playerName: string; playerEmail: string }>>;
   getPlayerRole(roomId: string, playerId: string): Promise<'admin' | 'player' | null>;
   updatePlayerStatus(roomId: string, playerId: string, isOnline: boolean): Promise<void>;
+  updateRoomPlayerScore(roomId: string, playerId: string, score: number): Promise<void>;
 
   // Dice Rolls
   createDiceRoll(roll: InsertDiceRoll, playerId: string): Promise<DiceRoll>;
@@ -321,6 +322,7 @@ export class DatabaseStorage implements IStorage {
         playerId: roomPlayers.playerId,
         role: roomPlayers.role,
         isOnline: roomPlayers.isOnline,
+        score: roomPlayers.score,
         joinedAt: roomPlayers.joinedAt,
         playerFirstName: users.firstName,
         playerLastName: users.lastName,
@@ -336,6 +338,7 @@ export class DatabaseStorage implements IStorage {
       playerId: player.playerId,
       role: player.role,
       isOnline: player.isOnline,
+      score: player.score,
       joinedAt: player.joinedAt,
       playerName: player.playerFirstName && player.playerLastName 
         ? `${player.playerFirstName} ${player.playerLastName}`
@@ -363,6 +366,18 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(roomPlayers)
       .set({ isOnline })
+      .where(
+        and(
+          eq(roomPlayers.roomId, roomId),
+          eq(roomPlayers.playerId, playerId)
+        )
+      );
+  }
+
+  async updateRoomPlayerScore(roomId: string, playerId: string, score: number): Promise<void> {
+    await db
+      .update(roomPlayers)
+      .set({ score })
       .where(
         and(
           eq(roomPlayers.roomId, roomId),

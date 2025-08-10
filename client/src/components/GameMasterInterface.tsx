@@ -16,6 +16,7 @@ import { ChatComponent } from "./ChatComponent";
 import { CardDeckManager } from "./CardDeckManager";
 import { GameTemplateManager } from "./GameTemplateManager";
 import { GameSystemManager } from "./GameSystemManager";
+import { PlayerScoreboard } from "./PlayerScoreboard";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
@@ -68,6 +69,39 @@ export function GameMasterInterface({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+
+  const handleScoreUpdate = async (playerId: string, newScore: number) => {
+    try {
+      // Send WebSocket message for real-time updates
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.send(JSON.stringify({
+          type: 'player_score_updated',
+          roomId,
+          payload: {
+            playerId,
+            score: newScore
+          }
+        }));
+      }
+
+      // Also update via API for persistence
+      await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/players/${playerId}/score`, {
+        score: newScore
+      });
+
+      toast({
+        title: "Score Updated",
+        description: "Player score has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating score:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update player score. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleGetUploadParameters = async () => {
     const response = await fetch("/api/objects/upload", {
@@ -532,47 +566,12 @@ export function GameMasterInterface({
 
                 {/* Player Management Tab */}
                 <TabsContent value="players" className="h-full p-4 space-y-4 overflow-y-auto">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Connected Players</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {players.map((player) => (
-                          <div
-                            key={player.id}
-                            className="flex items-center justify-between p-2 rounded border"
-                            data-testid={`player-${player.playerId}`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  player.isOnline ? 'bg-green-500' : 'bg-gray-400'
-                                }`}
-                              />
-                              <span className="text-sm font-medium">
-                                {player.playerId === currentUser.id ? 'You (GM)' : (player.playerName || `Player ${player.playerId.slice(0, 8)}`)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className={`text-xs px-2 py-1 rounded ${
-                                player.role === 'admin' 
-                                  ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' 
-                                  : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-                              }`}>
-                                {player.role === 'admin' ? 'GM' : 'Player'}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                        {players.length === 0 && (
-                          <div className="text-center py-4 text-gray-500 text-sm">
-                            No players connected
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <PlayerScoreboard
+                    players={players}
+                    currentUserId={currentUser.id}
+                    isGameMaster={true}
+                    onScoreUpdate={handleScoreUpdate}
+                  />
 
                   <Card>
                     <CardHeader>

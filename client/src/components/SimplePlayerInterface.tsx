@@ -10,14 +10,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { ChatComponent } from "./ChatComponent";
 import { ThemeToggle } from "./ThemeToggle";
+import { PlayerScoreboard } from "./PlayerScoreboard";
 import { useLocation } from "wouter";
-import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, User } from "@shared/schema";
+import type { GameRoom, GameAsset, BoardAsset, RoomPlayerWithName, User } from "@shared/schema";
 
 interface SimplePlayerInterfaceProps {
   room: GameRoom;
   roomAssets: GameAsset[];
   boardAssets: BoardAsset[];
-  roomPlayers: RoomPlayer[];
+  roomPlayers: RoomPlayerWithName[];
   currentUser: User;
   websocket: WebSocket | null;
   onDiceRoll: (diceType: string, count: number) => void;
@@ -52,6 +53,49 @@ export function SimplePlayerInterface({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+
+  const handleScoreUpdate = async (playerId: string, newScore: number) => {
+    try {
+      // Players can only update their own score unless they're GM
+      if (playerId !== currentUser.id) {
+        toast({
+          title: "Not Allowed",
+          description: "Players can only update their own score.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Send WebSocket message for real-time updates
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.send(JSON.stringify({
+          type: 'player_score_updated',
+          roomId: room.id,
+          payload: {
+            playerId,
+            score: newScore
+          }
+        }));
+      }
+
+      // Also update via API for persistence
+      await authenticatedApiRequest("PATCH", `/api/rooms/${room.id}/players/${playerId}/score`, {
+        score: newScore
+      });
+
+      toast({
+        title: "Score Updated",
+        description: "Your score has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating score:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update score. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const diceTypes = ["d4", "d6", "d8", "d10", "d12", "d20"];
 
@@ -306,27 +350,13 @@ export function SimplePlayerInterface({
             </CardContent>
           </Card>
 
-          {/* Players List */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-gray-100">
-                <Users className="w-4 h-4" />
-                <span>Players ({roomPlayers.length})</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {roomPlayers.map((player) => (
-                <div key={player.id} className="flex items-center justify-between p-2 bg-[#374151] rounded">
-                  <span className="text-gray-100 text-sm">
-                    {(player as any).playerName || `Player ${player.playerId}`}
-                  </span>
-                  <Badge variant={player.role === 'admin' ? 'default' : 'secondary'}>
-                    {player.role === 'admin' ? 'GM' : 'Player'}
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          {/* Player Scoreboard */}
+          <PlayerScoreboard
+            players={roomPlayers}
+            currentUserId={currentUser.id}
+            isGameMaster={false}
+            onScoreUpdate={handleScoreUpdate}
+          />
 
           {/* Dice Rolling */}
           <Card>

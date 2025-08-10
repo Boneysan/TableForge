@@ -12,7 +12,8 @@ import type {
   AssetFlippedMessage, 
   DiceRolledMessage,
   PlayerJoinedMessage,
-  PlayerLeftMessage
+  PlayerLeftMessage,
+  PlayerScoreUpdatedMessage
 } from "@shared/schema";
 import { 
   insertGameRoomSchema, 
@@ -155,6 +156,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             type: 'chat_message',
             payload: { ...chatMessage, playerName }
           });
+        }
+        break;
+
+      case 'player_score_updated':
+        if (roomId && payload.playerId && typeof payload.score === 'number') {
+          // Update player score in storage
+          await storage.updateRoomPlayerScore(roomId, payload.playerId, payload.score);
+
+          // Get player name for broadcasting
+          const player = await storage.getUser(payload.playerId);
+          const playerName = player?.firstName && player?.lastName 
+            ? `${player.firstName} ${player.lastName}`
+            : player?.firstName 
+            ? player.firstName
+            : player?.email || "Player";
+
+          // Broadcast to all clients in room
+          broadcastToRoom(roomId, {
+            type: 'player_score_updated',
+            payload: { 
+              playerId: payload.playerId, 
+              score: payload.score, 
+              playerName 
+            }
+          } as PlayerScoreUpdatedMessage);
         }
         break;
     }
@@ -1226,6 +1252,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching all game systems:", error);
       res.status(500).json({ error: "Failed to fetch game systems" });
+    }
+  });
+
+  // Player Score Management
+  app.patch("/api/rooms/:roomId/players/:playerId/score", async (req, res) => {
+    try {
+      const roomId = req.params.roomId;
+      const playerId = req.params.playerId;
+      const { score } = req.body;
+
+      if (typeof score !== 'number') {
+        return res.status(400).json({ error: "Score must be a number" });
+      }
+
+      // Verify user has permission (must be admin or the player themselves)
+      const userRole = await storage.getPlayerRole(roomId, req.user.uid);
+      if (userRole !== 'admin' && req.user.uid !== playerId) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      await storage.updateRoomPlayerScore(roomId, playerId, score);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating player score:", error);
+      res.status(500).json({ error: "Failed to update score" });
     }
   });
 
