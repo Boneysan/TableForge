@@ -30,9 +30,12 @@ export function GameBoard({
   const [gridSize, setGridSize] = useState(20);
   const [measurementActive, setMeasurementActive] = useState(false);
   const [annotationActive, setAnnotationActive] = useState(false);
-
-  const boardWidth = 800;
-  const boardHeight = 600;
+  const [boardWidth, setBoardWidth] = useState(800);
+  const [boardHeight, setBoardHeight] = useState(600);
+  const [isResizing, setIsResizing] = useState(false);
+  const [customSizeMode, setCustomSizeMode] = useState(false);
+  const [customWidth, setCustomWidth] = useState('800');
+  const [customHeight, setCustomHeight] = useState('600');
   
   const queryClient = useQueryClient();
 
@@ -93,40 +96,116 @@ export function GameBoard({
         />
       )}
       
-      {/* Game Board Controls - Only for Admin */}
-      {playerRole === 'admin' && (
-        <div className="absolute top-2 right-2 z-40 flex gap-2">
-          <button
-            onClick={() => setShowGrid(!showGrid)}
-            className="px-2 py-1 bg-gray-700 text-white text-xs rounded hover:bg-gray-600"
-            data-testid="button-toggle-grid"
-          >
-            Grid {showGrid ? 'On' : 'Off'}
-          </button>
-          <button
-            onClick={() => setMeasurementActive(!measurementActive)}
-            className={`px-2 py-1 text-xs rounded ${
-              measurementActive 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-700 text-white hover:bg-gray-600'
-            }`}
-            data-testid="button-toggle-measurement"
-          >
-            Ruler
-          </button>
-          <button
-            onClick={() => setAnnotationActive(!annotationActive)}
-            className={`px-2 py-1 text-xs rounded ${
-              annotationActive 
-                ? 'bg-purple-600 text-white' 
-                : 'bg-gray-700 text-white hover:bg-gray-600'
-            }`}
-            data-testid="button-toggle-annotation"
-          >
-            Draw
-          </button>
+      {/* Game Board Controls */}
+      <div className="absolute top-2 right-2 z-40 flex gap-2">
+        {/* Resize Controls - Available for all users */}
+        <div className="flex gap-1 items-center bg-gray-800 rounded px-2 py-1">
+          <span className="text-white text-xs">Size:</span>
+          {!customSizeMode ? (
+            <select
+              value={`${boardWidth}x${boardHeight}`}
+              onChange={(e) => {
+                if (e.target.value === 'custom') {
+                  setCustomSizeMode(true);
+                  setCustomWidth(boardWidth.toString());
+                  setCustomHeight(boardHeight.toString());
+                } else {
+                  const [width, height] = e.target.value.split('x').map(Number);
+                  setBoardWidth(width);
+                  setBoardHeight(height);
+                }
+              }}
+              className="bg-gray-700 text-white text-xs px-1 py-0.5 rounded border-0"
+              data-testid="select-board-size"
+            >
+              <option value="600x400">Small (600×400)</option>
+              <option value="800x600">Medium (800×600)</option>
+              <option value="1000x750">Large (1000×750)</option>
+              <option value="1200x900">XL (1200×900)</option>
+              <option value="1400x1050">XXL (1400×1050)</option>
+              <option value="1600x1200">Huge (1600×1200)</option>
+              <option value="custom">Custom Size...</option>
+            </select>
+          ) : (
+            <div className="flex gap-1 items-center">
+              <input
+                type="number"
+                value={customWidth}
+                onChange={(e) => setCustomWidth(e.target.value)}
+                className="bg-gray-700 text-white text-xs px-1 py-0.5 rounded border-0 w-12"
+                min="200"
+                max="3000"
+                data-testid="input-custom-width"
+              />
+              <span className="text-white text-xs">×</span>
+              <input
+                type="number"
+                value={customHeight}
+                onChange={(e) => setCustomHeight(e.target.value)}
+                className="bg-gray-700 text-white text-xs px-1 py-0.5 rounded border-0 w-12"
+                min="200"
+                max="3000"
+                data-testid="input-custom-height"
+              />
+              <button
+                onClick={() => {
+                  const width = parseInt(customWidth) || 800;
+                  const height = parseInt(customHeight) || 600;
+                  setBoardWidth(Math.max(200, Math.min(3000, width)));
+                  setBoardHeight(Math.max(200, Math.min(3000, height)));
+                  setCustomSizeMode(false);
+                }}
+                className="bg-green-600 text-white text-xs px-1 py-0.5 rounded hover:bg-green-500"
+                data-testid="button-apply-custom-size"
+              >
+                ✓
+              </button>
+              <button
+                onClick={() => setCustomSizeMode(false)}
+                className="bg-red-600 text-white text-xs px-1 py-0.5 rounded hover:bg-red-500"
+                data-testid="button-cancel-custom-size"
+              >
+                ×
+              </button>
+            </div>
+          )}
         </div>
-      )}
+        
+        {/* Admin-only tools */}
+        {playerRole === 'admin' && (
+          <>
+            <button
+              onClick={() => setShowGrid(!showGrid)}
+              className="px-2 py-1 bg-gray-700 text-white text-xs rounded hover:bg-gray-600"
+              data-testid="button-toggle-grid"
+            >
+              Grid {showGrid ? 'On' : 'Off'}
+            </button>
+            <button
+              onClick={() => setMeasurementActive(!measurementActive)}
+              className={`px-2 py-1 text-xs rounded ${
+                measurementActive 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-white hover:bg-gray-600'
+              }`}
+              data-testid="button-toggle-measurement"
+            >
+              Ruler
+            </button>
+            <button
+              onClick={() => setAnnotationActive(!annotationActive)}
+              className={`px-2 py-1 text-xs rounded ${
+                annotationActive 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-gray-700 text-white hover:bg-gray-600'
+              }`}
+              data-testid="button-toggle-annotation"
+            >
+              Draw
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Measurement Tool */}
       <MeasurementTool

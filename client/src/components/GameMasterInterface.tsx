@@ -336,16 +336,18 @@ export function GameMasterInterface({
                 </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="h-full">
-              <GameBoard
-                assets={assets}
-                boardAssets={boardAssets}
-                onAssetMoved={onAssetMoved}
-                onAssetPlaced={onAssetPlaced}
-                playerRole="admin"
-                roomId={roomId}
-                data-testid="game-board-gm"
-              />
+            <CardContent className="h-full overflow-auto">
+              <div className="min-w-fit min-h-fit">
+                <GameBoard
+                  assets={assets}
+                  boardAssets={boardAssets}
+                  onAssetMoved={onAssetMoved}
+                  onAssetPlaced={onAssetPlaced}
+                  playerRole="admin"
+                  roomId={roomId}
+                  data-testid="game-board-gm"
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
