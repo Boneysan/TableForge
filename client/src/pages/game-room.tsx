@@ -213,7 +213,7 @@ export default function GameRoom() {
     return (
       <ViewSelector
         onSelectView={setSelectedView}
-        currentUser={user as User}
+        currentUser={user}
       />
     );
   }

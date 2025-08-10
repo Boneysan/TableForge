@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ViewSelectorProps {
   onSelectView: (view: 'admin' | 'gamemaster') => void;
-  currentUser: { firstName?: string | null; lastName?: string | null };
+  currentUser?: { firstName?: string | null; lastName?: string | null } | null;
 }
 
 export function ViewSelector({ onSelectView, currentUser }: ViewSelectorProps) {
-  const userName = currentUser.firstName || currentUser.lastName 
-    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
+  const userName = currentUser?.firstName || currentUser?.lastName 
+    ? `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim()
     : 'Game Master';
 
   return (
