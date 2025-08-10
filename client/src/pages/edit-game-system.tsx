@@ -1024,14 +1024,21 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                           data-testid={`card-back-select-${index}`}
                                           title={`${isSelected ? 'Remove' : 'Select'} "${card.name}" as card back`}
                                         >
-                                          <img 
-                                            src={card.url} 
-                                            alt={card.name}
-                                            className="w-full h-12 object-cover rounded"
-                                            onError={(e) => {
-                                              (e.target as HTMLImageElement).style.display = 'none';
-                                            }}
-                                          />
+                                          <div className="w-full h-12 bg-muted rounded flex items-center justify-center">
+                                            <img 
+                                              src={card.url} 
+                                              alt={card.name}
+                                              className="w-full h-12 object-cover rounded"
+                                              onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                                const parent = target.parentElement as HTMLElement;
+                                                if (parent) {
+                                                  parent.innerHTML = `<div class="text-xs text-center text-muted-foreground p-1">${card.name}</div>`;
+                                                }
+                                              }}
+                                            />
+                                          </div>
                                           {isSelected && (
                                             <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-md">
                                               ✓
@@ -1066,14 +1073,21 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                       onClick={() => toggleCardSelection(card.url)}
                                       data-testid={`card-select-${index}`}
                                     >
-                                      <img 
-                                        src={card.url} 
-                                        alt={card.name}
-                                        className="w-full h-20 object-cover rounded mb-2"
-                                        onError={(e) => {
-                                          (e.target as HTMLImageElement).style.display = 'none';
-                                        }}
-                                      />
+                                      <div className="w-full h-20 bg-muted rounded mb-2 flex items-center justify-center">
+                                        <img 
+                                          src={card.url} 
+                                          alt={card.name}
+                                          className="w-full h-20 object-cover rounded mb-2"
+                                          onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = 'none';
+                                            const parent = target.parentElement as HTMLElement;
+                                            if (parent) {
+                                              parent.innerHTML = `<div class="text-xs text-center text-muted-foreground p-2">Image<br/>Loading<br/>Error</div>`;
+                                            }
+                                          }}
+                                        />
+                                      </div>
                                       <p className="text-xs font-medium truncate">{card.name}</p>
                                       {isSelected && (
                                         <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
