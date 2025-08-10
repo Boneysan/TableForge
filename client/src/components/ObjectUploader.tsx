@@ -60,6 +60,13 @@ export function ObjectUploader({
       })
       .on("complete", (result) => {
         onComplete?.(result);
+        // Clear files after successful upload to allow new uploads
+        if (result.successful && result.successful.length > 0) {
+          // Small delay to ensure UI updates properly before clearing
+          setTimeout(() => {
+            uppy.clear();
+          }, 1000);
+        }
       })
   );
 

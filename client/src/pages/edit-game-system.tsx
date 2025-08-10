@@ -199,7 +199,16 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       setUploadedAssets(prev => [...prev, ...newAssets]);
       toast({
         title: "Assets Uploaded",
-        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s)`,
+        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). You can now upload more files.`,
+      });
+    }
+    
+    // Handle upload failures
+    if (result.failed && result.failed.length > 0) {
+      toast({
+        title: "Upload Failed",
+        description: `Failed to upload ${result.failed.length} file(s). Please try again.`,
+        variant: "destructive",
       });
     }
   };
