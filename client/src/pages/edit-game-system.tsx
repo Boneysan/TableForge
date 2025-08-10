@@ -207,6 +207,10 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     }
   };
 
+  // Track bulk upload progress across batches
+  const [batchCompletedCount, setBatchCompletedCount] = useState(0);
+  const [totalBulkAssets, setTotalBulkAssets] = useState<any[]>([]);
+
   const handleUploadComplete = (result: any) => {
     if (result.successful && result.successful.length > 0) {
       const newAssets = result.successful.map((file: any) => ({
@@ -217,24 +221,29 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         category: selectedCategory,
       }));
       
-      console.log('📤 [Debug] Upload complete:', {
-        newAssetsCount: newAssets.length,
-        existingAssetsCount: uploadedAssets.length,
-        totalAfterUpload: uploadedAssets.length + newAssets.length
+      console.log('📤 [Debug] Batch upload complete:', {
+        batchAssetsCount: newAssets.length,
+        currentTotalAssets: uploadedAssets.length,
+        batchNumber: batchCompletedCount + 1
       });
       
       setUploadedAssets(prev => {
         const updated = [...prev, ...newAssets];
-        console.log('📦 [Debug] Assets after upload:', {
+        console.log('📦 [Debug] Assets after batch:', {
           previousCount: prev.length,
-          newCount: newAssets.length,
-          totalCount: updated.length
+          batchCount: newAssets.length,
+          newTotalCount: updated.length
         });
         return updated;
       });
       
+      // Track bulk upload progress
+      setBatchCompletedCount(prev => prev + 1);
+      setTotalBulkAssets(prev => [...prev, ...newAssets]);
+      
+      // Show toast only for single uploads or final bulk upload batch
       toast({
-        title: "Assets Uploaded",
+        title: "Batch Uploaded",
         description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). Click "Save Changes" to make them available for deck creation.`,
         action: (
           <Button variant="outline" size="sm" onClick={handleSave}>
@@ -248,10 +257,32 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     if (result.failed && result.failed.length > 0) {
       toast({
         title: "Upload Failed",
-        description: `Failed to upload ${result.failed.length} file(s). Please try again.`,
+        description: `Failed to upload ${result.failed.length} file(s) in this batch.`,
         variant: "destructive",
       });
     }
+  };
+  
+  const handleBulkUploadComplete = (totalUploaded: number) => {
+    console.log('🎉 [Debug] Bulk upload completed:', {
+      totalUploaded,
+      totalBulkAssets: totalBulkAssets.length,
+      finalAssetCount: uploadedAssets.length
+    });
+    
+    // Reset bulk tracking
+    setBatchCompletedCount(0);
+    setTotalBulkAssets([]);
+    
+    toast({
+      title: "Bulk Upload Complete",
+      description: `Successfully uploaded ${totalUploaded} ${selectedCategory} assets! Click "Save Changes" to make them available for deck creation.`,
+      action: (
+        <Button variant="outline" size="sm" onClick={handleSave}>
+          Save Now
+        </Button>
+      ),
+    });
   };
 
   const removeAsset = (indexToRemove: number) => {
@@ -836,12 +867,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                             maxFileSize={50485760} // 50MB
                             onGetUploadParameters={handleGetUploadParameters}
                             onBatchComplete={handleUploadComplete}
-                            onAllComplete={(total) => {
-                              toast({
-                                title: "Bulk Upload Complete",
-                                description: `Successfully uploaded ${total} cards!`,
-                              });
-                            }}
+                            onAllComplete={handleBulkUploadComplete}
                             buttonClassName="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                           >
                             <Package className="w-5 h-5" />
