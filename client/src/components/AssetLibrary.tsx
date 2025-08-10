@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Folder, Upload, ChevronDown, ChevronUp, Layers, Coins, Map } from "lucide-react";
+import { Folder, Upload, ChevronDown, ChevronUp, Layers, Coins, Map, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { BulkUploader } from "@/components/BulkUploader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -163,16 +164,33 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
           </Select>
         </div>
         
-        <ObjectUploader
-          maxNumberOfFiles={10}
-          maxFileSize={10485760}
-          onGetUploadParameters={getUploadParameters}
-          onComplete={handleUploadComplete}
-          buttonClassName="w-full bg-[#2563EB] hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
-        >
-          <Upload className="mr-2 w-4 h-4" />
-          Upload Assets
-        </ObjectUploader>
+        <div className="grid grid-cols-1 gap-2">
+          <ObjectUploader
+            maxNumberOfFiles={10}
+            maxFileSize={10485760}
+            onGetUploadParameters={getUploadParameters}
+            onComplete={handleUploadComplete}
+            buttonClassName="w-full bg-[#2563EB] hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center"
+          >
+            <Upload className="mr-2 w-4 h-4" />
+            Upload Assets (up to 10)
+          </ObjectUploader>
+          
+          <BulkUploader
+            maxTotalFiles={200}
+            batchSize={20}
+            maxFileSize={10485760}
+            onGetUploadParameters={getUploadParameters}
+            onBatchComplete={handleUploadComplete}
+            onAllComplete={(total) => {
+              console.log(`Bulk upload completed: ${total} files`);
+            }}
+            buttonClassName="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center text-sm"
+          >
+            <Package className="mr-2 w-4 h-4" />
+            Bulk Upload (up to 200)
+          </BulkUploader>
+        </div>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4">
