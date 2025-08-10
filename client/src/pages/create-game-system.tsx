@@ -109,6 +109,20 @@ export default function CreateGameSystem() {
     }
   };
 
+  const addMultipleTags = (input: string) => {
+    // Split by commas, newlines, or semicolons and clean up
+    const newTags = input
+      .split(/[,;\n\r]+/)
+      .map(tag => tag.trim().toLowerCase())
+      .filter(tag => tag && !tags.includes(tag));
+    
+    if (newTags.length > 0) {
+      setTags([...tags, ...newTags]);
+      setNewTag("");
+      setShowTagSuggestions(false);
+    }
+  };
+
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
@@ -116,9 +130,23 @@ export default function CreateGameSystem() {
   const handleTagInputKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      addTag();
+      // Check if input contains multiple tags (comma, semicolon, or newline separated)
+      if (newTag.includes(',') || newTag.includes(';') || newTag.includes('\n')) {
+        addMultipleTags(newTag);
+      } else {
+        addTag();
+      }
     } else if (e.key === 'Escape') {
       setShowTagSuggestions(false);
+    }
+  };
+
+  const handleTagInputPaste = (e: React.ClipboardEvent) => {
+    const pastedText = e.clipboardData.getData('text');
+    // Check if pasted text contains multiple tags
+    if (pastedText.includes(',') || pastedText.includes(';') || pastedText.includes('\n')) {
+      e.preventDefault();
+      addMultipleTags(pastedText);
     }
   };
 
@@ -289,17 +317,24 @@ export default function CreateGameSystem() {
             <div className="relative">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Type a tag or browse suggestions..."
+                  placeholder="Type tags (comma/line separated) or browse suggestions..."
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={handleTagInputKeyPress}
+                  onPaste={handleTagInputPaste}
                   onFocus={() => setShowTagSuggestions(true)}
                   data-testid="input-new-tag"
                 />
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => addTag()}
+                  onClick={() => {
+                    if (newTag.includes(',') || newTag.includes(';') || newTag.includes('\n')) {
+                      addMultipleTags(newTag);
+                    } else {
+                      addTag();
+                    }
+                  }}
                   disabled={!newTag.trim()}
                   data-testid="button-add-tag"
                 >
@@ -359,8 +394,13 @@ export default function CreateGameSystem() {
             </div>
             
             {/* Tag Helper Text */}
-            <div className="text-xs text-gray-500">
-              Press Enter to add a tag • Use suggestions above or create your own • Tags help players find games they'll enjoy
+            <div className="text-xs text-gray-500 space-y-1">
+              <div>
+                <strong>Single tag:</strong> Type and press Enter • <strong>Multiple tags:</strong> Use commas, semicolons, or new lines
+              </div>
+              <div>
+                Examples: "strategy, fantasy, 2-player" or paste a vertical list • Use suggestions above or create your own
+              </div>
             </div>
           </CardContent>
         </Card>
