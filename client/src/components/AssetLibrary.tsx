@@ -110,11 +110,42 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   };
 
   const categorizedAssets = {
-    cards: assets.filter(asset => asset.type === 'card'),
-    tokens: assets.filter(asset => asset.type === 'token'),
-    map: assets.filter(asset => asset.type === 'map'),
-    other: assets.filter(asset => asset.type === 'other'),
+    cards: assets.filter(asset => 
+      asset.type === 'card' || 
+      (asset.type?.startsWith('image/') && (
+        asset.name?.toLowerCase().includes('card') ||
+        asset.name?.toLowerCase().includes('.jpg') ||
+        asset.name?.toLowerCase().includes('.jpeg') ||
+        asset.name?.toLowerCase().includes('.png')
+      ))
+    ),
+    tokens: assets.filter(asset => 
+      asset.type === 'token' || 
+      (asset.type?.startsWith('image/') && asset.name?.toLowerCase().includes('token'))
+    ),
+    map: assets.filter(asset => 
+      asset.type === 'map' || 
+      (asset.type?.startsWith('image/') && asset.name?.toLowerCase().includes('map'))
+    ),
+    other: assets.filter(asset => 
+      !['card', 'token', 'map'].includes(asset.type || '') && 
+      !(asset.type?.startsWith('image/') && (
+        asset.name?.toLowerCase().includes('card') ||
+        asset.name?.toLowerCase().includes('token') ||
+        asset.name?.toLowerCase().includes('map')
+      ))
+    ),
   };
+
+  // Debug logging for categorization
+  console.log(`🗂️ [AssetLibrary] Asset categorization:`, {
+    total: assets.length,
+    cards: categorizedAssets.cards.length,
+    tokens: categorizedAssets.tokens.length,
+    map: categorizedAssets.map.length,
+    other: categorizedAssets.other.length,
+    sampleTypes: assets.slice(0, 3).map(a => a.type)
+  });
 
   const categoryIcons = {
     cards: Layers,
