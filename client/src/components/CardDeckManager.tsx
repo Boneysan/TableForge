@@ -64,7 +64,10 @@ export function CardDeckManager({
   const [deckName, setDeckName] = useState("");
   const [deckDescription, setDeckDescription] = useState("");
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
+  const [cardFilter, setCardFilter] = useState("");
+  const [quickTemplate, setQuickTemplate] = useState<string | null>(null);
   const [pileName, setPileName] = useState("");
+  const [showDeckPresets, setShowDeckPresets] = useState(false);
   const [pileType, setPileType] = useState<"deck" | "discard" | "hand" | "custom">("custom");
   const [pileVisibility, setPileVisibility] = useState<"public" | "owner" | "gm">("public");
   const { toast } = useToast();
@@ -241,8 +244,106 @@ export function CardDeckManager({
     );
   };
 
+  const selectAllFilteredCards = () => {
+    const filteredAssets = cardAssets.filter(asset => 
+      asset.name.toLowerCase().includes(cardFilter.toLowerCase())
+    );
+    const allFilteredIds = filteredAssets.map(asset => asset.id);
+    setSelectedCards(prev => Array.from(new Set([...prev, ...allFilteredIds])));
+  };
+
+  const deselectAllFilteredCards = () => {
+    const filteredAssets = cardAssets.filter(asset => 
+      asset.name.toLowerCase().includes(cardFilter.toLowerCase())
+    );
+    const filteredIds = new Set(filteredAssets.map(asset => asset.id));
+    setSelectedCards(prev => prev.filter(id => !filteredIds.has(id)));
+  };
+
+  const applyQuickTemplate = (template: string) => {
+    setQuickTemplate(template);
+    setDeckName(template);
+    setDeckDescription(`Auto-generated ${template.toLowerCase()} deck`);
+    
+    // Auto-select cards based on template
+    const templateKeywords = {
+      "Attack Cards": ["attack", "damage", "strike", "sword", "weapon"],
+      "Defense Cards": ["defend", "shield", "block", "armor", "protection"],
+      "Resource Cards": ["mana", "energy", "gold", "resource", "coin"],
+      "Spell Cards": ["spell", "magic", "enchant", "potion", "scroll"],
+      "Character Cards": ["character", "hero", "player", "warrior", "mage"],
+      "Action Cards": ["action", "move", "turn", "ability", "skill"]
+    };
+
+    if (templateKeywords[template as keyof typeof templateKeywords]) {
+      const keywords = templateKeywords[template as keyof typeof templateKeywords];
+      const matchingCards = cardAssets.filter(asset => 
+        keywords.some(keyword => 
+          asset.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+      setSelectedCards(matchingCards.map(card => card.id));
+    }
+  };
+
+  const filteredCardAssets = cardAssets.filter(asset => 
+    asset.name.toLowerCase().includes(cardFilter.toLowerCase())
+  );
+
   const canManageDecks = playerRole === "admin";
   const canCreatePiles = playerRole === "admin";
+
+  const createPresetDecks = () => {
+    const presets = [
+      {
+        name: "Standard Playing Cards",
+        description: "Traditional 52-card deck",
+        keywords: ["ace", "king", "queen", "jack", "hearts", "diamonds", "clubs", "spades"]
+      },
+      {
+        name: "Tarot Deck",
+        description: "Tarot cards for divination",
+        keywords: ["tarot", "major", "minor", "arcana", "cups", "wands", "swords", "pentacles"]
+      },
+      {
+        name: "Battle Cards",
+        description: "Combat and action cards",
+        keywords: ["attack", "damage", "battle", "fight", "weapon", "armor"]
+      },
+      {
+        name: "Magic Spells",
+        description: "Magical spells and enchantments",
+        keywords: ["spell", "magic", "enchant", "potion", "scroll", "ritual"]
+      },
+      {
+        name: "Resources & Economy",
+        description: "Economic and resource management cards",
+        keywords: ["gold", "mana", "energy", "resource", "coin", "trade"]
+      }
+    ];
+
+    presets.forEach(preset => {
+      const matchingCards = cardAssets.filter(asset => 
+        preset.keywords.some(keyword => 
+          asset.name.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+
+      if (matchingCards.length > 0) {
+        createDeckMutation.mutate({
+          name: preset.name,
+          description: preset.description,
+          deckOrder: matchingCards.map(card => card.id),
+        });
+      }
+    });
+
+    setShowDeckPresets(false);
+    toast({
+      title: "Preset Decks Created",
+      description: "Multiple decks have been created based on your uploaded cards.",
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -255,13 +356,61 @@ export function CardDeckManager({
               Card Decks
             </CardTitle>
             {canManageDecks && (
-              <Dialog open={showCreateDeck} onOpenChange={setShowCreateDeck}>
-                <DialogTrigger asChild>
-                  <Button size="sm" data-testid="button-create-deck">
-                    <Plus className="w-3 h-3 mr-1" />
-                    Create Deck
-                  </Button>
-                </DialogTrigger>
+              <div className="flex gap-2">
+                <Dialog open={showDeckPresets} onOpenChange={setShowDeckPresets}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" data-testid="button-create-presets">
+                      <Package className="w-3 h-3 mr-1" />
+                      Auto-Create Decks
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create Preset Decks</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600">
+                        This will automatically create multiple decks based on your uploaded cards using common deck types.
+                        Only decks with matching cards will be created.
+                      </p>
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <h4 className="font-medium text-sm mb-2">Preset Decks Include:</h4>
+                        <ul className="text-xs space-y-1 text-gray-600">
+                          <li>• Standard Playing Cards (52-card deck)</li>
+                          <li>• Tarot Deck (divination cards)</li>
+                          <li>• Battle Cards (combat actions)</li>
+                          <li>• Magic Spells (enchantments)</li>
+                          <li>• Resources & Economy (gold, mana, etc.)</li>
+                        </ul>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={createPresetDecks}
+                          disabled={createDeckMutation.isPending || cardAssets.length === 0}
+                          className="flex-1"
+                          data-testid="button-confirm-presets"
+                        >
+                          {createDeckMutation.isPending ? "Creating..." : "Create Preset Decks"}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setShowDeckPresets(false)}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
+                <Dialog open={showCreateDeck} onOpenChange={setShowCreateDeck}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" data-testid="button-create-deck">
+                      <Plus className="w-3 h-3 mr-1" />
+                      Custom Deck
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Create New Card Deck</DialogTitle>
@@ -287,10 +436,64 @@ export function CardDeckManager({
                         data-testid="textarea-deck-description"
                       />
                     </div>
+                    
+                    {/* Quick Templates */}
                     <div>
-                      <Label>Select Cards ({selectedCards.length} selected)</Label>
+                      <Label>Quick Templates</Label>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {["Attack Cards", "Defense Cards", "Resource Cards", "Spell Cards", "Character Cards", "Action Cards"].map((template) => (
+                          <Button
+                            key={template}
+                            variant={quickTemplate === template ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => applyQuickTemplate(template)}
+                            data-testid={`template-${template.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            {template}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label>Select Cards ({selectedCards.length} selected)</Label>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={selectAllFilteredCards}
+                            disabled={filteredCardAssets.length === 0}
+                            data-testid="button-select-all"
+                          >
+                            Select All
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={deselectAllFilteredCards}
+                            disabled={selectedCards.length === 0}
+                            data-testid="button-deselect-all"
+                          >
+                            Clear
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Card Filter */}
+                      <Input
+                        placeholder="Filter cards by name..."
+                        value={cardFilter}
+                        onChange={(e) => setCardFilter(e.target.value)}
+                        className="mb-2"
+                        data-testid="input-card-filter"
+                      />
+                      
+                      <div className="text-xs text-gray-500 mb-2">
+                        Showing {filteredCardAssets.length} of {cardAssets.length} cards
+                      </div>
+                      
                       <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto border rounded p-2">
-                        {cardAssets.map((asset) => (
+                        {filteredCardAssets.map((asset) => (
                           <div
                             key={asset.id}
                             className={`
@@ -313,6 +516,16 @@ export function CardDeckManager({
                             </div>
                           </div>
                         ))}
+                        {filteredCardAssets.length === 0 && cardAssets.length > 0 && (
+                          <div className="col-span-3 text-center py-4 text-gray-500 text-sm">
+                            No cards match "{cardFilter}"
+                          </div>
+                        )}
+                        {cardAssets.length === 0 && (
+                          <div className="col-span-3 text-center py-4 text-gray-500 text-sm">
+                            No card assets uploaded yet
+                          </div>
+                        )}
                       </div>
                     </div>
                     <Button 
@@ -326,17 +539,18 @@ export function CardDeckManager({
                   </div>
                 </DialogContent>
               </Dialog>
+              </div>
             )}
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {decks.length === 0 ? (
+            {(decks as CardDeck[]).length === 0 ? (
               <div className="text-center py-4 text-gray-500 text-sm">
                 No decks created yet
               </div>
             ) : (
-              decks.map((deck: CardDeck) => (
+              (decks as CardDeck[]).map((deck: CardDeck) => (
                 <ThemedDeckCard
                   key={deck.id}
                   deck={deck}
@@ -468,12 +682,12 @@ export function CardDeckManager({
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {piles.length === 0 ? (
+            {(piles as CardPile[]).length === 0 ? (
               <div className="text-center py-4 text-gray-500 text-sm">
                 No card piles created yet
               </div>
             ) : (
-              piles.map((pile: CardPile) => (
+              (piles as CardPile[]).map((pile: CardPile) => (
                 <div
                   key={pile.id}
                   className="flex items-center justify-between p-3 border rounded-lg"
