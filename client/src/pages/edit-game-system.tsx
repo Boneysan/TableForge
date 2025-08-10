@@ -212,6 +212,14 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const [totalBulkAssets, setTotalBulkAssets] = useState<any[]>([]);
 
   const handleUploadComplete = (result: any) => {
+    console.log('🔄 [Debug] handleUploadComplete called with result:', {
+      successful: result.successful?.length || 0,
+      failed: result.failed?.length || 0,
+      currentUploadedAssetsCount: uploadedAssets.length,
+      selectedCategory,
+      result: result
+    });
+
     if (result.successful && result.successful.length > 0) {
       const newAssets = result.successful.map((file: any) => ({
         name: file.name,
@@ -224,7 +232,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       console.log('📤 [Debug] Batch upload complete:', {
         batchAssetsCount: newAssets.length,
         currentTotalAssets: uploadedAssets.length,
-        batchNumber: batchCompletedCount + 1
+        batchNumber: batchCompletedCount + 1,
+        newAssets: newAssets.map(a => ({ name: a.name, category: a.category }))
       });
       
       setUploadedAssets(prev => {
@@ -232,19 +241,33 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         console.log('📦 [Debug] Assets after batch:', {
           previousCount: prev.length,
           batchCount: newAssets.length,
-          newTotalCount: updated.length
+          newTotalCount: updated.length,
+          updatedAssets: updated.map(a => ({ name: a.name, category: a.category }))
         });
         return updated;
       });
       
       // Track bulk upload progress
-      setBatchCompletedCount(prev => prev + 1);
-      setTotalBulkAssets(prev => [...prev, ...newAssets]);
+      setBatchCompletedCount(prev => {
+        const newCount = prev + 1;
+        console.log('📊 [Debug] Batch count updated:', { previous: prev, new: newCount });
+        return newCount;
+      });
       
-      // Show toast only for single uploads or final bulk upload batch
+      setTotalBulkAssets(prev => {
+        const updated = [...prev, ...newAssets];
+        console.log('📈 [Debug] Bulk assets updated:', {
+          previousCount: prev.length,
+          newCount: newAssets.length,
+          totalCount: updated.length
+        });
+        return updated;
+      });
+      
+      // Show toast for each batch
       toast({
         title: "Batch Uploaded",
-        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). Click "Save Changes" to make them available for deck creation.`,
+        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). Total: ${uploadedAssets.length + newAssets.length}`,
         action: (
           <Button variant="outline" size="sm" onClick={handleSave}>
             Save Now
@@ -255,6 +278,11 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     
     // Handle upload failures
     if (result.failed && result.failed.length > 0) {
+      console.log('❌ [Debug] Upload failures:', {
+        failedCount: result.failed.length,
+        failures: result.failed
+      });
+      
       toast({
         title: "Upload Failed",
         description: `Failed to upload ${result.failed.length} file(s) in this batch.`,
@@ -267,16 +295,25 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     console.log('🎉 [Debug] Bulk upload completed:', {
       totalUploaded,
       totalBulkAssets: totalBulkAssets.length,
-      finalAssetCount: uploadedAssets.length
+      finalAssetCount: uploadedAssets.length,
+      batchesCompleted: batchCompletedCount
     });
     
     // Reset bulk tracking
     setBatchCompletedCount(0);
     setTotalBulkAssets([]);
     
+    // Force a refresh of the asset count display
+    setTimeout(() => {
+      console.log('🔄 [Debug] Final state after bulk upload:', {
+        uploadedAssetsCount: uploadedAssets.length,
+        expectedTotal: 21 + totalUploaded
+      });
+    }, 100);
+    
     toast({
       title: "Bulk Upload Complete",
-      description: `Successfully uploaded ${totalUploaded} ${selectedCategory} assets! Click "Save Changes" to make them available for deck creation.`,
+      description: `Successfully uploaded ${totalUploaded} ${selectedCategory} assets! Total: ${uploadedAssets.length}. Click "Save Changes" to make them available for deck creation.`,
       action: (
         <Button variant="outline" size="sm" onClick={handleSave}>
           Save Now
