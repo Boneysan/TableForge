@@ -25,10 +25,12 @@ import {
   Loader2,
   Trash2,
   Shuffle,
-  Edit
+  Edit,
+  Package
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { BulkUploader } from "@/components/BulkUploader";
 import { useLocation } from "wouter";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { queryClient } from "@/lib/queryClient";
@@ -733,20 +735,80 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                 </div>
 
                 {/* Upload Component */}
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Upload {assetCategories.find(c => c.id === selectedCategory)?.name}</h4>
                     <Badge variant="outline">{getAssetsByCategory(selectedCategory).length} assets</Badge>
                   </div>
                   
-                  <ObjectUploader
-                    onGetUploadParameters={handleGetUploadParameters}
-                    onComplete={handleUploadComplete}
-                    maxNumberOfFiles={50}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload {assetCategories.find(c => c.id === selectedCategory)?.name}
-                  </ObjectUploader>
+                  {selectedCategory === 'cards' ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Standard Upload */}
+                        <div className="text-center">
+                          <ObjectUploader
+                            onGetUploadParameters={handleGetUploadParameters}
+                            onComplete={handleUploadComplete}
+                            maxNumberOfFiles={50}
+                            buttonClassName="w-full flex items-center justify-center gap-2 py-3"
+                          >
+                            <Upload className="w-5 h-5" />
+                            Standard Upload (up to 50 cards)
+                          </ObjectUploader>
+                          <p className="text-xs text-muted-foreground mt-2">Good for smaller card sets</p>
+                        </div>
+                        
+                        {/* Bulk Upload */}
+                        <div className="text-center">
+                          <BulkUploader
+                            maxTotalFiles={500}
+                            batchSize={50}
+                            maxFileSize={50485760} // 50MB
+                            onGetUploadParameters={handleGetUploadParameters}
+                            onBatchComplete={handleUploadComplete}
+                            onAllComplete={(total) => {
+                              toast({
+                                title: "Bulk Upload Complete",
+                                description: `Successfully uploaded ${total} cards!`,
+                              });
+                            }}
+                            buttonClassName="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                          >
+                            <Package className="w-5 h-5" />
+                            Bulk Upload (up to 500 cards)
+                          </BulkUploader>
+                          <p className="text-xs text-muted-foreground mt-2">Perfect for large card collections like 140 cards</p>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="text-blue-600 mt-0.5">
+                            <Package className="w-4 h-4" />
+                          </div>
+                          <div className="text-sm text-blue-800">
+                            <strong>Bulk Upload Features:</strong>
+                            <ul className="mt-1 space-y-1 list-disc list-inside ml-2">
+                              <li>Handles 100+ files automatically in batches</li>
+                              <li>Progress tracking across all batches</li>
+                              <li>Automatic retry for failed uploads</li>
+                              <li>Continues processing even if some files fail</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Regular upload for non-card categories */
+                    <ObjectUploader
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleUploadComplete}
+                      maxNumberOfFiles={50}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload {assetCategories.find(c => c.id === selectedCategory)?.name}
+                    </ObjectUploader>
+                  )}
                 </div>
 
                 {/* Assets by Category */}
