@@ -93,6 +93,12 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   // Initialize form with existing data
   useEffect(() => {
     if (systemData) {
+      console.log('🔍 [Debug] Loading system data:', {
+        systemId,
+        assetLibrary: systemData.assetLibrary,
+        assetsCount: systemData.assetLibrary?.assets?.length || 0
+      });
+      
       setName(systemData.name || "");
       setDescription(systemData.description || "");
       setIsPublic(systemData.isPublic || false);
@@ -100,7 +106,11 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       
       // Load assets from assetLibrary
       if (systemData.assetLibrary?.assets) {
+        console.log('📦 [Debug] Loading existing assets:', systemData.assetLibrary.assets.length);
         setUploadedAssets(systemData.assetLibrary.assets);
+      } else {
+        console.log('📦 [Debug] No existing assets found, starting fresh');
+        setUploadedAssets([]);
       }
       
       // Load existing decks from deckTemplates
@@ -202,7 +212,23 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         size: file.size,
         category: selectedCategory,
       }));
-      setUploadedAssets(prev => [...prev, ...newAssets]);
+      
+      console.log('📤 [Debug] Upload complete:', {
+        newAssetsCount: newAssets.length,
+        existingAssetsCount: uploadedAssets.length,
+        totalAfterUpload: uploadedAssets.length + newAssets.length
+      });
+      
+      setUploadedAssets(prev => {
+        const updated = [...prev, ...newAssets];
+        console.log('📦 [Debug] Assets after upload:', {
+          previousCount: prev.length,
+          newCount: newAssets.length,
+          totalCount: updated.length
+        });
+        return updated;
+      });
+      
       toast({
         title: "Assets Uploaded",
         description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). Click "Save Changes" to make them available for deck creation.`,
@@ -319,6 +345,11 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   // Update game system
   const updateGameSystemMutation = useMutation({
     mutationFn: async () => {
+      console.log('💾 [Debug] Saving system with assets:', {
+        uploadedAssetsCount: uploadedAssets.length,
+        assetsToSave: uploadedAssets.map(a => ({ name: a.name, category: a.category }))
+      });
+      
       const gameSystemData = {
         name: name.trim(),
         description: description.trim(),
