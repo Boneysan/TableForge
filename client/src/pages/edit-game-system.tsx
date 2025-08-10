@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   ArrowLeft, 
   Upload, 
@@ -849,7 +850,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                         {deck.cardBack && (
                                           <div className="flex-shrink-0">
                                             <img 
-                                              src={deck.cardBack} 
+                                              src={getProxiedImageUrl(deck.cardBack)} 
                                               alt="Deck back"
                                               className="w-12 h-16 object-cover rounded border"
                                               onError={(e) => {
@@ -906,7 +907,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                     {deck.cardAssets.slice(0, 8).map((cardUrl, index) => (
                                       <div key={index} className="relative">
                                         <img 
-                                          src={cardUrl} 
+                                          src={getProxiedImageUrl(cardUrl)} 
                                           alt={`Card ${index + 1}`}
                                           className="w-full h-16 object-cover rounded border"
                                           onError={(e) => {
