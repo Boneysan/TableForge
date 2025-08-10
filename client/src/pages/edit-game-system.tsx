@@ -97,7 +97,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         systemId,
         assetLibrary: systemData.assetLibrary,
         assetsCount: systemData.assetLibrary?.assets?.length || 0,
-        assets: systemData.assetLibrary?.assets?.map(a => ({ name: a.name, category: a.category })) || []
+        assets: systemData.assetLibrary?.assets?.map((a: any) => ({ name: a.name, category: a.category })) || []
       });
       
       setName(systemData.name || "");
@@ -109,7 +109,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       if (systemData.assetLibrary?.assets) {
         console.log('📦 [Debug] Loading existing assets:', {
           count: systemData.assetLibrary.assets.length,
-          assets: systemData.assetLibrary.assets.map(a => ({ name: a.name, category: a.category }))
+          assets: systemData.assetLibrary.assets.map((a: any) => ({ name: a.name, category: a.category }))
         });
         setUploadedAssets(systemData.assetLibrary.assets);
       } else {
@@ -382,7 +382,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     mutationFn: async () => {
       console.log('💾 [Debug] Saving system with assets:', {
         uploadedAssetsCount: uploadedAssets.length,
-        assetsToSave: uploadedAssets.map(a => ({ name: a.name, category: a.category }))
+        assetsToSave: uploadedAssets.map((a: any) => ({ name: a.name, category: a.category }))
       });
       
       const gameSystemData = {
