@@ -1253,7 +1253,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updates = req.body;
+      console.log('🔄 [Update System] Incoming update:', {
+        systemId: req.params.id,
+        hasAssetLibrary: !!updates.assetLibrary,
+        assetCount: (updates.assetLibrary as any)?.assets?.length || 0,
+        currentAssetCount: (system.assetLibrary as any)?.assets?.length || 0
+      });
+      
       const updatedSystem = await storage.updateGameSystem(req.params.id, updates);
+      
+      console.log('✅ [Update System] Update completed:', {
+        systemId: req.params.id,
+        finalAssetCount: (updatedSystem.assetLibrary as any)?.assets?.length || 0
+      });
       
       res.json(updatedSystem);
     } catch (error) {

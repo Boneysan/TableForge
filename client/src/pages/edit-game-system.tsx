@@ -96,7 +96,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       console.log('🔍 [Debug] Loading system data:', {
         systemId,
         assetLibrary: systemData.assetLibrary,
-        assetsCount: systemData.assetLibrary?.assets?.length || 0
+        assetsCount: systemData.assetLibrary?.assets?.length || 0,
+        assets: systemData.assetLibrary?.assets?.map(a => ({ name: a.name, category: a.category })) || []
       });
       
       setName(systemData.name || "");
@@ -106,7 +107,10 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       
       // Load assets from assetLibrary
       if (systemData.assetLibrary?.assets) {
-        console.log('📦 [Debug] Loading existing assets:', systemData.assetLibrary.assets.length);
+        console.log('📦 [Debug] Loading existing assets:', {
+          count: systemData.assetLibrary.assets.length,
+          assets: systemData.assetLibrary.assets.map(a => ({ name: a.name, category: a.category }))
+        });
         setUploadedAssets(systemData.assetLibrary.assets);
       } else {
         console.log('📦 [Debug] No existing assets found, starting fresh');
