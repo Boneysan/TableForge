@@ -205,7 +205,12 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       setUploadedAssets(prev => [...prev, ...newAssets]);
       toast({
         title: "Assets Uploaded",
-        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). You can now upload more files.`,
+        description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). Click "Save Changes" to make them available for deck creation.`,
+        action: (
+          <Button variant="outline" size="sm" onClick={handleSave}>
+            Save Now
+          </Button>
+        ),
       });
     }
     
@@ -681,28 +686,58 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Tab Selection */}
-            <div className="flex space-x-1 bg-muted p-1 rounded-lg">
-              <Button
-                variant={selectedTab === 'assets' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedTab('assets')}
-                className="flex-1"
-                data-testid="tab-assets"
-              >
-                <FileImage className="w-4 h-4 mr-2" />
-                Assets
-              </Button>
-              <Button
-                variant={selectedTab === 'decks' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedTab('decks')}
-                className="flex-1"
-                data-testid="tab-decks"
-              >
-                <CreditCard className="w-4 h-4 mr-2" />
-                Card Decks
-              </Button>
+            {/* Tab Selection and Save Button */}
+            <div className="flex flex-col gap-4">
+              <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+                <Button
+                  variant={selectedTab === 'assets' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSelectedTab('assets')}
+                  className="flex-1"
+                  data-testid="tab-assets"
+                >
+                  <FileImage className="w-4 h-4 mr-2" />
+                  Assets
+                </Button>
+                <Button
+                  variant={selectedTab === 'decks' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSelectedTab('decks')}
+                  className="flex-1"
+                  data-testid="tab-decks"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Card Decks
+                </Button>
+              </div>
+              
+              {/* Prominent Save Button */}
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleSave}
+                  disabled={updateGameSystemMutation.isPending}
+                  size="lg"
+                  className="bg-green-600 hover:bg-green-700 px-8"
+                  data-testid="button-save-changes"
+                >
+                  {updateGameSystemMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  Save Changes
+                </Button>
+              </div>
+              
+              {/* Unsaved Changes Warning */}
+              {uploadedAssets.length > (systemData?.assetLibrary?.assets?.length || 0) && (
+                <Alert>
+                  <Save className="h-4 w-4" />
+                  <AlertDescription>
+                    You have uploaded new assets. Click <strong>"Save Changes"</strong> above to make them available for deck creation.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {/* Assets Tab */}
@@ -878,7 +913,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   <AlertDescription>
                     Create and manage card decks for your game system. 
                     <strong>Step 1:</strong> Switch to the "Assets" tab and upload card images to the "Cards" category. 
-                    <strong>Step 2:</strong> Return here to create decks using those cards.
+                    <strong>Step 2:</strong> Click "Save Changes" to persist your uploads. 
+                    <strong>Step 3:</strong> Return here to create decks using those cards.
                   </AlertDescription>
                 </Alert>
                 
