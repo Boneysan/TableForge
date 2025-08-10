@@ -13,6 +13,7 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Enhanced Tag Input System (August 10, 2025)**: Implemented sophisticated tagging interface with preset suggestions organized by Game Types, Mechanics, Themes, Player Count, Complexity, and Time duration. Supports bulk tag entry via comma-separated lists, semicolon-separated lists, and vertical lists (newline-separated). Smart paste detection automatically processes multiple tags from clipboard.
 - **Game System Edit Feature (August 10, 2025)**: Added comprehensive editing capabilities for existing game systems. Users can now update system details, modify tags, add/remove assets by category, and delete systems. Edit functionality accessible from admin dashboard with full CRUD operations.
 - **Complete Deck Creation & Management System (August 10, 2025)**: Implemented full deck creation workflow with naming, card back selection, and visual card management. Features include: named deck creation with descriptions, custom card back selection from uploaded assets, visual card selection interface with click-to-toggle, deck preview displays with card count and custom back indicators, and complete deck lifecycle management from creation to deletion.
+- **Upload System Fixes (August 10, 2025)**: Resolved upload failures by standardizing endpoint to `/api/objects/upload`, fixing authentication token parsing, and enhancing error handling. Upload system now successfully handles 10 files per batch with 10MB file limit and proper Firebase authentication.
 
 # User Preferences
 
