@@ -646,7 +646,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   <ObjectUploader
                     onGetUploadParameters={handleGetUploadParameters}
                     onComplete={handleUploadComplete}
-                    maxNumberOfFiles={10}
+                    maxNumberOfFiles={50}
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     Upload {assetCategories.find(c => c.id === selectedCategory)?.name}
