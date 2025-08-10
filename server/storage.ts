@@ -794,17 +794,19 @@ export class DatabaseStorage implements IStorage {
           // Create card piles for the deck if it has cards
           if (deckData.cardAssets && Array.isArray(deckData.cardAssets)) {
             // Create main deck pile
+            // Build cardOrder array with asset IDs
+            const cardOrder = deckData.cardAssets.map((asset: any) => {
+              const assetId = createdAssets.get(asset.url || asset.filePath);
+              return assetId || asset.id;
+            }).filter(Boolean);
+
             await this.createCardPile({
               roomId,
               name: `${deckData.name} - Main`,
               positionX: Math.floor(Math.random() * 200 + 100),
               positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'deck',
-              cards: deckData.cardAssets.map((asset: any) => ({
-                url: asset.url || asset.filePath,
-                name: asset.name,
-                type: asset.type || 'image'
-              })),
+              cardOrder: cardOrder,
               isShuffled: false,
               visibility: 'public',
             });
@@ -816,7 +818,7 @@ export class DatabaseStorage implements IStorage {
               positionX: Math.floor(Math.random() * 200 + 300),
               positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'discard',
-              cards: [],
+              cardOrder: [],
               isShuffled: false,
               visibility: 'public',
             });

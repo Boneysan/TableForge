@@ -914,6 +914,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fix deck spots for Wrong Party game system
+  app.patch("/api/rooms/:roomId/fix-deck-spots", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
+
+      // Verify user has admin privileges
+      const userRole = await storage.getPlayerRole(roomId, userId);
+      if (userRole !== 'admin') {
+        return res.status(403).json({ error: "Only admins can fix deck spots" });
+      }
+
+      console.log(`[Fix Deck Spots] Admin ${userId} fixing deck spots for room ${roomId}`);
+
+      // Get all assets in the room
+      const assets = await storage.getGameAssets(roomId);
+      const assetsByName = new Map<string, string>();
+      assets.forEach((asset: any) => {
+        assetsByName.set(asset.name, asset.id);
+      });
+
+      // Get all card piles in the room
+      const piles = await storage.getCardPiles(roomId);
+      
+      // Define Wrong Party deck mappings
+      const partyThemeCards = [
+        "Masquerade.jpg", "Ugly Sweater.jpg", "Formal Dinner.jpg", "Birthday Party.jpg", 
+        "Family Reunion.jpg", "Sleepover.jpg", "Revolution.jpg", "Royal Wedding.jpg", 
+        "Debate Night.jpg", "State Dinner.jpg", "Political Scandal.jpg", "Saving the Kingdom.jpg", 
+        "Training for Battl.jpg", "Slaying the Dragon.jpg", "Begining a quest.jpg", 
+        "80's.jpg", "Halloween Party.jpg", "Murder Mystery.jpg", "Seeking Magical Aritifact.jpg", "Rave.jpg"
+      ];
+
+      const partyGuestCards = [
+        "Goth Kid.png", "Inflatable Trex.png", "Please leave steve.png", "Chatty Kathy.png", 
+        "80's Aerobics.png", "Casual Plant.png", "Alien not in disguise.png", "Sports Mascot.png", 
+        "Happy the clown.png", "Crash the creepy Monkey.png", "Tattoo Artist.png", "Sugar Addict.png", 
+        "Bunny Dressed as a Kitty.png", "Mall Cop.png", "Deviled Egg.png", "Bear in a white shirt.png", 
+        "Kitty Dressed as a bunny.png", "Basic Witch.png", "Little Princess.png", "Sheet Ghost.png", 
+        "Guy Fox.png", "Actual Ghost.png", "Guy with the Longest Beard.png", "Philanthorpic Bilion.png", 
+        "Knight in Shining Armore.png", "Mall Santa.png", "Vampire.png", "Designated Driver.png", 
+        "Queen Elizardbeth.png", "Mr Fuzzims.png", "Grandma.png", "Party Planner2.png", "Party Planner.png"
+      ];
+
+      let updatedPiles = 0;
+
+      for (const pile of piles) {
+        let cardOrder: string[] = [];
+
+        if (pile.name === "Party Themes - Main") {
+          // Map theme cards to asset IDs
+          cardOrder = partyThemeCards
+            .map(cardName => assetsByName.get(cardName))
+            .filter(Boolean);
+          console.log(`[Fix Deck Spots] Party Themes pile will get ${cardOrder.length} cards`);
+        } else if (pile.name === "Party Guests - Main") {
+          // Map guest cards to asset IDs
+          cardOrder = partyGuestCards
+            .map(cardName => assetsByName.get(cardName))
+            .filter(Boolean);
+          console.log(`[Fix Deck Spots] Party Guests pile will get ${cardOrder.length} cards`);
+        }
+
+        if (cardOrder.length > 0) {
+          await storage.updateCardPile(pile.id, { cardOrder });
+          updatedPiles++;
+          console.log(`[Fix Deck Spots] Updated pile ${pile.name} with ${cardOrder.length} cards`);
+        }
+      }
+
+      console.log(`[Fix Deck Spots] Successfully updated ${updatedPiles} deck spots`);
+      res.json({ 
+        success: true, 
+        message: `Fixed ${updatedPiles} deck spots with proper card mappings`,
+        updatedPiles 
+      });
+    } catch (error) {
+      console.error("Error fixing deck spots:", error);
+      res.status(500).json({ error: "Failed to fix deck spots" });
+    }
+  });
+
   // Update deck theme
   app.put('/api/rooms/:roomId/decks/:deckId/theme', hybridAuthMiddleware, async (req: any, res) => {
     try {

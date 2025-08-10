@@ -60,6 +60,8 @@ export default function GameRoom() {
   // Debug logging (after assets are initialized)
   console.log('wasJoiningRoom:', wasJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
   console.log(`🏠 [GameRoom] Assets loaded: ${(assets as GameAsset[])?.length || 0}`);
+  console.log(`🎴 [GameRoom] Card decks loaded: ${Array.isArray(cardDecks) ? cardDecks.length : 0}`, Array.isArray(cardDecks) ? cardDecks.slice(0, 3) : []);
+  console.log(`🗂️ [GameRoom] Card piles loaded: ${Array.isArray(cardPiles) ? cardPiles.length : 0}`, Array.isArray(cardPiles) ? cardPiles.slice(0, 3) : []);
 
   // WebSocket for real-time updates
   const { sendMessage, connected, websocket } = useWebSocket({
