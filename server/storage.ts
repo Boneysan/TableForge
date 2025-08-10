@@ -797,8 +797,8 @@ export class DatabaseStorage implements IStorage {
             await this.createCardPile({
               roomId,
               name: `${deckData.name} - Main`,
-              positionX: Math.random() * 200 + 100,
-              positionY: Math.random() * 200 + 100,
+              positionX: Math.floor(Math.random() * 200 + 100),
+              positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'deck',
               cards: deckData.cardAssets.map((asset: any) => ({
                 url: asset.url || asset.filePath,
@@ -813,8 +813,8 @@ export class DatabaseStorage implements IStorage {
             await this.createCardPile({
               roomId,
               name: `${deckData.name} - Discard`,
-              positionX: Math.random() * 200 + 300,
-              positionY: Math.random() * 200 + 100,
+              positionX: Math.floor(Math.random() * 200 + 300),
+              positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'discard',
               cards: [],
               isShuffled: false,
