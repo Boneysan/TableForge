@@ -143,8 +143,22 @@ export function BulkUploader({
         setProgress(progressPercent);
         
         // Call batch completion callback
+        console.log('🔧 [BulkUploader] Calling onBatchComplete with result:', {
+          successful: result.successful?.length || 0,
+          failed: result.failed?.length || 0,
+          batchIndex: i,
+          hasCallback: !!onBatchComplete
+        });
+        
         if (onBatchComplete) {
-          onBatchComplete(result);
+          try {
+            onBatchComplete(result);
+            console.log('✅ [BulkUploader] onBatchComplete called successfully');
+          } catch (error) {
+            console.error('❌ [BulkUploader] onBatchComplete failed:', error);
+          }
+        } else {
+          console.log('⚠️ [BulkUploader] No onBatchComplete callback provided');
         }
         
         // Small delay between batches to be gentle on the server
@@ -166,8 +180,21 @@ export function BulkUploader({
     uppy.clear();
     
     // Call completion callback
+    console.log('🎯 [BulkUploader] Calling onAllComplete with total:', {
+      totalUploaded: uploaded,
+      totalFailed: failed,
+      hasCallback: !!onAllComplete
+    });
+    
     if (onAllComplete) {
-      onAllComplete(uploaded);
+      try {
+        onAllComplete(uploaded);
+        console.log('✅ [BulkUploader] onAllComplete called successfully');
+      } catch (error) {
+        console.error('❌ [BulkUploader] onAllComplete failed:', error);
+      }
+    } else {
+      console.log('⚠️ [BulkUploader] No onAllComplete callback provided');
     }
     
     // Auto-close modal after successful bulk upload
