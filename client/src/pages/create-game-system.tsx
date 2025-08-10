@@ -52,14 +52,14 @@ export default function CreateGameSystem() {
   // Handle asset upload
   const handleAssetUpload = async () => {
     try {
-      const response = await authenticatedApiRequest("GET", "/api/upload/presigned-url");
+      const response = await authenticatedApiRequest("POST", "/api/objects/upload");
       if (!response.ok) {
         throw new Error("Failed to get upload parameters");
       }
       const data = await response.json();
       return {
         method: "PUT" as const,
-        url: data.uploadUrl,
+        url: data.uploadURL,
       };
     } catch (error) {
       console.error("Error getting upload parameters:", error);

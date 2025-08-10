@@ -240,10 +240,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", async (req, res) => {
-    const objectStorageService = new ObjectStorageService();
-    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-    res.json({ uploadURL });
+  app.post("/api/objects/upload", hybridAuthMiddleware, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
   });
 
   // Auth routes
@@ -1257,7 +1262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Player Score Management
-  app.patch("/api/rooms/:roomId/players/:playerId/score", async (req, res) => {
+  app.patch("/api/rooms/:roomId/players/:playerId/score", hybridAuthMiddleware, async (req: any, res) => {
     try {
       const roomId = req.params.roomId;
       const playerId = req.params.playerId;
@@ -1267,9 +1272,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Score must be a number" });
       }
 
+      // Get user ID from auth middleware
+      const userId = req.user?.uid || req.user?.id || req.user?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
       // Verify user has permission (must be admin or the player themselves)
-      const userRole = await storage.getPlayerRole(roomId, req.user.uid);
-      if (userRole !== 'admin' && req.user.uid !== playerId) {
+      const userRole = await storage.getPlayerRole(roomId, userId);
+      if (userRole !== 'admin' && userId !== playerId) {
         return res.status(403).json({ error: "Unauthorized" });
       }
 
