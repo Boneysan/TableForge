@@ -263,13 +263,13 @@ export function SimplePlayerInterface({
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Game Board Area */}
-        <div className="lg:col-span-3">
-          <Card>
+        <div className="lg:col-span-3 w-full">
+          <Card className="w-full">
             <CardHeader>
               <CardTitle className="text-gray-100">Game Board</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="overflow-auto max-h-[80vh] border rounded-lg">
+              <div className="overflow-auto max-h-[80vh] w-full border rounded-lg">
                 <GameBoard
                   assets={roomAssets}
                   boardAssets={boardAssets}

@@ -110,9 +110,14 @@ export function GameBoard({
 
   return (
     <div 
-      className="bg-gray-800 rounded-lg relative overflow-hidden"
+      className={`bg-gray-800 rounded-lg relative overflow-hidden ${
+        playerRole === 'player' ? 'w-full' : ''
+      }`}
       data-testid={testId}
-      style={{ width: boardWidth, height: boardHeight, minWidth: boardWidth, minHeight: boardHeight }}
+      style={playerRole === 'player' ? 
+        { height: boardHeight, minHeight: boardHeight } : 
+        { width: boardWidth, height: boardHeight, minWidth: boardWidth, minHeight: boardHeight }
+      }
     >
       {/* Background Layer */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-green-800"></div>
