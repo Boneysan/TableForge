@@ -45,6 +45,7 @@ export default function CreateGameSystem() {
   const [isPublic, setIsPublic] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
 
@@ -89,15 +90,36 @@ export default function CreateGameSystem() {
   };
 
   // Handle tag management
-  const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
+  // Preset tag suggestions categorized by type
+  const tagSuggestions = {
+    "Game Types": ["strategy", "card-game", "board-game", "rpg", "party-game", "cooperative", "competitive", "abstract"],
+    "Mechanics": ["deck-building", "area-control", "worker-placement", "dice-rolling", "tile-placement", "trading", "resource-management", "drafting"],
+    "Themes": ["fantasy", "sci-fi", "medieval", "modern", "historical", "horror", "adventure", "mystery", "war", "space"],
+    "Player Count": ["solo", "2-player", "3-4-players", "5+ players", "party-size"],
+    "Complexity": ["beginner", "family", "intermediate", "advanced", "expert"],
+    "Time": ["quick", "30-min", "60-min", "90+ min", "epic"]
+  };
+
+  const addTag = (tag?: string) => {
+    const tagToAdd = tag || newTag.trim();
+    if (tagToAdd && !tags.includes(tagToAdd.toLowerCase())) {
+      setTags([...tags, tagToAdd.toLowerCase()]);
       setNewTag("");
+      setShowTagSuggestions(false);
     }
   };
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleTagInputKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag();
+    } else if (e.key === 'Escape') {
+      setShowTagSuggestions(false);
+    }
   };
 
   const removeAsset = (indexToRemove: number) => {
@@ -244,33 +266,102 @@ export default function CreateGameSystem() {
             <CardTitle>Tags</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add a tag..."
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                data-testid="input-new-tag"
-              />
-              <Button onClick={addTag} size="sm" data-testid="button-add-tag">
-                <Plus className="w-4 h-4" />
-              </Button>
+            <p className="text-sm text-gray-600">Add tags to help players discover your game system</p>
+            
+            {/* Current Tags */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {tags.map((tag, index) => (
+                <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  {tag}
+                  <X 
+                    className="w-3 h-3 cursor-pointer" 
+                    onClick={() => removeTag(tag)}
+                    data-testid={`remove-tag-${tag}`}
+                  />
+                </Badge>
+              ))}
+              {tags.length === 0 && (
+                <span className="text-gray-400 text-sm">No tags added yet</span>
+              )}
             </div>
             
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                    {tag}
-                    <X 
-                      className="w-3 h-3 cursor-pointer" 
-                      onClick={() => removeTag(tag)}
-                      data-testid={`button-remove-tag-${index}`}
-                    />
-                  </Badge>
-                ))}
+            {/* Tag Input */}
+            <div className="relative">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Type a tag or browse suggestions..."
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={handleTagInputKeyPress}
+                  onFocus={() => setShowTagSuggestions(true)}
+                  data-testid="input-new-tag"
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => addTag()}
+                  disabled={!newTag.trim()}
+                  data-testid="button-add-tag"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowTagSuggestions(!showTagSuggestions)}
+                  data-testid="button-toggle-suggestions"
+                >
+                  Suggestions
+                </Button>
               </div>
-            )}
+              
+              {/* Tag Suggestions Dropdown */}
+              {showTagSuggestions && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                  <div className="p-3">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-medium text-sm">Popular Tags</h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTagSuggestions(false)}
+                        className="h-6 w-6 p-0"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    
+                    {Object.entries(tagSuggestions).map(([category, categoryTags]) => (
+                      <div key={category} className="mb-4 last:mb-0">
+                        <h5 className="text-xs font-medium text-gray-500 mb-2">{category}</h5>
+                        <div className="flex flex-wrap gap-1">
+                          {categoryTags.map((tag) => (
+                            <button
+                              key={tag}
+                              className={`px-2 py-1 text-xs rounded-md border transition-colors
+                                ${tags.includes(tag) 
+                                  ? 'bg-blue-100 border-blue-300 text-blue-700 cursor-not-allowed' 
+                                  : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
+                                }`}
+                              onClick={() => addTag(tag)}
+                              disabled={tags.includes(tag)}
+                              data-testid={`suggestion-tag-${tag}`}
+                            >
+                              {tag} {tags.includes(tag) && '✓'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Tag Helper Text */}
+            <div className="text-xs text-gray-500">
+              Press Enter to add a tag • Use suggestions above or create your own • Tags help players find games they'll enjoy
+            </div>
           </CardContent>
         </Card>
 

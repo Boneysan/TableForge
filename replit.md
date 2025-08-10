@@ -10,6 +10,7 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Improved Database Queries**: Enhanced admin room queries with JOIN operations to fetch creator details from both Firebase and Replit user accounts
 - **Streamlined Router Configuration**: Simplified authentication-based routing for better reliability and user experience
 - **Create Game System Feature (August 9, 2025)**: Added comprehensive game system creation with categorized asset uploads (Cards, Tokens, Maps, Rules), accessible from home page and admin dashboard
+- **Enhanced Tag Input System (August 10, 2025)**: Implemented sophisticated tagging interface with preset suggestions organized by Game Types, Mechanics, Themes, Player Count, Complexity, and Time duration
 
 # User Preferences
 
