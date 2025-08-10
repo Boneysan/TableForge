@@ -160,8 +160,24 @@ export const firebaseAuthMiddleware = async (req: Request, res: Response, next: 
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const idToken = authHeader.split('Bearer ')[1];
+  const tokenParts = authHeader.split(' ');
+  console.log("🔐 [Firebase Middleware] Auth header parts:", tokenParts.length);
+  console.log("🔐 [Firebase Middleware] Auth header part 0:", tokenParts[0]);
+  console.log("🔐 [Firebase Middleware] Auth header part 1 length:", tokenParts[1]?.length || 0);
+  
+  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+    console.log("❌ [Firebase Middleware] Invalid authorization header format");
+    return res.status(401).json({ message: "Invalid authorization header format" });
+  }
+  
+  const idToken = tokenParts[1];
   console.log("🔐 [Firebase Middleware] Extracted token length:", idToken?.length || 0);
+  console.log("🔐 [Firebase Middleware] Token preview:", idToken?.substring(0, 50) + "...");
+  
+  if (!idToken || idToken.length < 100) {
+    console.log("❌ [Firebase Middleware] Token is too short or missing");
+    return res.status(401).json({ message: "Token is too short or missing" });
+  }
   
   try {
     const user = await verifyFirebaseToken(idToken);

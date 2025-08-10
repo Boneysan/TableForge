@@ -85,22 +85,20 @@ export async function authenticatedApiRequest(
     console.log("🌐 [API Request] Response headers:", Object.fromEntries(response.headers.entries()));
     console.log("🌐 [API Request] Response ok:", response.ok);
     
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ [API Request] Request failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText
+      });
+      throw new Error(`${response.status}: ${response.statusText} - ${errorText}`);
+    }
+    
+    console.log("✅ [API Request] Request successful");
     return response;
   } catch (error) {
     console.error("❌ [API Request] Fetch failed:", error);
     throw error;
   }
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("❌ [API Request] Request failed:", {
-      status: response.status,
-      statusText: response.statusText,
-      errorText: errorText
-    });
-    throw new Error(`${response.status}: ${errorText}`);
-  }
-  
-  console.log("✅ [API Request] Request successful");
-  return response;
 }
