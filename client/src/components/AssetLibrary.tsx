@@ -32,6 +32,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
       console.log(`🖼️ [AssetLibrary] Loaded ${assets.length} assets`);
       console.log(`🖼️ [AssetLibrary] First 3 assets:`, assets.slice(0, 3));
       console.log(`🖼️ [AssetLibrary] Sample filePaths:`, assets.slice(0, 3).map(a => a.filePath));
+      console.log(`🖼️ [AssetLibrary] Asset types:`, assets.slice(0, 5).map(a => ({ name: a.name, type: a.type })));
     } else {
       console.log(`🖼️ [AssetLibrary] No assets loaded yet`);
     }
