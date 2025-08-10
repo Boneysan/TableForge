@@ -224,6 +224,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Image proxy endpoint to serve private Google Cloud Storage images (no auth needed)
+  app.get("/api/image-proxy", async (req: any, res) => {
+    try {
+      const { url } = req.query;
+      if (!url) {
+        return res.status(400).json({ error: "URL parameter is required" });
+      }
+
+      // Validate URL is from our Google Cloud Storage
+      if (!url.includes('storage.googleapis.com') || !url.includes('.private/uploads/')) {
+        return res.status(400).json({ error: "Invalid URL" });
+      }
+
+      console.log(`🖼️ Proxying image: ${url}`);
+
+      // Extract bucket and object path from URL
+      const urlParts = url.split('/');
+      const bucketIndex = urlParts.findIndex((part: string) => part.includes('storage.googleapis.com')) + 1;
+      const bucketName = urlParts[bucketIndex];
+      const objectPath = urlParts.slice(bucketIndex + 1).join('/');
+
+      console.log(`🖼️ Bucket: ${bucketName}, Object: ${objectPath}`);
+
+      // Get the file from Google Cloud Storage
+      const objectStorageService = new ObjectStorageService();
+      const storage = objectStorageService.getStorageClient();
+      const file = storage.bucket(bucketName).file(objectPath);
+      
+      // Check if file exists
+      const [exists] = await file.exists();
+      if (!exists) {
+        console.log(`❌ File not found: ${objectPath}`);
+        return res.status(404).json({ error: "File not found" });
+      }
+
+      // Get file metadata
+      const [metadata] = await file.getMetadata();
+      console.log(`✅ File found, size: ${metadata.size}, contentType: ${metadata.contentType}`);
+
+      // Set appropriate headers
+      res.set({
+        'Content-Type': metadata.contentType || 'image/jpeg',
+        'Content-Length': metadata.size,
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+      });
+
+      // Stream the file to the response
+      const stream = file.createReadStream();
+      stream.on('error', (error: any) => {
+        console.error(`❌ Stream error for ${objectPath}:`, error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: "Failed to stream file" });
+        }
+      });
+
+      stream.pipe(res);
+      console.log(`✅ Streaming ${objectPath} to client`);
+
+    } catch (error) {
+      console.error("❌ Error in image proxy:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to proxy image" });
+      }
+    }
+  });
+
   // Object Storage Routes
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
@@ -525,6 +591,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to get upload URL" });
     }
   });
+
+
 
   app.delete("/api/assets/:id", async (req, res) => {
     try {

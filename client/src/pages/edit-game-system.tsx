@@ -419,6 +419,14 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     return uploadedAssets.filter(asset => asset.category === category);
   };
 
+  // Helper function to get proxied image URL for private Google Cloud Storage URLs
+  const getProxiedImageUrl = (originalUrl: string) => {
+    if (originalUrl.includes('storage.googleapis.com') && originalUrl.includes('.private/uploads/')) {
+      return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
+    }
+    return originalUrl;
+  };
+
   if (isLoadingSystem) {
     return (
       <div className="min-h-screen bg-background p-6 flex items-center justify-center">
@@ -1029,7 +1037,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                             onClick={() => setSelectedCardBack(isSelected ? null : card.url)}
                                           >
                                             <img 
-                                              src={card.url} 
+                                              src={getProxiedImageUrl(card.url)} 
                                               alt={card.name}
                                               className="w-full h-12 object-cover rounded"
                                               onLoad={() => console.log(`✅ Card back loaded: ${card.name}`, card.url)}
@@ -1096,7 +1104,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                         onClick={() => toggleCardSelection(card.url)}
                                       >
                                         <img 
-                                          src={card.url} 
+                                          src={getProxiedImageUrl(card.url)} 
                                           alt={card.name}
                                           className="w-full h-20 object-cover rounded"
                                           onLoad={() => console.log(`✅ Card loaded: ${card.name}`, card.url)}
@@ -1175,7 +1183,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                           {getAssetsByCategory('cards').map((card, index) => (
                             <div key={index} className="border rounded-lg p-2">
                               <img 
-                                src={card.url} 
+                                src={getProxiedImageUrl(card.url)} 
                                 alt={card.name}
                                 className="w-full h-24 object-cover rounded mb-2"
                                 onError={(e) => {
@@ -1234,7 +1242,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
               </DialogHeader>
               <div className="flex justify-center">
                 <img 
-                  src={previewCard.url} 
+                  src={getProxiedImageUrl(previewCard.url)} 
                   alt={previewCard.name}
                   className="max-w-full max-h-96 object-contain rounded"
                   onError={(e) => {
