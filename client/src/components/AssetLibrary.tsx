@@ -25,6 +25,15 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   const { toast } = useToast();
   const { dragStart } = useDragAndDrop();
 
+  // Debug logging for assets
+  React.useEffect(() => {
+    if (assets.length > 0) {
+      console.log(`🖼️ [AssetLibrary] Loaded ${assets.length} assets`);
+      console.log(`🖼️ [AssetLibrary] First 3 assets:`, assets.slice(0, 3));
+      console.log(`🖼️ [AssetLibrary] Sample filePaths:`, assets.slice(0, 3).map(a => a.filePath));
+    }
+  }, [assets]);
+
   const createAssetMutation = useMutation({
     mutationFn: async (data: {
       roomId: string;
@@ -119,9 +128,13 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   };
 
   const getProxiedImageUrl = (originalUrl: string) => {
+    console.log(`🖼️ [AssetLibrary] Processing URL: ${originalUrl}`);
     if (originalUrl.includes('storage.googleapis.com') && originalUrl.includes('.private/uploads/')) {
-      return `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
+      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
+      console.log(`🔄 [AssetLibrary] Using proxy URL: ${proxiedUrl}`);
+      return proxiedUrl;
     }
+    console.log(`✅ [AssetLibrary] Using direct URL: ${originalUrl}`);
     return originalUrl;
   };
 
@@ -244,12 +257,15 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                           alt={asset.name}
                           className="w-12 h-12 rounded object-cover mr-3"
                           onError={(e) => {
-                            console.error(`Failed to load image for ${asset.name}:`, asset.filePath);
                             const target = e.target as HTMLImageElement;
+                            console.error(`❌ [AssetLibrary] Failed to load image for ${asset.name}`);
+                            console.error(`❌ [AssetLibrary] Original URL: ${asset.filePath}`);
+                            console.error(`❌ [AssetLibrary] Attempted URL: ${target.src}`);
+                            console.error(`❌ [AssetLibrary] Error event:`, e);
                             target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjNEI1NTYzIi8+CjxwYXRoIGQ9Ik0xNiA5QzEyLjEzNCA5IDkgMTIuMTM0IDkgMTZTMTIuMTM0IDIzIDE2IDIzUzIzIDE5Ljg2NiAyMyAxNlMxOS44NjYgOSAxNiA5Wk0xNiAyMUMxMy4yMzkgMjEgMTEgMTguNzYxIDExIDE2UzEzLjIzOSAxMSAxNiAxMVMxOSAxMy4yMzkgMTkgMTZTMTguNzYxIDIxIDE2IDIxWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
                           }}
                           onLoad={() => {
-                            console.log(`Successfully loaded image for ${asset.name}`);
+                            console.log(`✅ [AssetLibrary] Successfully loaded image for ${asset.name}`);
                           }}
                         />
                         <div className="flex-1">

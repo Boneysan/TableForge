@@ -227,17 +227,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image proxy endpoint to serve private Google Cloud Storage images (no auth needed)
   app.get("/api/image-proxy", async (req: any, res) => {
     try {
+      console.log(`🖼️ [Image Proxy] ===== NEW REQUEST =====`);
+      console.log(`🖼️ [Image Proxy] Query params:`, req.query);
+      console.log(`🖼️ [Image Proxy] Headers:`, req.headers);
+      
       const { url } = req.query;
       if (!url) {
+        console.log(`❌ [Image Proxy] Missing URL parameter`);
         return res.status(400).json({ error: "URL parameter is required" });
       }
 
+      console.log(`🖼️ [Image Proxy] Received URL: ${url}`);
+
       // Validate URL is from our Google Cloud Storage
       if (!url.includes('storage.googleapis.com') || !url.includes('.private/uploads/')) {
+        console.log(`❌ [Image Proxy] Invalid URL - not from GCS private uploads`);
         return res.status(400).json({ error: "Invalid URL" });
       }
 
-      console.log(`🖼️ Proxying image: ${url}`);
+      console.log(`🖼️ [Image Proxy] URL validation passed, proxying: ${url}`);
 
       // Extract bucket and object path from URL
       const urlParts = url.split('/');
