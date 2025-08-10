@@ -290,7 +290,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/game-systems"] });
       queryClient.invalidateQueries({ queryKey: ["/api/game-systems"] });
       queryClient.invalidateQueries({ queryKey: ["/api/systems", systemId] });
-      setLocation("/admin");
+      // Stay on the edit page after saving
     },
     onError: (error: any) => {
       toast({
@@ -1060,15 +1060,17 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
           </CardContent>
         </Card>
 
-        {/* Save Button */}
-        <div className="flex justify-end gap-3">
+        {/* Action Buttons */}
+        <div className="flex justify-between items-center">
           <Button
             variant="outline"
             onClick={() => setLocation("/admin")}
-            data-testid="button-cancel"
+            data-testid="button-back-to-admin"
           >
-            Cancel
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Admin
           </Button>
+          
           <Button
             onClick={handleSave}
             disabled={updateGameSystemMutation.isPending || !name.trim()}
@@ -1077,12 +1079,12 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
             {updateGameSystemMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Updating...
+                Saving...
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Update Game System
+                Save Changes
               </>
             )}
           </Button>
