@@ -80,14 +80,21 @@ export function GameBoard({
   // Board size mutation - only for admins
   const updateBoardSizeMutation = useMutation({
     mutationFn: async ({ width, height }: { width: number; height: number }) => {
+      console.log(`[GameBoard] Updating board size to ${width}x${height}`);
       const response = await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/board-size`, {
         width,
         height,
       });
-      return response.json();
+      const result = await response.json();
+      console.log(`[GameBoard] Board size update response:`, result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(`[GameBoard] Board size updated successfully:`, data);
       queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId] });
+    },
+    onError: (error) => {
+      console.error(`[GameBoard] Board size update failed:`, error);
     },
   });
 

@@ -820,11 +820,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { roomId } = req.params;
       const { width, height } = req.body;
       const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
-      console.log(`[Board Size] Extracted user ID: ${userId} from req.user:`, req.user);
 
       // Validate user has admin role in the room
       const userRole = await storage.getPlayerRole(roomId, userId);
-      console.log(`[Board Size] User ${userId} role in room ${roomId}: ${userRole}`);
+      console.log(`[Board Size] User ${userId} requesting board size change to ${width}x${height} in room ${roomId}. Role: ${userRole}`);
       if (userRole !== 'admin') {
         return res.status(403).json({ error: "Only admins can change board size" });
       }
@@ -835,6 +834,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const room = await storage.updateRoomBoardSize(roomId, width, height);
+      console.log(`[Board Size] Successfully updated room ${roomId} board size to ${width}x${height}`);
       res.json(room);
     } catch (error) {
       console.error("Error updating board size:", error);

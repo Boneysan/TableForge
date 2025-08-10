@@ -817,11 +817,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateRoomBoardSize(roomId: string, width: number, height: number): Promise<GameRoom> {
+    console.log(`[Storage] Updating room ${roomId} board size to ${width}x${height}`);
     const [room] = await db
       .update(gameRooms)
       .set({ boardWidth: width, boardHeight: height })
       .where(eq(gameRooms.id, roomId))
       .returning();
+    console.log(`[Storage] Board size updated. New room data:`, { 
+      id: room.id, 
+      boardWidth: room.boardWidth, 
+      boardHeight: room.boardHeight 
+    });
     return room;
   }
 }
