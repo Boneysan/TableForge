@@ -732,7 +732,9 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                 <Alert>
                   <CreditCard className="h-4 w-4" />
                   <AlertDescription>
-                    Create and manage card decks for your game system. Upload card images to the "Cards" category above, then create decks using those cards here.
+                    Create and manage card decks for your game system. 
+                    <strong>Step 1:</strong> Switch to the "Assets" tab and upload card images to the "Cards" category. 
+                    <strong>Step 2:</strong> Return here to create decks using those cards.
                   </AlertDescription>
                 </Alert>
                 
@@ -745,7 +747,12 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   
                   {/* Debug Information */}
                   <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
-                    Debug: Decks array length: {decks.length} | Card assets: {getAssetsByCategory('cards').length}
+                    Debug: Decks array length: {decks.length} | Card assets: {getAssetsByCategory('cards').length} | Total assets: {uploadedAssets.length}
+                    {uploadedAssets.length > 0 && (
+                      <div className="mt-1">
+                        Assets by category: {assetCategories.map(cat => `${cat.name}: ${getAssetsByCategory(cat.id).length}`).join(', ')}
+                      </div>
+                    )}
                   </div>
                   
                   {getAssetsByCategory('cards').length === 0 ? (
