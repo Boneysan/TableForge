@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft, Hand } from "lucide-react";
+import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft, Hand, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { ChatComponent } from "./ChatComponent";
 import { ThemeToggle } from "./ThemeToggle";
 import { PlayerScoreboard } from "./PlayerScoreboard";
 import { GameBoard } from "./GameBoard";
+import { GameRulesViewer } from "./GameRulesViewer";
 import { useLocation } from "wouter";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayerWithName, User } from "@shared/schema";
 
@@ -246,6 +247,20 @@ export function SimplePlayerInterface({
             <span className="text-white text-sm">
               {connected ? 'Connected' : 'Disconnected'}
             </span>
+            <GameRulesViewer 
+              room={room} 
+              trigger={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  data-testid="button-view-rules"
+                >
+                  <Book className="w-4 h-4 mr-1" />
+                  Rules
+                </Button>
+              }
+            />
             <ThemeToggle />
             <Button
               variant="outline"

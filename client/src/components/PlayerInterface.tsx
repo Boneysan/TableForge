@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Eye, Move, RotateCw, Users, Dices } from "lucide-react";
+import { Eye, Move, RotateCw, Users, Dices, Book } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GameBoard } from "@/components/GameBoard";
 import { GameControls } from "@/components/GameControls";
+import { GameRulesViewer } from "@/components/GameRulesViewer";
 import type { GameRoom, GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
 
 interface PlayerInterfaceProps {
@@ -46,6 +47,20 @@ export function PlayerInterface({
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            <GameRulesViewer 
+              room={room} 
+              trigger={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  data-testid="button-view-rules-player"
+                >
+                  <Book className="w-4 h-4 mr-1" />
+                  Rules
+                </Button>
+              }
+            />
             <div className={`w-3 h-3 rounded-full ${connected ? 'bg-green-400' : 'bg-red-400'}`} />
             <span className="text-white text-sm">
               {connected ? 'Connected' : 'Disconnected'}
@@ -66,6 +81,7 @@ export function PlayerInterface({
             </CardHeader>
             <CardContent className="h-full p-0">
               <GameBoard
+                roomId={room.id}
                 assets={roomAssets}
                 boardAssets={boardAssets}
                 onAssetMoved={onAssetMove}
