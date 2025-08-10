@@ -59,7 +59,7 @@ export default function GameRoom() {
 
   // Debug logging (after assets are initialized)
   console.log('wasJoiningRoom:', wasJoiningRoom, 'userRole:', userRole, 'selectedView:', selectedView);
-  console.log(`🏠 [GameRoom] Assets loaded: ${assets.length}`);
+  console.log(`🏠 [GameRoom] Assets loaded: ${(assets as GameAsset[])?.length || 0}`);
 
   // WebSocket for real-time updates
   const { sendMessage, connected, websocket } = useWebSocket({
