@@ -767,14 +767,41 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                               <Card key={deck.id} className="border">
                                 <CardContent className="p-4">
                                   <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                      <h3 className="font-medium">{deck.name}</h3>
-                                      {deck.description && (
-                                        <p className="text-sm text-muted-foreground mt-1">{deck.description}</p>
-                                      )}
-                                      <Badge variant="outline" className="mt-2">
-                                        {deck.cardAssets.length} cards
-                                      </Badge>
+                                    <div className="flex-1">
+                                      <div className="flex items-start space-x-3">
+                                        {/* Card Back Preview */}
+                                        {deck.cardBack && (
+                                          <div className="flex-shrink-0">
+                                            <img 
+                                              src={deck.cardBack} 
+                                              alt="Deck back"
+                                              className="w-12 h-16 object-cover rounded border"
+                                              onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                              }}
+                                            />
+                                            <p className="text-xs text-center mt-1 text-muted-foreground">Back</p>
+                                          </div>
+                                        )}
+                                        
+                                        {/* Deck Info */}
+                                        <div className="flex-1">
+                                          <h3 className="font-medium">{deck.name}</h3>
+                                          {deck.description && (
+                                            <p className="text-sm text-muted-foreground mt-1">{deck.description}</p>
+                                          )}
+                                          <div className="flex gap-2 mt-2">
+                                            <Badge variant="outline">
+                                              {deck.cardAssets.length} cards
+                                            </Badge>
+                                            {deck.cardBack && (
+                                              <Badge variant="secondary">
+                                                Custom back
+                                              </Badge>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
                                     <Button
                                       variant="ghost"
@@ -850,6 +877,79 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                   placeholder="Brief description"
                                   data-testid="input-deck-description"
                                 />
+                              </div>
+                            </div>
+
+                            {/* Card Back Selection */}
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Label>Select Card Back (Optional)</Label>
+                                {selectedCardBack && (
+                                  <Badge variant="outline">Card back selected</Badge>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center space-x-4">
+                                {selectedCardBack ? (
+                                  <div className="flex items-center space-x-3">
+                                    <div className="relative">
+                                      <img 
+                                        src={selectedCardBack} 
+                                        alt="Selected card back"
+                                        className="w-16 h-20 object-cover rounded border"
+                                      />
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium">Card back selected</p>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setSelectedCardBack(null)}
+                                        className="h-6 px-2 text-xs"
+                                      >
+                                        Remove
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="text-sm text-muted-foreground">
+                                    No card back selected - will use default
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Card Back Selection Grid */}
+                              <div className="space-y-2">
+                                <Label className="text-xs">Available Card Backs:</Label>
+                                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 max-h-32 overflow-y-auto">
+                                  {getAssetsByCategory('cards').map((card, index) => {
+                                    const isSelected = selectedCardBack === card.url;
+                                    return (
+                                      <div 
+                                        key={`back-${index}`} 
+                                        className={`border rounded p-1 cursor-pointer transition-all ${
+                                          isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'
+                                        }`}
+                                        onClick={() => setSelectedCardBack(card.url)}
+                                        data-testid={`card-back-select-${index}`}
+                                      >
+                                        <img 
+                                          src={card.url} 
+                                          alt={card.name}
+                                          className="w-full h-12 object-cover rounded"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                          }}
+                                        />
+                                        {isSelected && (
+                                          <div className="absolute top-0 right-0 bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center text-xs">
+                                            ✓
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
                               </div>
                             </div>
 
