@@ -20,7 +20,7 @@ interface SimplePlayerInterfaceProps {
   roomAssets: GameAsset[];
   boardAssets: BoardAsset[];
   roomPlayers: RoomPlayerWithName[];
-  currentUser: User;
+  currentUser: User | null;
   websocket: WebSocket | null;
   onDiceRoll: (diceType: string, count: number) => void;
   connected: boolean;
@@ -36,12 +36,24 @@ export function SimplePlayerInterface({
   onDiceRoll,
   connected 
 }: SimplePlayerInterfaceProps) {
+  // Early return if currentUser is null
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-[#1F2937] text-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2563EB] mx-auto mb-4"></div>
+          <div>Loading user data...</div>
+        </div>
+      </div>
+    );
+  }
+  
   const [selectedDice, setSelectedDice] = useState<string>("d6");
   const [diceCount, setDiceCount] = useState<number>(1);
   const [lastRoll, setLastRoll] = useState<{ results: number[]; total: number; diceType: string; count: number } | null>(null);
   const [showNameEdit, setShowNameEdit] = useState(false);
-  const [newFirstName, setNewFirstName] = useState(currentUser.firstName || "");
-  const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
+  const [newFirstName, setNewFirstName] = useState(currentUser?.firstName || "");
+  const [newLastName, setNewLastName] = useState(currentUser?.lastName || "");
   const [showHandViewer, setShowHandViewer] = useState(false);
   
   // Placeholder hand data - in a real implementation this would come from the server

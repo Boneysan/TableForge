@@ -20,7 +20,7 @@ export default function GameRoom() {
   const queryClient = useQueryClient();
   const [userRole, setUserRole] = useState<'admin' | 'player' | null>(null);
   const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | 'player' | null>(null);
-  const currentPlayer = { id: (user as User)?.id || "unknown", name: (user as User)?.firstName || (user as User)?.email || "Player" };
+  const currentPlayer = { id: user?.id || "unknown", name: user?.firstName || user?.email || "Player" };
   
   // Check if this is a "join" navigation (from home page join button) - check on component mount
   const [wasJoiningRoom] = useState(() => sessionStorage.getItem('joining-room') === 'true');
@@ -176,7 +176,7 @@ export default function GameRoom() {
     handleDiceRolled(diceType, count, results, total);
   };
 
-  if (roomLoading || userRole === null) {
+  if (roomLoading || userRole === null || !user) {
     return (
       <div className="min-h-screen bg-[#1F2937] text-gray-100 flex items-center justify-center">
         <div className="text-center">
@@ -199,7 +199,7 @@ export default function GameRoom() {
           roomAssets={assets as GameAsset[]}
           boardAssets={boardAssets as BoardAsset[]}
           roomPlayers={roomPlayers}
-          currentUser={user as User}
+          currentUser={user}
           websocket={websocket}
           onDiceRoll={handleDiceRoll}
           connected={connected}
@@ -227,7 +227,7 @@ export default function GameRoom() {
           roomAssets={assets as GameAsset[]}
           boardAssets={boardAssets as BoardAsset[]}
           roomPlayers={roomPlayers}
-          currentUser={user as User}
+          currentUser={user}
           websocket={websocket}
           onDiceRoll={handleDiceRoll}
           connected={connected}
@@ -260,7 +260,7 @@ export default function GameRoom() {
           assets={assets as GameAsset[]}
           boardAssets={boardAssets as BoardAsset[]}
           players={roomPlayers}
-          currentUser={user as User}
+          currentUser={user}
           onAssetUploaded={refetchAssets}
           onSwitchView={() => setSelectedView('gamemaster')}
         />
@@ -272,7 +272,7 @@ export default function GameRoom() {
           assets={assets as GameAsset[]}
           boardAssets={boardAssets as BoardAsset[]}
           players={roomPlayers}
-          currentUser={user as User}
+          currentUser={user}
           websocket={websocket}
           onAssetUploaded={refetchAssets}
           onAssetPlaced={handleAssetPlaced}
@@ -290,7 +290,7 @@ export default function GameRoom() {
             roomAssets={assets as GameAsset[]}
             boardAssets={boardAssets as BoardAsset[]}
             roomPlayers={roomPlayers}
-            currentUser={user as User}
+            currentUser={user}
             websocket={websocket}
             onDiceRoll={handleDiceRoll}
             connected={connected}
