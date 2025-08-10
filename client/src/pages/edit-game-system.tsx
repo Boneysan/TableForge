@@ -55,6 +55,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
+  const [selectedTab, setSelectedTab] = useState<'assets' | 'decks'>('assets');
 
   // Fetch existing game system data
   const { data: systemData, isLoading: isLoadingSystem, error: systemError } = useQuery({
@@ -519,109 +520,214 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
           </CardContent>
         </Card>
 
-        {/* Asset Upload */}
+        {/* Asset and Deck Management */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileImage className="w-5 h-5" />
-              Manage Assets by Category
+              Asset & Deck Management
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Category Selection */}
-            <div className="space-y-3">
-              <Label>Select Asset Category</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {/* Tab Selection */}
+            <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+              <Button
+                variant={selectedTab === 'assets' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTab('assets')}
+                className="flex-1"
+                data-testid="tab-assets"
+              >
+                <FileImage className="w-4 h-4 mr-2" />
+                Assets
+              </Button>
+              <Button
+                variant={selectedTab === 'decks' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTab('decks')}
+                className="flex-1"
+                data-testid="tab-decks"
+              >
+                <CreditCard className="w-4 h-4 mr-2" />
+                Card Decks
+              </Button>
+            </div>
+
+            {/* Assets Tab */}
+            {selectedTab === 'assets' && (
+              <div className="space-y-6">
+                {/* Category Selection */}
+                <div className="space-y-3">
+                  <Label>Select Asset Category</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {assetCategories.map((category) => {
+                      const Icon = category.icon;
+                      const isSelected = selectedCategory === category.id;
+                      return (
+                        <Button
+                          key={category.id}
+                          variant={isSelected ? "default" : "outline"}
+                          onClick={() => setSelectedCategory(category.id)}
+                          className="flex flex-col h-auto p-4 text-center"
+                          data-testid={`button-category-${category.id}`}
+                        >
+                          <Icon className="w-6 h-6 mb-2" />
+                          <span className="font-medium">{category.name}</span>
+                          <span className="text-xs text-muted-foreground mt-1">
+                            {getAssetsByCategory(category.id).length} assets
+                          </span>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Upload Component */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Upload {assetCategories.find(c => c.id === selectedCategory)?.name}</h4>
+                    <Badge variant="outline">{getAssetsByCategory(selectedCategory).length} assets</Badge>
+                  </div>
+                  
+                  <ObjectUploader
+                    onGetUploadParameters={handleGetUploadParameters}
+                    onComplete={handleUploadComplete}
+                    maxNumberOfFiles={10}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload {assetCategories.find(c => c.id === selectedCategory)?.name}
+                  </ObjectUploader>
+                </div>
+
+                {/* Assets by Category */}
                 {assetCategories.map((category) => {
+                  const categoryAssets = getAssetsByCategory(category.id);
+                  if (categoryAssets.length === 0) return null;
+
                   const Icon = category.icon;
-                  const isSelected = selectedCategory === category.id;
                   return (
-                    <Button
-                      key={category.id}
-                      variant={isSelected ? "default" : "outline"}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className="flex flex-col h-auto p-4 text-center"
-                      data-testid={`button-category-${category.id}`}
-                    >
-                      <Icon className="w-6 h-6 mb-2" />
-                      <span className="font-medium">{category.name}</span>
-                      <span className="text-xs text-muted-foreground mt-1">
-                        {getAssetsByCategory(category.id).length} assets
-                      </span>
-                    </Button>
+                    <div key={category.id} className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Icon className="w-4 h-4" />
+                        <h4 className="font-medium">{category.name}</h4>
+                        <Badge variant="outline">{categoryAssets.length}</Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {categoryAssets.map((asset, index) => (
+                          <div key={index} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm truncate">{asset.name}</p>
+                                <p className="text-xs text-gray-500">{formatFileSize(asset.size)}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeAsset(uploadedAssets.indexOf(asset))}
+                                className="ml-2 h-6 w-6 p-0"
+                                data-testid={`button-remove-asset-${index}`}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                            
+                            {asset.type.startsWith('image/') && (
+                              <div className="mt-2">
+                                <img 
+                                  src={asset.url} 
+                                  alt={asset.name}
+                                  className="w-full h-20 object-cover rounded border"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-            </div>
+            )}
 
-            {/* Upload Component */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Upload {assetCategories.find(c => c.id === selectedCategory)?.name}</h4>
-                <Badge variant="outline">{getAssetsByCategory(selectedCategory).length} assets</Badge>
-              </div>
-              
-              <ObjectUploader
-                onGetUploadParameters={handleGetUploadParameters}
-                onComplete={handleUploadComplete}
-                maxNumberOfFiles={10}
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload {assetCategories.find(c => c.id === selectedCategory)?.name}
-              </ObjectUploader>
-            </div>
-
-            {/* Assets by Category */}
-            {assetCategories.map((category) => {
-              const categoryAssets = getAssetsByCategory(category.id);
-              if (categoryAssets.length === 0) return null;
-
-              const Icon = category.icon;
-              return (
-                <div key={category.id} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-4 h-4" />
-                    <h4 className="font-medium">{category.name}</h4>
-                    <Badge variant="outline">{categoryAssets.length}</Badge>
+            {/* Card Decks Tab */}
+            {selectedTab === 'decks' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Card Deck Management</h4>
+                  <Badge variant="outline">System Editor</Badge>
+                </div>
+                
+                <Alert>
+                  <CreditCard className="h-4 w-4" />
+                  <AlertDescription>
+                    Create and manage card decks for your game system. Upload card images to the "Cards" category above, then create decks using those cards here.
+                  </AlertDescription>
+                </Alert>
+                
+                {/* Simple Deck Creator for Game Systems */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-medium">Available Card Assets</h5>
+                    <Badge variant="outline">{getAssetsByCategory('cards').length} cards</Badge>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {categoryAssets.map((asset, index) => (
-                      <div key={index} className="border rounded-lg p-3">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{asset.name}</p>
-                            <p className="text-xs text-gray-500">{formatFileSize(asset.size)}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeAsset(uploadedAssets.indexOf(asset))}
-                            className="ml-2 h-6 w-6 p-0"
-                            data-testid={`button-remove-asset-${index}`}
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                        
-                        {asset.type.startsWith('image/') && (
-                          <div className="mt-2">
+                  {getAssetsByCategory('cards').length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
+                      <CreditCard className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground mb-2">No card assets uploaded yet</p>
+                      <p className="text-sm text-muted-foreground">Switch to the "Assets" tab and upload card images to get started</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-4"
+                        onClick={() => setSelectedTab('assets')}
+                      >
+                        Upload Cards
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {getAssetsByCategory('cards').map((card, index) => (
+                          <div key={index} className="border rounded-lg p-2">
                             <img 
-                              src={asset.url} 
-                              alt={asset.name}
-                              className="w-full h-20 object-cover rounded border"
+                              src={card.url} 
+                              alt={card.name}
+                              className="w-full h-24 object-cover rounded mb-2"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
                             />
+                            <p className="text-xs font-medium truncate">{card.name}</p>
                           </div>
-                        )}
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                      
+                      <div className="bg-muted p-4 rounded-lg">
+                        <h6 className="font-medium mb-2">Deck Creation</h6>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Card deck functionality will be fully integrated in the next update. For now, your uploaded card assets are stored and can be used when creating game rooms.
+                        </p>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" disabled>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Deck (Coming Soon)
+                          </Button>
+                          <Button variant="outline" size="sm" disabled>
+                            <Shuffle className="w-4 h-4 mr-2" />
+                            Import Deck (Coming Soon)
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
