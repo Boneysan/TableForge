@@ -23,7 +23,8 @@ import {
   FileText,
   Loader2,
   Trash2,
-  Shuffle
+  Shuffle,
+  Edit
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
@@ -65,6 +66,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     cardBack: string | null;
   }>>([]);
   const [showCreateDeck, setShowCreateDeck] = useState(false);
+  const [showEditDeck, setShowEditDeck] = useState(false);
+  const [editingDeckId, setEditingDeckId] = useState<string | null>(null);
   const [deckName, setDeckName] = useState("");
   const [deckDescription, setDeckDescription] = useState("");
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
@@ -247,6 +250,53 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       title: "Deck Deleted",
       description: "Deck has been removed from the system",
     });
+  };
+
+  const startEditDeck = (deck: any) => {
+    setEditingDeckId(deck.id);
+    setDeckName(deck.name);
+    setDeckDescription(deck.description || "");
+    setSelectedCards(deck.cardAssets || []);
+    setSelectedCardBack(deck.cardBack || null);
+    setShowEditDeck(true);
+  };
+
+  const saveEditDeck = () => {
+    if (!deckName.trim() || !editingDeckId) return;
+    
+    setDecks(prev => prev.map(deck => 
+      deck.id === editingDeckId 
+        ? {
+            ...deck,
+            name: deckName,
+            description: deckDescription,
+            cardAssets: selectedCards,
+            cardBack: selectedCardBack,
+          }
+        : deck
+    ));
+    
+    // Reset edit state
+    setShowEditDeck(false);
+    setEditingDeckId(null);
+    setDeckName("");
+    setDeckDescription("");
+    setSelectedCards([]);
+    setSelectedCardBack(null);
+    
+    toast({
+      title: "Deck Updated",
+      description: `Updated deck with ${selectedCards.length} cards`,
+    });
+  };
+
+  const cancelEditDeck = () => {
+    setShowEditDeck(false);
+    setEditingDeckId(null);
+    setDeckName("");
+    setDeckDescription("");
+    setSelectedCards([]);
+    setSelectedCardBack(null);
   };
 
   const toggleCardSelection = (cardUrl: string) => {
@@ -820,14 +870,26 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                         </div>
                                       </div>
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => deleteDeck(deck.id)}
-                                      data-testid={`button-delete-deck-${deck.id}`}
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
+                                    <div className="flex gap-1">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => startEditDeck(deck)}
+                                        data-testid={`button-edit-deck-${deck.id}`}
+                                        title="Edit deck"
+                                      >
+                                        <Edit className="w-4 h-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => deleteDeck(deck.id)}
+                                        data-testid={`button-delete-deck-${deck.id}`}
+                                        title="Delete deck"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
                                   </div>
                                   
                                   {/* Deck Preview */}
@@ -857,16 +919,22 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                         </div>
                       )}
 
-                      {/* Create Deck Dialog */}
-                      {showCreateDeck && (
+                      {/* Create/Edit Deck Dialog */}
+                      {(showCreateDeck || showEditDeck) && (
                         <Card className="border-primary">
                           <CardHeader>
                             <CardTitle className="flex items-center justify-between">
-                              Create New Deck
+                              {showEditDeck ? "Edit Deck" : "Create New Deck"}
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setShowCreateDeck(false)}
+                                onClick={() => {
+                                  if (showEditDeck) {
+                                    cancelEditDeck();
+                                  } else {
+                                    setShowCreateDeck(false);
+                                  }
+                                }}
                               >
                                 <X className="w-4 h-4" />
                               </Button>
@@ -1018,19 +1086,28 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                               </div>
                             </div>
 
-                            {/* Create Deck Actions */}
+                            {/* Create/Edit Deck Actions */}
                             <div className="flex gap-2 pt-4">
                               <Button
-                                onClick={createDeck}
+                                onClick={showEditDeck ? saveEditDeck : createDeck}
                                 disabled={!deckName.trim() || selectedCards.length === 0}
                                 data-testid="button-save-deck"
                               >
                                 <Save className="w-4 h-4 mr-2" />
-                                Create Deck ({selectedCards.length} cards)
+                                {showEditDeck 
+                                  ? `Update Deck (${selectedCards.length} cards)`
+                                  : `Create Deck (${selectedCards.length} cards)`
+                                }
                               </Button>
                               <Button
                                 variant="outline"
-                                onClick={() => setShowCreateDeck(false)}
+                                onClick={() => {
+                                  if (showEditDeck) {
+                                    cancelEditDeck();
+                                  } else {
+                                    setShowCreateDeck(false);
+                                  }
+                                }}
                                 data-testid="button-cancel-deck"
                               >
                                 Cancel
