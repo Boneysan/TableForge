@@ -233,7 +233,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         batchAssetsCount: newAssets.length,
         currentTotalAssets: uploadedAssets.length,
         batchNumber: batchCompletedCount + 1,
-        newAssets: newAssets.map(a => ({ name: a.name, category: a.category }))
+        newAssets: newAssets.map((a: any) => ({ name: a.name, category: a.category }))
       });
       
       setUploadedAssets(prev => {
