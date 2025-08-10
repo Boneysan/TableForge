@@ -754,6 +754,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cardBackAssetId: cardBackAssetId || null,
       }, userId);
 
+      // Automatically create a corresponding card pile on the board for this deck
+      const existingPiles = await storage.getCardPiles(roomId);
+      const pileCount = existingPiles.length;
+      
+      await storage.createCardPile({
+        roomId,
+        name: deck.name,
+        positionX: 50 + pileCount * 120, // Space them out horizontally
+        positionY: 50,
+        pileType: 'deck',
+        visibility: 'public',
+        ownerId: null,
+        cardOrder: deck.deckOrder as string[] || [],
+        faceDown: false,
+        maxCards: null,
+      });
+
       res.json(deck);
     } catch (error) {
       console.error("Error creating deck:", error);

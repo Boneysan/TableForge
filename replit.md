@@ -14,6 +14,7 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Game System Edit Feature (August 10, 2025)**: Added comprehensive editing capabilities for existing game systems. Users can now update system details, modify tags, add/remove assets by category, and delete systems. Edit functionality accessible from admin dashboard with full CRUD operations.
 - **Complete Deck Creation & Management System (August 10, 2025)**: Implemented full deck creation workflow with naming, card back selection, and visual card management. Features include: named deck creation with descriptions, custom card back selection from uploaded assets, visual card selection interface with click-to-toggle, deck preview displays with card count and custom back indicators, and complete deck lifecycle management from creation to deletion.
 - **Upload System Fixes (August 10, 2025)**: Resolved upload failures by standardizing endpoint to `/api/objects/upload`, fixing authentication token parsing, and enhancing error handling. Upload system now successfully handles 10 files per batch with 10MB file limit and proper Firebase authentication.
+- **Moveable Deck Spots on Game Board (August 10, 2025)**: Implemented visual deck spots that appear directly on the game board for each created deck. GMs can drag and reposition deck spots during gameplay with real-time position updates. Features include: automatic deck spot creation when decks are made, color-coded pile types (blue for main decks, red for discard, gray for custom), card count displays, snap-to-grid functionality, and PATCH API endpoint for position updates. Each deck automatically gets a corresponding moveable spot on the board.
 
 # User Preferences
 
@@ -59,6 +60,7 @@ Preferred communication style: Simple, everyday language.
 - **Annotation System**: Freehand drawing, sticky notes, text annotations.
 - **Asset Pipeline**: Library, upload, and builder tabs with search, filtering, tagging, and bulk operations.
 - **Complete Deck Management System**: Two-tab interface (Assets/Card Decks) with named deck creation, custom card back selection, visual card selection interface, deck preview displays, and full deck lifecycle management.
+- **Moveable Deck Spots**: Visual deck representations directly on the game board that GMs can drag and reposition during gameplay. Each deck automatically creates a corresponding board spot with real-time position synchronization.
 - **Turn & Timer System**: Turn order management, round counting, configurable timers.
 - **Game Template System**: Save/load/browse functionality for game templates, accessible from Admin and GM interfaces.
 - **Game System Creation**: Dedicated page for creating custom game systems with categorized asset uploads (Cards, Tokens, Maps, Rules) and comprehensive metadata management.
