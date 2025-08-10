@@ -751,14 +751,71 @@ export class DatabaseStorage implements IStorage {
 
     // Apply default assets from system if present
     if (system.assetLibrary) {
-      // Logic to apply default assets would go here
       console.log("System assets would be applied:", system.assetLibrary);
+      const assetLibrary = system.assetLibrary as any;
+      if (assetLibrary.assets && Array.isArray(assetLibrary.assets)) {
+        for (const assetData of assetLibrary.assets) {
+          await this.createGameAsset({
+            roomId,
+            name: assetData.name,
+            type: assetData.type || assetData.category || 'image',
+            filePath: assetData.url || assetData.filePath,
+            width: assetData.width || null,
+            height: assetData.height || null,
+          }, userId);
+        }
+      }
     }
 
     // Apply deck templates if present
     if (system.deckTemplates) {
-      // Logic to create card decks from templates would go here
       console.log("Deck templates would be applied:", system.deckTemplates);
+      const deckTemplates = system.deckTemplates as any;
+      if (deckTemplates.decks && Array.isArray(deckTemplates.decks)) {
+        for (const deckData of deckTemplates.decks) {
+          // Create the deck
+          const newDeck = await this.createCardDeck({
+            roomId,
+            name: deckData.name,
+            description: deckData.description || '',
+            deckOrder: deckData.deckOrder || 0,
+            cardBackAssetId: deckData.cardBack || null,
+          }, userId);
+
+          // Create card piles for the deck if it has cards
+          if (deckData.cardAssets && Array.isArray(deckData.cardAssets)) {
+            // Create main deck pile
+            await this.createCardPile({
+              roomId,
+              name: `${deckData.name} - Main`,
+              positionX: Math.random() * 200 + 100,
+              positionY: Math.random() * 200 + 100,
+              pileType: 'deck',
+              deckId: newDeck.id,
+              cards: deckData.cardAssets.map((asset: any) => ({
+                url: asset.url || asset.filePath,
+                name: asset.name,
+                type: asset.type || 'image'
+              })),
+              isShuffled: false,
+              visibility: 'public',
+            });
+
+            // Create discard pile for the deck
+            await this.createCardPile({
+              roomId,
+              name: `${deckData.name} - Discard`,
+              positionX: Math.random() * 200 + 300,
+              positionY: Math.random() * 200 + 100,
+              pileType: 'discard',
+              deckId: newDeck.id,
+              cards: [],
+              isShuffled: false,
+              visibility: 'public',
+            });
+          }
+        }
+      }
     }
 
     // Apply token types if present
