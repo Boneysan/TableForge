@@ -526,10 +526,13 @@ export function GameBoard({
                         });
                       } else {
                         console.log(`🃏 [Card Draw] Normal click - drawing to board from pile ${pile.id}`);
+                        // Add random offset to prevent stacking
+                        const randomOffsetX = Math.floor(Math.random() * 60) + 20; // 20-80 pixels
+                        const randomOffsetY = Math.floor(Math.random() * 60) + 20; // 20-80 pixels
                         drawCardToBoardMutation.mutate({
                           pileId: pile.id,
-                          x: pile.positionX + 30, // Offset from pile position
-                          y: pile.positionY + 30
+                          x: pile.positionX + randomOffsetX,
+                          y: pile.positionY + randomOffsetY
                         });
                       }
                     } else {
