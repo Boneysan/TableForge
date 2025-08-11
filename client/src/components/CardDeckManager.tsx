@@ -547,37 +547,41 @@ export function CardDeckManager({
                         <Label className="text-base font-semibold">Select Cards for Deck ({selectedCards.length} selected)</Label>
                         
                         {/* Selection Action Buttons */}
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <p className="text-xs text-gray-600 mb-2">Quick selection options:</p>
-                          <div className="flex flex-wrap gap-2">
+                        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                          <p className="text-sm font-medium text-yellow-800 mb-3">🚀 Quick Selection Options:</p>
+                          <div className="space-y-2">
                             <Button
                               variant="default"
-                              size="sm"
+                              size="default"
                               onClick={selectAllAvailableCards}
                               disabled={availableCardAssets.length === 0}
                               data-testid="button-select-all-available"
-                              className="bg-blue-600 hover:bg-blue-700"
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                             >
-                              ✓ Select All Available ({availableCardAssets.length})
+                              🎯 SELECT ALL {availableCardAssets.length} AVAILABLE CARDS
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={selectAllFilteredCards}
-                              disabled={filteredCardAssets.length === 0}
-                              data-testid="button-select-all-filtered"
-                            >
-                              Select Filtered ({filteredCardAssets.length})
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={deselectAllFilteredCards}
-                              disabled={selectedCards.length === 0}
-                              data-testid="button-deselect-all"
-                            >
-                              Clear ({selectedCards.length})
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={selectAllFilteredCards}
+                                disabled={filteredCardAssets.length === 0}
+                                data-testid="button-select-all-filtered"
+                                className="flex-1"
+                              >
+                                Select Filtered ({filteredCardAssets.length})
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={deselectAllFilteredCards}
+                                disabled={selectedCards.length === 0}
+                                data-testid="button-deselect-all"
+                                className="flex-1"
+                              >
+                                Clear ({selectedCards.length})
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
