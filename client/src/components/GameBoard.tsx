@@ -402,7 +402,7 @@ export function GameBoard({
               style={{
                 left: `${pile.positionX}px`,
                 top: `${pile.positionY}px`,
-                width: '90px', // Slightly wider to accommodate text
+                width: '80px', // Adjusted to match new card width
               }}
               data-testid={`deck-spot-${pile.id}`}
               onMouseDown={(e) => {
@@ -489,7 +489,7 @@ export function GameBoard({
               }}
             >
               {/* Deck Spot Visual */}
-              <div className={`relative w-20 h-20 rounded-lg border-2 shadow-lg ${
+              <div className={`relative w-16 h-24 rounded-lg border-2 shadow-lg ${
                 pile.pileType === 'deck' 
                   ? 'bg-blue-800 border-blue-600' 
                   : pile.pileType === 'discard'
@@ -499,8 +499,8 @@ export function GameBoard({
                 {/* Deck stack effect */}
                 {cardCount > 0 && (
                   <>
-                    <div className="absolute -top-1 -left-1 w-20 h-20 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-60"></div>
-                    <div className="absolute -top-0.5 -left-0.5 w-20 h-20 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-80"></div>
+                    <div className="absolute -top-1 -left-1 w-16 h-24 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-60"></div>
+                    <div className="absolute -top-0.5 -left-0.5 w-16 h-24 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-80"></div>
                   </>
                 )}
                 
@@ -532,7 +532,7 @@ export function GameBoard({
               {/* Text below deck */}
               <div className="mt-1 text-center">
                 {/* Deck name */}
-                <div className="text-xs font-semibold text-white leading-tight mb-1 max-w-[90px] break-words">
+                <div className="text-xs font-semibold text-white leading-tight mb-1 max-w-[80px] break-words">
                   {pile.name.split(' - ').map((part, index) => (
                     <div key={index}>{part}</div>
                   ))}
