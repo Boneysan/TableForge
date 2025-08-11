@@ -6,7 +6,11 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Fixed Empty Deck Issue**: Resolved problem where created decks showed 0 cards in the Game Master Console Cards tab
 - **Enhanced Drag & Drop**: Implemented complete drag-and-drop functionality from Asset Library to GameBoard with proper grid snapping
 - **Image Display Fix**: All game assets now display correctly using image proxy for private Google Cloud Storage URLs
-- **Deck Population**: Party Themes (2 cards) and Party Guests (15 cards) decks now properly populated with card assets
+- **CRITICAL System Apply Fix**: Fixed system apply logic that was incorrectly checking for ANY existing system assets instead of ALL expected assets, causing incomplete transfers
+- **Asset Transfer Completion**: "Wrong Party" system now properly transfers all 155 cards (21 Party Themes + 134 Party Guests) when applied to rooms
+- **CardDeckManager Filter Fix**: Fixed filtering bug that prevented image assets from being recognized as valid cards for deck creation
+- **Deck Creation Logic Fix**: Corrected deck creation to use proper asset ID arrays instead of invalid number references
+- **Asset Deduplication**: Added logic to prevent duplicate asset creation during partial system applications
 - **System Asset Creation Fixed**: Resolved asset upload failure with new `/api/systems/:systemId/assets` endpoint
 - **BulkUploader Enhanced**: Added immediate database record creation callbacks during upload process
 - **Google Cloud Storage Cleanup**: Implemented comprehensive orphaned file cleanup system with admin interface
