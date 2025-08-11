@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { queryKeys } from "@/lib/queryKeys";
+import { useCreateDeck, useShuffleDeck, useDrawCards, useCreatePile, useRoomDecks, useRoomPiles } from "@/hooks/useGameRoomQuery";
 import { DeckThemeCustomizer } from "./DeckThemeCustomizer";
 import { ThemedDeckCard } from "./ThemedDeckCard";
 import type { CardDeck, CardPile, GameAsset, DeckTheme } from "@shared/schema";
@@ -75,128 +77,31 @@ export function CardDeckManager({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch card decks
-  const { data: decks = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "decks"],
-  });
+  // Use centralized query hooks with stable keys
+  const { data: decks = [] } = useRoomDecks(roomId);
+  const { data: piles = [] } = useRoomPiles(roomId);
 
-  // Fetch card piles
-  const { data: piles = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "piles"],
-  });
+  // Use optimized mutation hooks
+  const createDeckMutation = useCreateDeck(roomId);
 
-  // Create deck mutation
-  const createDeckMutation = useMutation({
-    mutationFn: async (data: { name: string; description: string; deckOrder: string[] }) => {
-      const response = await fetch(`/api/rooms/${roomId}/decks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create deck");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "decks"] });
-      setShowCreateDeck(false);
-      setDeckName("");
-      setDeckDescription("");
-      setSelectedCards([]);
-      toast({ title: "Deck created successfully!" });
-    },
-    onError: () => {
-      toast({ title: "Failed to create deck", variant: "destructive" });
-    },
-  });
+  const createPileMutation = useCreatePile(roomId);
 
-  // Create pile mutation
-  const createPileMutation = useMutation({
-    mutationFn: async (data: { 
-      name: string; 
-      positionX: number; 
-      positionY: number; 
-      pileType: string;
-      visibility: string;
-      ownerId?: string;
-    }) => {
-      const response = await fetch(`/api/rooms/${roomId}/piles`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to create pile");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
-      setShowCreatePile(false);
-      setPileName("");
-      setPileType("custom");
-      setPileVisibility("public");
-      toast({ title: "Card pile created successfully!" });
-    },
-    onError: () => {
-      toast({ title: "Failed to create pile", variant: "destructive" });
-    },
-  });
+  const shuffleDeckMutation = useShuffleDeck(roomId);
 
-  // Shuffle deck mutation
-  const shuffleDeckMutation = useMutation({
-    mutationFn: async (deckId: string) => {
-      const response = await fetch(`/api/rooms/${roomId}/decks/${deckId}/shuffle`, {
-        method: "POST",
-      });
-      if (!response.ok) throw new Error("Failed to shuffle deck");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "decks"] });
-      toast({ title: "Deck shuffled!" });
-    },
-    onError: () => {
-      toast({ title: "Failed to shuffle deck", variant: "destructive" });
-    },
-  });
+  const drawCardMutation = useDrawCards(roomId);
 
-  // Draw card mutation
-  const drawCardMutation = useMutation({
-    mutationFn: async ({ deckId, count = 1 }: { deckId: string; count?: number }) => {
-      const response = await fetch(`/api/rooms/${roomId}/decks/${deckId}/draw`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playerId: currentUserId, count }),
-      });
-      if (!response.ok) throw new Error("Failed to draw card");
-      return response.json();
-    },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "decks"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
-      onCardDrawn?.(variables.deckId, currentUserId, variables.count || 1);
-      toast({ 
-        title: `Drew ${variables.count || 1} card${(variables.count || 1) > 1 ? 's' : ''}!`,
-        description: `Cards added to your hand`
-      });
-    },
-    onError: () => {
-      toast({ title: "Failed to draw card", variant: "destructive" });
-    },
-  });
-
-  // Deal cards mutation
+  // Deal cards mutation - Keep this one as is since it's more complex
   const dealCardsMutation = useMutation({
     mutationFn: async (data: { deckId: string; count: number; targetPile: string }) => {
-      const response = await fetch(`/api/rooms/${roomId}/decks/${data.deckId}/deal`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count: data.count, targetPile: data.targetPile }),
+      const response = await apiRequest("POST", `/api/rooms/${roomId}/decks/${data.deckId}/deal`, {
+        count: data.count, 
+        targetPile: data.targetPile
       });
-      if (!response.ok) throw new Error("Failed to deal cards");
       return response.json();
     },
     onSuccess: (data: any, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "decks"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.decks.all(roomId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.piles.all(roomId) });
       onCardDealt(data.cards || [], variables.targetPile);
       toast({ title: `Dealt ${variables.count} cards!` });
     },

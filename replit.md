@@ -8,6 +8,10 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **⚡ WEBSOCKET INTEGRATION**: Integrated CardMoveManager with WebSocket system for real-time card operations with comprehensive error handling and validation
 - **🛡️ TYPESCRIPT COMPILATION RESOLUTION**: Systematically resolved all TypeScript errors including logger parameter formatting and Drizzle ORM query syntax corrections
 - **📊 PRODUCTION-READY CONCURRENCY**: Completed move conflict detection, version validation, entity state management, and sequence-based reconciliation system fully operational
+- **🚀 COMPREHENSIVE REACT QUERY STATE MANAGEMENT**: Implemented centralized query key factory system with stable ['rooms', id] patterns, eliminating cache fragmentation and ensuring consistent data management across components
+- **🔄 OPTIMISTIC UPDATES SYSTEM**: Created sophisticated optimistic update hooks with rollback capabilities for deck shuffling, card drawing, asset movement, and pile creation with automatic cleanup and error recovery
+- **🎯 CENTRALIZED GAME ROOM HOOKS**: Built comprehensive useGameRoomQuery hooks providing standardized query patterns, proper error handling, and WebSocket invalidation support for all room-based data operations
+- **⚡ WEBSOCKET-REACT QUERY INTEGRATION**: Completed integration between WebSocket events and React Query invalidation with proper type safety and performance optimizations
 - **🔒 SECURE GOOGLE CLOUD STORAGE UPLOAD PIPELINE**: Implemented enterprise-grade asset upload security with content-type validation, file size limits, extension allowlist, server-side signed URL generation, and comprehensive metadata sanitization using Sharp for EXIF stripping
 - **🛡️ Upload Security Middleware**: Created comprehensive upload validation system with filename sanitization, content-type verification, file header validation, and category-based size limits (50MB images, 100MB documents, 200MB audio)
 - **🔐 Post-Upload Processing**: Added automatic file content validation, EXIF metadata removal for images, and secure file metadata tracking with processing status flags
@@ -62,8 +66,9 @@ Preferred communication style: Simple, everyday language.
 - **UI Components**: Shadcn/ui (Radix UI)
 - **Styling**: Tailwind CSS with custom CSS variables
 - **Routing**: Wouter
-- **State Management**: TanStack React Query for server state
-- **Real-time Communication**: Custom WebSocket hook
+- **State Management**: Comprehensive TanStack React Query system with centralized query key factory, optimistic updates with rollback capabilities, and WebSocket invalidation integration
+- **Real-time Communication**: Advanced WebSocket system integrated with React Query for seamless state synchronization and optimistic UI updates
+- **Query Architecture**: Stable query keys using factory pattern, proper cache invalidation strategies, optimistic mutations with conflict resolution, and standardized error handling across all data operations
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js

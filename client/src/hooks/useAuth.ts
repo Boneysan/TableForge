@@ -2,12 +2,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { onAuthChange } from "@/lib/firebase";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function useAuth() {
   const queryClient = useQueryClient();
 
   const { data: user, isLoading, error, refetch } = useQuery({
-    queryKey: ["/api/auth/user"],
+    queryKey: queryKeys.auth.user(),
     queryFn: async () => {
       console.log("🔐 [useAuth] Fetching user data with Firebase auth...");
       console.log("🔐 [useAuth] Query execution timestamp:", new Date().toISOString());
@@ -77,12 +78,12 @@ export function useAuth() {
           console.log("🔐 [useAuth] Refetch timestamp:", new Date().toISOString());
           
           // Simple invalidation without aggressive removal
-          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.auth.user() });
         }, 500);
       } else {
         // If user signed out, invalidate immediately
         console.log("🔐 [useAuth] User signed out, invalidating queries immediately");
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.auth.user() });
       }
     });
 

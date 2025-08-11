@@ -337,12 +337,13 @@ export type InsertDiceRoll = z.infer<typeof insertDiceRollSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
-// WebSocket message types
+// WebSocket Message Types
 export interface WebSocketMessage {
   type: string;
   payload: any;
   roomId?: string;
   playerId?: string;
+  timestamp?: number;
 }
 
 export interface AssetMovedMessage extends WebSocketMessage {
