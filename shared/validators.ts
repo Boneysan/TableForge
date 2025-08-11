@@ -309,6 +309,14 @@ export function createServerError(message: string): ServerError {
   return { error: 'server_error', message };
 }
 
+// Common pagination validators
+export const validatePagination = z.object({
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().max(100).default(20)
+});
+
+export const validateLimit = z.number().int().positive().max(100).default(20);
+
 // Validation middleware helper
 export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: ValidationError } {
   try {

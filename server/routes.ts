@@ -7,6 +7,26 @@ import { hybridAuthMiddleware } from "./hybridAuth";
 import { ObjectStorageService } from "./objectStorage";
 import * as admin from "firebase-admin";
 import { z } from "zod";
+import { 
+  asyncHandler, 
+  AuthenticationError, 
+  AuthorizationError, 
+  ValidationError,
+  NotFoundError,
+  ConflictError 
+} from "./middleware/errorHandler";
+import { 
+  LoggedWebSocket, 
+  initializeWebSocketLogging, 
+  logWebSocketEvent, 
+  logWebSocketMessage,
+  logWebSocketAuth,
+  logRoomOperation,
+  timeWebSocketOperation,
+  cleanupWebSocketLogging,
+  WSEventType 
+} from "./websocket/logging";
+import { createRequestLogger, auditLog } from "./utils/logger";
 
 // Import new auth system
 import { authenticateToken, authorizeRoom, optionalAuth, logAuthEvents } from './auth/middleware';
