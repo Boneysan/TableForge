@@ -139,12 +139,18 @@ export const cardDecks = pgTable("card_decks", {
   deckOrder: json("deck_order"), // Array of card asset IDs in order
   theme: json("theme").$type<DeckTheme>(), // Deck visual theme
   cardBackAssetId: varchar("card_back_asset_id").references(() => gameAssets.id), // Custom card back image
+  version: integer("version").notNull().default(1), // Optimistic concurrency control
+  lastModifiedBy: varchar("last_modified_by").references(() => users.id), // Track last modifier
+  lastModifiedAt: timestamp("last_modified_at").defaultNow(), // Track last modification time
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
   index("idx_card_decks_room_id").on(table.roomId),
   index("idx_card_decks_created_by").on(table.createdBy),
   index("idx_card_decks_card_back_asset_id").on(table.cardBackAssetId),
+  index("idx_card_decks_last_modified_by").on(table.lastModifiedBy),
+  index("idx_card_decks_version").on(table.version),
   index("idx_card_decks_created_at").on(table.createdAt),
+  index("idx_card_decks_last_modified_at").on(table.lastModifiedAt),
 ]);
 
 // Card piles - dynamic collections of cards on the board
@@ -160,13 +166,19 @@ export const cardPiles = pgTable("card_piles", {
   cardOrder: json("card_order"), // Array of board asset IDs in stack order
   faceDown: boolean("face_down").default(false), // Default face orientation for cards in pile
   maxCards: integer("max_cards"), // Optional limit
+  version: integer("version").notNull().default(1), // Optimistic concurrency control
+  lastModifiedBy: varchar("last_modified_by").references(() => users.id), // Track last modifier
+  lastModifiedAt: timestamp("last_modified_at").defaultNow(), // Track last modification time
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
   index("idx_card_piles_room_id").on(table.roomId),
   index("idx_card_piles_owner_id").on(table.ownerId),
   index("idx_card_piles_pile_type").on(table.pileType),
   index("idx_card_piles_visibility").on(table.visibility),
+  index("idx_card_piles_last_modified_by").on(table.lastModifiedBy),
+  index("idx_card_piles_version").on(table.version),
   index("idx_card_piles_created_at").on(table.createdAt),
+  index("idx_card_piles_last_modified_at").on(table.lastModifiedAt),
   // Composite indexes for spatial and game queries
   index("idx_card_piles_room_position").on(table.roomId, table.positionX, table.positionY),
   index("idx_card_piles_room_type").on(table.roomId, table.pileType),
@@ -384,6 +396,62 @@ export interface PlayerScoreUpdatedMessage extends WebSocketMessage {
     playerName: string;
   };
 }
+
+// Card Move Ledger - Append-only log for all card movements with reconciliation support
+export const cardMoveLedger = pgTable("card_move_ledger", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  roomId: varchar("room_id").notNull().references(() => gameRooms.id, { onDelete: "cascade" }),
+  moveSequence: integer("move_sequence").notNull(), // Auto-incrementing sequence per room
+  moveType: varchar("move_type", { 
+    enum: ["card_to_pile", "pile_to_pile", "card_draw", "card_discard", "shuffle", "pile_reorder"] 
+  }).notNull(),
+  
+  // Source and target information
+  sourceType: varchar("source_type", { enum: ["deck", "pile", "hand", "board"] }).notNull(),
+  sourceId: varchar("source_id"), // ID of source deck/pile
+  targetType: varchar("target_type", { enum: ["deck", "pile", "hand", "board"] }).notNull(),
+  targetId: varchar("target_id"), // ID of target deck/pile
+  
+  // Card/Asset information
+  cardAssetIds: json("card_asset_ids").notNull(), // Array of card asset IDs being moved
+  sourcePosition: integer("source_position"), // Position in source (for single card moves)
+  targetPosition: integer("target_position"), // Position in target (for insertions)
+  
+  // Concurrency control
+  sourceVersion: integer("source_version"), // Version of source at time of move
+  targetVersion: integer("target_version"), // Version of target at time of move
+  clientId: varchar("client_id").notNull(), // Client session identifier for idempotency
+  moveId: varchar("move_id").notNull(), // Unique move identifier from client
+  
+  // State tracking
+  isApplied: boolean("is_applied").notNull().default(true), // Whether move was successfully applied
+  isRolledBack: boolean("is_rolled_back").notNull().default(false), // Whether move was rolled back
+  conflictResolution: varchar("conflict_resolution"), // How conflicts were resolved
+  
+  // Metadata
+  playerId: varchar("player_id").notNull().references(() => users.id),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  metadata: jsonb("metadata"), // Additional move context (animations, reasons, etc.)
+}, (table) => [
+  // Primary indexes for performance
+  index("idx_card_move_ledger_room_id").on(table.roomId),
+  index("idx_card_move_ledger_player_id").on(table.playerId),
+  index("idx_card_move_ledger_timestamp").on(table.timestamp),
+  index("idx_card_move_ledger_move_sequence").on(table.moveSequence),
+  index("idx_card_move_ledger_source_id").on(table.sourceId),
+  index("idx_card_move_ledger_target_id").on(table.targetId),
+  index("idx_card_move_ledger_client_id").on(table.clientId),
+  index("idx_card_move_ledger_move_id").on(table.moveId),
+  
+  // Composite indexes for queries
+  index("idx_card_move_ledger_room_sequence").on(table.roomId, table.moveSequence),
+  index("idx_card_move_ledger_room_timestamp").on(table.roomId, table.timestamp),
+  index("idx_card_move_ledger_client_move").on(table.clientId, table.moveId),
+  index("idx_card_move_ledger_applied_state").on(table.isApplied, table.isRolledBack),
+  
+  // Unique constraint for idempotency
+  unique("unique_client_move").on(table.clientId, table.moveId),
+]);
 
 // Game Templates - Reusable game setups created by GMs
 export const gameTemplates = pgTable("game_templates", {
