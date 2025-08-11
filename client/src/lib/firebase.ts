@@ -71,7 +71,7 @@ export const signInWithGoogle = () => {
       displayName: result.user.displayName,
       photoURL: result.user.photoURL
     });
-    console.log("✅ [Google Auth] Access token:", result.user.accessToken ? "Present" : "Not available");
+    console.log("✅ [Google Auth] User authenticated successfully");
   }).catch((error) => {
     console.error("❌ [Google Auth] Sign-in failed:", error);
     console.error("❌ [Google Auth] Error details:", {

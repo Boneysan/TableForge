@@ -44,13 +44,14 @@ export function useAuth() {
       }
     },
     retry: false,
-    staleTime: 0, // Always fetch fresh data
-    gcTime: 0, // Don't cache
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
   // Listen for Firebase auth state changes and refetch user data
   useEffect(() => {
     console.log("🔐 [useAuth] Setting up Firebase auth state listener...");
+    let refetchTimeout: NodeJS.Timeout | null = null;
     
     const unsubscribe = onAuthChange((firebaseUser) => {
       console.log("🔐 [useAuth] ===== FIREBASE AUTH STATE CHANGE =====");
@@ -63,39 +64,35 @@ export function useAuth() {
         emailVerified: firebaseUser?.emailVerified
       });
       
-      // If user signed in, add a small delay to ensure auth state is fully settled
+      // Clear any existing timeout
+      if (refetchTimeout) {
+        clearTimeout(refetchTimeout);
+      }
+      
+      // Only refetch if there's a significant auth state change
       if (firebaseUser) {
-        console.log("🔐 [useAuth] User signed in, waiting for auth state to settle...");
-        console.log("🔐 [useAuth] Starting 500ms delay before refetch...");
-        setTimeout(() => {
+        console.log("🔐 [useAuth] User signed in, scheduling refetch...");
+        refetchTimeout = setTimeout(() => {
           console.log("🔐 [useAuth] ===== REFETCHING USER DATA =====");
           console.log("🔐 [useAuth] Refetch timestamp:", new Date().toISOString());
-          console.log("🔐 [useAuth] Invalidating and refetching user data after Firebase auth state change");
           
-          // Force a complete cache invalidation and refetch
-          queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
+          // Simple invalidation without aggressive removal
           queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-          
-          // Force immediate refetch
-          queryClient.refetchQueries({ 
-            queryKey: ["/api/auth/user"],
-            type: 'active'
-          });
-          
-          // Always trigger a direct refetch for this component
-          refetch();
-        }, 1000); // Increase delay even more to ensure Firebase auth is fully settled
+        }, 500);
       } else {
         // If user signed out, invalidate immediately
         console.log("🔐 [useAuth] User signed out, invalidating queries immediately");
         queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-        queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
-        refetch();
       }
     });
 
-    return unsubscribe;
-  }, [queryClient]);
+    return () => {
+      if (refetchTimeout) {
+        clearTimeout(refetchTimeout);
+      }
+      unsubscribe();
+    };
+  }, [queryClient, refetch]);
 
   console.log("🔐 [useAuth] ===== HOOK STATE =====");
   console.log("🔐 [useAuth] Hook execution timestamp:", new Date().toISOString());
