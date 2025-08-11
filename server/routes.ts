@@ -1099,6 +1099,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const boardAssets = await storage.getRoomBoardAssets(roomId);
       console.log(`[Return Cards] Found ${boardAssets.length} board assets to return`);
 
+      // Also get cards from GM hand to return to decks
+      const gmHandPiles = await storage.getRoomCardPiles(roomId);
+      const gmHand = gmHandPiles.find(pile => 
+        pile.pileType === 'hand' && pile.ownerId === userId
+      );
+      
+      let gmHandCards: string[] = [];
+      if (gmHand && gmHand.cardOrder) {
+        gmHandCards = Array.isArray(gmHand.cardOrder) ? gmHand.cardOrder : [];
+      }
+      console.log(`[Return Cards] Found ${gmHandCards.length} cards in GM hand to return`);
+
       // Get all card piles in the room
       const piles = await storage.getCardPiles(roomId);
       const deckPiles = piles.filter(p => p.pileType === 'deck');
@@ -1109,11 +1121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let cardsProcessed = 0;
 
       // Process each board asset
-      for (const boardAsset of boardAssets) {
+      for (const cardInfo of allCardsToReturn) {
         cardsProcessed++;
         
         // Find which deck this card belongs to based on the asset name
-        const asset = await storage.getGameAsset(boardAsset.assetId);
+        const asset = await storage.getGameAsset(cardInfo.assetId);
         if (!asset) continue;
 
         let targetDeck = null;
@@ -1130,14 +1142,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (targetDeck) {
           // Add card to the deck pile
           const currentOrder = (targetDeck.cardOrder as string[]) || [];
-          const newOrder = [...currentOrder, boardAsset.assetId];
+          const newOrder = [...currentOrder, cardInfo.assetId];
           
           await storage.updateCardPile(targetDeck.id, {
             cardOrder: newOrder
           });
 
-          // Remove the board asset
-          await storage.deleteBoardAsset(boardAsset.id);
+          // Remove the board asset (if from board) or update hand (if from hand)
+          if (cardInfo.source === 'board') {
+            // Find the board asset by assetId to get its ID
+            const boardAssetToDelete = boardAssets.find(ba => ba.assetId === cardInfo.assetId);
+            if (boardAssetToDelete) {
+              await storage.deleteBoardAsset(boardAssetToDelete.id);
+            }
+          } else if (cardInfo.source === 'hand' && gmHand) {
+            // Remove card from GM hand
+            const updatedHandOrder = gmHandCards.filter(cardId => cardId !== cardInfo.assetId);
+            await storage.updateCardPile(gmHand.id, {
+              cardOrder: updatedHandOrder
+            });
+          }
           
           cardsReturned++;
           console.log(`[Return Cards] Returned ${asset.name} to ${targetDeck.name}`);
@@ -1147,6 +1171,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`[Return Cards] Successfully returned ${cardsReturned}/${cardsProcessed} cards to their decks`);
+
+      // REPAIR MISSING CARDS: Check if Party Themes deck is missing cards
+      const partyThemesDeck = deckPiles.find(p => p.name.includes('Party Themes') && p.name.includes('Main'));
+      if (partyThemesDeck) {
+        const currentCards = (partyThemesDeck.cardOrder as string[]) || [];
+        
+        // Find all .jpg assets (Party Themes cards) not in the deck
+        const allAssets = await storage.getRoomAssets(roomId);
+        const missingThemeCards = allAssets.filter(asset => 
+          asset.name.endsWith('.jpg') && !currentCards.includes(asset.id)
+        );
+        
+        if (missingThemeCards.length > 0) {
+          console.log(`[Return Cards] REPAIR: Found ${missingThemeCards.length} missing Party Themes cards, adding them to deck`);
+          
+          const repairedOrder = [...currentCards, ...missingThemeCards.map(card => card.id)];
+          await storage.updateCardPile(partyThemesDeck.id, {
+            cardOrder: repairedOrder
+          });
+          
+          console.log(`[Return Cards] REPAIR: Added ${missingThemeCards.length} missing cards to Party Themes deck`);
+        }
+      }
+
       res.json({ 
         success: true, 
         message: `Returned ${cardsReturned} cards to their decks`,
