@@ -392,6 +392,8 @@ export function GameBoard({
         {(cardPiles as CardPile[]).map((pile) => {
           const deck = (cardDecks as CardDeck[]).find(d => d.name === pile.name);
           const cardCount = Array.isArray(pile.cardOrder) ? pile.cardOrder.length : 0;
+          const cardBackAsset = deck?.cardBackAssetId ? 
+            (assets as Asset[]).find(a => a.id === deck.cardBackAssetId) : null;
           
           return (
             <div
@@ -504,12 +506,37 @@ export function GameBoard({
                   </>
                 )}
                 
-                {/* Main deck area - simplified, no text */}
-                <div className="relative w-full h-full rounded-lg flex items-center justify-center">
-                  {/* Card count in center */}
-                  <div className="text-white text-lg font-bold">
-                    {cardCount}
-                  </div>
+                {/* Main deck area */}
+                <div className="relative w-full h-full rounded-lg overflow-hidden">
+                  {/* Show card back for main decks with cards, solid color for others */}
+                  {pile.pileType === 'deck' && cardCount > 0 && cardBackAsset ? (
+                    <>
+                      {/* Card back image */}
+                      <img 
+                        src={`/api/image-proxy?url=${encodeURIComponent(cardBackAsset.filePath)}`}
+                        alt={`${pile.name} card back`}
+                        className="w-full h-full object-cover rounded-lg"
+                        onError={(e) => {
+                          // Fallback to solid color if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                      {/* Card count overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                        <div className="text-white text-lg font-bold drop-shadow-lg">
+                          {cardCount}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    /* Solid color for discard piles and empty decks */
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-white text-lg font-bold">
+                        {cardCount}
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Pile type indicator */}
                   <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${
