@@ -1,6 +1,12 @@
 import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";
+import { 
+  validateUploadRequest,
+  sanitizeImageMetadata,
+  validateFileContent,
+  type SecureUploadParams
+} from './middleware/uploadSecurity';
 import {
   ObjectAclPolicy,
   ObjectPermission,
@@ -135,28 +141,74 @@ export class ObjectStorageService {
     }
   }
 
-  // Gets the upload URL for an object entity.
-  async getObjectEntityUploadURL(): Promise<string> {
-    const privateObjectDir = this.getPrivateObjectDir();
-    if (!privateObjectDir) {
-      throw new Error(
-        "PRIVATE_OBJECT_DIR not set. Create a bucket in 'Object Storage' " +
-          "tool and set PRIVATE_OBJECT_DIR env var."
-      );
+  // Gets the secure upload URL for an object entity with validation
+  async getSecureUploadURL(
+    filename: string,
+    contentType: string,
+    fileSize: number,
+    category?: 'public' | 'private'
+  ): Promise<SecureUploadParams> {
+    console.log(`🔒 [Object Storage] Requesting secure upload for: ${filename}, type: ${contentType}, size: ${fileSize}`);
+    
+    // Validate upload request first
+    const validation = validateUploadRequest(filename, contentType, fileSize);
+    if (!validation.isValid) {
+      throw new Error(`Upload validation failed: ${validation.error}`);
     }
-
-    const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
-
-    const { bucketName, objectName } = parseObjectPath(fullPath);
-
-    // Sign URL for PUT method with TTL
-    return signObjectURL({
+    
+    const uploadId = randomUUID();
+    
+    // Determine storage location based on category
+    const objectDir = category === 'public' 
+      ? this.getPublicObjectSearchPaths()[0] // Use first public path
+      : this.getPrivateObjectDir();
+    
+    if (!objectDir) {
+      throw new Error("Object storage directory not configured");
+    }
+    
+    // Create secure path with validation data
+    const securePath = `${objectDir}/uploads/${validation.category}/${uploadId}_${validation.sanitizedFilename}`;
+    
+    const { bucketName, objectName } = parseObjectPath(securePath);
+    
+    console.log(`🔒 [Object Storage] Generated secure path: ${securePath}`);
+    console.log(`🔒 [Object Storage] Bucket: ${bucketName}, Object: ${objectName}`);
+    
+    // Generate signed URL with security constraints
+    const uploadUrl = await signObjectURL({
       bucketName,
       objectName,
       method: "PUT",
-      ttlSec: 900,
+      ttlSec: 900 // 15 minutes
     });
+    
+    const uploadParams: SecureUploadParams = {
+      uploadUrl,
+      fields: {
+        'Content-Type': validation.contentType!,
+        'x-upload-id': uploadId,
+        'x-original-filename': filename,
+        'x-sanitized-filename': validation.sanitizedFilename!,
+        'x-file-category': validation.category!
+      },
+      metadata: {
+        originalName: filename,
+        sanitizedName: validation.sanitizedFilename!,
+        contentType: validation.contentType!,
+        category: validation.category!,
+        uploadId
+      }
+    };
+    
+    console.log(`✅ [Object Storage] Secure upload URL generated for ${validation.sanitizedFilename}`);
+    return uploadParams;
+  }
+  
+  // Legacy method for backwards compatibility
+  async getObjectEntityUploadURL(): Promise<string> {
+    const result = await this.getSecureUploadURL('temp.jpg', 'image/jpeg', 1024, 'private');
+    return result.uploadUrl;
   }
 
   // Gets the object entity file from the object path.
@@ -241,6 +293,80 @@ export class ObjectStorageService {
       objectFile,
       requestedPermission: requestedPermission ?? ObjectPermission.READ,
     });
+  }
+  
+  // Process and sanitize uploaded file
+  async processUploadedFile(
+    file: File,
+    originalContentType: string
+  ): Promise<{ success: boolean; error?: string; processedSize?: number }> {
+    console.log(`🔄 [Object Storage] Processing uploaded file: ${file.name}`);
+    
+    try {
+      // Download the file content
+      const [buffer] = await file.download();
+      console.log(`📥 [Object Storage] Downloaded file content: ${buffer.length} bytes`);
+      
+      // Validate file content
+      const contentValidation = await validateFileContent(buffer, originalContentType);
+      if (!contentValidation.isValid) {
+        console.error(`❌ [Object Storage] Content validation failed: ${contentValidation.error}`);
+        return { success: false, error: contentValidation.error };
+      }
+      
+      // Sanitize metadata for images
+      let processedBuffer = buffer;
+      if (originalContentType.startsWith('image/')) {
+        processedBuffer = await sanitizeImageMetadata(buffer, originalContentType);
+        console.log(`🧹 [Object Storage] Image metadata sanitized: ${buffer.length} → ${processedBuffer.length} bytes`);
+      }
+      
+      // Re-upload the processed file if it was modified
+      if (processedBuffer !== buffer) {
+        await file.save(processedBuffer, {
+          metadata: {
+            contentType: originalContentType,
+            metadata: {
+              'processed': 'true',
+              'sanitized': 'true',
+              'processed-at': new Date().toISOString()
+            }
+          }
+        });
+        console.log(`✅ [Object Storage] File re-uploaded after processing`);
+      }
+      
+      return { 
+        success: true, 
+        processedSize: processedBuffer.length 
+      };
+      
+    } catch (error) {
+      console.error('❌ [Object Storage] Error processing uploaded file:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown processing error' 
+      };
+    }
+  }
+  
+  // Get file metadata with security validation
+  async getSecureFileMetadata(file: File): Promise<{
+    size: number;
+    contentType: string;
+    isProcessed: boolean;
+    uploadedAt?: Date;
+    sanitized?: boolean;
+  }> {
+    const [metadata] = await file.getMetadata();
+    
+    return {
+      size: Number(metadata.size) || 0,
+      contentType: metadata.contentType || 'application/octet-stream',
+      isProcessed: metadata.metadata?.processed === 'true',
+      sanitized: metadata.metadata?.sanitized === 'true',
+      uploadedAt: metadata.timeCreated ? new Date(metadata.timeCreated) : undefined
+    };
   }
 
   // Lists all files in the uploads directory

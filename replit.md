@@ -3,6 +3,11 @@
 Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences, offering a powerful tool for GMs and players to create and play digital versions of tabletop games without asset duplication across game rooms.
 
 ## Recent Changes (August 11, 2025)
+- **🔒 SECURE GOOGLE CLOUD STORAGE UPLOAD PIPELINE**: Implemented enterprise-grade asset upload security with content-type validation, file size limits, extension allowlist, server-side signed URL generation, and comprehensive metadata sanitization using Sharp for EXIF stripping
+- **🛡️ Upload Security Middleware**: Created comprehensive upload validation system with filename sanitization, content-type verification, file header validation, and category-based size limits (50MB images, 100MB documents, 200MB audio)
+- **🔐 Post-Upload Processing**: Added automatic file content validation, EXIF metadata removal for images, and secure file metadata tracking with processing status flags
+- **🚦 Asset Upload Rate Limiting**: Implemented dedicated rate limiting for upload endpoints with authentication requirements and security header enforcement
+- **📁 Object Storage Integration**: Enhanced ObjectStorageService with secure upload URL generation, file processing capabilities, and content validation pipeline
 - **Schema-Validated Configuration System**: Implemented comprehensive Zod-based environment validation with fail-fast startup and clear error messages
 - **Enhanced Security Architecture**: Added rate limiting (general/API/auth tiers), CORS handling, Helmet security headers, and suspicious request monitoring
 - **Environment Separation**: Created proper server/client configuration separation with validation scripts and comprehensive error handling

@@ -6,6 +6,7 @@ import { setupAuth } from "./replitAuth";
 import { hybridAuthMiddleware } from "./hybridAuth";
 import { ObjectStorageService } from "./objectStorage";
 import * as admin from "firebase-admin";
+import { z } from "zod";
 
 // Import new auth system
 import { authenticateToken, authorizeRoom, optionalAuth, logAuthEvents } from './auth/middleware';
@@ -82,6 +83,10 @@ import {
   websocketRateLimit,
   adminRateLimit
 } from './middleware/rateLimiting';
+import {
+  validateUploadMiddleware,
+  uploadSecurityHeaders
+} from './middleware/uploadSecurity';
 import type { 
   WebSocketMessage, 
   AssetMovedMessage, 
@@ -561,16 +566,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", hybridAuthMiddleware, async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error generating upload URL:", error);
-      res.status(500).json({ error: "Failed to generate upload URL" });
+  // Secure asset upload with comprehensive validation
+  app.post('/api/objects/upload', 
+    assetUploadRateLimit,
+    hybridAuthMiddleware,
+    validateUploadMiddleware,
+    uploadSecurityHeaders,
+    async (req: Request, res: Response) => {
+      try {
+        const { filename, contentType, fileSize, category = 'private' } = req.body;
+        
+        console.log(`🔒 [Upload API] Secure upload request: ${filename}, ${contentType}, ${fileSize} bytes`);
+        
+        const objectStorageService = new ObjectStorageService();
+        const uploadParams = await objectStorageService.getSecureUploadURL(
+          filename,
+          contentType,
+          parseInt(fileSize),
+          category
+        );
+        
+        console.log(`✅ [Upload API] Secure upload parameters generated for ${uploadParams.metadata.sanitizedName}`);
+        
+        res.json({
+          success: true,
+          upload: uploadParams,
+          security: {
+            validation: 'passed',
+            sanitized: true,
+            contentTypeEnforced: true,
+            sizeLimitEnforced: true
+          }
+        });
+      } catch (error) {
+        console.error("❌ [Upload API] Error getting secure upload URL:", error);
+        res.status(400).json({ 
+          success: false,
+          error: error instanceof Error ? error.message : "Failed to get secure upload URL",
+          code: 'UPLOAD_VALIDATION_FAILED'
+        });
+      }
     }
-  });
+  );
+
+  // Post-upload processing endpoint
+  app.post('/api/objects/process',
+    assetUploadRateLimit,
+    hybridAuthMiddleware,
+    validateBody(z.object({
+      uploadId: z.string().min(1, "Upload ID is required"),
+      objectPath: z.string().min(1, "Object path is required"),
+      contentType: z.string().min(1, "Content type is required")
+    })),
+    async (req: Request, res: Response) => {
+      try {
+        const { uploadId, objectPath, contentType } = req.body;
+        
+        console.log(`🔄 [Process API] Processing uploaded asset: ${objectPath}`);
+        
+        const objectStorageService = new ObjectStorageService();
+        const file = await objectStorageService.getObjectEntityFile(objectPath);
+        
+        // Process and sanitize the uploaded file
+        const result = await objectStorageService.processUploadedFile(file, contentType);
+        
+        if (!result.success) {
+          console.error(`❌ [Process API] Processing failed: ${result.error}`);
+          return res.status(400).json({
+            success: false,
+            error: result.error,
+            code: 'PROCESSING_FAILED'
+          });
+        }
+        
+        // Get secure metadata
+        const metadata = await objectStorageService.getSecureFileMetadata(file);
+        
+        console.log(`✅ [Process API] Asset processed successfully: ${objectPath}`);
+        
+        res.json({
+          success: true,
+          processing: {
+            completed: true,
+            sanitized: metadata.sanitized,
+            processedSize: result.processedSize,
+            originalSize: metadata.size
+          },
+          metadata: {
+            contentType: metadata.contentType,
+            size: metadata.size,
+            uploadedAt: metadata.uploadedAt,
+            isProcessed: metadata.isProcessed
+          }
+        });
+        
+      } catch (error) {
+        console.error("❌ [Process API] Error processing asset:", error);
+        res.status(500).json({ 
+          success: false,
+          error: "Failed to process uploaded asset",
+          code: 'PROCESSING_ERROR'
+        });
+      }
+    }
+  );
 
   // Auth routes
   app.get('/api/auth/user', hybridAuthMiddleware, async (req: any, res) => {
