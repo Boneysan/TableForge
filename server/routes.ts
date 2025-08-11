@@ -495,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.uid;
       
       // Check if user has admin role in room (only admins can upload)
-      const userRole = await storage.getPlayerRole(assetData.roomId, userId);
+      const userRole = await storage.getPlayerRole(assetData.roomId || '', userId);
       if (userRole !== 'admin') {
         return res.status(403).json({ error: "Only game masters can upload assets" });
       }
@@ -1101,8 +1101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Return Cards] Found ${boardAssets.length} board assets to return`);
 
       // Also get cards from GM hand to return to decks
-      const gmHandPiles = await storage.getRoomCardPiles(roomId);
-      const gmHand = gmHandPiles.find(pile => 
+      const gmHandPiles = await storage.getCardPiles(roomId);
+      const gmHand = gmHandPiles.find((pile: any) => 
         pile.pileType === 'hand' && pile.ownerId === userId
       );
       
@@ -1121,6 +1121,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let cardsReturned = 0;
       let cardsProcessed = 0;
 
+      // Combine all cards to return
+      const allCardsToReturn = [
+        ...boardAssets.map(ba => ({ assetId: ba.assetId, source: 'board' })),
+        ...gmHandCards.map(cardId => ({ assetId: cardId, source: 'hand' }))
+      ];
+      
       // Process each board asset
       for (const cardInfo of allCardsToReturn) {
         cardsProcessed++;

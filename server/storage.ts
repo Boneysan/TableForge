@@ -828,15 +828,26 @@ export class DatabaseStorage implements IStorage {
     // Create asset mapping from existing system assets
     const createdAssets = new Map<string, string>(); // url -> assetId
     
-    // If we have system assets, use them directly
-    if (systemAssets.length > 0) {
-      console.log(`[Apply System] Found ${systemAssets.length} existing system assets, using them directly`);
+    // Check if we have ALL expected system assets, not just some
+    const expectedAssetCount = system.assetLibrary && (system.assetLibrary as any).assets ? (system.assetLibrary as any).assets.length : 0;
+    const hasAllSystemAssets = systemAssets.length > 0 && systemAssets.length === expectedAssetCount;
+    
+    if (hasAllSystemAssets) {
+      console.log(`[Apply System] Found all ${systemAssets.length}/${expectedAssetCount} existing system assets, using them directly`);
       for (const asset of systemAssets) {
         createdAssets.set(asset.filePath, asset.id);
       }
     } else {
-      // Fallback: create new assets if system assets don't exist yet
-      console.log("[Apply System] No system assets found, creating new ones in batches");
+      // Create missing system assets
+      if (systemAssets.length > 0) {
+        console.log(`[Apply System] Found ${systemAssets.length}/${expectedAssetCount} existing system assets, need to create ${expectedAssetCount - systemAssets.length} more`);
+        // Add existing assets to mapping first
+        for (const asset of systemAssets) {
+          createdAssets.set(asset.filePath, asset.id);
+        }
+      } else {
+        console.log(`[Apply System] No system assets found, creating all ${expectedAssetCount} assets in batches`);
+      }
       console.log(`[Apply System] System has assetLibrary: ${!!system.assetLibrary}`);
       if (system.assetLibrary) {
         const assetLibrary = system.assetLibrary as any;
@@ -851,15 +862,28 @@ export class DatabaseStorage implements IStorage {
             const batch = assetLibrary.assets.slice(i, i + BATCH_SIZE);
             console.log(`[Apply System] Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(totalAssets/BATCH_SIZE)} (${batch.length} assets)`);
             
-            // Create assets in parallel for this batch
+            // Create assets in parallel for this batch (skip existing ones)
             const batchPromises = batch.map(async (assetData: any) => {
+              const assetUrl = assetData.url || assetData.filePath;
+              
+              // Skip if asset already exists
+              if (createdAssets.has(assetUrl)) {
+                console.log(`[Apply System] ⏭️ Skipping existing asset: ${assetData.name}`);
+                return {
+                  url: assetUrl,
+                  assetId: createdAssets.get(assetUrl),
+                  success: true,
+                  skipped: true
+                };
+              }
+              
               try {
                 console.log(`[Apply System] Creating asset: ${assetData.name} (type: ${assetData.type || 'unknown'})`);
                 const newAsset = await this.createGameAsset({
                   systemId,
                   name: assetData.name,
                   type: assetData.type || assetData.category || 'image/jpeg',
-                  filePath: assetData.url || assetData.filePath,
+                  filePath: assetUrl,
                   width: assetData.width || null,
                   height: assetData.height || null,
                   isSystemAsset: true,
@@ -867,16 +891,18 @@ export class DatabaseStorage implements IStorage {
                 
                 console.log(`[Apply System] ✅ Created asset: ${assetData.name} -> ${newAsset.id}`);
                 return {
-                  url: assetData.url || assetData.filePath,
+                  url: assetUrl,
                   assetId: newAsset.id,
-                  success: true
+                  success: true,
+                  skipped: false
                 };
               } catch (error) {
                 console.error(`[Apply System] ❌ Failed to create asset ${assetData.name}:`, error);
                 return {
-                  url: assetData.url || assetData.filePath,
+                  url: assetUrl,
                   assetId: null,
                   success: false,
+                  skipped: false,
                   error
                 };
               }
@@ -885,11 +911,20 @@ export class DatabaseStorage implements IStorage {
             const batchResults = await Promise.all(batchPromises);
             
             // Process batch results
+            let created = 0, skipped = 0, failed = 0;
             for (const result of batchResults) {
               if (result.success && result.assetId) {
-                createdAssets.set(result.url, result.assetId);
+                if (!result.skipped) {
+                  createdAssets.set(result.url, result.assetId);
+                  created++;
+                } else {
+                  skipped++;
+                }
+              } else {
+                failed++;
               }
             }
+            console.log(`[Apply System] Batch complete: ${created} created, ${skipped} skipped, ${failed} failed`);
             
             // Small delay between batches to prevent overwhelming the database
             if (i + BATCH_SIZE < assetLibrary.assets.length) {
@@ -897,7 +932,7 @@ export class DatabaseStorage implements IStorage {
             }
           }
           
-          console.log(`[Apply System] Successfully created ${createdAssets.size} out of ${totalAssets} system assets`);
+          console.log(`[Apply System] Asset creation complete: ${createdAssets.size} out of ${totalAssets} system assets ready`);
         }
       }
     }
