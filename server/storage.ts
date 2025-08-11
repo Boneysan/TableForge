@@ -837,11 +837,13 @@ export class DatabaseStorage implements IStorage {
     } else {
       // Fallback: create new assets if system assets don't exist yet
       console.log("[Apply System] No system assets found, creating new ones in batches");
+      console.log(`[Apply System] System has assetLibrary: ${!!system.assetLibrary}`);
       if (system.assetLibrary) {
         const assetLibrary = system.assetLibrary as any;
+        console.log(`[Apply System] AssetLibrary type: ${typeof assetLibrary}, has assets: ${!!assetLibrary.assets}`);
         if (assetLibrary.assets && Array.isArray(assetLibrary.assets)) {
           // Process assets in smaller batches to avoid database timeout
-          const BATCH_SIZE = 20;
+          const BATCH_SIZE = 15; // Smaller batches for more reliability
           const totalAssets = assetLibrary.assets.length;
           console.log(`[Apply System] Processing ${totalAssets} assets in batches of ${BATCH_SIZE}`);
           
@@ -852,23 +854,25 @@ export class DatabaseStorage implements IStorage {
             // Create assets in parallel for this batch
             const batchPromises = batch.map(async (assetData: any) => {
               try {
+                console.log(`[Apply System] Creating asset: ${assetData.name} (type: ${assetData.type || 'unknown'})`);
                 const newAsset = await this.createGameAsset({
                   systemId,
                   name: assetData.name,
-                  type: assetData.type || assetData.category || 'image',
+                  type: assetData.type || assetData.category || 'image/jpeg',
                   filePath: assetData.url || assetData.filePath,
                   width: assetData.width || null,
                   height: assetData.height || null,
                   isSystemAsset: true,
                 } as any, userId);
                 
+                console.log(`[Apply System] ✅ Created asset: ${assetData.name} -> ${newAsset.id}`);
                 return {
                   url: assetData.url || assetData.filePath,
                   assetId: newAsset.id,
                   success: true
                 };
               } catch (error) {
-                console.error(`[Apply System] Failed to create asset ${assetData.name}:`, error);
+                console.error(`[Apply System] ❌ Failed to create asset ${assetData.name}:`, error);
                 return {
                   url: assetData.url || assetData.filePath,
                   assetId: null,
