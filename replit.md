@@ -1,59 +1,6 @@
 # Overview
 
-Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences, offering a powerful tool for GMs and players to create and play digital versions of tabletop games without asset duplication across game rooms.
-
-## Recent Changes (August 11, 2025)
-- **🎯 COMPLETE CONCURRENCY CONTROL SYSTEM**: Implemented comprehensive card move management with hybrid optimistic concurrency and server-authoritative state control
-- **🔄 MOVE LEDGER PERSISTENCE**: Created complete move ledger system with idempotency support, conflict prevention, and late-joiner reconciliation for real-time multiplayer gaming
-- **⚡ WEBSOCKET INTEGRATION**: Integrated CardMoveManager with WebSocket system for real-time card operations with comprehensive error handling and validation
-- **🛡️ TYPESCRIPT COMPILATION RESOLUTION**: Systematically resolved all TypeScript errors including logger parameter formatting and Drizzle ORM query syntax corrections
-- **📊 PRODUCTION-READY CONCURRENCY**: Completed move conflict detection, version validation, entity state management, and sequence-based reconciliation system fully operational
-- **🚀 COMPREHENSIVE REACT QUERY STATE MANAGEMENT**: Implemented centralized query key factory system with stable ['rooms', id] patterns, eliminating cache fragmentation and ensuring consistent data management across components
-- **🔄 OPTIMISTIC UPDATES SYSTEM**: Created sophisticated optimistic update hooks with rollback capabilities for deck shuffling, card drawing, asset movement, and pile creation with automatic cleanup and error recovery
-- **🎯 CENTRALIZED GAME ROOM HOOKS**: Built comprehensive useGameRoomQuery hooks providing standardized query patterns, proper error handling, and WebSocket invalidation support for all room-based data operations
-- **⚡ WEBSOCKET-REACT QUERY INTEGRATION**: Completed integration between WebSocket events and React Query invalidation with proper type safety and performance optimizations
-- **🔒 SECURE GOOGLE CLOUD STORAGE UPLOAD PIPELINE**: Implemented enterprise-grade asset upload security with content-type validation, file size limits, extension allowlist, server-side signed URL generation, and comprehensive metadata sanitization using Sharp for EXIF stripping
-- **🛡️ Upload Security Middleware**: Created comprehensive upload validation system with filename sanitization, content-type verification, file header validation, and category-based size limits (50MB images, 100MB documents, 200MB audio)
-- **🔐 Post-Upload Processing**: Added automatic file content validation, EXIF metadata removal for images, and secure file metadata tracking with processing status flags
-- **🚦 Asset Upload Rate Limiting**: Implemented dedicated rate limiting for upload endpoints with authentication requirements and security header enforcement
-- **📁 Object Storage Integration**: Enhanced ObjectStorageService with secure upload URL generation, file processing capabilities, and content validation pipeline
-- **📊 COMPREHENSIVE ERROR HANDLING SYSTEM**: Implemented standardized error envelope format with code, message, details, and requestId for consistent API error responses across all endpoints
-- **🏗️ Central Error Middleware**: Created comprehensive error mapping system that automatically converts Zod validation errors, database constraints, Firebase auth errors, and custom exceptions to proper HTTP responses
-- **📝 STRUCTURED LOGGING WITH PINO**: Implemented enterprise-grade structured logging with correlation IDs, context-aware loggers, security event tracking, and performance monitoring
-- **🔗 Correlation ID Tracking**: Added unique correlation IDs to every request enabling complete request tracing across logs, errors, and responses with X-Correlation-ID headers
-- **🔌 ENHANCED WEBSOCKET LOGGING**: Implemented comprehensive WebSocket logging with room/user context, event tracking, authentication logging, performance timing, and audit trails
-- **📈 AUDIT & SECURITY LOGGING**: Created specialized logging for security events, audit trails, performance metrics, and health monitoring with structured data formatting
-- **🗄️ COMPREHENSIVE DATABASE INDEXING**: Implemented 84 performance indexes across 13 tables using Drizzle ORM with complete coverage of foreign key relationships, composite indexes for complex queries, and optimized query patterns
-- **🔧 DRIZZLE MIGRATION SYSTEM**: Created comprehensive migration management with generate, migrate, push, and verification scripts ensuring proper database schema evolution and index optimization
-- **📊 DATABASE PERFORMANCE OPTIMIZATION**: Added specialized indexes for room-based queries, user activity tracking, asset management, temporal operations, spatial board queries, and marketplace browsing patterns
-- **Schema-Validated Configuration System**: Implemented comprehensive Zod-based environment validation with fail-fast startup and clear error messages
-- **Enhanced Security Architecture**: Added rate limiting (general/API/auth tiers), CORS handling, Helmet security headers, and suspicious request monitoring
-- **Environment Separation**: Created proper server/client configuration separation with validation scripts and comprehensive error handling
-- **Security Middleware System**: Implemented tiered rate limiting, request validation, security logging, and health check endpoints
-- **Configuration Management**: Added environment validation utilities, secure secret generation, and comprehensive configuration documentation
-- **🛡️ ENTERPRISE-GRADE AUTHENTICATION HARDENING**: Implemented comprehensive Firebase ID token validation for both HTTP and WebSocket connections with explicit trust boundaries between client and server authentication states
-- **🔐 Advanced Room Authorization**: Created room-scoped authorization with granular permission system for board modifications, chat, dice rolling, and asset management
-- **🔒 WebSocket Security**: Secured all real-time operations with authentication validation and room membership verification for every socket event
-- **⚡ Memoized Token Validation**: Added performance-optimized Firebase token validation with intelligent caching and automatic re-validation
-- **🏗️ Robust Auth Architecture**: Built modular auth system with tokenValidator.ts, roomAuth.ts, middleware.ts, and socketAuth.ts for comprehensive security coverage
-- **🔐 COMPREHENSIVE INPUT VALIDATION SYSTEM**: Implemented fail-closed validation for all HTTP routes and WebSocket events using shared Zod schemas with typed error responses
-- **✅ Validation Middleware Framework**: Created reusable validation middleware with proper error handling and type safety for body, params, query, and WebSocket messages
-- **🛡️ Security-First Request Processing**: All API endpoints now validate inputs before processing with standardized error responses and proper TypeScript typing
-- **🚦 ADVANCED RATE LIMITING SYSTEM**: Implemented tiered rate limiting with per-IP and per-user limits for auth, asset upload, room operations, and WebSocket connections
-- **🌐 PRODUCTION-READY CORS CONFIGURATION**: Strict origin validation with environment-specific policies, explicit domain whitelisting, and comprehensive error handling
-- **🛡️ ENTERPRISE HELMET SECURITY**: Configured CSP with strict img-src, connect-src policies, security headers, and violation reporting for comprehensive protection
-- **Fixed Empty Deck Issue**: Resolved problem where created decks showed 0 cards in the Game Master Console Cards tab
-- **Enhanced Drag & Drop**: Implemented complete drag-and-drop functionality from Asset Library to GameBoard with proper grid snapping
-- **Image Display Fix**: All game assets now display correctly using image proxy for private Google Cloud Storage URLs
-- **CRITICAL System Apply Fix**: Fixed system apply logic that was incorrectly checking for ANY existing system assets instead of ALL expected assets, causing incomplete transfers
-- **Asset Transfer Completion**: "Wrong Party" system now properly transfers all 155 cards (21 Party Themes + 134 Party Guests) when applied to rooms
-- **CardDeckManager Filter Fix**: Fixed filtering bug that prevented image assets from being recognized as valid cards for deck creation
-- **Deck Creation Logic Fix**: Corrected deck creation to use proper asset ID arrays instead of invalid number references
-- **Asset Deduplication**: Added logic to prevent duplicate asset creation during partial system applications
-- **System Asset Creation Fixed**: Resolved asset upload failure with new `/api/systems/:systemId/assets` endpoint
-- **BulkUploader Enhanced**: Added immediate database record creation callbacks during upload process
-- **Google Cloud Storage Cleanup**: Implemented comprehensive orphaned file cleanup system with admin interface
-- **Admin Dashboard Cleanup**: Added "Cleanup Orphaned Files" button with authentication and toast notifications
+Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences, offering a powerful tool for GMs and players to create and play digital versions of tabletop games without asset duplication across game rooms. The business vision is to become the leading digital tabletop platform, enabling a new era of collaborative online gaming.
 
 # User Preferences
 
@@ -66,46 +13,45 @@ Preferred communication style: Simple, everyday language.
 - **UI Components**: Shadcn/ui (Radix UI)
 - **Styling**: Tailwind CSS with custom CSS variables
 - **Routing**: Wouter
-- **State Management**: Comprehensive TanStack React Query system with centralized query key factory, optimistic updates with rollback capabilities, and WebSocket invalidation integration
-- **Real-time Communication**: Advanced WebSocket system integrated with React Query for seamless state synchronization and optimistic UI updates
-- **Query Architecture**: Stable query keys using factory pattern, proper cache invalidation strategies, optimistic mutations with conflict resolution, and standardized error handling across all data operations
+- **State Management**: TanStack React Query system with centralized query key factory, optimistic updates with rollback capabilities, and WebSocket invalidation integration. Query architecture includes stable query keys, cache invalidation, optimistic mutations with conflict resolution, and standardized error handling.
+- **Real-time Communication**: Advanced WebSocket system integrated with React Query for seamless state synchronization and optimistic UI updates.
 
 ## Backend Architecture
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript (ES modules)
-- **API Design**: RESTful API with integrated WebSocket server for real-time game state synchronization
-- **File Uploads**: Uppy integration for client-side handling
+- **API Design**: RESTful API with integrated WebSocket server for real-time game state synchronization.
+- **File Uploads**: Uppy integration for client-side handling.
+- **Concurrency Control**: Hybrid optimistic concurrency and server-authoritative state control for card move management, including a move ledger system with idempotency and conflict prevention.
+- **Logging**: Enterprise-grade structured logging with Pino, including correlation IDs, context-aware loggers, security event tracking, and performance monitoring. Comprehensive WebSocket logging with room/user context.
+- **Error Handling**: Standardized error envelope format with central error middleware for consistent API error responses, converting Zod validation errors, database constraints, and Firebase auth errors.
+- **Input Validation**: Fail-closed validation for all HTTP routes and WebSocket events using shared Zod schemas with typed error responses and security-first request processing.
+- **Rate Limiting**: Tiered rate limiting with per-IP and per-user limits for auth, asset upload, room operations, and WebSocket connections.
+- **Security Headers**: Production-ready CORS configuration with strict origin validation and enterprise Helmet security with CSP.
 
 ## Data Storage Solutions
 - **Primary Database**: PostgreSQL (Neon serverless)
-- **ORM**: Drizzle ORM (schema-first approach)
-- **File Storage**: Google Cloud Storage for game assets
-- **Schema Structure**: Comprehensive tables for users, game rooms, assets, board elements, players, and dice roll history. Assets are designed for reuse across multiple game rooms without duplication, maintaining a `systemId` and `isSystemAsset` flag.
+- **ORM**: Drizzle ORM (schema-first approach) with comprehensive indexing (84 indexes across 13 tables) and migration management.
+- **File Storage**: Google Cloud Storage for game assets with secure upload pipeline including content-type validation, file size limits, extension allowlist, server-side signed URL generation, and comprehensive metadata sanitization. ObjectStorageService includes secure upload URL generation, file processing, and content validation pipeline.
 
 ## Authentication and Authorization
-- **🛡️ Enterprise-Grade Firebase Authentication**: Comprehensive Firebase ID token validation with explicit trust boundaries and server-side re-validation for every request
-- **🔐 Room-Scoped Authorization**: Granular permission system with role-based access control for board modifications, chat, dice rolling, and asset management
-- **⚡ Performance-Optimized Validation**: Memoized Firebase token validation with intelligent caching and automatic refresh handling
-- **🔒 WebSocket Security**: Full authentication and authorization for real-time operations with room membership validation for every socket event
-- **🏗️ Modular Auth Architecture**: Comprehensive auth system with tokenValidator, roomAuth, middleware, and socketAuth modules for complete security coverage
-- **🔄 Hybrid Fallback**: Automatic Replit Auth fallback for development environments with seamless Firebase integration
-- **📊 Security Logging**: Comprehensive authentication event logging and suspicious activity monitoring
+- **Authentication**: Enterprise-grade Firebase ID token validation for both HTTP and WebSocket connections with explicit trust boundaries and server-side re-validation. Performance-optimized Firebase token validation with intelligent caching. Automatic Replit Auth fallback for development.
+- **Authorization**: Room-scoped authorization with granular permission system for board modifications, chat, dice rolling, and asset management. WebSocket security includes authentication validation and room membership verification for every socket event.
+- **Architecture**: Modular auth system with tokenValidator, roomAuth, middleware, and socketAuth for comprehensive security coverage.
+- **Logging**: Comprehensive authentication event logging and suspicious activity monitoring.
 
 ## Core Features
-- **Three-Interface System**: ViewSelector, Admin Interface, Game Master Console, and Player Interface.
+- **Interfaces**: Three-interface system: ViewSelector, Admin Interface, Game Master Console, and Player Interface.
 - **Real-Time Communication**: WebSocket server for room-based connections and state synchronization.
-- **File Upload System**: ObjectUploader with Google Cloud Storage and ACL security, supporting bulk uploads with progress tracking and retry logic.
-- **Enhanced Card/Deck System**: Server-side shuffling, pile management, ownership, dealing, and visual deck spots on the game board with real-time positioning.
+- **File Upload System**: ObjectUploader with Google Cloud Storage and ACL security, supporting bulk uploads with progress tracking and retry logic. Includes comprehensive orphaned file cleanup.
+- **Card/Deck System**: Server-side shuffling, pile management, ownership, dealing, visual deck spots, named deck creation, custom card back selection, and full deck lifecycle management.
 - **Game System Management**: Creation and editing of custom game systems with categorized asset uploads (Cards, Tokens, Maps, Rules) and comprehensive metadata management. Game system assets are permanent and shared across rooms.
-- **Enhanced Token System**: Rotation, z-order, snap-to-grid, lock/unlock.
-- **Multi-layer Board System**: Background, game assets, overlay layers with z-indexing. GM-controlled synchronized board resizing.
-- **Grid System**: Configurable grid, snap-to-grid, visibility controls.
+- **Token System**: Rotation, z-order, snap-to-grid, lock/unlock.
+- **Board System**: Multi-layer board system (background, game assets, overlay) with z-indexing, GM-controlled synchronized board resizing, and configurable grid system.
 - **Measurement Tools**: Ruler functionality and distance calculations.
 - **Annotation System**: Freehand drawing, sticky notes, text annotations.
 - **Asset Pipeline**: Library, upload, and builder tabs with search, filtering, tagging, and bulk operations.
-- **Complete Deck Management System**: Named deck creation, custom card back selection, visual card selection interface, deck preview displays, and full deck lifecycle management. Supports authentic card back display on main deck spots.
 - **Turn & Timer System**: Turn order management, round counting, configurable timers.
-- **Game Template System**: Save/load/browse functionality for game templates.
+- **Game Template System**: Save/load/browse functionality.
 - **Chat System**: Real-time text chat with message history.
 - **Player Hand System**: Compact and large views for player and GM hands with card actions and real game data.
 - **Theme System**: Site-wide dark/light/system theme support with persistence.
