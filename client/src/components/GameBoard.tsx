@@ -409,10 +409,24 @@ export function GameBoard({
                   e.preventDefault();
                   
                   let isDragging = false;
+                  let currentX = pile.positionX;
+                  let currentY = pile.positionY;
+                  let throttleTimeout: NodeJS.Timeout | null = null;
                   const startX = e.clientX;
                   const startY = e.clientY;
                   const initialX = pile.positionX;
                   const initialY = pile.positionY;
+
+                  const updatePosition = (x: number, y: number, immediate = false) => {
+                    if (throttleTimeout) {
+                      clearTimeout(throttleTimeout);
+                    }
+                    
+                    const delay = immediate ? 0 : 100; // Update every 100ms instead of every mouse move
+                    throttleTimeout = setTimeout(() => {
+                      movePileMutation.mutate({ pileId: pile.id, x, y });
+                    }, delay);
+                  };
 
                   const handleMouseMove = (moveEvent: MouseEvent) => {
                     const deltaX = moveEvent.clientX - startX;
@@ -422,25 +436,34 @@ export function GameBoard({
                     if (!isDragging && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
                       isDragging = true;
                       console.log(`🎯 [Deck Drag] Started dragging pile ${pile.name} (${pile.id})`);
-                      console.log(`🎯 [Deck Drag] Initial position: (${initialX}, ${initialY})`);
                     }
                     
                     if (isDragging) {
                       const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
                       const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
                       
-                      console.log(`🎯 [Deck Drag] Moving pile ${pile.name} from (${initialX}, ${initialY}) to (${newX}, ${newY})`);
-                      console.log(`🎯 [Deck Drag] Delta: (${deltaX}, ${deltaY})`);
+                      currentX = newX;
+                      currentY = newY;
+                      
+                      // Update visual position immediately but throttle API calls
+                      const targetElement = e.target as HTMLElement;
+                      if (targetElement) {
+                        targetElement.style.left = `${newX}px`;
+                        targetElement.style.top = `${newY}px`;
+                      }
                       
                       // Apply snap-to-grid if enabled
                       if (showGrid) {
                         const snapped = snapToGrid(newX, newY, gridSize);
-                        console.log(`🎯 [Deck Drag] Snapped to grid: (${snapped.x}, ${snapped.y})`);
-                        console.log(`🎯 [Deck Drag] Calling API with snapped position: (${snapped.x}, ${snapped.y})`);
-                        movePileMutation.mutate({ pileId: pile.id, x: snapped.x, y: snapped.y });
+                        currentX = snapped.x;
+                        currentY = snapped.y;
+                        if (targetElement) {
+                          targetElement.style.left = `${snapped.x}px`;
+                          targetElement.style.top = `${snapped.y}px`;
+                        }
+                        updatePosition(snapped.x, snapped.y);
                       } else {
-                        console.log(`🎯 [Deck Drag] Calling API with position: (${newX}, ${newY})`);
-                        movePileMutation.mutate({ pileId: pile.id, x: newX, y: newY });
+                        updatePosition(newX, newY);
                       }
                     }
                   };
@@ -450,7 +473,13 @@ export function GameBoard({
                     document.removeEventListener('mouseup', handleMouseUp);
                     
                     if (isDragging) {
-                      console.log(`🎯 [Deck Drag] Finished dragging pile ${pile.name} (${pile.id})`);
+                      // Clear any pending throttled updates
+                      if (throttleTimeout) {
+                        clearTimeout(throttleTimeout);
+                      }
+                      // Send final position update immediately
+                      movePileMutation.mutate({ pileId: pile.id, x: currentX, y: currentY });
+                      console.log(`🎯 [Deck Drag] Finished dragging pile ${pile.name} to final position (${currentX}, ${currentY})`);
                     } else if (cardCount > 0) {
                       // If it was just a click (not a drag) and there are cards, draw one
                       console.log(`🃏 [Card Draw] Drawing card from pile ${pile.name} (${pile.id}) with ${cardCount} cards`);
