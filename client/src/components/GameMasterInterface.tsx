@@ -18,11 +18,11 @@ import { GameTemplateManager } from "./GameTemplateManager";
 import { GameSystemManager } from "./GameSystemManager";
 import { PlayerScoreboard } from "./PlayerScoreboard";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLocation } from "wouter";
-import type { GameAsset, BoardAsset, RoomPlayerWithName } from "@shared/schema";
+import type { GameAsset, BoardAsset, RoomPlayerWithName, CardPile } from "@shared/schema";
 
 interface GameMasterInterfaceProps {
   roomId: string;
@@ -66,13 +66,46 @@ export function GameMasterInterface({
   const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
   const [showHandViewer, setShowHandViewer] = useState(false);
   
-  // GM hand data - in a real implementation this would come from the server
-  const [gmHand] = useState([
-    { id: 'gm1', name: 'Event Card: Storm', imageUrl: null, faceUp: true },
-    { id: 'gm2', name: 'Quest: Dragon Hunt', imageUrl: null, faceUp: true },
-    { id: 'gm3', name: 'Hidden Plot Card', imageUrl: null, faceUp: false },
-    { id: 'gm4', name: 'NPC: Mysterious Stranger', imageUrl: null, faceUp: true }
-  ]);
+  // Fetch GM hand data from card piles
+  const { data: cardPiles = [] } = useQuery({
+    queryKey: ["/api/rooms", roomId, "piles"],
+    queryFn: async () => {
+      const response = await authenticatedApiRequest("GET", `/api/rooms/${roomId}/piles`);
+      return response.json();
+    },
+  });
+
+  // Get GM's hand pile (pileType: "hand" and ownerId: currentUser.id)
+  const gmHandPile = cardPiles.find((pile: CardPile) => 
+    pile.pileType === 'hand' && pile.ownerId === currentUser.id
+  );
+
+  // Get GM hand cards from the pile
+  const gmHandCardIds = gmHandPile?.cardOrder ? (Array.isArray(gmHandPile.cardOrder) ? gmHandPile.cardOrder : []) : [];
+  const gmHandCards = gmHandCardIds.map(cardId => 
+    assets.find(asset => asset.id === cardId)
+  ).filter(Boolean);
+
+  // Create a GM hand pile if it doesn't exist
+  const createGMHandMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles`, {
+        name: "GM Hand",
+        positionX: 0, // Off-board position for hands
+        positionY: 0,
+        pileType: "hand",
+        visibility: "gm",
+        ownerId: currentUser.id,
+        cardOrder: [],
+        faceDown: false,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      toast({ title: "GM Hand created" });
+    },
+  });
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -463,34 +496,57 @@ export function GameMasterInterface({
                       </div>
                     </CardHeader>
                     <CardContent>
-                      {gmHand.length > 0 ? (
+                      {gmHandCards.length > 0 ? (
                         <div className="space-y-3">
                           <div className="grid grid-cols-2 gap-2">
-                            {gmHand.map((card) => (
+                            {gmHandCards.map((card) => (
                               <div key={card.id} className="relative">
-                                <div className="w-full h-16 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border border-gray-600 flex items-center justify-center text-white text-xs font-medium shadow-lg">
-                                  {card.faceUp ? (
+                                <div className="w-full h-16 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border border-gray-600 flex items-center justify-center text-white text-xs font-medium shadow-lg overflow-hidden">
+                                  <div className="absolute inset-0">
+                                    <img
+                                      src={`/api/image-proxy?url=${encodeURIComponent(card.filePath)}`}
+                                      alt={card.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                     <div className="text-center p-1">
-                                      <div className="text-sm">🎴</div>
-                                      <div className="text-[10px] leading-tight">{card.name.length > 15 ? card.name.substring(0, 15) + '...' : card.name}</div>
+                                      <div className="text-[10px] leading-tight text-white font-semibold drop-shadow-md">
+                                        {card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').length > 12 
+                                          ? card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').substring(0, 12) + '...' 
+                                          : card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '')}
+                                      </div>
                                     </div>
-                                  ) : (
-                                    <div className="text-center">
-                                      <div className="text-sm">🂠</div>
-                                      <div className="text-[10px]">Hidden</div>
-                                    </div>
-                                  )}
+                                  </div>
                                 </div>
                               </div>
                             ))}
                           </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{gmHand.length} cards in GM hand</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{gmHandCards.length} cards in GM hand</p>
                         </div>
                       ) : (
                         <div className="text-center py-6 text-gray-400">
                           <Hand className="w-6 h-6 mx-auto mb-2" />
                           <p className="text-sm">No cards in GM hand</p>
-                          <p className="text-xs mt-1">Draw cards from decks</p>
+                          <p className="text-xs mt-1">
+                            {!gmHandPile ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => createGMHandMutation.mutate()}
+                                disabled={createGMHandMutation.isPending}
+                                className="mt-2"
+                              >
+                                Create GM Hand
+                              </Button>
+                            ) : (
+                              "Draw cards from decks"
+                            )}
+                          </p>
                         </div>
                       )}
                     </CardContent>
@@ -505,6 +561,13 @@ export function GameMasterInterface({
                         variant="outline"
                         size="sm"
                         className="w-full justify-start text-xs"
+                        onClick={() => {
+                          // For now, show a message about drawing functionality
+                          toast({ 
+                            title: "Draw from Deck", 
+                            description: "Click on deck spots on the board to draw cards to your hand" 
+                          });
+                        }}
                         data-testid="button-draw-card"
                       >
                         <Hand className="w-3 h-3 mr-2" />
@@ -642,22 +705,29 @@ export function GameMasterInterface({
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            {gmHand.length > 0 ? (
+            {gmHandCards.length > 0 ? (
               <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-[#374151] rounded-lg max-h-[60vh] overflow-y-auto">
-                {gmHand.map((card) => (
+                {gmHandCards.map((card) => (
                   <div key={card.id} className="relative group">
-                    <div className="w-32 h-40 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border-2 border-gray-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                      {card.faceUp ? (
-                        <div className="text-center p-2">
-                          <div className="text-4xl mb-2">🎴</div>
-                          <div className="text-xs leading-tight font-medium">{card.name}</div>
+                    <div className="w-32 h-40 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border-2 border-gray-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden">
+                      <div className="absolute inset-0">
+                        <img
+                          src={`/api/image-proxy?url=${encodeURIComponent(card.filePath)}`}
+                          alt={card.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
+                        <div className="text-xs leading-tight font-medium text-white text-center">
+                          {card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').length > 20 
+                            ? card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').substring(0, 20) + '...' 
+                            : card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '')}
                         </div>
-                      ) : (
-                        <div className="text-center">
-                          <div className="text-4xl mb-2">🂠</div>
-                          <div className="text-xs">Hidden</div>
-                        </div>
-                      )}
+                      </div>
                     </div>
                     {/* Card actions on hover */}
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
@@ -678,16 +748,14 @@ export function GameMasterInterface({
                         >
                           Deal
                         </Button>
-                        {card.faceUp && (
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="text-xs h-6 px-2"
-                            data-testid={`button-flip-gm-card-${card.id}`}
-                          >
-                            Flip
-                          </Button>
-                        )}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-xs h-6 px-2"
+                          data-testid={`button-discard-card-${card.id}`}
+                        >
+                          Discard
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -698,12 +766,22 @@ export function GameMasterInterface({
                 <Hand className="w-16 h-16 mx-auto mb-4" />
                 <p className="text-lg">No cards in GM hand</p>
                 <p className="text-sm mt-2">Draw cards from decks to manage game state</p>
+                {!gmHandPile && (
+                  <Button
+                    variant="outline"
+                    onClick={() => createGMHandMutation.mutate()}
+                    disabled={createGMHandMutation.isPending}
+                    className="mt-4"
+                  >
+                    Create GM Hand
+                  </Button>
+                )}
               </div>
             )}
             
             <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {gmHand.length} cards in GM hand
+                {gmHandCards.length} cards in GM hand
               </div>
               <div className="space-x-2">
                 <Button 
