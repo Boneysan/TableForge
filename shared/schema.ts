@@ -38,13 +38,15 @@ export const gameRooms = pgTable("game_rooms", {
 
 export const gameAssets = pgTable("game_assets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  roomId: varchar("room_id").notNull().references(() => gameRooms.id),
+  roomId: varchar("room_id").references(() => gameRooms.id), // Now nullable for system assets
+  systemId: varchar("system_id").references(() => gameSystems.id), // Reference to game system
   name: text("name").notNull(),
   type: text("type").notNull(), // 'card', 'token', 'map', 'other'
   filePath: text("file_path").notNull(),
   width: integer("width"),
   height: integer("height"),
   uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
+  isSystemAsset: boolean("is_system_asset").notNull().default(false), // Mark system vs room assets
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
@@ -172,11 +174,13 @@ export const insertGameRoomSchema = createInsertSchema(gameRooms).pick({
 
 export const insertGameAssetSchema = createInsertSchema(gameAssets).pick({
   roomId: true,
+  systemId: true,
   name: true,
   type: true,
   filePath: true,
   width: true,
   height: true,
+  isSystemAsset: true,
 });
 
 export const insertBoardAssetSchema = createInsertSchema(boardAssets).pick({

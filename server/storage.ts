@@ -243,15 +243,23 @@ export class DatabaseStorage implements IStorage {
     // Delete card decks (they reference game assets as card backs)
     await db.delete(cardDecks).where(eq(cardDecks.roomId, id));
     
-    // Preserve game assets by moving them to orphaned room or delete if can't preserve
+    // Only delete room-specific assets, preserve system assets
+    await db.delete(gameAssets)
+      .where(and(
+        eq(gameAssets.roomId, id),
+        eq(gameAssets.isSystemAsset, false)
+      ));
+    
+    console.log(`[Delete Room] Deleted room-specific assets, preserved system assets`);
+    
+    // Move any remaining room assets to orphaned room as backup
     if (orphanedRoom) {
       await db.update(gameAssets)
         .set({ roomId: orphanedRoom.id })
-        .where(eq(gameAssets.roomId, id));
-      console.log(`[Delete Room] Moved game assets to orphaned room to preserve game system data`);
-    } else {
-      await db.delete(gameAssets).where(eq(gameAssets.roomId, id));
-      console.log(`[Delete Room] Deleted assets due to inability to preserve them`);
+        .where(and(
+          eq(gameAssets.roomId, id),
+          eq(gameAssets.isSystemAsset, true)
+        ));
     }
     
     await db.delete(roomPlayers).where(eq(roomPlayers.roomId, id));
@@ -785,26 +793,41 @@ export class DatabaseStorage implements IStorage {
       });
     }
 
-    // Track created assets for lookups
-    const createdAssets = new Map<string, string>(); // url -> assetId
+    // Find existing system assets instead of creating new ones
+    const systemAssets = await db.select().from(gameAssets)
+      .where(and(
+        eq(gameAssets.systemId, systemId),
+        eq(gameAssets.isSystemAsset, true)
+      ));
 
-    // Apply default assets from system if present
-    if (system.assetLibrary) {
-      console.log("System assets would be applied:", system.assetLibrary);
-      const assetLibrary = system.assetLibrary as any;
-      if (assetLibrary.assets && Array.isArray(assetLibrary.assets)) {
-        for (const assetData of assetLibrary.assets) {
-          const newAsset = await this.createGameAsset({
-            roomId,
-            name: assetData.name,
-            type: assetData.type || assetData.category || 'image',
-            filePath: assetData.url || assetData.filePath,
-            width: assetData.width || null,
-            height: assetData.height || null,
-          }, userId);
-          
-          // Store the mapping from URL to asset ID
-          createdAssets.set(assetData.url || assetData.filePath, newAsset.id);
+    // Create asset mapping from existing system assets
+    const createdAssets = new Map<string, string>(); // url -> assetId
+    
+    // If we have system assets, use them directly
+    if (systemAssets.length > 0) {
+      console.log(`[Apply System] Found ${systemAssets.length} existing system assets, using them directly`);
+      for (const asset of systemAssets) {
+        createdAssets.set(asset.filePath, asset.id);
+      }
+    } else {
+      // Fallback: create new assets if system assets don't exist yet
+      console.log("[Apply System] No system assets found, creating new ones");
+      if (system.assetLibrary) {
+        const assetLibrary = system.assetLibrary as any;
+        if (assetLibrary.assets && Array.isArray(assetLibrary.assets)) {
+          for (const assetData of assetLibrary.assets) {
+            const newAsset = await this.createGameAsset({
+              systemId,
+              name: assetData.name,
+              type: assetData.type || assetData.category || 'image',
+              filePath: assetData.url || assetData.filePath,
+              width: assetData.width || null,
+              height: assetData.height || null,
+              isSystemAsset: true,
+            } as any, userId);
+            
+            createdAssets.set(assetData.url || assetData.filePath, newAsset.id);
+          }
         }
       }
     }
