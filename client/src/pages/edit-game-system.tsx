@@ -1306,6 +1306,65 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                 <Badge variant="outline">{selectedCards.length} selected</Badge>
                               </div>
                               
+                              {/* Quick Selection Options */}
+                              {getAvailableCards().length > 0 && (
+                                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                      <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                                        🚀 Quick Selection Options
+                                      </p>
+                                      <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                                        DEBUG: availableCardAssets.length = {getAvailableCards().length}, condition: {getAvailableCards().length > 0 ? 'TRUE' : 'FALSE'}
+                                      </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        onClick={() => {
+                                          console.log('🔍 [Deck Manager Debug] Select All Available Cards button clicked');
+                                          console.log('🔍 [Deck Manager Debug] Available cards:', getAvailableCards().length);
+                                          
+                                          const availableCardUrls = getAvailableCards().map(card => card.url);
+                                          console.log('🔍 [Deck Manager Debug] Card URLs to select:', availableCardUrls);
+                                          
+                                          // Add all available cards to selection
+                                          setSelectedCards(prev => {
+                                            const newSelection = [...new Set([...prev, ...availableCardUrls])];
+                                            console.log('🔍 [Deck Manager Debug] New selection count:', newSelection.length);
+                                            return newSelection;
+                                          });
+                                          
+                                          toast({
+                                            title: "Cards Selected",
+                                            description: `Selected all ${availableCardUrls.length} available cards for the deck.`,
+                                          });
+                                        }}
+                                        size="sm"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                                        data-testid="button-select-all-available"
+                                      >
+                                        🎯 SELECT ALL {getAvailableCards().length} AVAILABLE CARDS
+                                      </Button>
+                                      <Button
+                                        onClick={() => {
+                                          console.log('🔍 [Deck Manager Debug] Clear Selection button clicked');
+                                          setSelectedCards([]);
+                                          toast({
+                                            title: "Selection Cleared",
+                                            description: "All card selections have been cleared.",
+                                          });
+                                        }}
+                                        size="sm"
+                                        variant="outline"
+                                        data-testid="button-clear-selection"
+                                      >
+                                        Clear All
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              
                               <div className="max-h-96 overflow-y-auto border rounded-lg p-4 space-y-6">
                                 {/* Cards Not in Any Deck */}
                                 <div>
