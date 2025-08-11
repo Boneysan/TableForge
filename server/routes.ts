@@ -914,7 +914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Find or create player's hand pile
-      const allPiles = await storage.getCardPilesByRoom(roomId);
+      const allPiles = await storage.getCardPiles(roomId);
       let handPile = allPiles.find(p => p.pileType === "hand" && p.ownerId === user.uid);
       
       if (!handPile) {
