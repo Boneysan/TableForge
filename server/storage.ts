@@ -287,6 +287,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRoomAssets(roomId: string): Promise<GameAsset[]> {
+    // Get the room to check if it has an applied game system
+    const room = await this.getGameRoom(roomId);
+    
+    // Query for room-specific assets and system assets if room has a system applied
+    if (room?.gameState && (room.gameState as any)?.appliedSystemId) {
+      const systemId = (room.gameState as any).appliedSystemId;
+      return db.select().from(gameAssets).where(
+        or(
+          eq(gameAssets.roomId, roomId),
+          and(
+            eq(gameAssets.systemId, systemId),
+            eq(gameAssets.isSystemAsset, true)
+          )
+        )
+      );
+    }
+    
+    // Fallback to just room assets if no system applied
     return db.select().from(gameAssets).where(eq(gameAssets.roomId, roomId));
   }
 
@@ -786,12 +804,13 @@ export class DatabaseStorage implements IStorage {
       throw new Error("Room not found");
     }
 
-    // Apply system configuration to the room
-    if (system.systemConfig) {
-      await this.updateGameRoom(roomId, {
-        gameState: system.systemConfig
-      });
-    }
+    // Apply system configuration to the room and track which system was applied
+    const gameState = system.systemConfig || {};
+    (gameState as any).appliedSystemId = systemId; // Track which system was applied
+    
+    await this.updateGameRoom(roomId, {
+      gameState: gameState
+    });
 
     // Find existing system assets instead of creating new ones
     const systemAssets = await db.select().from(gameAssets)
