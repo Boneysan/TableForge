@@ -7,6 +7,7 @@ import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameAsset, BoardAsset, CardPile, CardDeck } from "@shared/schema";
 import { DiscardPileViewer } from "./DiscardPileViewer";
 import { useToast } from "@/hooks/use-toast";
+import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 
 interface GameBoardProps {
   assets: GameAsset[];
@@ -53,6 +54,7 @@ export function GameBoard({
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { dragOver, drop } = useDragAndDrop();
 
   // Fetch card piles for the room
   const { data: cardPiles = [] } = useQuery({
@@ -167,6 +169,26 @@ export function GameBoard({
     }
   };
 
+  // Handle dropping assets from Asset Library onto the board
+  const handleAssetDrop = (event: React.DragEvent) => {
+    if (playerRole !== 'admin') return; // Only admins can place assets
+    
+    const dragData = drop(event);
+    if (dragData && dragData.type === 'asset') {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      
+      // Apply snap-to-grid if enabled
+      if (showGrid) {
+        const snapped = snapToGrid(x, y, gridSize);
+        onAssetPlaced(dragData.data.id, snapped.x, snapped.y);
+      } else {
+        onAssetPlaced(dragData.data.id, x, y);
+      }
+    }
+  };
+
   return (
     <div 
       className={`bg-gray-800 rounded-lg relative overflow-hidden ${
@@ -177,6 +199,8 @@ export function GameBoard({
         { height: boardHeight, minHeight: boardHeight } : 
         { width: boardWidth, height: boardHeight, minWidth: boardWidth, minHeight: boardHeight }
       }
+      onDragOver={playerRole === 'admin' ? dragOver : undefined}
+      onDrop={playerRole === 'admin' ? handleAssetDrop : undefined}
     >
       {/* Background Layer */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-green-800"></div>
@@ -377,7 +401,10 @@ export function GameBoard({
               {asset ? (
                 <div className="relative">
                   <img 
-                    src={asset.filePath}
+                    src={asset.filePath.includes('.private/uploads/') 
+                      ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
+                      : asset.filePath
+                    }
                     alt={asset.name}
                     className="w-16 h-16 object-cover rounded-md border-2 border-white"
                     style={{
