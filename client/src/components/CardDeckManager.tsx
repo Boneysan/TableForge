@@ -437,7 +437,7 @@ export function CardDeckManager({
                       Custom Deck
                     </Button>
                   </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Create New Card Deck</DialogTitle>
                   </DialogHeader>
@@ -542,37 +542,43 @@ export function CardDeckManager({
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <div className="space-y-2 mb-3">
-                        <Label>Select Cards ({selectedCards.length} selected)</Label>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={selectAllAvailableCards}
-                            disabled={availableCardAssets.length === 0}
-                            data-testid="button-select-all-available"
-                          >
-                            Select All Available ({availableCardAssets.length})
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={selectAllFilteredCards}
-                            disabled={filteredCardAssets.length === 0}
-                            data-testid="button-select-all-filtered"
-                          >
-                            Select Filtered ({filteredCardAssets.length})
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={deselectAllFilteredCards}
-                            disabled={selectedCards.length === 0}
-                            data-testid="button-deselect-all"
-                          >
-                            Clear ({selectedCards.length})
-                          </Button>
+                    <div className="border-t pt-4">
+                      <div className="space-y-3">
+                        <Label className="text-base font-semibold">Select Cards for Deck ({selectedCards.length} selected)</Label>
+                        
+                        {/* Selection Action Buttons */}
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <p className="text-xs text-gray-600 mb-2">Quick selection options:</p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={selectAllAvailableCards}
+                              disabled={availableCardAssets.length === 0}
+                              data-testid="button-select-all-available"
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              ✓ Select All Available ({availableCardAssets.length})
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={selectAllFilteredCards}
+                              disabled={filteredCardAssets.length === 0}
+                              data-testid="button-select-all-filtered"
+                            >
+                              Select Filtered ({filteredCardAssets.length})
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={deselectAllFilteredCards}
+                              disabled={selectedCards.length === 0}
+                              data-testid="button-deselect-all"
+                            >
+                              Clear ({selectedCards.length})
+                            </Button>
+                          </div>
                         </div>
                       </div>
                       
