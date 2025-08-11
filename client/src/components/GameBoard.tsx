@@ -393,7 +393,9 @@ export function GameBoard({
               data-testid={`deck-spot-${pile.id}`}
               onMouseDown={(e) => {
                 if (playerRole === 'admin') {
-                  // Start drag operation for GMs
+                  e.preventDefault();
+                  
+                  let isDragging = false;
                   const startX = e.clientX;
                   const startY = e.clientY;
                   const initialX = pile.positionX;
@@ -402,38 +404,42 @@ export function GameBoard({
                   const handleMouseMove = (moveEvent: MouseEvent) => {
                     const deltaX = moveEvent.clientX - startX;
                     const deltaY = moveEvent.clientY - startY;
-                    const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
-                    const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
                     
-                    // Apply snap-to-grid if enabled
-                    if (showGrid) {
-                      const snapped = snapToGrid(newX, newY, gridSize);
-                      movePileMutation.mutate({ pileId: pile.id, x: snapped.x, y: snapped.y });
-                    } else {
-                      movePileMutation.mutate({ pileId: pile.id, x: newX, y: newY });
+                    // Only start dragging if moved more than 5 pixels
+                    if (!isDragging && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
+                      isDragging = true;
+                    }
+                    
+                    if (isDragging) {
+                      const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
+                      const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
+                      
+                      // Apply snap-to-grid if enabled
+                      if (showGrid) {
+                        const snapped = snapToGrid(newX, newY, gridSize);
+                        movePileMutation.mutate({ pileId: pile.id, x: snapped.x, y: snapped.y });
+                      } else {
+                        movePileMutation.mutate({ pileId: pile.id, x: newX, y: newY });
+                      }
                     }
                   };
 
-                  const handleMouseUp = () => {
+                  const handleMouseUp = (upEvent: MouseEvent) => {
                     document.removeEventListener('mousemove', handleMouseMove);
                     document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    // If it was just a click (not a drag) and there are cards, draw one
+                    if (!isDragging && cardCount > 0) {
+                      drawCardToBoardMutation.mutate({
+                        pileId: pile.id,
+                        x: pile.positionX + 30, // Offset from pile position
+                        y: pile.positionY + 30
+                      });
+                    }
                   };
 
                   document.addEventListener('mousemove', handleMouseMove);
                   document.addEventListener('mouseup', handleMouseUp);
-                }
-              }}
-              onClick={(e) => {
-                // Only handle clicks, not drags
-                if (playerRole === 'admin' && cardCount > 0) {
-                  e.stopPropagation();
-                  
-                  // Draw a card from this pile to the board
-                  drawCardToBoardMutation.mutate({
-                    pileId: pile.id,
-                    x: pile.positionX + 30, // Offset from pile position
-                    y: pile.positionY + 30
-                  });
                 }
               }}
             >
