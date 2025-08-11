@@ -34,6 +34,7 @@ import { socketAuthManager, type AuthenticatedSocket } from './websocket/socketA
 
 // Import route modules
 import { createJobRoutes } from './routes/jobRoutes';
+import observabilityRoutes from './routes/observabilityRoutes';
 
 // Import validation middleware
 import {
@@ -2332,6 +2333,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to update score' });
     }
   });
+
+  // Observability routes (metrics, health, tracing)
+  app.use('/api/observability', observabilityRoutes);
 
   return httpServer;
 }

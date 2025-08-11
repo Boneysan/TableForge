@@ -12,6 +12,17 @@ import { CardMoveManager } from '../concurrency/cardMoveManager';
 import type { CardMoveRequest, CardMoveResult } from '../concurrency/cardMoveManager';
 import type { AuthenticatedSocket } from '../auth/socketAuth';
 import { logger } from '../utils/logger';
+import { 
+  traceDeckMoveOperation, 
+  traceWebSocketOperation,
+  recordCustomEvent,
+  recordError 
+} from '../observability/telemetry';
+import { 
+  recordCardMove, 
+  recordDeckOperation,
+  recordWebSocketMessage 
+} from '../observability/metrics';
 
 // WebSocket message types for card moves
 export interface CardMoveMessage {
@@ -112,48 +123,110 @@ export class CardMoveHandler {
     });
 
     try {
-      // Create move request
-      const moveRequest: CardMoveRequest = {
-        moveId: payload.moveId,
-        clientId: ws.clientId || `client_${playerId}`, // Use client ID if available
-        playerId,
-        roomId,
-        moveType: payload.moveType,
-        sourceType: payload.sourceType,
-        sourceId: payload.sourceId,
-        targetType: payload.targetType,
-        targetId: payload.targetId,
-        cardAssetIds: payload.cardAssetIds,
-        sourcePosition: payload.sourcePosition,
-        targetPosition: payload.targetPosition,
-        expectedSourceVersion: payload.expectedSourceVersion,
-        expectedTargetVersion: payload.expectedTargetVersion,
-        metadata: {
-          ...payload.metadata,
-          clientTimestamp: Date.now(),
-          userAgent: ws.userAgent,
+      // Record WebSocket message and start tracing
+      recordWebSocketMessage('inbound', 'card_move', roomId);
+
+      await traceDeckMoveOperation(
+        'process_move',
+        {
+          roomId,
+          playerId,
+          moveType: payload.moveType,
+          sourceType: payload.sourceType,
+          targetType: payload.targetType,
+          cardCount: payload.cardAssetIds.length,
+          sourceId: payload.sourceId,
+          targetId: payload.targetId,
+          moveId: payload.moveId,
+          clientId: ws.id,
         },
-      };
+        async (span) => {
+          // Record move initiation
+          recordCustomEvent('card.move.initiated', {
+            'move.id': payload.moveId,
+            'move.type': payload.moveType,
+            'move.source': payload.sourceType,
+            'move.target': payload.targetType,
+            'move.card_count': payload.cardAssetIds.length,
+          });
 
-      // Execute move with concurrency control
-      const result = await this.cardMoveManager.executeMove(moveRequest);
+          // Create move request
+          const moveRequest: CardMoveRequest = {
+            moveId: payload.moveId,
+            clientId: ws.clientId || `client_${playerId}`, // Use client ID if available
+            playerId,
+            roomId,
+            moveType: payload.moveType,
+            sourceType: payload.sourceType,
+            sourceId: payload.sourceId,
+            targetType: payload.targetType,
+            targetId: payload.targetId,
+            cardAssetIds: payload.cardAssetIds,
+            sourcePosition: payload.sourcePosition,
+            targetPosition: payload.targetPosition,
+            expectedSourceVersion: payload.expectedSourceVersion,
+            expectedTargetVersion: payload.expectedTargetVersion,
+            metadata: {
+              ...payload.metadata,
+              clientTimestamp: Date.now(),
+              userAgent: ws.userAgent,
+              traceId: span.spanContext().traceId,
+            },
+          };
 
-      // Send result to requesting client
-      this.sendMoveResult(ws, result);
+          // Record validation phase
+          recordCustomEvent('card.move.validating', {
+            'move.id': payload.moveId,
+          });
 
-      // Broadcast successful moves to other clients in room
-      if (result.success) {
-        this.broadcastMoveToRoom(roomId, payload, result, ws);
-      } else {
-        // Handle conflicts
-        this.handleMoveConflict(ws, payload, result);
-      }
+          // Execute move with concurrency control
+          const result = await this.cardMoveManager.executeMove(moveRequest);
 
-      logger.info('🎴 [Card Move WS] Card move processing completed', {
-        correlationId,
-        success: result.success,
-        sequenceNumber: result.sequenceNumber,
-      });
+          // Record metrics based on result
+          if (result.success) {
+            recordCardMove(
+              payload.moveType,
+              payload.sourceType,
+              payload.targetType,
+              roomId
+            );
+            recordDeckOperation(payload.moveType, 'card_operation', roomId);
+            recordCustomEvent('card.move.completed', {
+              'move.id': payload.moveId,
+              'move.sequence': result.sequenceNumber || 0,
+            });
+          } else {
+            recordCustomEvent('card.move.failed', {
+              'move.id': payload.moveId,
+              'move.error': result.error || 'unknown',
+            });
+          }
+
+          // Send result to requesting client
+          this.sendMoveResult(ws, result);
+
+          // Broadcast successful moves to other clients in room
+          if (result.success) {
+            recordCustomEvent('card.move.broadcasting', {
+              'move.id': payload.moveId,
+            });
+            this.broadcastMoveToRoom(roomId, payload, result, ws);
+            recordWebSocketMessage('outbound', 'card_move_broadcast', roomId);
+          } else {
+            // Handle conflicts
+            this.handleMoveConflict(ws, payload, result);
+          }
+
+          logger.info('🎴 [Card Move WS] Card move processing completed', {
+            correlationId,
+            success: result.success,
+            sequenceNumber: result.sequenceNumber,
+            traceId: span.spanContext().traceId,
+          });
+
+          return result;
+        }
+      );
 
     } catch (error) {
       logger.error('🎴 [Card Move WS] Error processing card move', {

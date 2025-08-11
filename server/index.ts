@@ -1,3 +1,9 @@
+// Initialize observability first
+import { initializeTelemetry } from './observability/telemetry';
+
+// Initialize telemetry before other imports
+initializeTelemetry();
+
 import express, { type Request, Response, NextFunction } from 'express';
 import { registerRoutes } from './routes';
 import { setupVite, serveStatic, log } from './vite';
