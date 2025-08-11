@@ -217,6 +217,17 @@ export function CardDeckManager({
     asset.type === "other" // Allow any image asset to be used as card back
   );
 
+  // Get cards that are already used in existing decks
+  const usedCardIds = new Set<string>();
+  (decks as CardDeck[]).forEach(deck => {
+    if (deck.deckOrder && Array.isArray(deck.deckOrder)) {
+      deck.deckOrder.forEach((cardId: string) => usedCardIds.add(cardId));
+    }
+  });
+
+  // Filter to show only available (unused) cards
+  const availableCardAssets = cardAssets.filter(asset => !usedCardIds.has(asset.id));
+
   const handleCreateDeck = () => {
     if (!deckName.trim() || selectedCards.length === 0) {
       toast({ title: "Please provide a deck name and select cards", variant: "destructive" });
@@ -255,7 +266,7 @@ export function CardDeckManager({
   };
 
   const selectAllFilteredCards = () => {
-    const filteredAssets = cardAssets.filter(asset => 
+    const filteredAssets = availableCardAssets.filter(asset => 
       asset.name.toLowerCase().includes(cardFilter.toLowerCase())
     );
     const allFilteredIds = filteredAssets.map(asset => asset.id);
@@ -263,12 +274,12 @@ export function CardDeckManager({
   };
 
   const selectAllAvailableCards = () => {
-    const allCardIds = cardAssets.map(asset => asset.id);
-    setSelectedCards(allCardIds);
+    const allAvailableCardIds = availableCardAssets.map(asset => asset.id);
+    setSelectedCards(allAvailableCardIds);
   };
 
   const deselectAllFilteredCards = () => {
-    const filteredAssets = cardAssets.filter(asset => 
+    const filteredAssets = availableCardAssets.filter(asset => 
       asset.name.toLowerCase().includes(cardFilter.toLowerCase())
     );
     const filteredIds = new Set(filteredAssets.map(asset => asset.id));
@@ -292,7 +303,7 @@ export function CardDeckManager({
 
     if (templateKeywords[template as keyof typeof templateKeywords]) {
       const keywords = templateKeywords[template as keyof typeof templateKeywords];
-      const matchingCards = cardAssets.filter(asset => 
+      const matchingCards = availableCardAssets.filter(asset => 
         keywords.some(keyword => 
           asset.name.toLowerCase().includes(keyword.toLowerCase())
         )
@@ -301,7 +312,7 @@ export function CardDeckManager({
     }
   };
 
-  const filteredCardAssets = cardAssets.filter(asset => 
+  const filteredCardAssets = availableCardAssets.filter(asset => 
     asset.name.toLowerCase().includes(cardFilter.toLowerCase())
   );
 
@@ -539,7 +550,7 @@ export function CardDeckManager({
                             variant="default"
                             size="sm"
                             onClick={selectAllAvailableCards}
-                            disabled={cardAssets.length === 0}
+                            disabled={availableCardAssets.length === 0}
                             data-testid="button-select-all-available"
                           >
                             Select All Available
@@ -575,7 +586,12 @@ export function CardDeckManager({
                       />
                       
                       <div className="text-xs text-gray-500 mb-2">
-                        Showing {filteredCardAssets.length} of {cardAssets.length} cards
+                        Showing {filteredCardAssets.length} of {availableCardAssets.length} available cards
+                        {usedCardIds.size > 0 && (
+                          <span className="text-orange-600 ml-2">
+                            ({usedCardIds.size} cards already used in decks)
+                          </span>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto border rounded p-2">
@@ -602,9 +618,14 @@ export function CardDeckManager({
                             </div>
                           </div>
                         ))}
-                        {filteredCardAssets.length === 0 && cardAssets.length > 0 && (
+                        {filteredCardAssets.length === 0 && availableCardAssets.length > 0 && (
                           <div className="col-span-3 text-center py-4 text-gray-500 text-sm">
-                            No cards match "{cardFilter}"
+                            No available cards match "{cardFilter}"
+                          </div>
+                        )}
+                        {availableCardAssets.length === 0 && cardAssets.length > 0 && (
+                          <div className="col-span-3 text-center py-4 text-gray-500 text-sm">
+                            All cards are already used in existing decks
                           </div>
                         )}
                         {cardAssets.length === 0 && (
