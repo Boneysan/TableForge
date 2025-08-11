@@ -107,7 +107,22 @@ export default function AdminDashboard() {
     },
   });
 
-
+  // Cleanup orphaned files mutation
+  const cleanupOrphanedFilesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authenticatedApiRequest("POST", "/api/admin/cleanup-orphaned-files");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({ 
+        title: "Cleanup completed", 
+        description: `Deleted ${data.deleted} orphaned files` 
+      });
+    },
+    onError: () => {
+      toast({ title: "Failed to cleanup orphaned files", variant: "destructive" });
+    },
+  });
 
   // Filter functions
   const filteredRooms = allRooms.filter(room => 
@@ -157,6 +172,26 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="flex items-center space-x-4">
+          <Button
+            onClick={() => cleanupOrphanedFilesMutation.mutate()}
+            disabled={cleanupOrphanedFilesMutation.isPending}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+            data-testid="button-cleanup-files"
+          >
+            {cleanupOrphanedFilesMutation.isPending ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                Cleaning...
+              </>
+            ) : (
+              <>
+                <Trash2 className="w-4 h-4" />
+                Cleanup Orphaned Files
+              </>
+            )}
+          </Button>
           <ThemeToggle />
           <Button 
             onClick={() => setLocation("/")}

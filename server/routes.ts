@@ -1745,6 +1745,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoint to cleanup orphaned files
+  app.post("/api/admin/cleanup-orphaned-files", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const userId = req.user?.uid || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
+
+      console.log(`🧹 [Admin Cleanup] Starting orphaned file cleanup requested by user ${userId}`);
+      
+      const objectStorageService = new ObjectStorageService();
+      const result = await objectStorageService.cleanupOrphanedFiles();
+      
+      console.log(`🧹 [Admin Cleanup] Cleanup complete: ${result.deleted} deleted, ${result.errors} errors`);
+      
+      res.json({
+        success: true,
+        deleted: result.deleted,
+        errors: result.errors,
+        deletedFiles: result.fileList
+      });
+    } catch (error) {
+      console.error("Error cleaning up orphaned files:", error);
+      res.status(500).json({ error: "Failed to cleanup orphaned files" });
+    }
+  });
+
   // Save current room as game system
   app.post("/api/rooms/:roomId/save-system", hybridAuthMiddleware, async (req: any, res) => {
     try {

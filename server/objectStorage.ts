@@ -242,6 +242,86 @@ export class ObjectStorageService {
       requestedPermission: requestedPermission ?? ObjectPermission.READ,
     });
   }
+
+  // Lists all files in the uploads directory
+  async listUploadedFiles(): Promise<Array<{ name: string; size: number; timeCreated: string; path: string }>> {
+    const privateObjectDir = this.getPrivateObjectDir();
+    const uploadsPath = `${privateObjectDir}/uploads/`;
+    const { bucketName, objectName } = parseObjectPath(uploadsPath);
+    
+    const bucket = objectStorageClient.bucket(bucketName);
+    const [files] = await bucket.getFiles({
+      prefix: objectName,
+    });
+
+    return files.map(file => ({
+      name: file.name,
+      size: file.metadata.size ? parseInt(file.metadata.size) : 0,
+      timeCreated: file.metadata.timeCreated || '',
+      path: `/${bucketName}/${file.name}`
+    }));
+  }
+
+  // Deletes a file from Google Cloud Storage
+  async deleteFile(filePath: string): Promise<boolean> {
+    try {
+      const { bucketName, objectName } = parseObjectPath(filePath);
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file(objectName);
+      
+      const [exists] = await file.exists();
+      if (!exists) {
+        return false;
+      }
+      
+      await file.delete();
+      console.log(`🗑️ [Storage] Deleted file: ${filePath}`);
+      return true;
+    } catch (error) {
+      console.error(`❌ [Storage] Failed to delete file ${filePath}:`, error);
+      return false;
+    }
+  }
+
+  // Finds and deletes orphaned files (files in storage without database records)
+  async cleanupOrphanedFiles(): Promise<{ deleted: number; errors: number; fileList: string[] }> {
+    const files = await this.listUploadedFiles();
+    const deletedFiles: string[] = [];
+    let deleted = 0;
+    let errors = 0;
+
+    console.log(`🧹 [Storage Cleanup] Found ${files.length} files in uploads directory`);
+
+    for (const file of files) {
+      try {
+        // Extract the file path from the full object path
+        const filePath = file.path.split('/').slice(2).join('/'); // Remove bucket name from path
+        
+        // Check if this file is referenced in any game asset
+        const storage = await import('./storage');
+        const referencedAsset = await storage.storage.findAssetByFilePath(`/objects/uploads/${filePath.split('/').pop()}`);
+        
+        if (!referencedAsset) {
+          console.log(`🗑️ [Storage Cleanup] Deleting orphaned file: ${file.name}`);
+          const success = await this.deleteFile(file.path);
+          if (success) {
+            deleted++;
+            deletedFiles.push(file.name);
+          } else {
+            errors++;
+          }
+        } else {
+          console.log(`✅ [Storage Cleanup] File has database record: ${file.name}`);
+        }
+      } catch (error) {
+        console.error(`❌ [Storage Cleanup] Error processing file ${file.name}:`, error);
+        errors++;
+      }
+    }
+
+    console.log(`🧹 [Storage Cleanup] Complete: ${deleted} deleted, ${errors} errors`);
+    return { deleted, errors, fileList: deletedFiles };
+  }
 }
 
 function parseObjectPath(path: string): {

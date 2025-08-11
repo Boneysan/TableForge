@@ -60,6 +60,7 @@ export interface IStorage {
   createGameAsset(asset: InsertGameAsset, uploadedBy: string): Promise<GameAsset>;
   getRoomAssets(roomId: string): Promise<GameAsset[]>;
   deleteGameAsset(id: string): Promise<void>;
+  findAssetByFilePath(filePath: string): Promise<GameAsset | undefined>;
 
   // Board Assets
   getBoardAsset(id: string): Promise<BoardAsset | undefined>;
@@ -311,6 +312,11 @@ export class DatabaseStorage implements IStorage {
   async deleteGameAsset(id: string): Promise<void> {
     await db.delete(boardAssets).where(eq(boardAssets.assetId, id));
     await db.delete(gameAssets).where(eq(gameAssets.id, id));
+  }
+
+  async findAssetByFilePath(filePath: string): Promise<GameAsset | undefined> {
+    const [asset] = await db.select().from(gameAssets).where(eq(gameAssets.filePath, filePath));
+    return asset || undefined;
   }
 
   // Board Assets
