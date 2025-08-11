@@ -227,6 +227,13 @@ export function CardDeckManager({
 
   // Filter to show only available (unused) cards
   const availableCardAssets = cardAssets.filter(asset => !usedCardIds.has(asset.id));
+  
+  // Debug logging
+  console.log("🔍 [Deck Manager Debug]");
+  console.log("Total cardAssets:", cardAssets.length);
+  console.log("Used card IDs:", Array.from(usedCardIds));
+  console.log("Available card assets:", availableCardAssets.length);
+  console.log("Show create deck dialog:", showCreateDeck);
 
   const handleCreateDeck = () => {
     if (!deckName.trim() || selectedCards.length === 0) {
@@ -549,40 +556,50 @@ export function CardDeckManager({
                         {/* Selection Action Buttons */}
                         <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                           <p className="text-sm font-medium text-yellow-800 mb-3">🚀 Quick Selection Options:</p>
-                          <div className="space-y-2">
-                            <Button
-                              variant="default"
-                              size="default"
-                              onClick={selectAllAvailableCards}
-                              disabled={availableCardAssets.length === 0}
-                              data-testid="button-select-all-available"
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                            >
-                              🎯 SELECT ALL {availableCardAssets.length} AVAILABLE CARDS
-                            </Button>
-                            <div className="flex gap-2">
+                          {availableCardAssets.length > 0 ? (
+                            <div className="space-y-2">
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={selectAllFilteredCards}
-                                disabled={filteredCardAssets.length === 0}
-                                data-testid="button-select-all-filtered"
-                                className="flex-1"
+                                variant="default"
+                                size="default"
+                                onClick={() => {
+                                  console.log("🎯 SELECT ALL BUTTON CLICKED!");
+                                  selectAllAvailableCards();
+                                }}
+                                disabled={availableCardAssets.length === 0}
+                                data-testid="button-select-all-available"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                               >
-                                Select Filtered ({filteredCardAssets.length})
+                                🎯 SELECT ALL {availableCardAssets.length} AVAILABLE CARDS
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={deselectAllFilteredCards}
-                                disabled={selectedCards.length === 0}
-                                data-testid="button-deselect-all"
-                                className="flex-1"
-                              >
-                                Clear ({selectedCards.length})
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={selectAllFilteredCards}
+                                  disabled={filteredCardAssets.length === 0}
+                                  data-testid="button-select-all-filtered"
+                                  className="flex-1"
+                                >
+                                  Select Filtered ({filteredCardAssets.length})
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={deselectAllFilteredCards}
+                                  disabled={selectedCards.length === 0}
+                                  data-testid="button-deselect-all"
+                                  className="flex-1"
+                                >
+                                  Clear ({selectedCards.length})
+                                </Button>
+                              </div>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="bg-red-100 border border-red-300 p-3 rounded">
+                              <p className="text-red-700 font-medium">⚠️ No Available Cards</p>
+                              <p className="text-red-600 text-sm">All {cardAssets.length} cards are already used in existing decks.</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
