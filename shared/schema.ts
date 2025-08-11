@@ -580,3 +580,20 @@ export type GameTemplate = typeof gameTemplates.$inferSelect;
 export type InsertGameTemplate = z.infer<typeof insertGameTemplateSchema>;
 export type GameSystem = typeof gameSystems.$inferSelect;
 export type InsertGameSystem = z.infer<typeof insertGameSystemSchema>;
+
+// Additional schemas for testing
+export const createInsertDeckSchema = createInsertSchema(cardDecks, {
+  name: z.string().min(1, "Deck name is required"),
+  description: z.string().optional(),
+});
+
+export const createInsertCardSchema = createInsertSchema(gameAssets, {
+  name: z.string().min(1, "Card name is required"),
+  type: z.literal("card"),
+  filePath: z.string().min(1, "File path is required"),
+});
+
+export type InsertDeck = z.infer<typeof createInsertDeckSchema>;
+export type InsertCard = z.infer<typeof createInsertCardSchema>;
+export type Deck = typeof cardDecks.$inferSelect;
+export type Card = typeof gameAssets.$inferSelect;
