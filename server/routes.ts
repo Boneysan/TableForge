@@ -1096,7 +1096,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Return Cards] Admin ${userId} returning all board cards to decks for room ${roomId}`);
 
       // Get all board assets (scattered cards)
-      const boardAssets = await storage.getBoardAssets(roomId);
+      const boardAssets = await storage.getRoomBoardAssets(roomId);
       console.log(`[Return Cards] Found ${boardAssets.length} board assets to return`);
 
       // Get all card piles in the room
