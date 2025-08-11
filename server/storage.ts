@@ -907,23 +907,28 @@ export class DatabaseStorage implements IStorage {
           // Find the card back asset ID if it exists
           const cardBackAssetId = deckData.cardBack ? createdAssets.get(deckData.cardBack) || null : null;
           
+          // Build deck order from card assets
+          let deckOrder: string[] = [];
+          if (deckData.cardAssets && Array.isArray(deckData.cardAssets)) {
+            deckOrder = deckData.cardAssets.map((assetUrl: string) => {
+              return createdAssets.get(assetUrl);
+            }).filter(Boolean);
+          }
+
           // Create the deck
           const newDeck = await this.createCardDeck({
             roomId,
             name: deckData.name,
             description: deckData.description || '',
-            deckOrder: deckData.deckOrder || 0,
+            deckOrder: deckOrder,
             cardBackAssetId: cardBackAssetId,
           }, userId);
 
           // Create card piles for the deck if it has cards
           if (deckData.cardAssets && Array.isArray(deckData.cardAssets)) {
             // Create main deck pile
-            // Build cardOrder array with asset IDs
-            const cardOrder = deckData.cardAssets.map((asset: any) => {
-              const assetId = createdAssets.get(asset.url || asset.filePath);
-              return assetId || asset.id;
-            }).filter(Boolean);
+            // Use the same cardOrder we built for the deck
+            const cardOrder = deckOrder;
 
             await this.createCardPile({
               roomId,

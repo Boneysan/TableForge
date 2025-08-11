@@ -206,12 +206,19 @@ export function CardDeckManager({
   });
 
   const cardAssets = assets.filter(asset => 
-    asset.type === "card" || asset.name.toLowerCase().includes("card")
+    asset.type === "card" || 
+    asset.type === "image/jpeg" || 
+    asset.type === "image/png" || 
+    asset.type === "image/webp" || 
+    asset.name.toLowerCase().includes("card")
   );
 
   // Card back assets - these could be any image asset that would work as a card back
   const cardBackAssets = assets.filter(asset => 
     asset.type === "card" || 
+    asset.type === "image/jpeg" || 
+    asset.type === "image/png" || 
+    asset.type === "image/webp" || 
     asset.name.toLowerCase().includes("back") ||
     asset.name.toLowerCase().includes("cardback") ||
     asset.type === "other" // Allow any image asset to be used as card back
