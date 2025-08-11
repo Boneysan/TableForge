@@ -50,6 +50,7 @@ export default function CreateGameSystem() {
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
+  const [currentSystemId, setCurrentSystemId] = useState<string | null>(null);
 
   // Handle asset upload
   const handleAssetUpload = async () => {
@@ -88,6 +89,84 @@ export default function CreateGameSystem() {
         title: "Assets Uploaded",
         description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s)`,
       });
+    }
+  };
+
+  // New callback for system assets that creates database records immediately
+  const handleSystemAssetUploadComplete = async (result: any) => {
+    console.log('🎯 [System Asset Upload] Processing completed upload:', {
+      hasSystemId: !!currentSystemId,
+      systemId: currentSystemId,
+      successfulCount: result.successful?.length || 0
+    });
+
+    if (!currentSystemId) {
+      console.error('❌ [System Asset Upload] No system ID available for asset creation');
+      toast({
+        title: "Upload Error",
+        description: "Please create the system first before uploading assets",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (result.successful && result.successful.length > 0) {
+      try {
+        for (const file of result.successful) {
+          const assetData = {
+            name: file.name,
+            type: selectedCategory,
+            filePath: new URL(file.uploadURL).pathname.substring(1), // Remove leading slash
+            fileSize: file.size,
+            category: selectedCategory,
+            tags: [],
+            visibility: 'public',
+          };
+
+          console.log('📝 [System Asset] Creating database record:', {
+            systemId: currentSystemId,
+            name: assetData.name,
+            type: assetData.type,
+            path: assetData.filePath
+          });
+
+          const response = await authenticatedApiRequest(
+            "POST", 
+            `/api/systems/${currentSystemId}/assets`, 
+            assetData
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Failed to create asset ${file.name}: ${errorData.error}`);
+          }
+
+          const createdAsset = await response.json();
+          console.log('✅ [System Asset] Created asset:', createdAsset.id);
+        }
+
+        // Update local state
+        const newAssets = result.successful.map((file: any) => ({
+          name: file.name,
+          url: file.uploadURL,
+          type: file.type,
+          size: file.size,
+          category: selectedCategory,
+        }));
+        setUploadedAssets(prev => [...prev, ...newAssets]);
+        
+        toast({
+          title: "System Assets Created",
+          description: `Successfully created ${result.successful.length} ${selectedCategory} asset(s) in database`,
+        });
+      } catch (error) {
+        console.error('❌ [System Asset Upload] Failed to create database records:', error);
+        toast({
+          title: "Database Error",
+          description: `Upload succeeded but failed to create database records: ${error.message}`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -177,13 +256,15 @@ export default function CreateGameSystem() {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('🎯 [Game System] Created successfully:', data.id);
+      setCurrentSystemId(data.id); // Store system ID for asset uploads
+      
       toast({
         title: "Game System Created",
-        description: `"${name}" has been created successfully!`,
+        description: `"${name}" has been created successfully! You can now upload assets.`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/game-systems"] });
       queryClient.invalidateQueries({ queryKey: ["/api/game-systems"] });
-      setLocation("/admin");
     },
     onError: (error: any) => {
       toast({
@@ -442,6 +523,33 @@ export default function CreateGameSystem() {
               </div>
             </div>
 
+            {!currentSystemId && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-amber-600 mt-0.5">
+                    <Settings className="w-4 h-4" />
+                  </div>
+                  <div className="text-sm text-amber-800">
+                    <strong>First Step:</strong> Create your game system by filling out the basic information and clicking "Create Game System" below. 
+                    Once created, you can upload assets that will be automatically saved to the database.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentSystemId && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-green-600 mt-0.5">
+                    <Package className="w-4 h-4" />
+                  </div>
+                  <div className="text-sm text-green-800">
+                    <strong>System Created!</strong> Your game system is ready. Assets uploaded now will be automatically saved to the database.
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Upload Options */}
             <div className="space-y-4">
               {selectedCategory === "cards" ? (
@@ -458,7 +566,7 @@ export default function CreateGameSystem() {
                         maxNumberOfFiles={50}
                         maxFileSize={50485760} // 50MB
                         onGetUploadParameters={handleAssetUpload}
-                        onComplete={handleUploadComplete}
+                        onComplete={currentSystemId ? handleSystemAssetUploadComplete : handleUploadComplete}
                         buttonClassName="w-full flex items-center justify-center gap-2 py-3"
                       >
                         <Upload className="w-5 h-5" />
@@ -474,11 +582,11 @@ export default function CreateGameSystem() {
                         batchSize={50}
                         maxFileSize={50485760} // 50MB
                         onGetUploadParameters={handleAssetUpload}
-                        onBatchComplete={handleUploadComplete}
+                        onBatchComplete={currentSystemId ? handleSystemAssetUploadComplete : handleUploadComplete}
                         onAllComplete={(total) => {
                           toast({
-                            title: "Bulk Upload Complete",
-                            description: `Successfully uploaded ${total} cards!`,
+                            title: "System Assets Complete",
+                            description: `Successfully processed ${total} cards! ${currentSystemId ? 'All assets created in database.' : 'Create the system first to save assets.'}`,
                           });
                         }}
                         buttonClassName="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
@@ -514,7 +622,7 @@ export default function CreateGameSystem() {
                     maxNumberOfFiles={50}
                     maxFileSize={50485760} // 50MB
                     onGetUploadParameters={handleAssetUpload}
-                    onComplete={handleUploadComplete}
+                    onComplete={currentSystemId ? handleSystemAssetUploadComplete : handleUploadComplete}
                     buttonClassName="flex items-center gap-2"
                   >
                     <Upload className="w-4 h-4" />
@@ -586,23 +694,33 @@ export default function CreateGameSystem() {
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saveGameSystemMutation.isPending || !name.trim()}
-            data-testid="button-save-system"
-          >
-            {saveGameSystemMutation.isPending ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Creating...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Create Game System
-              </>
-            )}
-          </Button>
+          {!currentSystemId ? (
+            <Button
+              onClick={handleSave}
+              disabled={saveGameSystemMutation.isPending || !name.trim()}
+              data-testid="button-save-system"
+            >
+              {saveGameSystemMutation.isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Create Game System
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setLocation("/admin")}
+              data-testid="button-finish"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Finish & Go to Admin
+            </Button>
+          )}
         </div>
       </div>
     </div>

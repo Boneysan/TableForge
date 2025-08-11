@@ -1576,6 +1576,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Game Systems API Routes
+  // System Assets endpoint
+  app.post("/api/systems/:systemId/assets", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { systemId } = req.params;
+      const assetData = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
+      
+      // Verify system exists and user owns it
+      const system = await storage.getGameSystem(systemId);
+      if (!system) {
+        return res.status(404).json({ error: "System not found" });
+      }
+      
+      if (system.createdBy !== userId) {
+        return res.status(403).json({ error: "Not authorized to add assets to this system" });
+      }
+      
+      // Normalize the object path
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = objectStorageService.normalizeObjectEntityPath(assetData.filePath);
+      
+      const asset = await storage.createGameAsset({
+        ...assetData,
+        systemId,
+        roomId: null, // System assets don't belong to a room
+        isSystemAsset: true,
+        filePath: normalizedPath
+      }, userId);
+      
+      console.log(`🎯 [System Asset] Created asset for system ${systemId}: ${asset.name}`);
+      res.json(asset);
+    } catch (error) {
+      console.error("Error creating system asset:", error);
+      res.status(500).json({ error: "Failed to create system asset" });
+    }
+  });
+
   app.get("/api/systems", hybridAuthMiddleware, async (req: any, res) => {
     try {
       const userId = req.user?.uid || req.user?.claims?.sub;
