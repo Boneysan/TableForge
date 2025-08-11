@@ -1,0 +1,1548 @@
+openapi: 3.0.3
+info:
+  title: Vorpal Board API
+  description: |
+    Comprehensive multiplayer virtual tabletop gaming platform API.
+    
+    ## Features
+    - Real-time multiplayer game rooms
+    - Asset management with Google Cloud Storage
+    - Card and deck management system
+    - WebSocket-based real-time communication
+    - Firebase authentication
+    - Comprehensive observability and metrics
+    
+    ## Authentication
+    Most endpoints require Firebase ID token authentication via Bearer token in Authorization header.
+    
+    ## WebSocket Connection
+    Real-time features are available via WebSocket connection at `/ws` endpoint with authentication.
+    
+    ## Rate Limiting
+    All endpoints are rate-limited. See specific endpoint documentation for limits.
+    
+  version: 1.0.0
+  contact:
+    name: Vorpal Board API Support
+    url: https://github.com/vorpal-board/api
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://{repl-url}.replit.dev
+    description: Replit deployment
+    variables:
+      repl-url:
+        default: your-repl
+        description: Your Replit deployment URL
+
+security:
+  - FirebaseAuth: []
+  - ReplitAuth: []
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Rooms
+    description: Game room management and operations
+  - name: Assets
+    description: Game asset upload and management
+  - name: Cards & Decks
+    description: Card and deck management system
+  - name: Board
+    description: Game board and token management
+  - name: Chat
+    description: Real-time chat system
+  - name: Templates
+    description: Game template management
+  - name: Systems
+    description: Game system management
+  - name: Admin
+    description: Administrative operations
+  - name: Observability
+    description: Metrics, health checks, and monitoring
+
+components:
+  securitySchemes:
+    FirebaseAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Firebase ID token
+    ReplitAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Replit authentication token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique user identifier
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        profileImageUrl:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique room identifier
+        name:
+          type: string
+          description: Room name
+        description:
+          type: string
+          description: Room description
+        createdBy:
+          type: string
+          description: User ID of room creator
+        isPublic:
+          type: boolean
+          description: Whether room is publicly visible
+        maxPlayers:
+          type: integer
+          minimum: 1
+          maximum: 20
+        currentPlayers:
+          type: integer
+          minimum: 0
+        status:
+          type: string
+          enum: [active, paused, completed]
+        gameSystemId:
+          type: string
+          nullable: true
+        boardConfig:
+          type: object
+          description: Board configuration settings
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - createdBy
+
+    GameAsset:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        filePath:
+          type: string
+        assetType:
+          type: string
+          enum: [card, token, board, dice, other]
+        roomId:
+          type: string
+          nullable: true
+        systemId:
+          type: string
+          nullable: true
+        isSystemAsset:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - filePath
+        - assetType
+
+    CardDeck:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        roomId:
+          type: string
+        systemId:
+          type: string
+          nullable: true
+        cardBackId:
+          type: string
+          nullable: true
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameAsset'
+        isShuffled:
+          type: boolean
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - roomId
+
+    CardPile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        roomId:
+          type: string
+        pileType:
+          type: string
+          enum: [deck, hand, discard, draw]
+        ownerId:
+          type: string
+          nullable: true
+        cardOrder:
+          type: array
+          items:
+            type: string
+        positionX:
+          type: number
+        positionY:
+          type: number
+        isVisible:
+          type: boolean
+        maxCards:
+          type: integer
+          nullable: true
+        version:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - roomId
+        - pileType
+
+    BoardAsset:
+      type: object
+      properties:
+        id:
+          type: string
+        assetId:
+          type: string
+        roomId:
+          type: string
+        assetType:
+          type: string
+          enum: [token, card, board]
+        positionX:
+          type: number
+        positionY:
+          type: number
+        rotation:
+          type: number
+          minimum: 0
+          maximum: 360
+        scale:
+          type: number
+          minimum: 0.1
+          maximum: 5.0
+        zIndex:
+          type: integer
+        isFlipped:
+          type: boolean
+        isLocked:
+          type: boolean
+        ownerId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - assetId
+        - roomId
+        - assetType
+
+    GameTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        isPublic:
+          type: boolean
+        createdBy:
+          type: string
+        templateData:
+          type: object
+          description: Serialized game state data
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - createdBy
+
+    GameSystem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        isPublic:
+          type: boolean
+        createdBy:
+          type: string
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameAsset'
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - createdBy
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        roomId:
+          type: string
+        userId:
+          type: string
+        message:
+          type: string
+        messageType:
+          type: string
+          enum: [chat, system, roll]
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - roomId
+        - userId
+        - message
+
+    DiceRoll:
+      type: object
+      properties:
+        id:
+          type: string
+        roomId:
+          type: string
+        userId:
+          type: string
+        diceType:
+          type: string
+        diceCount:
+          type: integer
+          minimum: 1
+        results:
+          type: array
+          items:
+            type: integer
+        total:
+          type: integer
+        modifier:
+          type: integer
+        rollType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - roomId
+        - userId
+        - results
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
+      required:
+        - error
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: {}
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+      required:
+        - data
+        - pagination
+
+paths:
+  # Authentication endpoints
+  /api/auth/user:
+    get:
+      tags: [Authentication]
+      summary: Get current user profile
+      description: Retrieve the authenticated user's profile information
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Room management endpoints
+  /api/rooms:
+    get:
+      tags: [Rooms]
+      summary: List game rooms
+      description: Get a paginated list of game rooms with optional filtering
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: public
+          in: query
+          description: Filter by public/private rooms
+          schema:
+            type: boolean
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, paused, completed]
+      responses:
+        '200':
+          description: Rooms retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Room'
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags: [Rooms]
+      summary: Create new room
+      description: Create a new game room
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 500
+                isPublic:
+                  type: boolean
+                  default: true
+                maxPlayers:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+                  default: 8
+                gameSystemId:
+                  type: string
+                  nullable: true
+              required:
+                - name
+      responses:
+        '201':
+          description: Room created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/rooms/{roomId}:
+    get:
+      tags: [Rooms]
+      summary: Get room details
+      description: Retrieve detailed information about a specific room
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          description: Room not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags: [Rooms]
+      summary: Update room
+      description: Update room details (admin only)
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 500
+                isPublic:
+                  type: boolean
+                maxPlayers:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+      responses:
+        '200':
+          description: Room updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Room not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Rooms]
+      summary: Delete room
+      description: Delete a room (admin only)
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Room deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Room not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/rooms/{roomId}/join:
+    post:
+      tags: [Rooms]
+      summary: Join room
+      description: Join a game room as a player
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: Room password if required
+      responses:
+        '200':
+          description: Successfully joined room
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully joined room
+                  role:
+                    type: string
+                    enum: [admin, player]
+        '400':
+          description: Cannot join room (full, wrong password, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Room not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Asset management endpoints
+  /api/rooms/{roomId}/assets:
+    get:
+      tags: [Assets]
+      summary: Get room assets
+      description: Retrieve all assets in a room with optional filtering
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: assetType
+          in: query
+          schema:
+            type: string
+            enum: [card, token, board, dice, other]
+        - name: tags
+          in: query
+          description: Filter by tags (comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Assets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameAsset'
+
+    post:
+      tags: [Assets]
+      summary: Upload room asset
+      description: Upload a new asset to a room
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                filePath:
+                  type: string
+                assetType:
+                  type: string
+                  enum: [card, token, board, dice, other]
+                tags:
+                  type: array
+                  items:
+                    type: string
+                metadata:
+                  type: object
+              required:
+                - name
+                - filePath
+                - assetType
+      responses:
+        '201':
+          description: Asset uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameAsset'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Board management endpoints  
+  /api/rooms/{roomId}/board/assets:
+    get:
+      tags: [Board]
+      summary: Get board assets
+      description: Get all assets currently on the game board
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Board assets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoardAsset'
+
+    post:
+      tags: [Board]
+      summary: Place asset on board
+      description: Place an asset on the game board
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetId:
+                  type: string
+                assetType:
+                  type: string
+                  enum: [token, card, board]
+                positionX:
+                  type: number
+                positionY:
+                  type: number
+                rotation:
+                  type: number
+                  minimum: 0
+                  maximum: 360
+                  default: 0
+                scale:
+                  type: number
+                  minimum: 0.1
+                  maximum: 5.0
+                  default: 1.0
+              required:
+                - assetId
+                - assetType
+                - positionX
+                - positionY
+      responses:
+        '201':
+          description: Asset placed on board successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardAsset'
+
+  # Card and Deck management endpoints
+  /api/rooms/{roomId}/decks:
+    get:
+      tags: [Cards & Decks]
+      summary: Get room decks
+      description: Get all decks in a room
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Decks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CardDeck'
+
+    post:
+      tags: [Cards & Decks]
+      summary: Create deck
+      description: Create a new card deck
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 500
+                cardBackId:
+                  type: string
+                  nullable: true
+                cardIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of asset IDs to include as cards
+              required:
+                - name
+                - cardIds
+      responses:
+        '201':
+          description: Deck created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardDeck'
+
+  /api/rooms/{roomId}/decks/{deckId}/shuffle:
+    post:
+      tags: [Cards & Decks]
+      summary: Shuffle deck
+      description: Shuffle a deck of cards
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: deckId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deck shuffled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Deck shuffled successfully
+                  cardOrder:
+                    type: array
+                    items:
+                      type: string
+
+  # Card Pile management endpoints
+  /api/rooms/{roomId}/piles:
+    get:
+      tags: [Cards & Decks]
+      summary: Get card piles
+      description: Get all card piles in a room (hands, draw piles, etc.)
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pileType
+          in: query
+          schema:
+            type: string
+            enum: [deck, hand, discard, draw]
+        - name: ownerId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Card piles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CardPile'
+
+    post:
+      tags: [Cards & Decks]
+      summary: Create card pile
+      description: Create a new card pile (hand, draw pile, etc.)
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                pileType:
+                  type: string
+                  enum: [deck, hand, discard, draw]
+                ownerId:
+                  type: string
+                  nullable: true
+                positionX:
+                  type: number
+                  default: 0
+                positionY:
+                  type: number
+                  default: 0
+                isVisible:
+                  type: boolean
+                  default: true
+                maxCards:
+                  type: integer
+                  nullable: true
+              required:
+                - name
+                - pileType
+      responses:
+        '201':
+          description: Card pile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardPile'
+
+  # Chat endpoints
+  /api/rooms/{roomId}/chat:
+    get:
+      tags: [Chat]
+      summary: Get chat messages
+      description: Get recent chat messages for a room
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: before
+          in: query
+          description: Get messages before this timestamp
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Chat messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatMessage'
+
+    post:
+      tags: [Chat]
+      summary: Send chat message
+      description: Send a new chat message to a room
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  maxLength: 1000
+                messageType:
+                  type: string
+                  enum: [chat, system]
+                  default: chat
+              required:
+                - message
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessage'
+
+  # Dice rolling endpoints
+  /api/rooms/{roomId}/dice/roll:
+    post:
+      tags: [Board]
+      summary: Roll dice
+      description: Roll dice in a room
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                diceType:
+                  type: string
+                  enum: [d4, d6, d8, d10, d12, d20, d100, custom]
+                  default: d6
+                diceCount:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+                  default: 1
+                modifier:
+                  type: integer
+                  default: 0
+                rollType:
+                  type: string
+                  default: standard
+              required:
+                - diceType
+                - diceCount
+      responses:
+        '201':
+          description: Dice rolled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiceRoll'
+
+  # Template endpoints
+  /api/templates:
+    get:
+      tags: [Templates]
+      summary: Get game templates
+      description: Get available game templates
+      parameters:
+        - name: public
+          in: query
+          description: Filter by public/private templates
+          schema:
+            type: boolean
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: tags
+          in: query
+          description: Filter by tags (comma-separated)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameTemplate'
+
+    post:
+      tags: [Templates]
+      summary: Create game template
+      description: Create a new game template from current room state
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 500
+                category:
+                  type: string
+                  default: Custom
+                tags:
+                  type: array
+                  items:
+                    type: string
+                isPublic:
+                  type: boolean
+                  default: false
+                roomId:
+                  type: string
+                  description: Source room to create template from
+              required:
+                - name
+                - roomId
+      responses:
+        '201':
+          description: Template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameTemplate'
+
+  # Game System endpoints
+  /api/systems:
+    get:
+      tags: [Systems]
+      summary: Get game systems
+      description: Get available game systems
+      parameters:
+        - name: public
+          in: query
+          description: Filter by public/private systems
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Game systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameSystem'
+
+    post:
+      tags: [Systems]
+      summary: Create game system
+      description: Create a new game system
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 500
+                version:
+                  type: string
+                  default: "1.0.0"
+                isPublic:
+                  type: boolean
+                  default: false
+              required:
+                - name
+                - description
+      responses:
+        '201':
+          description: Game system created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSystem'
+
+  # Object storage endpoints
+  /api/objects/upload:
+    post:
+      tags: [Assets]
+      summary: Get upload URL
+      description: Get a presigned URL for uploading files to object storage
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      responses:
+        '200':
+          description: Upload URL generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploadURL:
+                    type: string
+                    format: uri
+                    description: Presigned URL for file upload
+
+  # Observability endpoints
+  /api/observability/metrics:
+    get:
+      tags: [Observability]
+      summary: Get Prometheus metrics
+      description: Get metrics in Prometheus format for scraping
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Prometheus metrics format
+
+  /api/observability/health/metrics:
+    get:
+      tags: [Observability]
+      summary: Get metrics health status
+      description: Check health status of metrics collection system
+      responses:
+        '200':
+          description: Metrics system health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  component:
+                    type: string
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  details:
+                    type: object
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /api/observability/status:
+    get:
+      tags: [Observability]
+      summary: Get observability status
+      description: Get overall observability system status
+      responses:
+        '200':
+          description: Observability system status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  observability:
+                    type: object
+                    properties:
+                      metrics:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                      tracing:
+                        type: object
+                        properties:
+                          active:
+                            type: boolean
+                          contextAvailable:
+                            type: boolean
+                      logging:
+                        type: object
+                        properties:
+                          level:
+                            type: string
+                          structured:
+                            type: boolean
+                  environment:
+                    type: string
+                  version:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # Admin endpoints
+  /api/admin/rooms:
+    get:
+      tags: [Admin]
+      summary: Get all rooms (Admin)
+      description: Get all rooms for administrative purposes
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      responses:
+        '200':
+          description: All rooms retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/templates:
+    get:
+      tags: [Admin]
+      summary: Get all templates (Admin)
+      description: Get all templates for administrative purposes
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      responses:
+        '200':
+          description: All templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameTemplate'
+
+  /api/admin/game-systems:
+    get:
+      tags: [Admin]
+      summary: Get all game systems (Admin)
+      description: Get all game systems for administrative purposes
+      security:
+        - FirebaseAuth: []
+        - ReplitAuth: []
+      responses:
+        '200':
+          description: All game systems retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameSystem'
