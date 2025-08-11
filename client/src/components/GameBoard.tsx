@@ -66,14 +66,27 @@ export function GameBoard({
   // Move pile mutation
   const movePileMutation = useMutation({
     mutationFn: async ({ pileId, x, y }: { pileId: string; x: number; y: number }) => {
+      console.log(`🌐 [Move Pile API] Sending PATCH request for pile ${pileId} to position (${x}, ${y})`);
       const response = await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/piles/${pileId}/position`, {
         positionX: x,
         positionY: y,
       });
-      return response.json();
+      
+      if (!response.ok) {
+        console.error(`❌ [Move Pile API] Request failed with status ${response.status}: ${response.statusText}`);
+        throw new Error(`Failed to move pile: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log(`✅ [Move Pile API] Successfully moved pile ${pileId} to (${x}, ${y}). Server response:`, result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log(`🔄 [Move Pile] Invalidating queries for pile ${variables.pileId}`);
       queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+    },
+    onError: (error, variables) => {
+      console.error(`❌ [Move Pile] Failed to move pile ${variables.pileId} to (${variables.x}, ${variables.y}):`, error);
     },
   });
 
@@ -408,15 +421,19 @@ export function GameBoard({
                     // Only start dragging if moved more than 5 pixels
                     if (!isDragging && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
                       isDragging = true;
+                      console.log(`🎯 [Deck Drag] Started dragging pile ${pile.name} (${pile.id})`);
                     }
                     
                     if (isDragging) {
                       const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
                       const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
                       
+                      console.log(`🎯 [Deck Drag] Moving pile ${pile.name} from (${pile.positionX}, ${pile.positionY}) to (${newX}, ${newY})`);
+                      
                       // Apply snap-to-grid if enabled
                       if (showGrid) {
                         const snapped = snapToGrid(newX, newY, gridSize);
+                        console.log(`🎯 [Deck Drag] Snapped to grid: (${snapped.x}, ${snapped.y})`);
                         movePileMutation.mutate({ pileId: pile.id, x: snapped.x, y: snapped.y });
                       } else {
                         movePileMutation.mutate({ pileId: pile.id, x: newX, y: newY });
@@ -428,13 +445,18 @@ export function GameBoard({
                     document.removeEventListener('mousemove', handleMouseMove);
                     document.removeEventListener('mouseup', handleMouseUp);
                     
-                    // If it was just a click (not a drag) and there are cards, draw one
-                    if (!isDragging && cardCount > 0) {
+                    if (isDragging) {
+                      console.log(`🎯 [Deck Drag] Finished dragging pile ${pile.name} (${pile.id})`);
+                    } else if (cardCount > 0) {
+                      // If it was just a click (not a drag) and there are cards, draw one
+                      console.log(`🃏 [Card Draw] Drawing card from pile ${pile.name} (${pile.id}) with ${cardCount} cards`);
                       drawCardToBoardMutation.mutate({
                         pileId: pile.id,
                         x: pile.positionX + 30, // Offset from pile position
                         y: pile.positionY + 30
                       });
+                    } else {
+                      console.log(`🃏 [Card Draw] Cannot draw from empty pile ${pile.name} (${pile.id})`);
                     }
                   };
 

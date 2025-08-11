@@ -866,11 +866,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         scale: 100,
         zIndex: 10,
         visibility: "public",
-        isLocked: false,
         isFlipped: false,
         assetType: "card",
-        stackOrder: 0,
-        faceDown: false,
       });
 
       console.log(`[Draw Card] Drew card ${cardAsset.name} from pile ${pile.name} to board position (${x}, ${y})`);
@@ -955,12 +952,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update pile position
   app.patch("/api/rooms/:roomId/piles/:pileId/position", hybridAuthMiddleware, async (req: any, res) => {
     try {
-      const { pileId } = req.params;
+      const { roomId, pileId } = req.params;
       const { positionX, positionY } = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
+
+      console.log(`🎯 [Move Pile API] ===== PILE POSITION UPDATE =====`);
+      console.log(`🎯 [Move Pile API] Request timestamp: ${new Date().toISOString()}`);
+      console.log(`🎯 [Move Pile API] Room ID: ${roomId}`);
+      console.log(`🎯 [Move Pile API] Pile ID: ${pileId}`);
+      console.log(`🎯 [Move Pile API] User ID: ${userId}`);
+      console.log(`🎯 [Move Pile API] New position: (${positionX}, ${positionY})`);
+      console.log(`🎯 [Move Pile API] Request body:`, req.body);
 
       if (typeof positionX !== 'number' || typeof positionY !== 'number') {
+        console.error(`❌ [Move Pile API] Invalid position values: X=${positionX} (${typeof positionX}), Y=${positionY} (${typeof positionY})`);
         return res.status(400).json({ error: "Valid positionX and positionY are required" });
       }
+
+      // Get current pile info for comparison
+      const currentPile = await storage.getCardPile(pileId);
+      if (!currentPile) {
+        console.error(`❌ [Move Pile API] Pile ${pileId} not found`);
+        return res.status(404).json({ error: "Pile not found" });
+      }
+
+      console.log(`🎯 [Move Pile API] Current pile position: (${currentPile.positionX}, ${currentPile.positionY})`);
+      console.log(`🎯 [Move Pile API] Updating to position: (${positionX}, ${positionY})`);
 
       const updatedPile = await storage.updateCardPile(pileId, {
         positionX,
@@ -968,12 +985,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!updatedPile) {
+        console.error(`❌ [Move Pile API] Failed to update pile ${pileId}`);
         return res.status(404).json({ error: "Pile not found" });
       }
 
+      console.log(`✅ [Move Pile API] Successfully updated pile ${pileId}`);
+      console.log(`✅ [Move Pile API] Updated pile position: (${updatedPile.positionX}, ${updatedPile.positionY})`);
+      console.log(`✅ [Move Pile API] Full updated pile:`, {
+        id: updatedPile.id,
+        name: updatedPile.name,
+        positionX: updatedPile.positionX,
+        positionY: updatedPile.positionY,
+        pileType: updatedPile.pileType
+      });
+
       res.json(updatedPile);
     } catch (error) {
-      console.error("Error updating pile position:", error);
+      console.error(`❌ [Move Pile API] Error updating pile position:`, error);
       res.status(500).json({ error: "Failed to update pile position" });
     }
   });
