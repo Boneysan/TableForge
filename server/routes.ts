@@ -2337,5 +2337,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Observability routes (metrics, health, tracing)
   app.use('/api/observability', observabilityRoutes);
 
+  // API Documentation routes
+  const { setupApiDocs } = await import('./docs/apiDocs.js');
+  setupApiDocs(app);
+
   return httpServer;
 }

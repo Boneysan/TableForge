@@ -3,6 +3,9 @@
 Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences, offering a powerful tool for GMs and players to create and play digital versions of tabletop games without asset duplication across game rooms. The business vision is to become the leading digital tabletop platform, enabling a new era of collaborative online gaming.
 
 ## Recent Implementation (August 2025)
+- **Comprehensive Developer Documentation**: Created interactive API documentation with OpenAPI 3.0 specs, Swagger UI at `/docs`, ReDoc at `/docs/redoc`, and comprehensive contributor-ready setup guides
+- **Automated Development Workflow**: Built automated setup scripts (`dev-setup.sh`) and database seeding utilities (`seed-data.sh`) with realistic sample data for immediate development productivity
+- **Production-Ready Documentation System**: Integrated Swagger UI and ReDoc with complete API coverage, health checks, and raw specification endpoints for external tool integration
 - **Comprehensive Observability Infrastructure**: Implemented enterprise-grade monitoring with OpenTelemetry SDK, Prometheus metrics, and OTLP exporters for production-ready observability
 - **End-to-End Deck Move Tracing**: Complete distributed tracing for card/deck operations from WebSocket receipt through database updates to client broadcast
 - **Production Metrics Collection**: Real-time tracking of rooms, socket connections, moves per minute, asset uploads, authentication, and system performance
