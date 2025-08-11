@@ -34,7 +34,11 @@ export const gameRooms = pgTable("game_rooms", {
   boardWidth: integer("board_width").notNull().default(800),
   boardHeight: integer("board_height").notNull().default(600),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
-});
+}, (table) => [
+  index("idx_game_rooms_created_by").on(table.createdBy),
+  index("idx_game_rooms_is_active").on(table.isActive),
+  index("idx_game_rooms_created_at").on(table.createdAt),
+]);
 
 export const gameAssets = pgTable("game_assets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -48,7 +52,17 @@ export const gameAssets = pgTable("game_assets", {
   uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
   isSystemAsset: boolean("is_system_asset").notNull().default(false), // Mark system vs room assets
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
-});
+}, (table) => [
+  index("idx_game_assets_room_id").on(table.roomId),
+  index("idx_game_assets_system_id").on(table.systemId),
+  index("idx_game_assets_uploaded_by").on(table.uploadedBy),
+  index("idx_game_assets_type").on(table.type),
+  index("idx_game_assets_is_system_asset").on(table.isSystemAsset),
+  index("idx_game_assets_created_at").on(table.createdAt),
+  // Composite indexes for common query patterns
+  index("idx_game_assets_room_type").on(table.roomId, table.type),
+  index("idx_game_assets_system_type").on(table.systemId, table.type),
+]);
 
 export const roomPlayers = pgTable("room_players", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -58,9 +72,14 @@ export const roomPlayers = pgTable("room_players", {
   isOnline: boolean("is_online").notNull().default(true),
   score: integer("score").notNull().default(0),
   joinedAt: timestamp("joined_at").notNull().default(sql`now()`),
-}, (table) => ({
-  unique: unique().on(table.roomId, table.playerId)
-}));
+}, (table) => [
+  unique().on(table.roomId, table.playerId),
+  index("idx_room_players_room_id").on(table.roomId),
+  index("idx_room_players_player_id").on(table.playerId),
+  index("idx_room_players_role").on(table.role),
+  index("idx_room_players_is_online").on(table.isOnline),
+  index("idx_room_players_joined_at").on(table.joinedAt),
+]);
 
 export const boardAssets = pgTable("board_assets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -82,7 +101,20 @@ export const boardAssets = pgTable("board_assets", {
   isLocked: boolean("is_locked").default(false),
   placedAt: timestamp("placed_at").defaultNow(),
   placedBy: varchar("placed_by").references(() => users.id),
-});
+}, (table) => [
+  index("idx_board_assets_room_id").on(table.roomId),
+  index("idx_board_assets_asset_id").on(table.assetId),
+  index("idx_board_assets_owned_by").on(table.ownedBy),
+  index("idx_board_assets_placed_by").on(table.placedBy),
+  index("idx_board_assets_asset_type").on(table.assetType),
+  index("idx_board_assets_visibility").on(table.visibility),
+  index("idx_board_assets_z_index").on(table.zIndex),
+  index("idx_board_assets_placed_at").on(table.placedAt),
+  // Composite indexes for spatial queries and game logic
+  index("idx_board_assets_room_position").on(table.roomId, table.positionX, table.positionY),
+  index("idx_board_assets_room_z_order").on(table.roomId, table.zIndex),
+  index("idx_board_assets_stack_order").on(table.roomId, table.stackOrder),
+]);
 
 // Deck theme interface
 export interface DeckTheme {
@@ -108,7 +140,12 @@ export const cardDecks = pgTable("card_decks", {
   theme: json("theme").$type<DeckTheme>(), // Deck visual theme
   cardBackAssetId: varchar("card_back_asset_id").references(() => gameAssets.id), // Custom card back image
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_card_decks_room_id").on(table.roomId),
+  index("idx_card_decks_created_by").on(table.createdBy),
+  index("idx_card_decks_card_back_asset_id").on(table.cardBackAssetId),
+  index("idx_card_decks_created_at").on(table.createdAt),
+]);
 
 // Card piles - dynamic collections of cards on the board
 export const cardPiles = pgTable("card_piles", {
@@ -124,7 +161,16 @@ export const cardPiles = pgTable("card_piles", {
   faceDown: boolean("face_down").default(false), // Default face orientation for cards in pile
   maxCards: integer("max_cards"), // Optional limit
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_card_piles_room_id").on(table.roomId),
+  index("idx_card_piles_owner_id").on(table.ownerId),
+  index("idx_card_piles_pile_type").on(table.pileType),
+  index("idx_card_piles_visibility").on(table.visibility),
+  index("idx_card_piles_created_at").on(table.createdAt),
+  // Composite indexes for spatial and game queries
+  index("idx_card_piles_room_position").on(table.roomId, table.positionX, table.positionY),
+  index("idx_card_piles_room_type").on(table.roomId, table.pileType),
+]);
 
 export const diceRolls = pgTable("dice_rolls", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -135,7 +181,13 @@ export const diceRolls = pgTable("dice_rolls", {
   results: json("results").notNull(),
   total: integer("total").notNull(),
   rolledAt: timestamp("rolled_at").notNull().default(sql`now()`),
-});
+}, (table) => [
+  index("idx_dice_rolls_room_id").on(table.roomId),
+  index("idx_dice_rolls_player_id").on(table.playerId),
+  index("idx_dice_rolls_rolled_at").on(table.rolledAt),
+  // Composite index for room history queries
+  index("idx_dice_rolls_room_rolled_at").on(table.roomId, table.rolledAt),
+]);
 
 export const chatMessages = pgTable("chat_messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -145,7 +197,15 @@ export const chatMessages = pgTable("chat_messages", {
   messageType: varchar("message_type").default("chat").notNull(), // chat, whisper, system
   targetPlayerId: varchar("target_player_id").references(() => users.id), // for whispers
   sentAt: timestamp("sent_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_chat_messages_room_id").on(table.roomId),
+  index("idx_chat_messages_player_id").on(table.playerId),
+  index("idx_chat_messages_target_player_id").on(table.targetPlayerId),
+  index("idx_chat_messages_message_type").on(table.messageType),
+  index("idx_chat_messages_sent_at").on(table.sentAt),
+  // Composite index for chat history queries
+  index("idx_chat_messages_room_sent_at").on(table.roomId, table.sentAt),
+]);
 
 // Insert schemas for Replit Auth
 export const upsertUserSchema = createInsertSchema(users).pick({
@@ -349,7 +409,16 @@ export const gameTemplates = pgTable("game_templates", {
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_game_templates_created_by").on(table.createdBy),
+  index("idx_game_templates_is_public").on(table.isPublic),
+  index("idx_game_templates_category").on(table.category),
+  index("idx_game_templates_created_at").on(table.createdAt),
+  index("idx_game_templates_updated_at").on(table.updatedAt),
+  // Composite indexes for browsing and filtering
+  index("idx_game_templates_public_category").on(table.isPublic, table.category),
+  index("idx_game_templates_public_created").on(table.isPublic, table.createdAt),
+]);
 
 // Game Systems - Administrative game configurations and setups (separate from templates)
 export const gameSystems = pgTable("game_systems", {
@@ -380,7 +449,21 @@ export const gameSystems = pgTable("game_systems", {
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_game_systems_created_by").on(table.createdBy),
+  index("idx_game_systems_is_public").on(table.isPublic),
+  index("idx_game_systems_is_official").on(table.isOfficial),
+  index("idx_game_systems_category").on(table.category),
+  index("idx_game_systems_complexity").on(table.complexity),
+  index("idx_game_systems_download_count").on(table.downloadCount),
+  index("idx_game_systems_rating").on(table.rating),
+  index("idx_game_systems_created_at").on(table.createdAt),
+  index("idx_game_systems_updated_at").on(table.updatedAt),
+  // Composite indexes for browsing and filtering
+  index("idx_game_systems_public_category").on(table.isPublic, table.category),
+  index("idx_game_systems_public_official").on(table.isPublic, table.isOfficial),
+  index("idx_game_systems_public_rating").on(table.isPublic, table.rating),
+]);
 
 // Template usage tracking
 export const templateUsage = pgTable("template_usage", {
