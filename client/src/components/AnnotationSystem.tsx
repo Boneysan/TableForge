@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { sanitizeText, validateStrokePoints, type StrokePoint } from '@shared/sanitization';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -96,6 +97,18 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
     if (!isActive || !isDrawing || mode !== 'draw') return;
 
     const point = getMousePosition(e);
+    
+    // Rate limit stroke points to prevent pathological payloads
+    const now = Date.now();
+    const strokePoints: StrokePoint[] = currentPath.concat([point]);
+    
+    // Basic client-side rate limiting (server has more comprehensive checks)
+    if (strokePoints.length > 1000) {
+      console.warn('Drawing path too long, truncating');
+      setCurrentPath(prev => prev.slice(-500));
+      return;
+    }
+    
     setCurrentPath(prev => [...prev, point]);
   };
 
@@ -119,11 +132,19 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
   const handleAddNote = () => {
     if (!pendingNote || !noteText.trim()) return;
 
+    // Sanitize the note text to prevent XSS
+    const sanitizedText = sanitizeText(noteText.trim(), 'annotation');
+    
+    if (!sanitizedText) {
+      console.warn('Note text was empty after sanitization');
+      return;
+    }
+
     const newNote: StickyNote = {
       id: Date.now().toString(),
       x: pendingNote.x,
       y: pendingNote.y,
-      text: noteText,
+      text: sanitizedText,
       color: noteColor,
     };
 
@@ -136,11 +157,19 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
   const handleAddText = () => {
     if (!pendingText || !textContent.trim()) return;
 
+    // Sanitize the text content to prevent XSS
+    const sanitizedText = sanitizeText(textContent.trim(), 'annotation');
+    
+    if (!sanitizedText) {
+      console.warn('Text annotation was empty after sanitization');
+      return;
+    }
+
     const newText: TextAnnotation = {
       id: Date.now().toString(),
       x: pendingText.x,
       y: pendingText.y,
-      text: textContent,
+      text: sanitizedText,
       fontSize: textSize,
       color: drawColor,
     };

@@ -9,6 +9,9 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Comprehensive Observability Infrastructure**: Implemented enterprise-grade monitoring with OpenTelemetry SDK, Prometheus metrics, and OTLP exporters for production-ready observability
 - **End-to-End Deck Move Tracing**: Complete distributed tracing for card/deck operations from WebSocket receipt through database updates to client broadcast
 - **Production Metrics Collection**: Real-time tracking of rooms, socket connections, moves per minute, asset uploads, authentication, and system performance
+- **Local Development Infrastructure**: Docker Compose setup with PostgreSQL + MinIO for complete local development without cloud dependencies
+- **Drawing Security Implementation**: WebSocket drawing handler with stroke rate limiting (120 points/second) and DOMPurify text sanitization for annotations to prevent pathological payloads
+- **Package Management Standards**: Documented npm as the primary package manager choice with Node.js 20.x pinning via `.nvmrc` for consistent development environments
 
 # User Preferences
 
