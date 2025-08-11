@@ -1,14 +1,14 @@
 import { z } from 'zod';
-import { 
-  insertGameRoomSchema, 
-  insertGameAssetSchema, 
+import {
+  insertGameRoomSchema,
+  insertGameAssetSchema,
   insertBoardAssetSchema,
   insertDiceRollSchema,
   insertChatMessageSchema,
   insertGameTemplateSchema,
   insertGameSystemSchema,
   insertCardDeckSchema,
-  insertCardPileSchema
+  insertCardPileSchema,
 } from './schema';
 
 // Base validation schemas
@@ -289,7 +289,7 @@ export const validateUserId = z.object({
 });
 
 // Validation utility functions
-export function createValidationError(message: string, details?: Array<{ field: string; message: string }>): ValidationError {
+export function createValidationError(message: string, details?: { field: string; message: string }[]): ValidationError {
   return { error: 'validation_error', message, details };
 }
 
@@ -312,7 +312,7 @@ export function createServerError(message: string): ServerError {
 // Common pagination validators
 export const validatePagination = z.object({
   page: z.number().int().positive().default(1),
-  pageSize: z.number().int().positive().max(100).default(20)
+  pageSize: z.number().int().positive().max(100).default(20),
 });
 
 export const validateLimit = z.number().int().positive().max(100).default(20);
@@ -328,14 +328,14 @@ export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): { succ
         field: err.path.join('.'),
         message: err.message,
       }));
-      return { 
-        success: false, 
-        error: createValidationError('Validation failed', details) 
+      return {
+        success: false,
+        error: createValidationError('Validation failed', details),
       };
     }
-    return { 
-      success: false, 
-      error: createValidationError('Invalid data format') 
+    return {
+      success: false,
+      error: createValidationError('Invalid data format'),
     };
   }
 }

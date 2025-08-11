@@ -1,5 +1,6 @@
-import { WebSocket } from 'ws';
-import { createRoomLogger, createUserLogger, ContextLogger, auditLog, LogContext } from '../utils/logger';
+import type { WebSocket } from 'ws';
+import type { ContextLogger, LogContext } from '../utils/logger';
+import { createRoomLogger, createUserLogger, auditLog } from '../utils/logger';
 
 // Extended WebSocket interface with logging context
 export interface LoggedWebSocket extends WebSocket {
@@ -24,16 +25,16 @@ export enum WSEventType {
 
 // Initialize WebSocket logging context
 export function initializeWebSocketLogging(
-  ws: LoggedWebSocket, 
-  userId?: string, 
+  ws: LoggedWebSocket,
+  userId?: string,
   roomId?: string,
-  sessionId?: string
+  sessionId?: string,
 ) {
   ws.userId = userId;
   ws.roomId = roomId;
   ws.sessionId = sessionId;
   ws.correlationId = ws.correlationId || randomUUID();
-  
+
   // Create context-aware logger
   if (roomId && userId) {
     ws.logger = createRoomLogger(roomId, userId);
@@ -42,11 +43,11 @@ export function initializeWebSocketLogging(
   } else {
     ws.logger = createUserLogger('anonymous', ws.correlationId);
   }
-  
+
   ws.logger.info('WebSocket logging initialized', {
     sessionId,
     hasRoomId: !!roomId,
-    hasUserId: !!userId
+    hasUserId: !!userId,
   });
 }
 
@@ -55,7 +56,7 @@ export function logWebSocketEvent(
   ws: LoggedWebSocket,
   eventType: WSEventType,
   data?: any,
-  error?: Error
+  error?: Error,
 ) {
   const context: LogContext = {
     userId: ws.userId,
@@ -63,17 +64,17 @@ export function logWebSocketEvent(
     sessionId: ws.sessionId,
     correlationId: ws.correlationId,
     eventType,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   const message = `🔌 WebSocket ${eventType}: ${ws.userId || 'anonymous'}${ws.roomId ? ` in room ${ws.roomId}` : ''}`;
-  
+
   if (error) {
     ws.logger?.error(message, { ...context, error: error.message, data });
   } else {
     ws.logger?.info(message, { ...context, data });
   }
-  
+
   // Audit sensitive events
   if (ws.userId && [WSEventType.JOIN_ROOM, WSEventType.LEAVE_ROOM, WSEventType.AUTHENTICATION].includes(eventType)) {
     auditLog(
@@ -83,8 +84,8 @@ export function logWebSocketEvent(
         userId: ws.userId,
         result: error ? 'failure' : 'success',
         correlationId: ws.correlationId,
-        details: { sessionId: ws.sessionId, data, error: error?.message }
-      }
+        details: { sessionId: ws.sessionId, data, error: error?.message },
+      },
     );
   }
 }
@@ -94,7 +95,7 @@ export function logWebSocketMessage(
   ws: LoggedWebSocket,
   messageType: string,
   messageData: any,
-  direction: 'incoming' | 'outgoing' = 'incoming'
+  direction: 'incoming' | 'outgoing' = 'incoming',
 ) {
   const context = {
     userId: ws.userId,
@@ -104,12 +105,12 @@ export function logWebSocketMessage(
     messageType,
     direction,
     timestamp: new Date().toISOString(),
-    messageSize: JSON.stringify(messageData).length
+    messageSize: JSON.stringify(messageData).length,
   };
-  
+
   ws.logger?.debug(`📨 WebSocket ${direction} message: ${messageType}`, {
     ...context,
-    messageData: process.env.NODE_ENV === 'development' ? messageData : '[REDACTED]'
+    messageData: process.env.NODE_ENV === 'development' ? messageData : '[REDACTED]',
   });
 }
 
@@ -117,19 +118,19 @@ export function logWebSocketMessage(
 export function logWebSocketAuth(
   ws: LoggedWebSocket,
   authEvent: 'token_received' | 'token_validated' | 'auth_failed' | 'auth_expired',
-  details?: any
+  details?: any,
 ) {
   const context = {
     userId: ws.userId,
     sessionId: ws.sessionId,
     correlationId: ws.correlationId,
     authEvent,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   const isError = authEvent === 'auth_failed' || authEvent === 'auth_expired';
   const message = `🔐 WebSocket auth event: ${authEvent}`;
-  
+
   if (isError) {
     ws.logger?.warn(message, { ...context, details });
   } else {
@@ -143,7 +144,7 @@ export function logRoomOperation(
   operation: string,
   target?: string,
   result: 'success' | 'failure' = 'success',
-  details?: any
+  details?: any,
 ) {
   const context = {
     userId: ws.userId,
@@ -153,17 +154,17 @@ export function logRoomOperation(
     operation,
     target,
     result,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
-  
+
   const message = `🎲 Room operation: ${operation}${target ? ` on ${target}` : ''} - ${result}`;
-  
+
   if (result === 'failure') {
     ws.logger?.warn(message, { ...context, details });
   } else {
     ws.logger?.info(message, { ...context, details });
   }
-  
+
   // Audit room modifications
   if (ws.userId && ws.roomId && ['move_asset', 'create_deck', 'roll_dice', 'resize_board'].includes(operation)) {
     auditLog(
@@ -173,8 +174,8 @@ export function logRoomOperation(
         userId: ws.userId,
         result,
         correlationId: ws.correlationId,
-        details: { target, ...details }
-      }
+        details: { target, ...details },
+      },
     );
   }
 }
@@ -182,13 +183,13 @@ export function logRoomOperation(
 // Performance timing for WebSocket operations
 export function timeWebSocketOperation(
   ws: LoggedWebSocket,
-  operation: string
+  operation: string,
 ): () => void {
   const start = Date.now();
-  
+
   return () => {
     const duration = Date.now() - start;
-    
+
     ws.logger?.info(`⚡ WebSocket operation timing: ${operation}`, {
       userId: ws.userId,
       roomId: ws.roomId,
@@ -196,16 +197,16 @@ export function timeWebSocketOperation(
       correlationId: ws.correlationId,
       operation,
       duration,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     // Log slow operations
     if (duration > 1000) {
       ws.logger?.warn(`🐌 Slow WebSocket operation: ${operation} took ${duration}ms`, {
         userId: ws.userId,
         roomId: ws.roomId,
         operation,
-        duration
+        duration,
       });
     }
   };
@@ -214,7 +215,7 @@ export function timeWebSocketOperation(
 // Clean up WebSocket logging context
 export function cleanupWebSocketLogging(ws: LoggedWebSocket, reason?: string) {
   logWebSocketEvent(ws, WSEventType.DISCONNECTION, { reason });
-  
+
   // Clear context
   delete ws.logger;
   delete ws.userId;
@@ -229,7 +230,7 @@ export function extractWebSocketError(error: any) {
     message: error?.message || 'Unknown WebSocket error',
     code: error?.code,
     type: error?.type,
-    stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+    stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined,
   };
 }
 

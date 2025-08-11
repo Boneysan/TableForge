@@ -1,17 +1,17 @@
 /**
  * Hook for managing optimistic updates in React Query
- * 
+ *
  * Provides helpers for:
  * - Deck/pile operations
- * - Card movements 
+ * - Card movements
  * - Token positioning
  * - Chat messages
  */
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useRef } from "react";
-import { queryKeys } from "@/lib/queryKeys";
-import type { CardDeck, CardPile, GameAsset, BoardAsset } from "@shared/schema";
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useRef } from 'react';
+import { queryKeys } from '@/lib/queryKeys';
+import type { CardDeck, CardPile, GameAsset, BoardAsset } from '@shared/schema';
 
 export interface OptimisticUpdate {
   queryKey: readonly string[];
@@ -74,7 +74,7 @@ export function useOptimisticUpdates(roomId: string) {
 
     queryClient.setQueryData(deckQueryKey, (oldData: CardDeck | undefined) => {
       if (!oldData) return oldData;
-      
+
       // CardDeck doesn't have cardCount, use deckOrder length instead
       const currentCardCount = oldData.deckOrder ? Array.isArray(oldData.deckOrder) ? oldData.deckOrder.length : 0 : 0;
       const remainingCards = Math.max(0, currentCardCount - count);
@@ -96,9 +96,9 @@ export function useOptimisticUpdates(roomId: string) {
 
   // Optimistic asset movement
   const optimisticAssetMove = useCallback((
-    assetId: string, 
+    assetId: string,
     newPosition: { x: number; y: number },
-    rotation?: number
+    rotation?: number,
   ) => {
     const queryKey = queryKeys.rooms.boardAssets(roomId);
     const updateId = `asset-move-${assetId}-${Date.now()}`;
@@ -108,17 +108,17 @@ export function useOptimisticUpdates(roomId: string) {
 
     queryClient.setQueryData(queryKey, (oldData: BoardAsset[]) => {
       if (!oldData) return oldData;
-      
-      // BoardAsset uses GameAsset fields  
-      return oldData.map(asset => 
-        asset.assetId === assetId 
+
+      // BoardAsset uses GameAsset fields
+      return oldData.map(asset =>
+        asset.assetId === assetId
           ? {
               ...asset,
               positionX: newPosition.x,
               positionY: newPosition.y,
               rotation: rotation ?? asset.rotation,
             }
-          : asset
+          : asset,
       );
     });
 
@@ -143,14 +143,14 @@ export function useOptimisticUpdates(roomId: string) {
     const optimisticPile: CardPile = {
       id: `temp-${Date.now()}`,
       roomId,
-      name: pile.name || "New Pile",
+      name: pile.name || 'New Pile',
       positionX: pile.positionX || 0,
       positionY: pile.positionY || 0,
-      pileType: pile.pileType as any || "custom",
-      visibility: pile.visibility as any || "public",
+      pileType: pile.pileType as any || 'custom',
+      visibility: pile.visibility as any || 'public',
       cardCount: 0,
       createdAt: new Date(),
-      createdBy: pile.ownerId || "",
+      createdBy: pile.ownerId || '',
       lastModifiedAt: null,
       lastModifiedBy: null,
       ownerId: pile.ownerId || null,
@@ -202,7 +202,7 @@ export function useOptimisticUpdates(roomId: string) {
     optimisticCardDraw,
     optimisticAssetMove,
     optimisticPileCreate,
-    
+
     // Management functions
     clearOptimisticUpdates,
     rollbackOptimisticUpdate,

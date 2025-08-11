@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { 
-  ArrowLeft, 
-  Upload, 
+import { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  ArrowLeft,
+  Upload,
   Save,
   Plus,
   X,
@@ -26,14 +26,14 @@ import {
   Trash2,
   Shuffle,
   Edit,
-  Package
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { BulkUploader } from "@/components/BulkUploader";
-import { useLocation } from "wouter";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { queryClient } from "@/lib/queryClient";
+  Package,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { ObjectUploader } from '@/components/ObjectUploader';
+import { BulkUploader } from '@/components/BulkUploader';
+import { useLocation } from 'wouter';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { queryClient } from '@/lib/queryClient';
 
 interface UploadedAsset {
   name: string;
@@ -50,40 +50,40 @@ interface EditGameSystemProps {
 export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  
+
   // Form state
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState("");
+  const [newTag, setNewTag] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
   const [selectedTab, setSelectedTab] = useState<'assets' | 'decks'>('assets');
-  const [decks, setDecks] = useState<Array<{
+  const [decks, setDecks] = useState<{
     id: string;
     name: string;
     description: string;
     cardAssets: string[];
     cardBack: string | null;
-  }>>([]);
+  }[]>([]);
   const [showCreateDeck, setShowCreateDeck] = useState(false);
   const [showEditDeck, setShowEditDeck] = useState(false);
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null);
-  const [deckName, setDeckName] = useState("");
-  const [deckDescription, setDeckDescription] = useState("");
+  const [deckName, setDeckName] = useState('');
+  const [deckDescription, setDeckDescription] = useState('');
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
   const [selectedCardBack, setSelectedCardBack] = useState<string | null>(null);
   const [previewCard, setPreviewCard] = useState<{ url: string; name: string } | null>(null);
 
   // Fetch existing game system data
   const { data: systemData, isLoading: isLoadingSystem, error: systemError } = useQuery({
-    queryKey: ["/api/systems", systemId],
+    queryKey: ['/api/systems', systemId],
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", `/api/systems/${systemId}`);
+      const response = await authenticatedApiRequest('GET', `/api/systems/${systemId}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch game system");
+        throw new Error('Failed to fetch game system');
       }
       return response.json();
     },
@@ -97,26 +97,26 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         systemId,
         assetLibrary: systemData.assetLibrary,
         assetsCount: systemData.assetLibrary?.assets?.length || 0,
-        assets: systemData.assetLibrary?.assets?.map((a: any) => ({ name: a.name, category: a.category })) || []
+        assets: systemData.assetLibrary?.assets?.map((a: any) => ({ name: a.name, category: a.category })) || [],
       });
-      
-      setName(systemData.name || "");
-      setDescription(systemData.description || "");
+
+      setName(systemData.name || '');
+      setDescription(systemData.description || '');
       setIsPublic(systemData.isPublic || false);
       setTags(systemData.tags || []);
-      
+
       // Load assets from assetLibrary
       if (systemData.assetLibrary?.assets) {
         console.log('📦 [Debug] Loading existing assets:', {
           count: systemData.assetLibrary.assets.length,
-          assets: systemData.assetLibrary.assets.map((a: any) => ({ name: a.name, category: a.category }))
+          assets: systemData.assetLibrary.assets.map((a: any) => ({ name: a.name, category: a.category })),
         });
         setUploadedAssets(systemData.assetLibrary.assets);
       } else {
         console.log('📦 [Debug] No existing assets found, starting fresh');
         setUploadedAssets([]);
       }
-      
+
       // Load existing decks from deckTemplates
       if (systemData.deckTemplates?.decks) {
         setDecks(systemData.deckTemplates.decks);
@@ -126,19 +126,19 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
 
   // Preset tag suggestions categorized by type
   const tagSuggestions = {
-    "Game Types": ["strategy", "card-game", "board-game", "rpg", "party-game", "cooperative", "competitive", "abstract"],
-    "Mechanics": ["deck-building", "area-control", "worker-placement", "dice-rolling", "tile-placement", "trading", "resource-management", "drafting"],
-    "Themes": ["fantasy", "sci-fi", "medieval", "modern", "historical", "horror", "adventure", "mystery", "war", "space"],
-    "Player Count": ["solo", "2-player", "3-4-players", "5+ players", "party-size"],
-    "Complexity": ["beginner", "family", "intermediate", "advanced", "expert"],
-    "Time": ["quick", "30-min", "60-min", "90+ min", "epic"]
+    'Game Types': ['strategy', 'card-game', 'board-game', 'rpg', 'party-game', 'cooperative', 'competitive', 'abstract'],
+    'Mechanics': ['deck-building', 'area-control', 'worker-placement', 'dice-rolling', 'tile-placement', 'trading', 'resource-management', 'drafting'],
+    'Themes': ['fantasy', 'sci-fi', 'medieval', 'modern', 'historical', 'horror', 'adventure', 'mystery', 'war', 'space'],
+    'Player Count': ['solo', '2-player', '3-4-players', '5+ players', 'party-size'],
+    'Complexity': ['beginner', 'family', 'intermediate', 'advanced', 'expert'],
+    'Time': ['quick', '30-min', '60-min', '90+ min', 'epic'],
   };
 
   const addTag = (tag?: string) => {
     const tagToAdd = tag || newTag.trim();
     if (tagToAdd && !tags.includes(tagToAdd.toLowerCase())) {
       setTags([...tags, tagToAdd.toLowerCase()]);
-      setNewTag("");
+      setNewTag('');
       setShowTagSuggestions(false);
     }
   };
@@ -149,10 +149,10 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       .split(/[,;\n\r]+/)
       .map(tag => tag.trim().toLowerCase())
       .filter(tag => tag && !tags.includes(tag));
-    
+
     if (newTags.length > 0) {
       setTags([...tags, ...newTags]);
-      setNewTag("");
+      setNewTag('');
       setShowTagSuggestions(false);
     }
   };
@@ -187,21 +187,21 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   // Handle asset upload
   const handleGetUploadParameters = async () => {
     try {
-      const response = await authenticatedApiRequest("POST", "/api/objects/upload");
+      const response = await authenticatedApiRequest('POST', '/api/objects/upload');
       if (!response.ok) {
-        throw new Error("Failed to get upload parameters");
+        throw new Error('Failed to get upload parameters');
       }
       const data = await response.json();
       return {
-        method: "PUT" as const,
+        method: 'PUT' as const,
         url: data.uploadURL,
       };
     } catch (error) {
-      console.error("Error getting upload parameters:", error);
+      console.error('Error getting upload parameters:', error);
       toast({
-        title: "Upload Error",
-        description: "Failed to prepare upload. Please try again.",
-        variant: "destructive",
+        title: 'Upload Error',
+        description: 'Failed to prepare upload. Please try again.',
+        variant: 'destructive',
       });
       throw error;
     }
@@ -217,7 +217,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       failed: result.failed?.length || 0,
       currentUploadedAssetsCount: uploadedAssets.length,
       selectedCategory,
-      result: result
+      result,
     });
 
     if (result.successful && result.successful.length > 0) {
@@ -228,45 +228,45 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         size: file.size,
         category: selectedCategory,
       }));
-      
+
       console.log('📤 [Debug] Batch upload complete:', {
         batchAssetsCount: newAssets.length,
         currentTotalAssets: uploadedAssets.length,
         batchNumber: batchCompletedCount + 1,
-        newAssets: newAssets.map((a: any) => ({ name: a.name, category: a.category }))
+        newAssets: newAssets.map((a: any) => ({ name: a.name, category: a.category })),
       });
-      
+
       setUploadedAssets(prev => {
         const updated = [...prev, ...newAssets];
         console.log('📦 [Debug] Assets after batch:', {
           previousCount: prev.length,
           batchCount: newAssets.length,
           newTotalCount: updated.length,
-          updatedAssets: updated.map(a => ({ name: a.name, category: a.category }))
+          updatedAssets: updated.map(a => ({ name: a.name, category: a.category })),
         });
         return updated;
       });
-      
+
       // Track bulk upload progress
       setBatchCompletedCount(prev => {
         const newCount = prev + 1;
         console.log('📊 [Debug] Batch count updated:', { previous: prev, new: newCount });
         return newCount;
       });
-      
+
       setTotalBulkAssets(prev => {
         const updated = [...prev, ...newAssets];
         console.log('📈 [Debug] Bulk assets updated:', {
           previousCount: prev.length,
           newCount: newAssets.length,
-          totalCount: updated.length
+          totalCount: updated.length,
         });
         return updated;
       });
-      
+
       // Show toast for each batch
       toast({
-        title: "Batch Uploaded",
+        title: 'Batch Uploaded',
         description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s). Total: ${uploadedAssets.length + newAssets.length}`,
         action: (
           <Button variant="outline" size="sm" onClick={handleSave}>
@@ -275,44 +275,44 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         ),
       });
     }
-    
+
     // Handle upload failures
     if (result.failed && result.failed.length > 0) {
       console.log('❌ [Debug] Upload failures:', {
         failedCount: result.failed.length,
-        failures: result.failed
+        failures: result.failed,
       });
-      
+
       toast({
-        title: "Upload Failed",
+        title: 'Upload Failed',
         description: `Failed to upload ${result.failed.length} file(s) in this batch.`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
-  
+
   const handleBulkUploadComplete = (totalUploaded: number) => {
     console.log('🎉 [Debug] Bulk upload completed:', {
       totalUploaded,
       totalBulkAssets: totalBulkAssets.length,
       finalAssetCount: uploadedAssets.length,
-      batchesCompleted: batchCompletedCount
+      batchesCompleted: batchCompletedCount,
     });
-    
+
     // Reset bulk tracking
     setBatchCompletedCount(0);
     setTotalBulkAssets([]);
-    
+
     // Force a refresh of the asset count display
     setTimeout(() => {
       console.log('🔄 [Debug] Final state after bulk upload:', {
         uploadedAssetsCount: uploadedAssets.length,
-        expectedTotal: 21 + totalUploaded
+        expectedTotal: 21 + totalUploaded,
       });
     }, 100);
-    
+
     toast({
-      title: "Bulk Upload Complete",
+      title: 'Bulk Upload Complete',
       description: `Successfully uploaded ${totalUploaded} ${selectedCategory} assets! Total: ${uploadedAssets.length}. Click "Save Changes" to make them available for deck creation.`,
       action: (
         <Button variant="outline" size="sm" onClick={handleSave}>
@@ -329,7 +329,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   // Deck management functions
   const createDeck = () => {
     if (!deckName.trim()) return;
-    
+
     const newDeck = {
       id: `deck-${Date.now()}`,
       name: deckName,
@@ -337,16 +337,16 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
       cardAssets: selectedCards,
       cardBack: selectedCardBack,
     };
-    
+
     setDecks(prev => [...prev, newDeck]);
-    setDeckName("");
-    setDeckDescription("");
+    setDeckName('');
+    setDeckDescription('');
     setSelectedCards([]);
     setSelectedCardBack(null); // Reset card back selection for next deck
     setShowCreateDeck(false);
-    
+
     toast({
-      title: "Deck Created",
+      title: 'Deck Created',
       description: `Created deck "${deckName}" with ${selectedCards.length} cards`,
     });
   };
@@ -354,15 +354,15 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const deleteDeck = (deckId: string) => {
     setDecks(prev => prev.filter(deck => deck.id !== deckId));
     toast({
-      title: "Deck Deleted",
-      description: "Deck has been removed from the system",
+      title: 'Deck Deleted',
+      description: 'Deck has been removed from the system',
     });
   };
 
   const startEditDeck = (deck: any) => {
     setEditingDeckId(deck.id);
     setDeckName(deck.name);
-    setDeckDescription(deck.description || "");
+    setDeckDescription(deck.description || '');
     setSelectedCards(deck.cardAssets || []);
     setSelectedCardBack(deck.cardBack || null);
     setShowEditDeck(true);
@@ -370,9 +370,9 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
 
   const saveEditDeck = () => {
     if (!deckName.trim() || !editingDeckId) return;
-    
-    setDecks(prev => prev.map(deck => 
-      deck.id === editingDeckId 
+
+    setDecks(prev => prev.map(deck =>
+      deck.id === editingDeckId
         ? {
             ...deck,
             name: deckName,
@@ -380,19 +380,19 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
             cardAssets: selectedCards,
             cardBack: selectedCardBack,
           }
-        : deck
+        : deck,
     ));
-    
+
     // Reset edit state
     setShowEditDeck(false);
     setEditingDeckId(null);
-    setDeckName("");
-    setDeckDescription("");
+    setDeckName('');
+    setDeckDescription('');
     setSelectedCards([]);
     setSelectedCardBack(null);
-    
+
     toast({
-      title: "Deck Updated",
+      title: 'Deck Updated',
       description: `Updated deck with ${selectedCards.length} cards`,
     });
   };
@@ -400,17 +400,17 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const cancelEditDeck = () => {
     setShowEditDeck(false);
     setEditingDeckId(null);
-    setDeckName("");
-    setDeckDescription("");
+    setDeckName('');
+    setDeckDescription('');
     setSelectedCards([]);
     setSelectedCardBack(null);
   };
 
   const toggleCardSelection = (cardUrl: string) => {
-    setSelectedCards(prev => 
-      prev.includes(cardUrl) 
+    setSelectedCards(prev =>
+      prev.includes(cardUrl)
         ? prev.filter(url => url !== cardUrl)
-        : [...prev, cardUrl]
+        : [...prev, cardUrl],
     );
   };
 
@@ -419,46 +419,46 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     mutationFn: async () => {
       console.log('💾 [Debug] Saving system with assets:', {
         uploadedAssetsCount: uploadedAssets.length,
-        assetsToSave: uploadedAssets.map((a: any) => ({ name: a.name, category: a.category }))
+        assetsToSave: uploadedAssets.map((a: any) => ({ name: a.name, category: a.category })),
       });
-      
+
       const gameSystemData = {
         name: name.trim(),
         description: description.trim(),
         isPublic,
         tags,
         assetLibrary: uploadedAssets.length > 0 ? {
-          assets: uploadedAssets
+          assets: uploadedAssets,
         } : null,
         deckTemplates: decks.length > 0 ? {
-          decks: decks
+          decks,
         } : null,
       };
 
-      const response = await authenticatedApiRequest("PUT", `/api/systems/${systemId}`, gameSystemData);
-      
+      const response = await authenticatedApiRequest('PUT', `/api/systems/${systemId}`, gameSystemData);
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update game system");
+        throw new Error(errorData.message || 'Failed to update game system');
       }
-      
+
       return response.json();
     },
     onSuccess: (data) => {
       toast({
-        title: "Game System Updated",
+        title: 'Game System Updated',
         description: `"${name}" has been updated successfully!`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/game-systems"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/game-systems"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/systems", systemId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/game-systems'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/game-systems'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/systems', systemId] });
       // Stay on the edit page after saving
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to Update Game System",
-        description: error.message || "An error occurred while updating the game system.",
-        variant: "destructive",
+        title: 'Failed to Update Game System',
+        description: error.message || 'An error occurred while updating the game system.',
+        variant: 'destructive',
       });
     },
   });
@@ -466,29 +466,29 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   // Delete game system
   const deleteGameSystemMutation = useMutation({
     mutationFn: async () => {
-      const response = await authenticatedApiRequest("DELETE", `/api/systems/${systemId}`);
-      
+      const response = await authenticatedApiRequest('DELETE', `/api/systems/${systemId}`);
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete game system");
+        throw new Error(errorData.message || 'Failed to delete game system');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Game System Deleted",
+        title: 'Game System Deleted',
         description: `"${name}" has been deleted successfully.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/game-systems"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/game-systems"] });
-      setLocation("/admin");
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/game-systems'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/game-systems'] });
+      setLocation('/admin');
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to Delete Game System",
-        description: error.message || "An error occurred while deleting the game system.",
-        variant: "destructive",
+        title: 'Failed to Delete Game System',
+        description: error.message || 'An error occurred while deleting the game system.',
+        variant: 'destructive',
       });
     },
   });
@@ -496,9 +496,9 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
   const handleSave = () => {
     if (!name.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Please provide a name for your game system.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please provide a name for your game system.',
+        variant: 'destructive',
       });
       return;
     }
@@ -516,7 +516,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))  } ${  sizes[i]}`;
   };
 
   const assetCategories = [
@@ -592,7 +592,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLocation("/admin")}
+            onClick={() => setLocation('/admin')}
             className="flex items-center gap-2"
             data-testid="button-back-admin"
           >
@@ -670,14 +670,14 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-gray-600">Add tags to help players discover your game system</p>
-            
+
             {/* Current Tags */}
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map((tag, index) => (
                 <Badge key={index} variant="secondary" className="flex items-center gap-1">
                   {tag}
-                  <X 
-                    className="w-3 h-3 cursor-pointer" 
+                  <X
+                    className="w-3 h-3 cursor-pointer"
                     onClick={() => removeTag(tag)}
                     data-testid={`remove-tag-${tag}`}
                   />
@@ -687,7 +687,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                 <span className="text-gray-400 text-sm">No tags added yet</span>
               )}
             </div>
-            
+
             {/* Tag Input */}
             <div className="relative">
               <div className="flex gap-2">
@@ -700,9 +700,9 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   onFocus={() => setShowTagSuggestions(true)}
                   data-testid="input-new-tag"
                 />
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     if (newTag.includes(',') || newTag.includes(';') || newTag.includes('\n')) {
                       addMultipleTags(newTag);
@@ -715,16 +715,16 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setShowTagSuggestions(!showTagSuggestions)}
                   data-testid="button-toggle-suggestions"
                 >
                   Suggestions
                 </Button>
               </div>
-              
+
               {/* Tag Suggestions Dropdown */}
               {showTagSuggestions && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
@@ -740,7 +740,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                         <X className="w-3 h-3" />
                       </Button>
                     </div>
-                    
+
                     {Object.entries(tagSuggestions).map(([category, categoryTags]) => (
                       <div key={category} className="mb-4 last:mb-0">
                         <h5 className="text-xs font-medium text-gray-500 mb-2">{category}</h5>
@@ -749,8 +749,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                             <button
                               key={tag}
                               className={`px-2 py-1 text-xs rounded-md border transition-colors
-                                ${tags.includes(tag) 
-                                  ? 'bg-blue-100 border-blue-300 text-blue-700 cursor-not-allowed' 
+                                ${tags.includes(tag)
+                                  ? 'bg-blue-100 border-blue-300 text-blue-700 cursor-not-allowed'
                                   : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
                                 }`}
                               onClick={() => addTag(tag)}
@@ -767,7 +767,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                 </div>
               )}
             </div>
-            
+
             {/* Tag Helper Text */}
             <div className="text-xs text-gray-500 space-y-1">
               <div>
@@ -813,7 +813,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   Card Decks
                 </Button>
               </div>
-              
+
               {/* Prominent Save Button */}
               <div className="flex justify-center">
                 <Button
@@ -831,7 +831,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   Save Changes
                 </Button>
               </div>
-              
+
               {/* Unsaved Changes Warning */}
               {uploadedAssets.length > (systemData?.assetLibrary?.assets?.length || 0) && (
                 <Alert>
@@ -856,7 +856,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                       return (
                         <Button
                           key={category.id}
-                          variant={isSelected ? "default" : "outline"}
+                          variant={isSelected ? 'default' : 'outline'}
                           onClick={() => setSelectedCategory(category.id)}
                           className="flex flex-col h-auto p-4 text-center"
                           data-testid={`button-category-${category.id}`}
@@ -878,7 +878,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                     <h4 className="font-medium">Upload {assetCategories.find(c => c.id === selectedCategory)?.name}</h4>
                     <Badge variant="outline">{getAssetsByCategory(selectedCategory).length} assets</Badge>
                   </div>
-                  
+
                   {selectedCategory === 'cards' ? (
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -895,7 +895,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                           </ObjectUploader>
                           <p className="text-xs text-muted-foreground mt-2">Good for smaller card sets</p>
                         </div>
-                        
+
                         {/* Bulk Upload */}
                         <div className="text-center">
                           <BulkUploader
@@ -913,7 +913,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                           <p className="text-xs text-muted-foreground mt-2">Perfect for large card collections like 140 cards</p>
                         </div>
                       </div>
-                      
+
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <div className="flex items-start gap-3">
                           <div className="text-blue-600 mt-0.5">
@@ -957,7 +957,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                         <h4 className="font-medium">{category.name}</h4>
                         <Badge variant="outline">{categoryAssets.length}</Badge>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {categoryAssets.map((asset, index) => (
                           <div key={index} className="border rounded-lg p-3">
@@ -976,11 +976,11 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                 <X className="w-3 h-3" />
                               </Button>
                             </div>
-                            
+
                             {asset.type.startsWith('image/') && (
                               <div className="mt-2">
-                                <img 
-                                  src={getProxiedImageUrl(asset.url)} 
+                                <img
+                                  src={getProxiedImageUrl(asset.url)}
                                   alt={asset.name}
                                   className="w-full h-20 object-cover rounded border"
                                   onError={(e) => {
@@ -1005,34 +1005,32 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                   <h4 className="font-medium">Card Deck Management</h4>
                   <Badge variant="outline">System Editor</Badge>
                 </div>
-                
+
                 <Alert>
                   <CreditCard className="h-4 w-4" />
                   <AlertDescription>
-                    Create and manage card decks for your game system. 
-                    <strong>Step 1:</strong> Switch to the "Assets" tab and upload card images to the "Cards" category. 
-                    <strong>Step 2:</strong> Click "Save Changes" to persist your uploads. 
+                    Create and manage card decks for your game system.
+                    <strong>Step 1:</strong> Switch to the "Assets" tab and upload card images to the "Cards" category.
+                    <strong>Step 2:</strong> Click "Save Changes" to persist your uploads.
                     <strong>Step 3:</strong> Return here to create decks using those cards.
                   </AlertDescription>
                 </Alert>
-                
+
                 {/* Simple Deck Creator for Game Systems */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h5 className="font-medium">Available Card Assets</h5>
                     <Badge variant="outline">{getAssetsByCategory('cards').length} cards</Badge>
                   </div>
-                  
 
-                  
                   {getAssetsByCategory('cards').length === 0 ? (
                     <div className="text-center py-8 border-2 border-dashed border-muted rounded-lg">
                       <CreditCard className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground mb-2">No card assets uploaded yet</p>
                       <p className="text-sm text-muted-foreground">Switch to the "Assets" tab and upload card images to get started</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="mt-4"
                         onClick={() => setSelectedTab('assets')}
                       >
@@ -1044,7 +1042,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                       {/* Create Deck Button */}
                       <div className="flex justify-between items-center">
                         <h5 className="font-medium">Card Decks</h5>
-                        <Button 
+                        <Button
                           onClick={() => setShowCreateDeck(true)}
                           size="sm"
                           data-testid="button-create-deck"
@@ -1068,8 +1066,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                         {/* Card Back Preview */}
                                         {deck.cardBack && (
                                           <div className="flex-shrink-0">
-                                            <img 
-                                              src={getProxiedImageUrl(deck.cardBack)} 
+                                            <img
+                                              src={getProxiedImageUrl(deck.cardBack)}
                                               alt="Deck back"
                                               className="w-12 h-16 object-cover rounded border"
                                               onError={(e) => {
@@ -1079,7 +1077,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                             <p className="text-xs text-center mt-1 text-muted-foreground">Back</p>
                                           </div>
                                         )}
-                                        
+
                                         {/* Deck Info */}
                                         <div className="flex-1">
                                           <h3 className="font-medium">{deck.name}</h3>
@@ -1120,13 +1118,13 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                       </Button>
                                     </div>
                                   </div>
-                                  
+
                                   {/* Deck Preview */}
                                   <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                                     {deck.cardAssets.slice(0, 8).map((cardUrl, index) => (
                                       <div key={index} className="relative">
-                                        <img 
-                                          src={getProxiedImageUrl(cardUrl)} 
+                                        <img
+                                          src={getProxiedImageUrl(cardUrl)}
                                           alt={`Card ${index + 1}`}
                                           className="w-full h-16 object-cover rounded border"
                                           onError={(e) => {
@@ -1153,7 +1151,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                         <Card className="border-primary">
                           <CardHeader>
                             <CardTitle className="flex items-center justify-between">
-                              {showEditDeck ? "Edit Deck" : "Create New Deck"}
+                              {showEditDeck ? 'Edit Deck' : 'Create New Deck'}
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -1202,13 +1200,13 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                   <Badge variant="outline">Card back selected</Badge>
                                 )}
                               </div>
-                              
+
                               <div className="flex items-center space-x-4">
                                 {selectedCardBack ? (
                                   <div className="flex items-center space-x-3">
                                     <div className="relative">
-                                      <img 
-                                        src={getProxiedImageUrl(selectedCardBack)} 
+                                      <img
+                                        src={getProxiedImageUrl(selectedCardBack)}
                                         alt="Selected card back"
                                         className="w-16 h-20 object-cover rounded border"
                                       />
@@ -1231,7 +1229,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                   </div>
                                 )}
                               </div>
-                              
+
                               {/* Card Back Selection Grid */}
                               <div className="space-y-2">
                                 <Label className="text-xs">Available Card Backs:</Label>
@@ -1244,20 +1242,20 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                     {getAssetsByCategory('cards').map((card, index) => {
                                       const isSelected = selectedCardBack === card.url;
                                       return (
-                                        <div 
-                                          key={`back-${index}`} 
+                                        <div
+                                          key={`back-${index}`}
                                           className={`relative border rounded p-1 cursor-pointer transition-all ${
                                             isSelected ? 'border-primary bg-primary/20 ring-2 ring-primary/50' : 'border-border hover:border-primary/50'
                                           }`}
                                           data-testid={`card-back-select-${index}`}
                                           title={`${isSelected ? 'Remove' : 'Select'} "${card.name}" as card back`}
                                         >
-                                          <div 
+                                          <div
                                             className="w-full h-12 bg-muted rounded flex items-center justify-center"
                                             onClick={() => setSelectedCardBack(isSelected ? null : card.url)}
                                           >
-                                            <img 
-                                              src={getProxiedImageUrl(card.url)} 
+                                            <img
+                                              src={getProxiedImageUrl(card.url)}
                                               alt={card.name}
                                               className="w-full h-12 object-cover rounded"
                                               onLoad={() => console.log(`✅ Card back loaded: ${card.name}`, card.url)}
@@ -1305,7 +1303,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                 <Label>Select Cards for Deck</Label>
                                 <Badge variant="outline">{selectedCards.length} selected</Badge>
                               </div>
-                              
+
                               {/* Quick Selection Options */}
                               {getAvailableCards().length > 0 && (
                                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
@@ -1323,19 +1321,19 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                         onClick={() => {
                                           console.log('🔍 [Deck Manager Debug] Select All Available Cards button clicked');
                                           console.log('🔍 [Deck Manager Debug] Available cards:', getAvailableCards().length);
-                                          
+
                                           const availableCardUrls = getAvailableCards().map(card => card.url);
                                           console.log('🔍 [Deck Manager Debug] Card URLs to select:', availableCardUrls);
-                                          
+
                                           // Add all available cards to selection
                                           setSelectedCards(prev => {
                                             const newSelection = [...new Set([...prev, ...availableCardUrls])];
                                             console.log('🔍 [Deck Manager Debug] New selection count:', newSelection.length);
                                             return newSelection;
                                           });
-                                          
+
                                           toast({
-                                            title: "Cards Selected",
+                                            title: 'Cards Selected',
                                             description: `Selected all ${availableCardUrls.length} available cards for the deck.`,
                                           });
                                         }}
@@ -1350,8 +1348,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                           console.log('🔍 [Deck Manager Debug] Clear Selection button clicked');
                                           setSelectedCards([]);
                                           toast({
-                                            title: "Selection Cleared",
-                                            description: "All card selections have been cleared.",
+                                            title: 'Selection Cleared',
+                                            description: 'All card selections have been cleared.',
                                           });
                                         }}
                                         size="sm"
@@ -1364,7 +1362,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                   </div>
                                 </div>
                               )}
-                              
+
                               <div className="max-h-96 overflow-y-auto border rounded-lg p-4 space-y-6">
                                 {/* Cards Not in Any Deck */}
                                 <div>
@@ -1379,17 +1377,17 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                       {getAvailableCards().map((card, index) => {
                                         const isSelected = selectedCards.includes(card.url);
                                         return (
-                                          <div 
-                                            key={index} 
+                                          <div
+                                            key={index}
                                             className={`relative border rounded-lg p-2 cursor-pointer transition-all bg-green-50 dark:bg-green-950 ${
-                                              isSelected 
-                                                ? 'border-primary bg-primary/10 ring-2 ring-primary' 
+                                              isSelected
+                                                ? 'border-primary bg-primary/10 ring-2 ring-primary'
                                                 : 'border-green-200 dark:border-green-800 hover:border-primary/50'
                                             }`}
                                             onClick={() => toggleCardSelection(card.url)}
                                           >
-                                            <img 
-                                              src={getProxiedImageUrl(card.url)} 
+                                            <img
+                                              src={getProxiedImageUrl(card.url)}
                                               alt={card.name}
                                               className="w-full h-20 object-cover rounded mb-1"
                                               onError={(e) => {
@@ -1432,17 +1430,17 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                       {getCardsUsedInDecks().map((card, index) => {
                                         const isSelected = selectedCards.includes(card.url);
                                         return (
-                                          <div 
-                                            key={index} 
+                                          <div
+                                            key={index}
                                             className={`relative border rounded-lg p-2 cursor-pointer transition-all bg-gray-50 dark:bg-gray-900 ${
-                                              isSelected 
-                                                ? 'border-primary bg-primary/10 ring-2 ring-primary' 
+                                              isSelected
+                                                ? 'border-primary bg-primary/10 ring-2 ring-primary'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
                                             }`}
                                             onClick={() => toggleCardSelection(card.url)}
                                           >
-                                            <img 
-                                              src={getProxiedImageUrl(card.url)} 
+                                            <img
+                                              src={getProxiedImageUrl(card.url)}
                                               alt={card.name}
                                               className="w-full h-20 object-cover rounded mb-1"
                                               onError={(e) => {
@@ -1467,7 +1465,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                     </div>
                                   </div>
                                 )}
-                                
+
                                 {getAssetsByCategory('cards').length === 0 && (
                                   <div className="text-center text-muted-foreground py-8">
                                     No card assets uploaded yet. Upload cards in the Assets tab first.
@@ -1484,7 +1482,7 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                                 data-testid="button-save-deck"
                               >
                                 <Save className="w-4 h-4 mr-2" />
-                                {showEditDeck 
+                                {showEditDeck
                                   ? `Update Deck (${selectedCards.length} cards)`
                                   : `Create Deck (${selectedCards.length} cards)`
                                 }
@@ -1519,8 +1517,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                               {getAvailableCards().map((card, index) => (
                                 <div key={index} className="border rounded-lg p-2 bg-green-50 dark:bg-green-950">
-                                  <img 
-                                    src={getProxiedImageUrl(card.url)} 
+                                  <img
+                                    src={getProxiedImageUrl(card.url)}
                                     alt={card.name}
                                     className="w-full h-24 object-cover rounded mb-2"
                                     onError={(e) => {
@@ -1552,8 +1550,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                               {getCardsUsedInDecks().map((card, index) => (
                                 <div key={index} className="border rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
-                                  <img 
-                                    src={getProxiedImageUrl(card.url)} 
+                                  <img
+                                    src={getProxiedImageUrl(card.url)}
                                     alt={card.name}
                                     className="w-full h-24 object-cover rounded mb-2"
                                     onError={(e) => {
@@ -1587,13 +1585,13 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
         <div className="flex justify-between items-center">
           <Button
             variant="outline"
-            onClick={() => setLocation("/admin")}
+            onClick={() => setLocation('/admin')}
             data-testid="button-back-to-admin"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Admin
           </Button>
-          
+
           <Button
             onClick={handleSave}
             disabled={updateGameSystemMutation.isPending || !name.trim()}
@@ -1621,8 +1619,8 @@ export default function EditGameSystem({ systemId }: EditGameSystemProps) {
                 <DialogTitle>Preview: {previewCard.name}</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center">
-                <img 
-                  src={getProxiedImageUrl(previewCard.url)} 
+                <img
+                  src={getProxiedImageUrl(previewCard.url)}
                   alt={previewCard.name}
                   className="max-w-full max-h-96 object-contain rounded"
                   onError={(e) => {

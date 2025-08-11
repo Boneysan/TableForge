@@ -36,13 +36,13 @@ interface ColorPalette {
 interface ColorContrastReport {
   palette: string;
   mode: 'light' | 'dark';
-  results: Array<{
+  results: {
     combination: string;
     foreground: string;
     background: string;
     contrast: ContrastResult;
     recommendations?: string[];
-  }>;
+  }[];
   overallScore: number;
   compliance: 'AAA' | 'AA' | 'partial' | 'fail';
 }
@@ -54,7 +54,7 @@ export function useColorContrast() {
   // Convert hex to RGB
   const hexToRgb = useCallback((hex: string): [number, number, number] | null => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result 
+    return result
       ? [
           parseInt(result[1], 16),
           parseInt(result[2], 16),
@@ -94,8 +94,8 @@ export function useColorContrast() {
 
   // Evaluate contrast ratio against WCAG standards
   const evaluateContrast = useCallback((
-    ratio: number, 
-    isLargeText: boolean = false
+    ratio: number,
+    isLargeText = false,
   ): ContrastResult => {
     const aaThreshold = isLargeText ? 3.0 : 4.5;
     const aaaThreshold = isLargeText ? 4.5 : 7.0;
@@ -117,12 +117,12 @@ export function useColorContrast() {
     const value = getComputedStyle(document.documentElement)
       .getPropertyValue(property)
       .trim();
-    
+
     // Convert HSL to hex if needed
     if (value.startsWith('hsl(')) {
       return hslToHex(value);
     }
-    
+
     return value.startsWith('#') ? value : `#${value}`;
   }, []);
 
@@ -157,7 +157,7 @@ export function useColorContrast() {
 
     const toHex = (c: number) => {
       const hex = Math.round(c * 255).toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
+      return hex.length === 1 ? `0${  hex}` : hex;
     };
 
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;

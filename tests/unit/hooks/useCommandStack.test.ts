@@ -52,7 +52,7 @@ describe('useCommandStack', () => {
         'test_command',
         'Test Command',
         mockExecute,
-        mockUndo
+        mockUndo,
       );
 
       await act(async () => {
@@ -74,7 +74,7 @@ describe('useCommandStack', () => {
         'test_command',
         'Test Command',
         mockExecute,
-        mockUndo
+        mockUndo,
       );
 
       // Execute command
@@ -103,7 +103,7 @@ describe('useCommandStack', () => {
         'test_command',
         'Test Command',
         mockExecute,
-        mockUndo
+        mockUndo,
       );
 
       // Execute, undo, then redo
@@ -136,7 +136,7 @@ describe('useCommandStack', () => {
         'Move Asset 1',
         mockExecute1,
         mockUndo,
-        { assetId: 'asset-1', x: 100, y: 100 }
+        { assetId: 'asset-1', x: 100, y: 100 },
       );
 
       const command2 = result.current.createCommand(
@@ -144,14 +144,14 @@ describe('useCommandStack', () => {
         'Move Asset 2',
         mockExecute2,
         mockUndo,
-        { assetId: 'asset-1', x: 200, y: 200 }
+        { assetId: 'asset-1', x: 200, y: 200 },
       );
 
       // Execute commands quickly
       await act(async () => {
         result.current.queueCommand(command1);
         result.current.queueCommand(command2);
-        
+
         // Fast-forward to trigger processing
         vi.advanceTimersByTime(150);
       });
@@ -172,14 +172,14 @@ describe('useCommandStack', () => {
         'move_asset',
         'Move Asset',
         mockExecute1,
-        mockUndo
+        mockUndo,
       );
 
       const rotateCommand = result.current.createCommand(
         'rotate_asset',
         'Rotate Asset',
         mockExecute2,
-        mockUndo
+        mockUndo,
       );
 
       await act(async () => {
@@ -205,8 +205,8 @@ describe('useCommandStack', () => {
             'test_command',
             `Command ${i}`,
             vi.fn(),
-            vi.fn()
-          )
+            vi.fn(),
+          ),
         );
       }
 
@@ -265,7 +265,7 @@ describe('useCommandStack', () => {
         'failing_command',
         'Failing Command',
         failingExecute,
-        mockUndo
+        mockUndo,
       );
 
       await act(async () => {
@@ -287,7 +287,7 @@ describe('useCommandStack', () => {
         'test_command',
         'Test Command',
         mockExecute,
-        failingUndo
+        failingUndo,
       );
 
       await act(async () => {
@@ -307,7 +307,7 @@ describe('useCommandStack', () => {
       const { result } = renderHook(() => useCommandStack(mockOptions));
 
       const slowExecute = vi.fn().mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
+        () => new Promise(resolve => setTimeout(resolve, 1000)),
       );
       const mockUndo = vi.fn();
 
@@ -315,7 +315,7 @@ describe('useCommandStack', () => {
         'slow_command',
         'Slow Command',
         slowExecute,
-        mockUndo
+        mockUndo,
       );
 
       // Start executing command
@@ -347,7 +347,7 @@ describe('useCommandStack', () => {
       });
 
       const history = result.current.getHistory();
-      
+
       expect(history.undo).toHaveLength(1);
       expect(history.undo[0].description).toBe('Command 1');
       expect(history.redo).toHaveLength(1);

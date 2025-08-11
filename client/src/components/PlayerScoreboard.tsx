@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Trophy, 
-  Plus, 
-  Minus, 
-  Edit2, 
-  Check, 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Trophy,
+  Plus,
+  Minus,
+  Edit2,
+  Check,
   X,
   Crown,
   Medal,
   Award,
-  Users
-} from "lucide-react";
-import type { RoomPlayerWithName } from "@shared/schema";
+  Users,
+} from 'lucide-react';
+import type { RoomPlayerWithName } from '@shared/schema';
 
 interface PlayerScoreboardProps {
   players: RoomPlayerWithName[];
@@ -25,11 +25,11 @@ interface PlayerScoreboardProps {
   onScoreUpdate?: (playerId: string, newScore: number) => void;
 }
 
-export function PlayerScoreboard({ 
-  players, 
-  currentUserId, 
-  isGameMaster, 
-  onScoreUpdate 
+export function PlayerScoreboard({
+  players,
+  currentUserId,
+  isGameMaster,
+  onScoreUpdate,
 }: PlayerScoreboardProps) {
   const [editingScores, setEditingScores] = useState<Record<string, number>>({});
   const [tempScores, setTempScores] = useState<Record<string, string>>({});
@@ -95,13 +95,13 @@ export function PlayerScoreboard({
   const getRankBadgeVariant = (index: number) => {
     switch (index) {
       case 0:
-        return "default";
+        return 'default';
       case 1:
-        return "secondary";
+        return 'secondary';
       case 2:
-        return "outline";
+        return 'outline';
       default:
-        return "outline";
+        return 'outline';
     }
   };
 
@@ -127,13 +127,13 @@ export function PlayerScoreboard({
             sortedPlayers.map((player, index) => {
               const isEditing = editingScores.hasOwnProperty(player.playerId);
               const isCurrentUser = player.playerId === currentUserId;
-              
+
               return (
                 <div
                   key={player.playerId}
                   className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
-                    isCurrentUser 
-                      ? 'bg-primary/5 border-primary/20' 
+                    isCurrentUser
+                      ? 'bg-primary/5 border-primary/20'
                       : 'bg-muted/30 hover:bg-muted/50'
                   }`}
                   data-testid={`scoreboard-player-${player.playerId}`}
@@ -145,14 +145,14 @@ export function PlayerScoreboard({
                         #{index + 1}
                       </Badge>
                     </div>
-                    
+
                     <Avatar className="w-8 h-8">
-                      <AvatarImage src={""} alt={player.playerName} />
+                      <AvatarImage src={''} alt={player.playerName} />
                       <AvatarFallback className="text-xs">
                         {player.playerName.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div>
                       <p className="font-medium text-sm">
                         {player.playerName}
@@ -177,7 +177,7 @@ export function PlayerScoreboard({
                           value={tempScores[player.playerId] || ''}
                           onChange={(e) => setTempScores(prev => ({
                             ...prev,
-                            [player.playerId]: e.target.value
+                            [player.playerId]: e.target.value,
                           }))}
                           className="w-16 h-8 text-center"
                           data-testid={`input-score-${player.playerId}`}
@@ -207,7 +207,7 @@ export function PlayerScoreboard({
                           <div className="font-bold text-lg">{player.score}</div>
                           <div className="text-xs text-muted-foreground">points</div>
                         </div>
-                        
+
                         {isGameMaster && (
                           <div className="flex flex-col space-y-1">
                             <Button
@@ -230,7 +230,7 @@ export function PlayerScoreboard({
                             </Button>
                           </div>
                         )}
-                        
+
                         {isGameMaster && (
                           <Button
                             size="sm"
@@ -250,7 +250,7 @@ export function PlayerScoreboard({
             })
           )}
         </div>
-        
+
         {isGameMaster && players.length > 0 && (
           <div className="mt-4 pt-4 border-t">
             <div className="text-xs text-muted-foreground text-center">

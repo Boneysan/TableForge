@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PenTool, StickyNote, Type, Palette, Trash2, Undo } from "lucide-react";
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { PenTool, StickyNote, Type, Palette, Trash2, Undo } from 'lucide-react';
 
 interface Point {
   x: number;
@@ -48,22 +48,22 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
   const [drawings, setDrawings] = useState<DrawingPath[]>([]);
   const [notes, setNotes] = useState<StickyNote[]>([]);
   const [textAnnotations, setTextAnnotations] = useState<TextAnnotation[]>([]);
-  
+
   const [currentPath, setCurrentPath] = useState<Point[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
-  
+
   const [drawColor, setDrawColor] = useState('#ef4444');
   const [drawThickness, setDrawThickness] = useState(3);
   const [noteColor, setNoteColor] = useState('#fbbf24');
   const [textSize, setTextSize] = useState(16);
-  
+
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [showTextDialog, setShowTextDialog] = useState(false);
   const [pendingNote, setPendingNote] = useState<{ x: number; y: number } | null>(null);
   const [pendingText, setPendingText] = useState<{ x: number; y: number } | null>(null);
   const [noteText, setNoteText] = useState('');
   const [textContent, setTextContent] = useState('');
-  
+
   const svgRef = useRef<SVGSVGElement>(null);
 
   const getMousePosition = (e: React.MouseEvent): Point => {
@@ -71,15 +71,15 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
     if (!rect) return { x: 0, y: 0 };
     return {
       x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      y: e.clientY - rect.top,
     };
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isActive) return;
-    
+
     const point = getMousePosition(e);
-    
+
     if (mode === 'draw') {
       setCurrentPath([point]);
       setIsDrawing(true);
@@ -94,39 +94,39 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isActive || !isDrawing || mode !== 'draw') return;
-    
+
     const point = getMousePosition(e);
     setCurrentPath(prev => [...prev, point]);
   };
 
   const handleMouseUp = () => {
     if (!isActive || !isDrawing || mode !== 'draw') return;
-    
+
     if (currentPath.length > 1) {
       const newDrawing: DrawingPath = {
         id: Date.now().toString(),
         points: currentPath,
         color: drawColor,
-        thickness: drawThickness
+        thickness: drawThickness,
       };
       setDrawings(prev => [...prev, newDrawing]);
     }
-    
+
     setCurrentPath([]);
     setIsDrawing(false);
   };
 
   const handleAddNote = () => {
     if (!pendingNote || !noteText.trim()) return;
-    
+
     const newNote: StickyNote = {
       id: Date.now().toString(),
       x: pendingNote.x,
       y: pendingNote.y,
       text: noteText,
-      color: noteColor
+      color: noteColor,
     };
-    
+
     setNotes(prev => [...prev, newNote]);
     setNoteText('');
     setPendingNote(null);
@@ -135,16 +135,16 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
 
   const handleAddText = () => {
     if (!pendingText || !textContent.trim()) return;
-    
+
     const newText: TextAnnotation = {
       id: Date.now().toString(),
       x: pendingText.x,
       y: pendingText.y,
       text: textContent,
       fontSize: textSize,
-      color: drawColor
+      color: drawColor,
     };
-    
+
     setTextAnnotations(prev => [...prev, newText]);
     setTextContent('');
     setPendingText(null);
@@ -167,7 +167,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
 
   const renderPath = (points: Point[]) => {
     if (points.length < 2) return '';
-    
+
     let path = `M ${points[0].x} ${points[0].y}`;
     for (let i = 1; i < points.length; i++) {
       path += ` L ${points[i].x} ${points[i].y}`;
@@ -199,7 +199,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
             strokeLinejoin="round"
           />
         ))}
-        
+
         {/* Render current drawing */}
         {currentPath.length > 1 && (
           <path
@@ -212,7 +212,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
             opacity="0.7"
           />
         )}
-        
+
         {/* Render sticky notes */}
         {notes.map(note => (
           <g key={note.id}>
@@ -256,7 +256,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
             </text>
           </g>
         ))}
-        
+
         {/* Render text annotations */}
         {textAnnotations.map(text => (
           <g key={text.id}>
@@ -303,14 +303,14 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
           <CardContent className="space-y-3">
             <div className="flex gap-2">
               <Button
-                variant={isActive ? "default" : "outline"}
+                variant={isActive ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => onToggle(!isActive)}
                 data-testid="button-toggle-annotations"
               >
-                {isActive ? "Active" : "Activate"}
+                {isActive ? 'Active' : 'Activate'}
               </Button>
-              
+
               {drawings.length > 0 && (
                 <Button
                   variant="outline"
@@ -322,7 +322,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
                   <Undo className="w-3 h-3" />
                 </Button>
               )}
-              
+
               {(drawings.length > 0 || notes.length > 0 || textAnnotations.length > 0) && (
                 <Button
                   variant="outline"
@@ -334,7 +334,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
                 </Button>
               )}
             </div>
-            
+
             {isActive && (
               <>
                 <div>
@@ -365,7 +365,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label className="text-xs">Color</Label>
@@ -383,7 +383,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
                       data-testid="input-annotation-color"
                     />
                   </div>
-                  
+
                   {mode === 'draw' && (
                     <div>
                       <Label className="text-xs">Thickness</Label>
@@ -398,7 +398,7 @@ export function AnnotationSystem({ isActive, onToggle, boardWidth, boardHeight }
                       />
                     </div>
                   )}
-                  
+
                   {mode === 'text' && (
                     <div>
                       <Label className="text-xs">Size</Label>

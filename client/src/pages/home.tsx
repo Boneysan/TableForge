@@ -1,24 +1,24 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dice1, Plus, Users, Clock, Trash2, LogOut, User as UserIcon, Settings } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { signOutUser } from "@/lib/firebase";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { useToast } from "@/hooks/use-toast";
-import type { GameRoom, User } from "@shared/schema";
-import { auth } from "@/lib/firebase";
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dice1, Plus, Users, Clock, Trash2, LogOut, User as UserIcon, Settings } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { signOutUser } from '@/lib/firebase';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { useToast } from '@/hooks/use-toast';
+import type { GameRoom, User } from '@shared/schema';
+import { auth } from '@/lib/firebase';
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const [roomName, setRoomName] = useState("");
-  const [joinRoomInput, setJoinRoomInput] = useState("");
+  const [roomName, setRoomName] = useState('');
+  const [joinRoomInput, setJoinRoomInput] = useState('');
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading } = useAuth();
 
@@ -27,10 +27,10 @@ export default function Home() {
 
   // All hooks must be called before any early returns
   const { data: userRooms = [], isLoading } = useQuery<GameRoom[]>({
-    queryKey: ["/api/user", firebaseUserId, "rooms"],
+    queryKey: ['/api/user', firebaseUserId, 'rooms'],
     enabled: !!firebaseUserId,
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", `/api/user/${firebaseUserId}/rooms`);
+      const response = await authenticatedApiRequest('GET', `/api/user/${firebaseUserId}/rooms`);
       if (!response.ok) {
         throw new Error(`Failed to fetch rooms: ${response.statusText}`);
       }
@@ -40,47 +40,47 @@ export default function Home() {
 
   const createRoomMutation = useMutation({
     mutationFn: async (data: { name: string }) => {
-      const response = await authenticatedApiRequest("POST", "/api/rooms", data);
+      const response = await authenticatedApiRequest('POST', '/api/rooms', data);
       return response.json();
     },
     onSuccess: (room: GameRoom) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user", firebaseUserId, "rooms"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user', firebaseUserId, 'rooms'] });
       setLocation(`/room/${room.id}`);
       toast({
-        title: "Room Created",
+        title: 'Room Created',
         description: `Successfully created room "${room.name}"`,
       });
     },
     onError: (error: any) => {
-      let description = "Failed to create room. Please try again.";
-      if (error?.message?.includes("unique constraint") || error?.message?.includes("duplicate")) {
-        description = "A room with this name already exists. Please choose a different name.";
+      let description = 'Failed to create room. Please try again.';
+      if (error?.message?.includes('unique constraint') || error?.message?.includes('duplicate')) {
+        description = 'A room with this name already exists. Please choose a different name.';
       }
       toast({
-        title: "Error",
+        title: 'Error',
         description,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
 
   const deleteRoomMutation = useMutation({
     mutationFn: async (roomId: string) => {
-      const response = await authenticatedApiRequest("DELETE", `/api/rooms/${roomId}`);
+      const response = await authenticatedApiRequest('DELETE', `/api/rooms/${roomId}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/user", firebaseUserId, "rooms"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user', firebaseUserId, 'rooms'] });
       toast({
-        title: "Room Deleted",
-        description: "Room has been deleted successfully",
+        title: 'Room Deleted',
+        description: 'Room has been deleted successfully',
       });
     },
     onError: () => {
       toast({
-        title: "Error", 
-        description: "Failed to delete room. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to delete room. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -97,22 +97,22 @@ export default function Home() {
   const handleCreateRoom = () => {
     if (!roomName.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a room name",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter a room name',
+        variant: 'destructive',
       });
       return;
     }
     createRoomMutation.mutate({ name: roomName });
-    setRoomName("");
+    setRoomName('');
   };
 
   const handleJoinRoom = () => {
     if (!joinRoomInput.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a room name or ID",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter a room name or ID',
+        variant: 'destructive',
       });
       return;
     }
@@ -124,7 +124,7 @@ export default function Home() {
 
   const handleDeleteRoom = (e: React.MouseEvent, roomId: string) => {
     e.stopPropagation(); // Prevent card click navigation
-    if (confirm("Are you sure you want to delete this room? This action cannot be undone.")) {
+    if (confirm('Are you sure you want to delete this room? This action cannot be undone.')) {
       deleteRoomMutation.mutate(roomId);
     }
   };
@@ -143,8 +143,8 @@ export default function Home() {
               <UserIcon className="w-5 h-5" />
               <span>{(user as User)?.firstName || (user as User)?.email || 'User'}</span>
             </div>
-            <Button 
-              onClick={() => setLocation("/create-game-system")}
+            <Button
+              onClick={() => setLocation('/create-game-system')}
               variant="outline"
               size="sm"
               data-testid="button-create-game-system"
@@ -152,8 +152,8 @@ export default function Home() {
               <Settings className="w-4 h-4 mr-2" />
               Create Game System
             </Button>
-            <Button 
-              onClick={() => setLocation("/admin")}
+            <Button
+              onClick={() => setLocation('/admin')}
               variant="outline"
               size="sm"
               data-testid="button-admin-dashboard"
@@ -161,7 +161,7 @@ export default function Home() {
               Admin Dashboard
             </Button>
             <ThemeToggle />
-            <Button 
+            <Button
               onClick={async () => {
                 try {
                   await signOutUser();
@@ -217,7 +217,7 @@ export default function Home() {
                 className="w-full"
                 data-testid="button-create-room"
               >
-                {createRoomMutation.isPending ? "Creating..." : "Create Room"}
+                {createRoomMutation.isPending ? 'Creating...' : 'Create Room'}
               </Button>
             </CardContent>
           </Card>

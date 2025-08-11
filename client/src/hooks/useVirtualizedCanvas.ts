@@ -68,7 +68,7 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
   });
 
   const { cullVisible, batchTransform, sortLayers, isWorkerReady } = useCanvasWorker();
-  
+
   const renderQueueRef = useRef<RenderBatch[]>([]);
   const lastRenderTimeRef = useRef<number>(0);
   const pendingUpdatesRef = useRef<Set<string>>(new Set());
@@ -97,12 +97,12 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
     if (!enableVirtualization) return;
 
     try {
-      const allAssets = layers.flatMap(layer => 
-        layer.visible ? layer.assets : []
+      const allAssets = layers.flatMap(layer =>
+        layer.visible ? layer.assets : [],
       );
 
       const visibleIds = await cullVisible(allAssets, viewport);
-      
+
       setPerformanceStats(prev => ({
         ...prev,
         visibleAssetsCount: visibleIds.length,
@@ -131,12 +131,12 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
     // Process each layer that needs updates
     layersToUpdate.forEach(async (layerId) => {
       const layer = layers.find(l => l.id === layerId);
-      if (!layer || !layer.visible) return;
+      if (!layer?.visible) return;
 
       try {
         // Get transforms for layer assets
         const transforms = await batchTransform(layer.assets);
-        
+
         // Create render batch
         const batch: RenderBatch = {
           layerId,
@@ -170,7 +170,7 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
   // Schedule layer update
   const scheduleLayerUpdate = useCallback((layerId: string) => {
     pendingUpdatesRef.current.add(layerId);
-    
+
     if (rafIdRef.current === null) {
       rafIdRef.current = requestAnimationFrame(batchRenderUpdates);
     }
@@ -178,10 +178,10 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
 
   // Update layer
   const updateLayer = useCallback((layerId: string, updates: Partial<CanvasLayer>) => {
-    setLayers(prev => prev.map(layer => 
-      layer.id === layerId 
+    setLayers(prev => prev.map(layer =>
+      layer.id === layerId
         ? { ...layer, ...updates }
-        : layer
+        : layer,
     ));
 
     if (enableBatching) {
@@ -191,10 +191,10 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
 
   // Add assets to layer
   const addAssetsToLayer = useCallback((layerId: string, assets: AssetTransform[]) => {
-    setLayers(prev => prev.map(layer => 
-      layer.id === layerId 
+    setLayers(prev => prev.map(layer =>
+      layer.id === layerId
         ? { ...layer, assets: [...layer.assets, ...assets] }
-        : layer
+        : layer,
     ));
 
     if (enableBatching) {
@@ -205,11 +205,11 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
   // Remove assets from layer
   const removeAssetsFromLayer = useCallback((layerId: string, assetIds: string[]) => {
     const assetIdSet = new Set(assetIds);
-    
-    setLayers(prev => prev.map(layer => 
-      layer.id === layerId 
+
+    setLayers(prev => prev.map(layer =>
+      layer.id === layerId
         ? { ...layer, assets: layer.assets.filter(asset => !assetIdSet.has(asset.id)) }
-        : layer
+        : layer,
     ));
 
     if (enableBatching) {
@@ -220,7 +220,7 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
   // Update viewport
   const updateViewport = useCallback((newViewport: ViewportBounds) => {
     setViewport(newViewport);
-    
+
     // Trigger visibility recalculation
     updateVisibleAssets();
   }, [updateVisibleAssets]);
@@ -254,8 +254,8 @@ export function useVirtualizedCanvas(options: UseVirtualizedCanvasOptions = {}):
           }
         });
 
-        setLayers(prev => [...prev].sort((a, b) => 
-          (layerOrder.get(a.id) || 0) - (layerOrder.get(b.id) || 0)
+        setLayers(prev => [...prev].sort((a, b) =>
+          (layerOrder.get(a.id) || 0) - (layerOrder.get(b.id) || 0),
         ));
       });
     }

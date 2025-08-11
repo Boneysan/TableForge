@@ -1,11 +1,21 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Run lint-staged
+# Exit on any error
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged for formatted files
+echo "📝 Formatting and linting staged files..."
 npx lint-staged
 
-# Run type checking
-npm run type-check
+# Run TypeScript type checking
+echo "🔧 Running TypeScript type checking..."
+npx tsc --noEmit
 
-# Run unit tests
-npm run test:unit
+# Run unit tests to ensure no regressions
+echo "🧪 Running unit tests..."
+npx vitest run --reporter=basic
+
+echo "✅ Pre-commit checks completed successfully!"

@@ -5,9 +5,9 @@ import { config } from '../configLoader';
 // Using imported config object
 
 // Get allowed domains for CSP
-function getAllowedDomains(): { 
-  connect: string[], 
-  img: string[], 
+function getAllowedDomains(): {
+  connect: string[],
+  img: string[],
   font: string[],
   style: string[],
   script: string[]
@@ -46,7 +46,7 @@ function getAllowedDomains(): {
       "'self'",
       "'unsafe-inline'", // Required for Vite dev server
       "'unsafe-eval'", // Required for Vite dev server
-    ]
+    ],
   };
 
   // Add environment-specific domains
@@ -54,7 +54,7 @@ function getAllowedDomains(): {
     domains.connect.push(
       'http://localhost:*',
       'ws://localhost:*',
-      'wss://localhost:*'
+      'wss://localhost:*',
     );
     domains.img.push('http://localhost:*');
   }
@@ -81,44 +81,44 @@ const helmetOptions: HelmetOptions = {
   contentSecurityPolicy: {
     directives: (() => {
       const domains = getAllowedDomains();
-      
+
       return {
         defaultSrc: ["'self'"],
-        
+
         // Scripts - strict in production, relaxed in development for Vite
         scriptSrc: domains.script,
         scriptSrcAttr: ["'none'"],
-        
+
         // Styles
         styleSrc: domains.style,
         styleSrcAttr: ["'unsafe-inline'"], // Required for some UI components
-        
+
         // Images - allow our storage and common image sources
         imgSrc: domains.img,
-        
+
         // Fonts
         fontSrc: domains.font,
-        
+
         // Connections - API calls, WebSockets
         connectSrc: domains.connect,
-        
+
         // Media
         mediaSrc: ["'self'", 'https:', 'blob:'],
-        
+
         // Objects and embeds
         objectSrc: ["'none'"],
         embedSrc: ["'none'"],
-        
+
         // Forms
         formAction: ["'self'"],
-        
+
         // Frames
         frameSrc: ["'none'"],
         frameAncestors: ["'self'"],
-        
+
         // Base URI
         baseUri: ["'self'"],
-        
+
         // Upgrade insecure requests in production
         ...(config.NODE_ENV === 'production' && { upgradeInsecureRequests: [] }),
       };
@@ -182,10 +182,10 @@ export const cspViolationHandler = (req: any, res: any, next: any) => {
       violation: req.body,
       ip: req.ip,
     });
-    
+
     return res.status(204).end();
   }
-  
+
   next();
 };
 
@@ -201,7 +201,7 @@ export const strictSecurityHeaders = (req: any, res: any, next: any) => {
     res.header('Expires', '0');
     res.header('Clear-Site-Data', '"cache", "cookies", "storage"');
   }
-  
+
   next();
 };
 
@@ -212,9 +212,9 @@ export const logSecurityEvents = (req: any, res: any, next: any) => {
     'x-real-ip',
     'user-agent',
     'origin',
-    'referer'
+    'referer',
   ];
-  
+
   const suspiciousPatterns = [
     /script.*src.*http/i,
     /javascript:/i,
@@ -223,22 +223,22 @@ export const logSecurityEvents = (req: any, res: any, next: any) => {
     /<script/i,
     /eval\(/i,
   ];
-  
+
   // Check for suspicious patterns in headers and query params
   const requestData = {
     headers: Object.fromEntries(
-      securityHeaders.map(header => [header, req.get(header)])
+      securityHeaders.map(header => [header, req.get(header)]),
     ),
     query: req.query,
     path: req.path,
     method: req.method,
   };
-  
+
   const requestString = JSON.stringify(requestData);
-  const hasSuspiciousContent = suspiciousPatterns.some(pattern => 
-    pattern.test(requestString)
+  const hasSuspiciousContent = suspiciousPatterns.some(pattern =>
+    pattern.test(requestString),
   );
-  
+
   if (hasSuspiciousContent) {
     console.warn('🚨 [Suspicious Request]', {
       timestamp: new Date().toISOString(),
@@ -246,6 +246,6 @@ export const logSecurityEvents = (req: any, res: any, next: any) => {
       ...requestData,
     });
   }
-  
+
   next();
 };

@@ -1,0 +1,28 @@
+{
+  "*.{ts,tsx}": [
+    "prettier --write",
+    "eslint --fix --max-warnings 0"
+  ],
+  "*.{js,jsx}": [
+    "prettier --write",
+    "eslint --fix --max-warnings 0"
+  ],
+  "*.{json,jsonc}": [
+    "prettier --write"
+  ],
+  "*.{css,scss,less}": [
+    "prettier --write"
+  ],
+  "*.{md,mdx}": [
+    "prettier --write"
+  ],
+  "*.{yml,yaml}": [
+    "prettier --write"
+  ],
+  "*.{html}": [
+    "prettier --write"
+  ],
+  "**/*.{ts,tsx,js,jsx}": [
+    "bash -c 'npx tsc --noEmit'"
+  ]
+}

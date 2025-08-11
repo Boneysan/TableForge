@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { Eye, Move, RotateCw, Users, Dices, Book } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GameBoard } from "@/components/GameBoard";
-import { GameControls } from "@/components/GameControls";
-import { GameRulesViewer } from "@/components/GameRulesViewer";
-import type { GameRoom, GameAsset, BoardAsset, RoomPlayer } from "@shared/schema";
+import { useState } from 'react';
+import { Eye, Move, RotateCw, Users, Dices, Book } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GameBoard } from '@/components/GameBoard';
+import { GameControls } from '@/components/GameControls';
+import { GameRulesViewer } from '@/components/GameRulesViewer';
+import type { GameRoom, GameAsset, BoardAsset, RoomPlayer } from '@shared/schema';
 
 interface PlayerInterfaceProps {
   room: GameRoom;
@@ -21,16 +21,16 @@ interface PlayerInterfaceProps {
   connected: boolean;
 }
 
-export function PlayerInterface({ 
-  room, 
-  roomAssets, 
-  boardAssets, 
-  roomPlayers, 
+export function PlayerInterface({
+  room,
+  roomAssets,
+  boardAssets,
+  roomPlayers,
   currentPlayer,
   onAssetMove,
   onAssetPlace,
   onDiceRoll,
-  connected 
+  connected,
 }: PlayerInterfaceProps) {
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
 
@@ -47,8 +47,8 @@ export function PlayerInterface({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <GameRulesViewer 
-              room={room} 
+            <GameRulesViewer
+              room={room}
               trigger={
                 <Button
                   variant="outline"
@@ -135,8 +135,8 @@ export function PlayerInterface({
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
                       {roomAssets.map((asset) => (
-                        <div 
-                          key={asset.id} 
+                        <div
+                          key={asset.id}
                           className={`relative cursor-pointer group transition-all ${
                             selectedAsset === asset.id ? 'ring-2 ring-blue-500' : ''
                           }`}
@@ -145,7 +145,7 @@ export function PlayerInterface({
                         >
                           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                             <img
-                              src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/') 
+                              src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/')
                                 ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
                                 : asset.filePath}
                               alt={asset.name}
@@ -167,7 +167,7 @@ export function PlayerInterface({
                       ))}
                     </div>
                   )}
-                  
+
                   {selectedAsset && (
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                       <p className="text-sm text-blue-700 font-medium mb-2">Selected Asset</p>
@@ -221,8 +221,8 @@ export function PlayerInterface({
                   </div>
                   <div>
                     <p className="text-sm font-medium">Status</p>
-                    <Badge variant={room.isActive ? "default" : "secondary"} className="text-xs">
-                      {room.isActive ? "Active" : "Inactive"}
+                    <Badge variant={room.isActive ? 'default' : 'secondary'} className="text-xs">
+                      {room.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
                   <div>

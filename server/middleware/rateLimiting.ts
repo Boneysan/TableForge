@@ -103,7 +103,7 @@ export const createUserRateLimiter = (windowMs: number, max: number, message?: s
 
   return async (req: any, res: Response, next: NextFunction) => {
     const userId = req.user?.uid || req.user?.id;
-    
+
     if (!userId) {
       // If no user ID, fall back to IP-based limiting
       return createRateLimiter(windowMs, max, message)(req, res, next);
@@ -111,12 +111,12 @@ export const createUserRateLimiter = (windowMs: number, max: number, message?: s
 
     try {
       const result = await store.increment(userId);
-      
+
       // Set rate limit headers
       res.set({
         'X-RateLimit-Limit': max.toString(),
         'X-RateLimit-Remaining': Math.max(0, max - result.totalHits).toString(),
-        'X-RateLimit-Reset': result.timeToExpire 
+        'X-RateLimit-Reset': result.timeToExpire
           ? new Date(Date.now() + result.timeToExpire).toISOString()
           : new Date(Date.now() + windowMs).toISOString(),
       });
@@ -128,9 +128,9 @@ export const createUserRateLimiter = (windowMs: number, max: number, message?: s
           path: req.path,
         });
 
-        const errorResponse = typeof message === 'string' ? { 
+        const errorResponse = typeof message === 'string' ? {
           error: 'rate_limit_exceeded',
-          message: message,
+          message,
           retryAfter: Math.ceil((result.timeToExpire || windowMs) / 1000),
         } : message || {
           error: 'rate_limit_exceeded',
@@ -158,7 +158,7 @@ export const generalRateLimit = createRateLimiter(
     error: 'rate_limit_exceeded',
     message: 'Too many requests from this IP, please try again later.',
     retryAfter: 900, // 15 minutes
-  }
+  },
 );
 
 // Auth endpoints - stricter per IP
@@ -169,7 +169,7 @@ export const authRateLimit = createRateLimiter(
     error: 'auth_rate_limit_exceeded',
     message: 'Too many authentication requests, please try again later.',
     retryAfter: 900,
-  }
+  },
 );
 
 // Per-user auth rate limiting - prevents single user from making too many auth requests
@@ -180,7 +180,7 @@ export const userAuthRateLimit = createUserRateLimiter(
     error: 'user_auth_rate_limit_exceeded',
     message: 'Too many authentication requests for this account, please try again later.',
     retryAfter: 900,
-  }
+  },
 );
 
 // Asset upload endpoints - per user (more restrictive)
@@ -191,7 +191,7 @@ export const assetUploadRateLimit = createUserRateLimiter(
     error: 'upload_rate_limit_exceeded',
     message: 'Too many uploads, please wait before uploading more assets.',
     retryAfter: 3600,
-  }
+  },
 );
 
 // Game room operations - per user
@@ -202,7 +202,7 @@ export const roomOperationRateLimit = createUserRateLimiter(
     error: 'room_operation_rate_limit_exceeded',
     message: 'Too many room operations, please slow down.',
     retryAfter: 300,
-  }
+  },
 );
 
 // WebSocket connection rate limiting - per IP
@@ -213,7 +213,7 @@ export const websocketRateLimit = createRateLimiter(
     error: 'websocket_rate_limit_exceeded',
     message: 'Too many WebSocket connection attempts.',
     retryAfter: 60,
-  }
+  },
 );
 
 // Admin endpoints - very restrictive per IP
@@ -224,5 +224,5 @@ export const adminRateLimit = createRateLimiter(
     error: 'admin_rate_limit_exceeded',
     message: 'Too many admin requests, please wait.',
     retryAfter: 3600,
-  }
+  },
 );

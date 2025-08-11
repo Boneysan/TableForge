@@ -31,44 +31,44 @@ export function KeyboardShortcutsDialog({
   open,
   onOpenChange,
 }: KeyboardShortcutsDialogProps) {
-  
+
   const shortcuts: KeyboardShortcut[] = [
     // Asset Movement
     { keys: '↑ ↓ ← →', description: 'Move selected asset (1px)', category: 'Asset Movement' },
     { keys: 'Shift + ↑ ↓ ← →', description: 'Move selected asset (10px)', category: 'Asset Movement' },
     { keys: 'R', description: 'Rotate asset 90° clockwise', category: 'Asset Movement' },
     { keys: 'Shift + R', description: 'Rotate asset 90° counterclockwise', category: 'Asset Movement' },
-    
+
     // Asset Selection
     { keys: 'Tab', description: 'Select next asset', category: 'Asset Selection' },
     { keys: 'Shift + Tab', description: 'Select previous asset', category: 'Asset Selection' },
     { keys: 'Enter / Space', description: 'Activate focused element', category: 'Asset Selection' },
-    
+
     // Asset Actions
     { keys: 'Delete / Backspace', description: 'Delete selected asset', category: 'Asset Actions' },
     { keys: 'D', description: 'Duplicate selected asset', category: 'Asset Actions' },
     { keys: 'Ctrl + C', description: 'Copy selected asset', category: 'Asset Actions' },
     { keys: 'Ctrl + V', description: 'Paste asset', category: 'Asset Actions' },
-    
+
     // Board Navigation
     { keys: 'C / Home', description: 'Recenter board view', category: 'Board Navigation' },
     { keys: '+ / =', description: 'Zoom in', category: 'Board Navigation' },
     { keys: '-', description: 'Zoom out', category: 'Board Navigation' },
     { keys: 'G', description: 'Toggle grid', category: 'Board Navigation' },
     { keys: 'L', description: 'Toggle layers panel', category: 'Board Navigation' },
-    
+
     // Tools
     { keys: 'M', description: 'Activate move tool', category: 'Tools' },
     { keys: 'U', description: 'Activate ruler tool', category: 'Tools' },
     { keys: 'P', description: 'Activate color picker', category: 'Tools' },
     { keys: 'S', description: 'Open settings', category: 'Tools' },
-    
+
     // System
     { keys: 'Ctrl + Z / Cmd + Z', description: 'Undo last action', category: 'System' },
     { keys: 'Ctrl + Y / Cmd + Shift + Z', description: 'Redo last action', category: 'System' },
     { keys: 'Escape', description: 'Cancel current action', category: 'System' },
     { keys: '?', description: 'Show this help dialog', category: 'System' },
-    
+
     // Accessibility
     { keys: 'Alt + Shift + K', description: 'Toggle high contrast mode', category: 'Accessibility' },
     { keys: 'Alt + Shift + F', description: 'Toggle focus indicators', category: 'Accessibility' },
@@ -87,7 +87,7 @@ export function KeyboardShortcutsDialog({
   // Category order for better UX
   const categoryOrder = [
     'Asset Selection',
-    'Asset Movement', 
+    'Asset Movement',
     'Asset Actions',
     'Board Navigation',
     'Tools',
@@ -97,8 +97,8 @@ export function KeyboardShortcutsDialog({
 
   // Render keyboard key
   const renderKey = (key: string) => (
-    <Badge 
-      variant="outline" 
+    <Badge
+      variant="outline"
       className="px-2 py-1 text-xs font-mono bg-muted"
       key={key}
     >
@@ -113,7 +113,7 @@ export function KeyboardShortcutsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className="max-w-3xl max-h-[80vh]"
         aria-describedby="keyboard-shortcuts-description"
       >
@@ -124,8 +124,8 @@ export function KeyboardShortcutsDialog({
               Keyboard Shortcuts
             </DialogTitle>
             <DialogClose asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 aria-label="Close keyboard shortcuts dialog"
               >
@@ -152,7 +152,7 @@ export function KeyboardShortcutsDialog({
                   </h3>
                   <div className="grid gap-3">
                     {categoryShortcuts.map((shortcut, index) => (
-                      <div 
+                      <div
                         key={`${category}-${index}`}
                         className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                       >
@@ -170,7 +170,7 @@ export function KeyboardShortcutsDialog({
             })}
 
             <Separator className="my-6" />
-            
+
             {/* Additional accessibility information */}
             <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
               <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100">

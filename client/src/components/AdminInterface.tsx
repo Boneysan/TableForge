@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { Upload, Plus, Settings, Users, Shield, ArrowLeft, FolderOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { GameSystemManager } from "@/components/GameSystemManager";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { queryClient } from "@/lib/queryClient";
-import { useLocation } from "wouter";
-import type { GameRoom, GameAsset, RoomPlayerWithName } from "@shared/schema";
+import { useState } from 'react';
+import { Upload, Plus, Settings, Users, Shield, ArrowLeft, FolderOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { ObjectUploader } from '@/components/ObjectUploader';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { GameSystemManager } from '@/components/GameSystemManager';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { queryClient } from '@/lib/queryClient';
+import { useLocation } from 'wouter';
+import type { GameRoom, GameAsset, RoomPlayerWithName } from '@shared/schema';
 
 interface AdminInterfaceProps {
   roomId: string;
@@ -30,14 +30,14 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
 
   const handleGetUploadParameters = async () => {
     try {
-      const response = await authenticatedApiRequest("POST", "/api/objects/upload");
+      const response = await authenticatedApiRequest('POST', '/api/objects/upload');
       const data = await response.json();
       return {
         method: 'PUT' as const,
         url: data.uploadURL,
       };
     } catch (error) {
-      console.error("Error getting upload parameters:", error);
+      console.error('Error getting upload parameters:', error);
       throw error;
     }
   };
@@ -46,32 +46,32 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
     try {
       if (result.successful.length > 0) {
         const uploadedFile = result.successful[0];
-        
+
         // Create asset record in database
         const assetData = {
-          roomId: roomId,
+          roomId,
           name: uploadedFile.name,
           type: selectedAssetType,
           filePath: uploadedFile.uploadURL,
         };
 
-        const response = await authenticatedApiRequest("POST", "/api/assets", assetData);
-        
+        const response = await authenticatedApiRequest('POST', '/api/assets', assetData);
+
         if (response.ok) {
           toast({
-            title: "Asset Uploaded",
+            title: 'Asset Uploaded',
             description: `${uploadedFile.name} has been uploaded successfully.`,
           });
           onAssetUploaded();
-          queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "assets"] });
+          queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'assets'] });
         }
       }
     } catch (error) {
-      console.error("Error saving asset:", error);
+      console.error('Error saving asset:', error);
       toast({
-        title: "Upload Error",
-        description: "Failed to save asset. Please try again.",
-        variant: "destructive",
+        title: 'Upload Error',
+        description: 'Failed to save asset. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -102,8 +102,8 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
               Leave Room
             </Button>
             {onSwitchView && (
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 onClick={onSwitchView}
                 data-testid="button-switch-view"
               >
@@ -150,7 +150,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
                   {(['card', 'token', 'map', 'rules', 'other'] as const).map((type) => (
                     <Button
                       key={type}
-                      variant={selectedAssetType === type ? "default" : "outline"}
+                      variant={selectedAssetType === type ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setSelectedAssetType(type)}
                       data-testid={`asset-type-${type}`}
@@ -195,7 +195,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
                     <div key={asset.id} className="relative group" data-testid={`asset-${asset.id}`}>
                       <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                         <img
-                          src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/') 
+                          src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/')
                             ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
                             : asset.filePath}
                           alt={asset.name}
@@ -234,7 +234,7 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
                       <div>
                         <p className="font-medium">{player.playerName || `Player ${player.playerId.slice(0, 8)}`}</p>
                         <p className="text-sm text-gray-500">
-                          {player.role === 'admin' ? 'Game Master' : 'Player'} • 
+                          {player.role === 'admin' ? 'Game Master' : 'Player'} •
                           {player.isOnline ? ' Online' : ' Offline'}
                         </p>
                       </div>

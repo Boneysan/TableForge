@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Ruler, X } from "lucide-react";
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Ruler, X } from 'lucide-react';
 
 interface Point {
   x: number;
@@ -16,14 +16,14 @@ interface MeasurementToolProps {
   gridSize?: number;
 }
 
-export function MeasurementTool({ 
-  isActive, 
-  onToggle, 
-  boardWidth, 
+export function MeasurementTool({
+  isActive,
+  onToggle,
+  boardWidth,
   boardHeight,
-  gridSize = 20 
+  gridSize = 20,
 }: MeasurementToolProps) {
-  const [measurements, setMeasurements] = useState<Array<{ id: string; start: Point; end: Point; distance: number }>>([]);
+  const [measurements, setMeasurements] = useState<{ id: string; start: Point; end: Point; distance: number }[]>([]);
   const [currentMeasurement, setCurrentMeasurement] = useState<{ start: Point; end: Point } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -37,13 +37,13 @@ export function MeasurementTool({
 
   const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!isActive) return;
-    
+
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return;
 
     const point = {
       x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      y: e.clientY - rect.top,
     };
 
     setCurrentMeasurement({ start: point, end: point });
@@ -58,12 +58,12 @@ export function MeasurementTool({
 
     const point = {
       x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      y: e.clientY - rect.top,
     };
 
     setCurrentMeasurement({
       ...currentMeasurement,
-      end: point
+      end: point,
     });
   };
 
@@ -71,15 +71,15 @@ export function MeasurementTool({
     if (!isActive || !isDrawing || !currentMeasurement) return;
 
     const distance = calculateDistance(currentMeasurement.start, currentMeasurement.end);
-    
+
     if (distance > 0.1) { // Only save if measurement is meaningful
       const newMeasurement = {
         id: Date.now().toString(),
         start: currentMeasurement.start,
         end: currentMeasurement.end,
-        distance
+        distance,
       };
-      
+
       setMeasurements(prev => [...prev, newMeasurement]);
     }
 
@@ -107,7 +107,7 @@ export function MeasurementTool({
   const renderMeasurementLine = (start: Point, end: Point, distance: number, id?: string, isTemporary = false) => {
     const midX = (start.x + end.x) / 2;
     const midY = (start.y + end.y) / 2;
-    
+
     return (
       <g key={id || 'temp'}>
         {/* Measurement line */}
@@ -116,40 +116,40 @@ export function MeasurementTool({
           y1={start.y}
           x2={end.x}
           y2={end.y}
-          stroke={isTemporary ? "#3b82f6" : "#ef4444"}
+          stroke={isTemporary ? '#3b82f6' : '#ef4444'}
           strokeWidth="2"
-          strokeDasharray={isTemporary ? "5,5" : "none"}
+          strokeDasharray={isTemporary ? '5,5' : 'none'}
         />
-        
+
         {/* Start point */}
         <circle
           cx={start.x}
           cy={start.y}
           r="4"
-          fill={isTemporary ? "#3b82f6" : "#ef4444"}
+          fill={isTemporary ? '#3b82f6' : '#ef4444'}
         />
-        
+
         {/* End point */}
         <circle
           cx={end.x}
           cy={end.y}
           r="4"
-          fill={isTemporary ? "#3b82f6" : "#ef4444"}
+          fill={isTemporary ? '#3b82f6' : '#ef4444'}
         />
-        
+
         {/* Distance label */}
         <text
           x={midX}
           y={midY - 10}
           textAnchor="middle"
-          fill={isTemporary ? "#3b82f6" : "#ef4444"}
+          fill={isTemporary ? '#3b82f6' : '#ef4444'}
           fontSize="12"
           fontWeight="bold"
           className="pointer-events-none select-none"
         >
           {distance} units
         </text>
-        
+
         {/* Delete button for saved measurements */}
         {!isTemporary && id && (
           <circle
@@ -192,23 +192,23 @@ export function MeasurementTool({
         data-testid="measurement-overlay"
       >
         {/* Render saved measurements */}
-        {measurements.map(measurement => 
+        {measurements.map(measurement =>
           renderMeasurementLine(
-            measurement.start, 
-            measurement.end, 
-            measurement.distance, 
+            measurement.start,
+            measurement.end,
+            measurement.distance,
             measurement.id,
-            false
-          )
+            false,
+          ),
         )}
-        
+
         {/* Render current measurement being drawn */}
         {currentMeasurement && renderMeasurementLine(
           currentMeasurement.start,
           currentMeasurement.end,
           calculateDistance(currentMeasurement.start, currentMeasurement.end),
           undefined,
-          true
+          true,
         )}
       </svg>
 
@@ -223,15 +223,15 @@ export function MeasurementTool({
           </CardHeader>
           <CardContent className="space-y-3">
             <Button
-              variant={isActive ? "default" : "outline"}
+              variant={isActive ? 'default' : 'outline'}
               size="sm"
               onClick={() => onToggle(!isActive)}
               className="w-full"
               data-testid="button-toggle-measurement"
             >
-              {isActive ? "Active" : "Activate"} Ruler
+              {isActive ? 'Active' : 'Activate'} Ruler
             </Button>
-            
+
             {measurements.length > 0 && (
               <Button
                 variant="outline"
@@ -244,7 +244,7 @@ export function MeasurementTool({
                 Clear All
               </Button>
             )}
-            
+
             <div className="text-xs text-gray-500">
               <p>Click and drag to measure distances</p>
               <p>Units based on grid size ({gridSize}px = 1 unit)</p>

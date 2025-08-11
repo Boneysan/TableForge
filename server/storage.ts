@@ -1,5 +1,5 @@
-import { 
-  type User, 
+import {
+  type User,
   type InsertUser,
   type UpsertUser,
   type GameRoom,
@@ -32,10 +32,10 @@ import {
   cardPiles,
   gameTemplates,
   templateUsage,
-  gameSystems
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, desc, and, or, sql } from "drizzle-orm";
+  gameSystems,
+} from '@shared/schema';
+import { db } from './db';
+import { eq, desc, and, or, sql } from 'drizzle-orm';
 
 export interface IStorage {
   // Users
@@ -73,11 +73,11 @@ export interface IStorage {
   addPlayerToRoom(roomId: string, playerId: string, role?: 'admin' | 'player'): Promise<RoomPlayer>;
   removePlayerFromRoom(roomId: string, playerId: string): Promise<void>;
   getRoomPlayers(roomId: string): Promise<RoomPlayer[]>;
-  getRoomPlayersWithNames(roomId: string): Promise<Array<RoomPlayer & { playerName: string; playerEmail: string }>>;
+  getRoomPlayersWithNames(roomId: string): Promise<(RoomPlayer & { playerName: string; playerEmail: string })[]>;
   getPlayerRole(roomId: string, playerId: string): Promise<'admin' | 'player' | null>;
   updatePlayerStatus(roomId: string, playerId: string, isOnline: boolean): Promise<void>;
   updateRoomPlayerScore(roomId: string, playerId: string, score: number): Promise<void>;
-  
+
   // Room membership operations for auth
   getRoomMembership(userId: string, roomId: string): Promise<RoomPlayer | undefined>;
   getRoom(id: string): Promise<GameRoom | undefined>;
@@ -88,7 +88,7 @@ export interface IStorage {
 
   // Chat Messages
   createChatMessage(message: InsertChatMessage, playerId: string): Promise<ChatMessage>;
-  getRoomChatMessages(roomId: string, limit?: number): Promise<Array<ChatMessage & { playerName: string }>>;
+  getRoomChatMessages(roomId: string, limit?: number): Promise<(ChatMessage & { playerName: string })[]>;
 
   // Card Decks
   createCardDeck(deck: InsertCardDeck, createdBy: string): Promise<CardDeck>;
@@ -224,52 +224,52 @@ export class DatabaseStorage implements IStorage {
     // Create or find orphaned assets room to preserve game system assets
     let orphanedRoom;
     try {
-      orphanedRoom = await this.getGameRoomByName("_orphaned_assets");
+      orphanedRoom = await this.getGameRoomByName('_orphaned_assets');
       if (!orphanedRoom) {
         // Create the orphaned assets room if it doesn't exist
         orphanedRoom = await this.createGameRoom({
-          name: "_orphaned_assets",
+          name: '_orphaned_assets',
           isActive: false,
-          gameState: { description: "System room for preserving assets from deleted rooms" }
-        }, userId || "system");
+          gameState: { description: 'System room for preserving assets from deleted rooms' },
+        }, userId || 'system');
       }
     } catch (error) {
-      console.log("[Delete Room] Could not create orphaned assets room, falling back to deletion");
+      console.log('[Delete Room] Could not create orphaned assets room, falling back to deletion');
       orphanedRoom = null;
     }
-    
+
     // Delete related data in correct order to avoid foreign key constraints
     await db.delete(diceRolls).where(eq(diceRolls.roomId, id));
     await db.delete(boardAssets).where(eq(boardAssets.roomId, id));
-    
+
     // Delete card piles first (they may reference game assets as card backs)
     await db.delete(cardPiles).where(eq(cardPiles.roomId, id));
-    
+
     // Delete card decks (they reference game assets as card backs)
     await db.delete(cardDecks).where(eq(cardDecks.roomId, id));
-    
+
     // Only delete room-specific assets, preserve system assets
     await db.delete(gameAssets)
       .where(and(
         eq(gameAssets.roomId, id),
-        eq(gameAssets.isSystemAsset, false)
+        eq(gameAssets.isSystemAsset, false),
       ));
-    
+
     console.log(`[Delete Room] Deleted room-specific assets, preserved system assets`);
-    
+
     // Move any remaining room assets to orphaned room as backup
     if (orphanedRoom) {
       await db.update(gameAssets)
         .set({ roomId: orphanedRoom.id })
         .where(and(
           eq(gameAssets.roomId, id),
-          eq(gameAssets.isSystemAsset, true)
+          eq(gameAssets.isSystemAsset, true),
         ));
     }
-    
+
     await db.delete(roomPlayers).where(eq(roomPlayers.roomId, id));
     await db.delete(gameRooms).where(eq(gameRooms.id, id));
-    
+
     console.log(`[Delete Room] Successfully deleted room ${id}`);
   }
 
@@ -294,7 +294,7 @@ export class DatabaseStorage implements IStorage {
   async getRoomAssets(roomId: string): Promise<GameAsset[]> {
     // Get the room to check if it has an applied game system
     const room = await this.getGameRoom(roomId);
-    
+
     // Query for room-specific assets and system assets if room has a system applied
     if (room?.gameState && (room.gameState as any)?.appliedSystemId) {
       const systemId = (room.gameState as any).appliedSystemId;
@@ -303,12 +303,12 @@ export class DatabaseStorage implements IStorage {
           eq(gameAssets.roomId, roomId),
           and(
             eq(gameAssets.systemId, systemId),
-            eq(gameAssets.isSystemAsset, true)
-          )
-        )
+            eq(gameAssets.isSystemAsset, true),
+          ),
+        ),
       );
     }
-    
+
     // Fallback to just room assets if no system applied
     return db.select().from(gameAssets).where(eq(gameAssets.roomId, roomId));
   }
@@ -359,7 +359,7 @@ export class DatabaseStorage implements IStorage {
     // Check if user is room creator to set admin role
     const room = await this.getGameRoom(roomId);
     const actualRole = room?.createdBy === playerId ? 'admin' : role;
-    
+
     const [player] = await db
       .insert(roomPlayers)
       .values({ roomId, playerId, role: actualRole })
@@ -378,8 +378,8 @@ export class DatabaseStorage implements IStorage {
     await db.delete(roomPlayers).where(
       and(
         eq(roomPlayers.roomId, roomId),
-        eq(roomPlayers.playerId, playerId)
-      )
+        eq(roomPlayers.playerId, playerId),
+      ),
     );
   }
 
@@ -387,7 +387,7 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(roomPlayers).where(eq(roomPlayers.roomId, roomId));
   }
 
-  async getRoomPlayersWithNames(roomId: string): Promise<Array<RoomPlayer & { playerName: string; playerEmail: string }>> {
+  async getRoomPlayersWithNames(roomId: string): Promise<(RoomPlayer & { playerName: string; playerEmail: string })[]> {
     const result = await db
       .select({
         id: roomPlayers.id,
@@ -404,7 +404,7 @@ export class DatabaseStorage implements IStorage {
       .from(roomPlayers)
       .innerJoin(users, eq(roomPlayers.playerId, users.id))
       .where(eq(roomPlayers.roomId, roomId));
-    
+
     return result.map(player => ({
       id: player.id,
       roomId: player.roomId,
@@ -413,12 +413,12 @@ export class DatabaseStorage implements IStorage {
       isOnline: player.isOnline,
       score: player.score,
       joinedAt: player.joinedAt,
-      playerName: player.playerFirstName && player.playerLastName 
+      playerName: player.playerFirstName && player.playerLastName
         ? `${player.playerFirstName} ${player.playerLastName}`
-        : player.playerFirstName 
+        : player.playerFirstName
         ? player.playerFirstName
-        : player.playerEmail || "Player",
-      playerEmail: player.playerEmail || ""
+        : player.playerEmail || 'Player',
+      playerEmail: player.playerEmail || '',
     }));
   }
 
@@ -428,11 +428,11 @@ export class DatabaseStorage implements IStorage {
       .select({ createdBy: gameRooms.createdBy })
       .from(gameRooms)
       .where(eq(gameRooms.id, roomId));
-    
+
     if (room?.createdBy === playerId) {
       return 'admin';
     }
-    
+
     // Then check room players table
     const [player] = await db
       .select({ role: roomPlayers.role })
@@ -440,8 +440,8 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(roomPlayers.roomId, roomId),
-          eq(roomPlayers.playerId, playerId)
-        )
+          eq(roomPlayers.playerId, playerId),
+        ),
       );
     return player?.role as 'admin' | 'player' || null;
   }
@@ -453,8 +453,8 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(roomPlayers.roomId, roomId),
-          eq(roomPlayers.playerId, playerId)
-        )
+          eq(roomPlayers.playerId, playerId),
+        ),
       );
   }
 
@@ -465,8 +465,8 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(roomPlayers.roomId, roomId),
-          eq(roomPlayers.playerId, playerId)
-        )
+          eq(roomPlayers.playerId, playerId),
+        ),
       );
   }
 
@@ -479,7 +479,7 @@ export class DatabaseStorage implements IStorage {
     return newRoll;
   }
 
-  async getRoomDiceRolls(roomId: string, limit: number = 50): Promise<DiceRoll[]> {
+  async getRoomDiceRolls(roomId: string, limit = 50): Promise<DiceRoll[]> {
     return db
       .select()
       .from(diceRolls)
@@ -497,7 +497,7 @@ export class DatabaseStorage implements IStorage {
     return message;
   }
 
-  async getRoomChatMessages(roomId: string, limit: number = 100): Promise<Array<ChatMessage & { playerName: string }>> {
+  async getRoomChatMessages(roomId: string, limit = 100): Promise<(ChatMessage & { playerName: string })[]> {
     const result = await db
       .select({
         id: chatMessages.id,
@@ -516,14 +516,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(chatMessages.roomId, roomId))
       .orderBy(desc(chatMessages.sentAt))
       .limit(limit);
-    
+
     return result.map(msg => ({
       ...msg,
-      playerName: msg.playerFirstName && msg.playerLastName 
+      playerName: msg.playerFirstName && msg.playerLastName
         ? `${msg.playerFirstName} ${msg.playerLastName}`
-        : msg.playerFirstName 
+        : msg.playerFirstName
         ? msg.playerFirstName
-        : msg.playerEmail || "Player"
+        : msg.playerEmail || 'Player',
     }));
   }
 
@@ -564,13 +564,13 @@ export class DatabaseStorage implements IStorage {
   async shuffleCardDeck(id: string): Promise<CardDeck | undefined> {
     const deck = await this.getCardDeck(id);
     if (!deck) return undefined;
-    
+
     const shuffledOrder = [...(deck.deckOrder as string[] || [])];
     for (let i = shuffledOrder.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffledOrder[i], shuffledOrder[j]] = [shuffledOrder[j], shuffledOrder[i]];
     }
-    
+
     const [updated] = await db
       .update(cardDecks)
       .set({ deckOrder: shuffledOrder, isShuffled: true })
@@ -650,8 +650,8 @@ export class DatabaseStorage implements IStorage {
         .where(
           or(
             eq(gameTemplates.createdBy, userId),
-            eq(gameTemplates.isPublic, true)
-          )
+            eq(gameTemplates.isPublic, true),
+          ),
         )
         .orderBy(desc(gameTemplates.createdAt));
     } else if (isPublic !== undefined) {
@@ -659,7 +659,7 @@ export class DatabaseStorage implements IStorage {
         .where(eq(gameTemplates.isPublic, isPublic))
         .orderBy(desc(gameTemplates.createdAt));
     }
-    
+
     return db.select().from(gameTemplates)
       .orderBy(desc(gameTemplates.createdAt));
   }
@@ -694,7 +694,7 @@ export class DatabaseStorage implements IStorage {
     await db.insert(templateUsage).values({
       templateId,
       roomId,
-      usedBy: userId
+      usedBy: userId,
     });
 
     // Apply template data to the room
@@ -768,8 +768,8 @@ export class DatabaseStorage implements IStorage {
         .where(
           or(
             eq(gameSystems.createdBy, userId),
-            eq(gameSystems.isPublic, true)
-          )
+            eq(gameSystems.isPublic, true),
+          ),
         )
         .orderBy(desc(gameSystems.createdAt));
     } else if (isPublic !== undefined) {
@@ -777,7 +777,7 @@ export class DatabaseStorage implements IStorage {
         .where(eq(gameSystems.isPublic, isPublic))
         .orderBy(desc(gameSystems.createdAt));
     }
-    
+
     return db.select().from(gameSystems)
       .orderBy(desc(gameSystems.createdAt));
   }
@@ -806,36 +806,36 @@ export class DatabaseStorage implements IStorage {
   async applySystemToRoom(systemId: string, roomId: string, userId: string): Promise<void> {
     const system = await this.getGameSystem(systemId);
     if (!system) {
-      throw new Error("System not found");
+      throw new Error('System not found');
     }
 
     const room = await this.getGameRoom(roomId);
     if (!room) {
-      throw new Error("Room not found");
+      throw new Error('Room not found');
     }
 
     // Apply system configuration to the room and track which system was applied
     const gameState = system.systemConfig || {};
     (gameState as any).appliedSystemId = systemId; // Track which system was applied
-    
+
     await this.updateGameRoom(roomId, {
-      gameState: gameState
+      gameState,
     });
 
     // Find existing system assets instead of creating new ones
     const systemAssets = await db.select().from(gameAssets)
       .where(and(
         eq(gameAssets.systemId, systemId),
-        eq(gameAssets.isSystemAsset, true)
+        eq(gameAssets.isSystemAsset, true),
       ));
 
     // Create asset mapping from existing system assets
     const createdAssets = new Map<string, string>(); // url -> assetId
-    
+
     // Check if we have ALL expected system assets, not just some
     const expectedAssetCount = system.assetLibrary && (system.assetLibrary as any).assets ? (system.assetLibrary as any).assets.length : 0;
     const hasAllSystemAssets = systemAssets.length > 0 && systemAssets.length === expectedAssetCount;
-    
+
     if (hasAllSystemAssets) {
       console.log(`[Apply System] Found all ${systemAssets.length}/${expectedAssetCount} existing system assets, using them directly`);
       for (const asset of systemAssets) {
@@ -861,15 +861,15 @@ export class DatabaseStorage implements IStorage {
           const BATCH_SIZE = 15; // Smaller batches for more reliability
           const totalAssets = assetLibrary.assets.length;
           console.log(`[Apply System] Processing ${totalAssets} assets in batches of ${BATCH_SIZE}`);
-          
+
           for (let i = 0; i < assetLibrary.assets.length; i += BATCH_SIZE) {
             const batch = assetLibrary.assets.slice(i, i + BATCH_SIZE);
             console.log(`[Apply System] Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(totalAssets/BATCH_SIZE)} (${batch.length} assets)`);
-            
+
             // Create assets in parallel for this batch (skip existing ones)
             const batchPromises = batch.map(async (assetData: any) => {
               const assetUrl = assetData.url || assetData.filePath;
-              
+
               // Skip if asset already exists
               if (createdAssets.has(assetUrl)) {
                 console.log(`[Apply System] ⏭️ Skipping existing asset: ${assetData.name}`);
@@ -877,10 +877,10 @@ export class DatabaseStorage implements IStorage {
                   url: assetUrl,
                   assetId: createdAssets.get(assetUrl),
                   success: true,
-                  skipped: true
+                  skipped: true,
                 };
               }
-              
+
               try {
                 console.log(`[Apply System] Creating asset: ${assetData.name} (type: ${assetData.type || 'unknown'})`);
                 const newAsset = await this.createGameAsset({
@@ -892,13 +892,13 @@ export class DatabaseStorage implements IStorage {
                   height: assetData.height || null,
                   isSystemAsset: true,
                 } as any, userId);
-                
+
                 console.log(`[Apply System] ✅ Created asset: ${assetData.name} -> ${newAsset.id}`);
                 return {
                   url: assetUrl,
                   assetId: newAsset.id,
                   success: true,
-                  skipped: false
+                  skipped: false,
                 };
               } catch (error) {
                 console.error(`[Apply System] ❌ Failed to create asset ${assetData.name}:`, error);
@@ -907,13 +907,13 @@ export class DatabaseStorage implements IStorage {
                   assetId: null,
                   success: false,
                   skipped: false,
-                  error
+                  error,
                 };
               }
             });
-            
+
             const batchResults = await Promise.all(batchPromises);
-            
+
             // Process batch results
             let created = 0, skipped = 0, failed = 0;
             for (const result of batchResults) {
@@ -929,13 +929,13 @@ export class DatabaseStorage implements IStorage {
               }
             }
             console.log(`[Apply System] Batch complete: ${created} created, ${skipped} skipped, ${failed} failed`);
-            
+
             // Small delay between batches to prevent overwhelming the database
             if (i + BATCH_SIZE < assetLibrary.assets.length) {
               await new Promise(resolve => setTimeout(resolve, 100));
             }
           }
-          
+
           console.log(`[Apply System] Asset creation complete: ${createdAssets.size} out of ${totalAssets} system assets ready`);
         }
       }
@@ -943,13 +943,13 @@ export class DatabaseStorage implements IStorage {
 
     // Apply deck templates if present
     if (system.deckTemplates) {
-      console.log("Deck templates would be applied:", system.deckTemplates);
+      console.log('Deck templates would be applied:', system.deckTemplates);
       const deckTemplates = system.deckTemplates as any;
       if (deckTemplates.decks && Array.isArray(deckTemplates.decks)) {
         for (const deckData of deckTemplates.decks) {
           // Find the card back asset ID if it exists
           const cardBackAssetId = deckData.cardBack ? createdAssets.get(deckData.cardBack) || null : null;
-          
+
           // Build deck order from card assets
           let deckOrder: string[] = [];
           if (deckData.cardAssets && Array.isArray(deckData.cardAssets)) {
@@ -963,8 +963,8 @@ export class DatabaseStorage implements IStorage {
             roomId,
             name: deckData.name,
             description: deckData.description || '',
-            deckOrder: deckOrder,
-            cardBackAssetId: cardBackAssetId,
+            deckOrder,
+            cardBackAssetId,
           }, userId);
 
           // Create card piles for the deck if it has cards
@@ -979,7 +979,7 @@ export class DatabaseStorage implements IStorage {
               positionX: Math.floor(Math.random() * 200 + 100),
               positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'deck',
-              cardOrder: cardOrder,
+              cardOrder,
               visibility: 'public',
             });
 
@@ -1001,22 +1001,22 @@ export class DatabaseStorage implements IStorage {
     // Apply token types if present
     if (system.tokenTypes) {
       // Logic to create default tokens would go here
-      console.log("Token types would be applied:", system.tokenTypes);
+      console.log('Token types would be applied:', system.tokenTypes);
     }
 
     // Apply board defaults if present
     if (system.boardDefaults) {
       // Logic to configure board defaults would go here
-      console.log("Board defaults would be applied:", system.boardDefaults);
+      console.log('Board defaults would be applied:', system.boardDefaults);
     }
 
     // Increment download count
     await this.updateGameSystem(systemId, {
-      downloadCount: (system.downloadCount || 0) + 1
+      downloadCount: (system.downloadCount || 0) + 1,
     });
   }
 
-  // Admin functions  
+  // Admin functions
   async getAllRooms(): Promise<any[]> {
     const roomsWithCreators = await db
       .select({
@@ -1032,7 +1032,7 @@ export class DatabaseStorage implements IStorage {
       .from(gameRooms)
       .leftJoin(users, eq(gameRooms.createdBy, users.id))
       .orderBy(desc(gameRooms.createdAt));
-    
+
     return roomsWithCreators;
   }
 
@@ -1060,10 +1060,10 @@ export class DatabaseStorage implements IStorage {
       .set({ boardWidth: width, boardHeight: height })
       .where(eq(gameRooms.id, roomId))
       .returning();
-    console.log(`[Storage] Board size updated. New room data:`, { 
-      id: room.id, 
-      boardWidth: room.boardWidth, 
-      boardHeight: room.boardHeight 
+    console.log(`[Storage] Board size updated. New room data:`, {
+      id: room.id,
+      boardWidth: room.boardWidth,
+      boardHeight: room.boardHeight,
     });
     return room;
   }
@@ -1075,7 +1075,7 @@ export class DatabaseStorage implements IStorage {
       .from(roomPlayers)
       .where(and(
         eq(roomPlayers.playerId, userId),
-        eq(roomPlayers.roomId, roomId)
+        eq(roomPlayers.roomId, roomId),
       ));
     return membership;
   }

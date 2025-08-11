@@ -2,11 +2,11 @@ import { logger } from '../utils/logger';
 import { RoomCleanupJob } from './roomCleanupJob';
 import { AssetCleanupJob } from './assetCleanupJob';
 import { SocketCleanupJob } from './socketCleanupJob';
-import { WebSocketServer } from 'ws';
+import type { WebSocketServer } from 'ws';
 
 /**
  * Job Scheduler - Manages TTL cleanup jobs with retry logic and monitoring
- * 
+ *
  * Features:
  * - Scheduled execution of cleanup jobs
  * - Retry logic for failed operations
@@ -42,12 +42,12 @@ export class JobScheduler {
   private roomCleanupJob: RoomCleanupJob;
   private assetCleanupJob: AssetCleanupJob;
   private socketCleanupJob: SocketCleanupJob;
-  
+
   private config: JobSchedulerConfig;
   private intervals: Map<string, NodeJS.Timeout> = new Map();
   private jobHistory: Map<string, JobResult[]> = new Map();
   private isShutdown = false;
-  
+
   // Default configuration
   private static readonly DEFAULT_CONFIG: JobSchedulerConfig = {
     roomCleanup: {
@@ -55,38 +55,38 @@ export class JobScheduler {
       interval: 60 * 60 * 1000, // 1 hour
       retryAttempts: 3,
       retryDelay: 5 * 60 * 1000, // 5 minutes
-      timeout: 30 * 60 * 1000 // 30 minutes
+      timeout: 30 * 60 * 1000, // 30 minutes
     },
     assetCleanup: {
       enabled: true,
       interval: 2 * 60 * 60 * 1000, // 2 hours
       retryAttempts: 3,
       retryDelay: 10 * 60 * 1000, // 10 minutes
-      timeout: 45 * 60 * 1000 // 45 minutes
+      timeout: 45 * 60 * 1000, // 45 minutes
     },
     socketCleanup: {
       enabled: true,
       interval: 5 * 60 * 1000, // 5 minutes
       retryAttempts: 2,
       retryDelay: 1 * 60 * 1000, // 1 minute
-      timeout: 2 * 60 * 1000 // 2 minutes
+      timeout: 2 * 60 * 1000, // 2 minutes
     },
     healthCheck: {
       enabled: true,
       interval: 15 * 60 * 1000, // 15 minutes
       retryAttempts: 1,
       retryDelay: 30 * 1000, // 30 seconds
-      timeout: 1 * 60 * 1000 // 1 minute
-    }
+      timeout: 1 * 60 * 1000, // 1 minute
+    },
   };
 
   constructor(wss: WebSocketServer, config: Partial<JobSchedulerConfig> = {}) {
     this.config = { ...JobScheduler.DEFAULT_CONFIG, ...config };
-    
+
     this.roomCleanupJob = new RoomCleanupJob();
     this.assetCleanupJob = new AssetCleanupJob();
     this.socketCleanupJob = new SocketCleanupJob(wss);
-    
+
     this.initializeJobHistory();
   }
 
@@ -99,7 +99,7 @@ export class JobScheduler {
     }
 
     logger.info('📅 [Job Scheduler] Starting job scheduler', {
-      config: this.config
+      config: this.config,
     } as any);
 
     // Schedule room cleanup job
@@ -123,7 +123,7 @@ export class JobScheduler {
     }
 
     logger.info('✅ [Job Scheduler] Job scheduler started successfully', {
-      activeJobs: this.intervals.size
+      activeJobs: this.intervals.size,
     } as any);
   }
 
@@ -140,7 +140,7 @@ export class JobScheduler {
       clearInterval(intervalId);
       logger.info('⏹️ [Job Scheduler] Stopped job', { jobName } as any);
     }
-    
+
     this.intervals.clear();
 
     // Close all socket connections
@@ -154,26 +154,26 @@ export class JobScheduler {
    */
   private scheduleJob(jobName: string, jobFunction: () => Promise<void>): void {
     const config = this.getJobConfig(jobName);
-    
+
     const intervalId = setInterval(async () => {
       if (this.isShutdown) return;
-      
+
       logger.info(`⏰ [Job Scheduler] Executing scheduled job: ${jobName}`);
-      
+
       try {
         await this.executeWithRetry(jobName, jobFunction);
       } catch (error) {
         logger.error(`❌ [Job Scheduler] Failed to execute job: ${jobName}`, {
-          error: (error as Error).message
+          error: (error as Error).message,
         } as any);
       }
     }, config.interval);
 
     this.intervals.set(jobName, intervalId);
-    
+
     logger.info(`📅 [Job Scheduler] Scheduled job: ${jobName}`, {
       interval: config.interval,
-      retryAttempts: config.retryAttempts
+      retryAttempts: config.retryAttempts,
     } as any);
   }
 
@@ -190,11 +190,11 @@ export class JobScheduler {
         return; // Success
       } catch (error) {
         lastError = error as Error;
-        
+
         logger.warn(`⚠️ [Job Scheduler] Job attempt failed: ${jobName}`, {
           attempt,
           maxAttempts: config.retryAttempts,
-          error: lastError.message
+          error: lastError.message,
         } as any);
 
         if (attempt < config.retryAttempts) {
@@ -210,14 +210,14 @@ export class JobScheduler {
    * Execute a function with timeout
    */
   private async executeWithTimeout<T>(
-    func: () => Promise<T>, 
-    timeoutMs: number
+    func: () => Promise<T>,
+    timeoutMs: number,
   ): Promise<T> {
     return Promise.race([
       func(),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error(`Job timed out after ${timeoutMs}ms`)), timeoutMs)
-      )
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`Job timed out after ${timeoutMs}ms`)), timeoutMs),
+      ),
     ]);
   }
 
@@ -226,31 +226,31 @@ export class JobScheduler {
    */
   private async executeRoomCleanup(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       const results = await this.roomCleanupJob.execute();
-      
+
       const jobResult: JobResult = {
         success: results.errors.length === 0,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
         results,
-        errors: results.errors
+        errors: results.errors,
       };
 
       this.recordJobResult('roomCleanup', jobResult);
-      
+
       logger.info('✅ [Job Scheduler] Room cleanup completed', {
         results,
-        duration: jobResult.duration
+        duration: jobResult.duration,
       } as any);
-      
+
     } catch (error) {
       const jobResult: JobResult = {
         success: false,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
-        errors: [(error as Error).message]
+        errors: [(error as Error).message],
       };
 
       this.recordJobResult('roomCleanup', jobResult);
@@ -263,31 +263,31 @@ export class JobScheduler {
    */
   private async executeAssetCleanup(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       const results = await this.assetCleanupJob.execute();
-      
+
       const jobResult: JobResult = {
         success: results.errors.length === 0,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
         results,
-        errors: results.errors
+        errors: results.errors,
       };
 
       this.recordJobResult('assetCleanup', jobResult);
-      
+
       logger.info('✅ [Job Scheduler] Asset cleanup completed', {
         results,
-        duration: jobResult.duration
+        duration: jobResult.duration,
       } as any);
-      
+
     } catch (error) {
       const jobResult: JobResult = {
         success: false,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
-        errors: [(error as Error).message]
+        errors: [(error as Error).message],
       };
 
       this.recordJobResult('assetCleanup', jobResult);
@@ -300,31 +300,31 @@ export class JobScheduler {
    */
   private async executeSocketCleanup(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       const results = await this.socketCleanupJob.execute();
-      
+
       const jobResult: JobResult = {
         success: results.errors.length === 0,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
         results,
-        errors: results.errors
+        errors: results.errors,
       };
 
       this.recordJobResult('socketCleanup', jobResult);
-      
+
       logger.info('✅ [Job Scheduler] Socket cleanup completed', {
         results,
-        duration: jobResult.duration
+        duration: jobResult.duration,
       } as any);
-      
+
     } catch (error) {
       const jobResult: JobResult = {
         success: false,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
-        errors: [(error as Error).message]
+        errors: [(error as Error).message],
       };
 
       this.recordJobResult('socketCleanup', jobResult);
@@ -337,41 +337,41 @@ export class JobScheduler {
    */
   private async executeHealthCheck(): Promise<void> {
     const startTime = Date.now();
-    
+
     try {
       const roomStats = await this.roomCleanupJob.getCleanupStats();
       const assetStats = await this.assetCleanupJob.getAssetCleanupStats();
       const socketStats = this.socketCleanupJob.getSocketStats();
-      
+
       const healthData = {
         roomStats,
         assetStats,
         socketStats,
         scheduler: {
           activeJobs: this.intervals.size,
-          jobHistory: this.getJobHistorySummary()
-        }
+          jobHistory: this.getJobHistorySummary(),
+        },
       };
-      
+
       const jobResult: JobResult = {
         success: true,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
-        results: healthData
+        results: healthData,
       };
 
       this.recordJobResult('healthCheck', jobResult);
-      
+
       logger.info('📊 [Job Scheduler] Health check completed', {
-        healthData
+        healthData,
       } as any);
-      
+
     } catch (error) {
       const jobResult: JobResult = {
         success: false,
         duration: Date.now() - startTime,
         timestamp: new Date().toISOString(),
-        errors: [(error as Error).message]
+        errors: [(error as Error).message],
       };
 
       this.recordJobResult('healthCheck', jobResult);
@@ -393,10 +393,10 @@ export class JobScheduler {
     if (!this.jobHistory.has(jobName)) {
       this.jobHistory.set(jobName, []);
     }
-    
+
     const history = this.jobHistory.get(jobName)!;
     history.push(result);
-    
+
     // Keep only last 50 results per job
     if (history.length > 50) {
       history.splice(0, history.length - 50);
@@ -418,22 +418,22 @@ export class JobScheduler {
    */
   private getJobHistorySummary(): Record<string, any> {
     const summary: Record<string, any> = {};
-    
+
     for (const [jobName, history] of this.jobHistory.entries()) {
       const recentResults = history.slice(-10); // Last 10 results
       const successCount = recentResults.filter(r => r.success).length;
-      const avgDuration = recentResults.length > 0 
-        ? recentResults.reduce((sum, r) => sum + r.duration, 0) / recentResults.length 
+      const avgDuration = recentResults.length > 0
+        ? recentResults.reduce((sum, r) => sum + r.duration, 0) / recentResults.length
         : 0;
-      
+
       summary[jobName] = {
         totalExecutions: history.length,
         recentSuccessRate: recentResults.length > 0 ? successCount / recentResults.length : 0,
         averageDuration: avgDuration,
-        lastExecution: history.length > 0 ? history[history.length - 1].timestamp : null
+        lastExecution: history.length > 0 ? history[history.length - 1].timestamp : null,
       };
     }
-    
+
     return summary;
   }
 
@@ -450,7 +450,7 @@ export class JobScheduler {
       activeJobs: Array.from(this.intervals.keys()),
       jobHistory: this.jobHistory,
       config: this.config,
-      isRunning: !this.isShutdown
+      isRunning: !this.isShutdown,
     };
   }
 
@@ -463,7 +463,7 @@ export class JobScheduler {
     }
 
     logger.info(`🚀 [Job Scheduler] Manually triggering job: ${jobName}`);
-    
+
     switch (jobName) {
       case 'roomCleanup':
         await this.executeRoomCleanup();
@@ -486,7 +486,7 @@ export class JobScheduler {
       success: false,
       duration: 0,
       timestamp: new Date().toISOString(),
-      errors: ['No execution history found']
+      errors: ['No execution history found'],
     };
   }
 

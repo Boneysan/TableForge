@@ -29,10 +29,10 @@ export interface RoomClaims {
 export async function validateFirebaseToken(idToken: string): Promise<ValidatedUser> {
   try {
     console.log('🔐 [Token Validator] Validating Firebase ID token...');
-    
+
     // Verify the ID token using Firebase Admin SDK
     const decodedToken: DecodedIdToken = await admin.auth().verifyIdToken(idToken, true);
-    
+
     console.log('✅ [Token Validator] Token validated successfully', {
       uid: decodedToken.uid,
       email: decodedToken.email,
@@ -61,7 +61,7 @@ export async function validateFirebaseToken(idToken: string): Promise<ValidatedU
  */
 export function extractTokenFromRequest(req: any): string | null {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader) {
     console.log('⚠️ [Token Validator] No authorization header found');
     return null;
@@ -92,7 +92,7 @@ export function extractTokenFromWebSocket(req: any): string | null {
   // Try query parameter as fallback
   const url = new URL(req.url, 'http://localhost');
   token = url.searchParams.get('token');
-  
+
   if (token && token.length > 10) {
     console.log('🔐 [Token Validator] Token extracted from WebSocket query params');
     return token;
@@ -107,7 +107,7 @@ export function extractTokenFromWebSocket(req: any): string | null {
  */
 export function validateTokenFreshness(user: ValidatedUser): boolean {
   const now = Math.floor(Date.now() / 1000);
-  
+
   // Check if token is expired
   if (now >= user.expiresAt) {
     console.log('❌ [Token Validator] Token has expired');
@@ -152,26 +152,26 @@ export function hasPermission(claims: RoomClaims, permission: string): boolean {
 
 /**
  * Trust boundary documentation
- * 
+ *
  * AUTHENTICATION TRUST BOUNDARIES:
- * 
+ *
  * 1. CLIENT SIDE (UNTRUSTED):
  *    - Firebase Auth state (user object)
  *    - Client-side ID tokens
  *    - WebSocket connection state
  *    - Room membership claims from client
- * 
+ *
  * 2. SERVER SIDE (TRUSTED):
  *    - Firebase Admin SDK token validation
  *    - Database-stored user/room relationships
  *    - Server-generated room claims
  *    - Permission validation on every operation
- * 
+ *
  * NEVER TRUST:
  * - Anything sent from the client
  * - Claims about user identity without server validation
  * - Room permissions without database verification
- * 
+ *
  * ALWAYS VALIDATE:
  * - ID tokens on every HTTP request
  * - ID tokens on WebSocket connect AND reconnect

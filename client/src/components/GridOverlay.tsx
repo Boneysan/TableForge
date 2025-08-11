@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Grid3X3, Settings } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Grid3X3, Settings } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface GridOverlayProps {
   isVisible: boolean;
@@ -16,13 +16,13 @@ interface GridOverlayProps {
   boardHeight: number;
 }
 
-export function GridOverlay({ 
-  isVisible, 
-  gridSize, 
-  onToggle, 
+export function GridOverlay({
+  isVisible,
+  gridSize,
+  onToggle,
   onGridSizeChange,
   boardWidth,
-  boardHeight 
+  boardHeight,
 }: GridOverlayProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [tempGridSize, setTempGridSize] = useState(gridSize);
@@ -35,7 +35,7 @@ export function GridOverlay({
   if (!isVisible) return null;
 
   const gridLines = [];
-  
+
   // Vertical lines
   for (let x = 0; x <= boardWidth; x += gridSize) {
     gridLines.push(
@@ -48,10 +48,10 @@ export function GridOverlay({
         stroke="rgba(0, 0, 0, 0.2)"
         strokeWidth="1"
         strokeDasharray="2,2"
-      />
+      />,
     );
   }
-  
+
   // Horizontal lines
   for (let y = 0; y <= boardHeight; y += gridSize) {
     gridLines.push(
@@ -64,7 +64,7 @@ export function GridOverlay({
         stroke="rgba(0, 0, 0, 0.2)"
         strokeWidth="1"
         strokeDasharray="2,2"
-      />
+      />,
     );
   }
 
@@ -78,7 +78,7 @@ export function GridOverlay({
       >
         {gridLines}
       </svg>
-      
+
       {/* Grid Controls */}
       <div className="absolute top-4 right-4 z-20">
         <Card className="w-48">
@@ -100,12 +100,12 @@ export function GridOverlay({
                 data-testid="switch-grid-toggle"
               />
             </div>
-            
+
             <Dialog open={showSettings} onOpenChange={setShowSettings}>
               <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full justify-start"
                   data-testid="button-grid-settings"
                 >
@@ -152,6 +152,6 @@ export function GridOverlay({
 export function snapToGrid(x: number, y: number, gridSize: number): { x: number; y: number } {
   return {
     x: Math.round(x / gridSize) * gridSize,
-    y: Math.round(y / gridSize) * gridSize
+    y: Math.round(y / gridSize) * gridSize,
   };
 }

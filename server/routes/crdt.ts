@@ -45,15 +45,15 @@ function broadcastToRoom(roomId: string, message: any, excludeWs?: WebSocket) {
   if (!connections) return;
 
   const messageStr = JSON.stringify(message);
-  
+
   connections.forEach(ws => {
     if (ws !== excludeWs && ws.readyState === ws.OPEN) {
       try {
         ws.send(messageStr);
       } catch (error) {
-        logger.warn('Failed to send message to WebSocket', { 
-          roomId, 
-          error: error.message 
+        logger.warn('Failed to send message to WebSocket', {
+          roomId,
+          error: error.message,
         });
         connections.delete(ws);
       }
@@ -107,8 +107,8 @@ router.post('/rooms/:roomId/crdt/operation', withAuth, validateRequest({
     }
 
     // Check for duplicate operation
-    const isDuplicate = document.operations.some(op => 
-      op.timestamp === operation.timestamp && op.userId === operation.userId
+    const isDuplicate = document.operations.some(op =>
+      op.timestamp === operation.timestamp && op.userId === operation.userId,
     );
 
     if (!isDuplicate) {
@@ -163,7 +163,7 @@ router.post('/rooms/:roomId/crdt/sync', withAuth, validateRequest({
     }
 
     const document = crdtDocuments.get(roomId);
-    
+
     if (!document) {
       return res.json({
         operations: [],
@@ -174,8 +174,8 @@ router.post('/rooms/:roomId/crdt/sync', withAuth, validateRequest({
 
     // Return operations since the client's last known version
     // In a real implementation, you'd need to track version-to-operation mapping
-    const missedOperations = document.operations.filter(op => 
-      op.timestamp > lastKnownRemoteVersion
+    const missedOperations = document.operations.filter(op =>
+      op.timestamp > lastKnownRemoteVersion,
     );
 
     logger.info('CRDT sync request', {
@@ -209,7 +209,7 @@ router.get('/rooms/:roomId/crdt/state', withAuth, async (req, res) => {
     }
 
     const document = crdtDocuments.get(roomId);
-    
+
     if (!document) {
       return res.json({
         operations: [],

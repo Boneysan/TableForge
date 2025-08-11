@@ -1,5 +1,5 @@
 import { validateWebSocketMessage } from '../middleware/validation';
-import { 
+import {
   wsEventSchema,
   wsJoinRoomSchema,
   wsAssetMovedSchema,
@@ -12,7 +12,7 @@ import {
   wsCardActionSchema,
   createValidationError,
   createAuthError,
-  createAuthorizationError
+  createAuthorizationError,
 } from '@shared/validators';
 import type { WSEvent, ValidationError } from '@shared/validators';
 import type { AuthenticatedSocket } from './socketAuth';
@@ -63,7 +63,7 @@ export function validateSocketEvent(socket: AuthenticatedSocket, rawData: any): 
 
 export function sendSocketError(socket: AuthenticatedSocket, error: ValidationError | any): void {
   console.log(`❌ [Socket Error] Sending error to socket:`, error);
-  
+
   let errorResponse;
   if (error.error) {
     // Already a formatted error
@@ -80,7 +80,7 @@ export function sendSocketError(socket: AuthenticatedSocket, error: ValidationEr
 }
 
 export function requireAuth(socket: AuthenticatedSocket): boolean {
-  if (!socket.user || !socket.user.uid) {
+  if (!socket.user?.uid) {
     console.log(`❌ [Socket Auth] Socket not authenticated`);
     sendSocketError(socket, createAuthError('Authentication required'));
     return false;
@@ -89,7 +89,7 @@ export function requireAuth(socket: AuthenticatedSocket): boolean {
 }
 
 export function requireRoomMembership(socket: AuthenticatedSocket, roomId: string): boolean {
-  if (!(socket as any).roomMemberships || !(socket as any).roomMemberships.has(roomId)) {
+  if (!(socket as any).roomMemberships?.has(roomId)) {
     console.log(`❌ [Socket Auth] User ${socket.user?.uid} not a member of room ${roomId}`);
     sendSocketError(socket, createAuthorizationError('Room membership required'));
     return false;
@@ -99,7 +99,7 @@ export function requireRoomMembership(socket: AuthenticatedSocket, roomId: strin
 
 // Validation middleware wrapper for socket events
 export function validateSocketEventMiddleware(
-  eventHandler: (socket: AuthenticatedSocket, data: any) => void | Promise<void>
+  eventHandler: (socket: AuthenticatedSocket, data: any) => void | Promise<void>,
 ) {
   return async (socket: AuthenticatedSocket, rawData: any) => {
     console.log(`🔍 [Socket Middleware] Processing event from user ${socket.user?.uid}`);

@@ -1,6 +1,6 @@
-import { Settings, Gamepad2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Settings, Gamepad2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ViewSelectorProps {
   onSelectView: (view: 'admin' | 'gamemaster') => void;
@@ -8,7 +8,7 @@ interface ViewSelectorProps {
 }
 
 export function ViewSelector({ onSelectView, currentUser }: ViewSelectorProps) {
-  const userName = currentUser?.firstName || currentUser?.lastName 
+  const userName = currentUser?.firstName || currentUser?.lastName
     ? `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim()
     : 'Game Master';
 
@@ -43,7 +43,7 @@ export function ViewSelector({ onSelectView, currentUser }: ViewSelectorProps) {
                 <li>• Room configuration</li>
                 <li>• Player management</li>
               </ul>
-              <Button 
+              <Button
                 onClick={() => onSelectView('admin')}
                 className="w-full"
                 data-testid="button-select-admin"
@@ -71,7 +71,7 @@ export function ViewSelector({ onSelectView, currentUser }: ViewSelectorProps) {
                 <li>• Asset management tools</li>
                 <li>• Live player monitoring</li>
               </ul>
-              <Button 
+              <Button
                 onClick={() => onSelectView('gamemaster')}
                 className="w-full bg-purple-600 hover:bg-purple-700"
                 data-testid="button-select-gamemaster"

@@ -1,4 +1,4 @@
-import { validateServerConfig, type ServerConfig } from "../shared/config";
+import { validateServerConfig, type ServerConfig } from '../shared/config';
 
 // Load and validate server configuration with proper error handling
 let serverConfig: ServerConfig | null = null;

@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Book, ExternalLink, ChevronDown, ChevronRight } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import type { GameRoom } from "@shared/schema";
+import { useState } from 'react';
+import { Book, ExternalLink, ChevronDown, ChevronRight } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import type { GameRoom } from '@shared/schema';
 
 interface GameRulesViewerProps {
   room: GameRoom;
@@ -19,10 +19,10 @@ interface GameSystemInfo {
   rules?: {
     quickStart?: string;
     fullRules?: string;
-    sections?: Array<{
+    sections?: {
       title: string;
       content: string;
-    }>;
+    }[];
   };
   playerCount?: {
     min: number;
@@ -35,10 +35,10 @@ interface GameSystemInfo {
 
 export function GameRulesViewer({ room, trigger }: GameRulesViewerProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-  
+
   // Extract game system info from room's gameState
   const gameSystemInfo: GameSystemInfo = room.gameState as GameSystemInfo || {};
-  
+
   const toggleSection = (sectionTitle: string) => {
     const newExpanded = new Set(expandedSections);
     if (newExpanded.has(sectionTitle)) {
@@ -68,7 +68,7 @@ export function GameRulesViewer({ room, trigger }: GameRulesViewerProps) {
             Game Rules - {gameSystemInfo.name || room.name}
           </DialogTitle>
         </DialogHeader>
-        
+
         <ScrollArea className="max-h-[70vh] pr-4">
           {!hasRules ? (
             <div className="text-center py-8 text-muted-foreground">

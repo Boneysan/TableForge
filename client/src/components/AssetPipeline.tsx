@@ -1,27 +1,27 @@
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ObjectUploader } from "./ObjectUploader";
-import { 
-  Upload, 
-  FileImage, 
-  Package, 
-  Tag, 
-  Search, 
-  Filter, 
+import { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ObjectUploader } from './ObjectUploader';
+import {
+  Upload,
+  FileImage,
+  Package,
+  Tag,
+  Search,
+  Filter,
   Edit3,
   Copy,
   Trash2,
   Eye,
-  EyeOff
-} from "lucide-react";
-import type { GameAsset } from "@shared/schema";
+  EyeOff,
+} from 'lucide-react';
+import type { GameAsset } from '@shared/schema';
 
 interface AssetPipelineProps {
   roomId: string;
@@ -51,21 +51,21 @@ export function AssetPipeline({
   onAssetUploaded,
   onAssetUpdated,
   onAssetDeleted,
-  playerRole
+  playerRole,
 }: AssetPipelineProps) {
   const [activeTab, setActiveTab] = useState('library');
   const [filter, setFilter] = useState<AssetFilter>({
     search: '',
     category: 'all',
     tags: [],
-    visibility: 'all'
+    visibility: 'all',
   });
-  
+
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showTagEditor, setShowTagEditor] = useState(false);
   const [editingAsset, setEditingAsset] = useState<GameAsset | null>(null);
-  
+
   // Asset categories for organization
   const categories = [
     { id: 'all', name: 'All Assets' },
@@ -73,7 +73,7 @@ export function AssetPipeline({
     { id: 'tokens', name: 'Tokens' },
     { id: 'maps', name: 'Maps' },
     { id: 'boards', name: 'Boards' },
-    { id: 'other', name: 'Other' }
+    { id: 'other', name: 'Other' },
   ];
 
   // Common asset tags
@@ -83,7 +83,7 @@ export function AssetPipeline({
     { id: 'equipment', name: 'Equipment', color: '#8b5cf6' },
     { id: 'spell', name: 'Spell', color: '#06b6d4' },
     { id: 'terrain', name: 'Terrain', color: '#10b981' },
-    { id: 'prop', name: 'Prop', color: '#f59e0b' }
+    { id: 'prop', name: 'Prop', color: '#f59e0b' },
   ];
 
   const filteredAssets = assets.filter(asset => {
@@ -91,12 +91,12 @@ export function AssetPipeline({
     if (filter.search && !asset.name.toLowerCase().includes(filter.search.toLowerCase())) {
       return false;
     }
-    
+
     // Category filter
     if (filter.category !== 'all' && asset.category !== filter.category) {
       return false;
     }
-    
+
     // Tag filter
     if (filter.tags.length > 0) {
       const assetTags = asset.tags ? asset.tags.split(',') : [];
@@ -104,7 +104,7 @@ export function AssetPipeline({
         return false;
       }
     }
-    
+
     return true;
   });
 
@@ -135,19 +135,19 @@ export function AssetPipeline({
   const handleGetUploadParameters = async () => {
     const response = await fetch('/api/objects/upload', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
     const data = await response.json();
     return {
       method: 'PUT' as const,
-      url: data.uploadURL
+      url: data.uploadURL,
     };
   };
 
   const handleUploadComplete = async (result: any) => {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      
+
       // Create asset record
       const assetData = {
         roomId,
@@ -157,16 +157,16 @@ export function AssetPipeline({
         fileSize: uploadedFile.data?.size || 0,
         category: 'other',
         tags: '',
-        visibility: 'room'
+        visibility: 'room',
       };
 
       try {
         const response = await fetch(`/api/rooms/${roomId}/assets`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(assetData)
+          body: JSON.stringify(assetData),
         });
-        
+
         if (response.ok) {
           const newAsset = await response.json();
           onAssetUploaded(newAsset);
@@ -252,7 +252,7 @@ export function AssetPipeline({
               {availableTags.map(tag => (
                 <Badge
                   key={tag.id}
-                  variant={filter.tags.includes(tag.id) ? "default" : "outline"}
+                  variant={filter.tags.includes(tag.id) ? 'default' : 'outline'}
                   className="cursor-pointer text-xs"
                   style={{ backgroundColor: filter.tags.includes(tag.id) ? tag.color : undefined }}
                   onClick={() => {
@@ -260,7 +260,7 @@ export function AssetPipeline({
                       ...prev,
                       tags: prev.tags.includes(tag.id)
                         ? prev.tags.filter(t => t !== tag.id)
-                        : [...prev.tags, tag.id]
+                        : [...prev.tags, tag.id],
                     }));
                   }}
                   data-testid={`tag-filter-${tag.id}`}
@@ -346,7 +346,7 @@ export function AssetPipeline({
                     <div className="text-xs text-gray-500">
                       {asset.fileSize ? `${Math.round(asset.fileSize / 1024)}KB` : 'Unknown size'}
                     </div>
-                    
+
                     {/* Tags */}
                     {asset.tags && (
                       <div className="flex flex-wrap gap-1">
@@ -443,8 +443,8 @@ export function AssetPipeline({
 
               <div>
                 <Label>Category</Label>
-                <Select 
-                  value={editingAsset.category || 'other'} 
+                <Select
+                  value={editingAsset.category || 'other'}
                   onValueChange={(value) => setEditingAsset(prev => prev ? { ...prev, category: value } : null)}
                 >
                   <SelectTrigger>
@@ -464,11 +464,11 @@ export function AssetPipeline({
                 <Button variant="outline" onClick={() => setEditingAsset(null)}>
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={() => {
                     onAssetUpdated(editingAsset.id, {
                       name: editingAsset.name,
-                      category: editingAsset.category
+                      category: editingAsset.category,
                     });
                     setEditingAsset(null);
                   }}

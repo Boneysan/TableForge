@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft, Hand, Book } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { ChatComponent } from "./ChatComponent";
-import { ThemeToggle } from "./ThemeToggle";
-import { PlayerScoreboard } from "./PlayerScoreboard";
-import { GameBoard } from "./GameBoard";
-import { GameRulesViewer } from "./GameRulesViewer";
-import { useLocation } from "wouter";
-import type { GameRoom, GameAsset, BoardAsset, RoomPlayerWithName, User } from "@shared/schema";
+import { useState } from 'react';
+import { Eye, Dices, Users, Edit, MessageCircle, ArrowLeft, Hand, Book } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { ChatComponent } from './ChatComponent';
+import { ThemeToggle } from './ThemeToggle';
+import { PlayerScoreboard } from './PlayerScoreboard';
+import { GameBoard } from './GameBoard';
+import { GameRulesViewer } from './GameRulesViewer';
+import { useLocation } from 'wouter';
+import type { GameRoom, GameAsset, BoardAsset, RoomPlayerWithName, User } from '@shared/schema';
 
 interface SimplePlayerInterfaceProps {
   room: GameRoom;
@@ -27,15 +27,15 @@ interface SimplePlayerInterfaceProps {
   connected: boolean;
 }
 
-export function SimplePlayerInterface({ 
-  room, 
-  roomAssets, 
-  boardAssets, 
-  roomPlayers, 
+export function SimplePlayerInterface({
+  room,
+  roomAssets,
+  boardAssets,
+  roomPlayers,
   currentUser,
   websocket,
   onDiceRoll,
-  connected 
+  connected,
 }: SimplePlayerInterfaceProps) {
   // Early return if currentUser is null
   if (!currentUser) {
@@ -48,22 +48,22 @@ export function SimplePlayerInterface({
       </div>
     );
   }
-  
-  const [selectedDice, setSelectedDice] = useState<string>("d6");
+
+  const [selectedDice, setSelectedDice] = useState<string>('d6');
   const [diceCount, setDiceCount] = useState<number>(1);
   const [lastRoll, setLastRoll] = useState<{ results: number[]; total: number; diceType: string; count: number } | null>(null);
   const [showNameEdit, setShowNameEdit] = useState(false);
-  const [newFirstName, setNewFirstName] = useState(currentUser?.firstName || "");
-  const [newLastName, setNewLastName] = useState(currentUser?.lastName || "");
+  const [newFirstName, setNewFirstName] = useState(currentUser?.firstName || '');
+  const [newLastName, setNewLastName] = useState(currentUser?.lastName || '');
   const [showHandViewer, setShowHandViewer] = useState(false);
-  
+
   // Placeholder hand data - in a real implementation this would come from the server
   const [playerHand] = useState([
     { id: '1', name: 'Ace of Spades', imageUrl: null, faceUp: true },
     { id: '2', name: 'King of Hearts', imageUrl: null, faceUp: true },
-    { id: '3', name: 'Hidden Card', imageUrl: null, faceUp: false }
+    { id: '3', name: 'Hidden Card', imageUrl: null, faceUp: false },
   ]);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
@@ -73,9 +73,9 @@ export function SimplePlayerInterface({
       // Players can only update their own score unless they're GM
       if (playerId !== currentUser.id) {
         toast({
-          title: "Not Allowed",
-          description: "Players can only update their own score.",
-          variant: "destructive",
+          title: 'Not Allowed',
+          description: 'Players can only update their own score.',
+          variant: 'destructive',
         });
         return;
       }
@@ -87,62 +87,62 @@ export function SimplePlayerInterface({
           roomId: room.id,
           payload: {
             playerId,
-            score: newScore
-          }
+            score: newScore,
+          },
         }));
       }
 
       // Also update via API for persistence
-      await authenticatedApiRequest("PATCH", `/api/rooms/${room.id}/players/${playerId}/score`, {
-        score: newScore
+      await authenticatedApiRequest('PATCH', `/api/rooms/${room.id}/players/${playerId}/score`, {
+        score: newScore,
       });
 
       toast({
-        title: "Score Updated",
-        description: "Your score has been updated successfully.",
+        title: 'Score Updated',
+        description: 'Your score has been updated successfully.',
       });
     } catch (error) {
-      console.error("Error updating score:", error);
+      console.error('Error updating score:', error);
       toast({
-        title: "Error",
-        description: "Failed to update score. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update score. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
-  const diceTypes = ["d4", "d6", "d8", "d10", "d12", "d20"];
+  const diceTypes = ['d4', 'd6', 'd8', 'd10', 'd12', 'd20'];
 
   const handleRollDice = () => {
     const sides = parseInt(selectedDice.replace('d', ''));
     const results = Array.from({ length: diceCount }, () => Math.floor(Math.random() * sides) + 1);
     const total = results.reduce((sum, roll) => sum + roll, 0);
-    
+
     // Update local state to show results immediately
     setLastRoll({ results, total, diceType: selectedDice, count: diceCount });
-    
+
     // Send to server
     onDiceRoll(selectedDice, diceCount);
   };
 
   const updateNameMutation = useMutation({
     mutationFn: async (updates: { firstName?: string; lastName?: string }) => {
-      const response = await authenticatedApiRequest("PUT", "/api/auth/user", updates);
+      const response = await authenticatedApiRequest('PUT', '/api/auth/user', updates);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       setShowNameEdit(false);
       toast({
-        title: "Success",
-        description: "Your name has been updated successfully!",
+        title: 'Success',
+        description: 'Your name has been updated successfully!',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to update your name. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update your name. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -151,24 +151,24 @@ export function SimplePlayerInterface({
     const updates: { firstName?: string; lastName?: string } = {};
     if (newFirstName.trim()) updates.firstName = newFirstName.trim();
     if (newLastName.trim()) updates.lastName = newLastName.trim();
-    
+
     if (Object.keys(updates).length === 0) {
       toast({
-        title: "Error",
-        description: "Please enter at least a first name or last name.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter at least a first name or last name.',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     updateNameMutation.mutate(updates);
   };
 
-  const displayName = currentUser.firstName && currentUser.lastName 
+  const displayName = currentUser.firstName && currentUser.lastName
     ? `${currentUser.firstName} ${currentUser.lastName}`
-    : currentUser.firstName 
+    : currentUser.firstName
     ? currentUser.firstName
-    : currentUser.email || "Player";
+    : currentUser.email || 'Player';
 
   return (
     <div className="space-y-6" data-testid="simple-player-interface">
@@ -183,9 +183,9 @@ export function SimplePlayerInterface({
                 <p className="text-green-100">Welcome {displayName}</p>
                 <Dialog open={showNameEdit} onOpenChange={setShowNameEdit}>
                   <DialogTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="h-6 w-6 p-0 text-green-100 hover:text-white hover:bg-green-700"
                       data-testid="edit-name-button"
                     >
@@ -218,16 +218,16 @@ export function SimplePlayerInterface({
                         />
                       </div>
                       <div className="flex space-x-2">
-                        <Button 
+                        <Button
                           onClick={handleNameSubmit}
                           disabled={updateNameMutation.isPending}
                           className="flex-1 bg-green-600 hover:bg-green-700"
                           data-testid="save-name-button"
                         >
-                          {updateNameMutation.isPending ? "Saving..." : "Save"}
+                          {updateNameMutation.isPending ? 'Saving...' : 'Save'}
                         </Button>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           onClick={() => setShowNameEdit(false)}
                           className="flex-1 border-gray-600 text-gray-100 hover:bg-gray-700"
                           data-testid="cancel-name-button"
@@ -247,8 +247,8 @@ export function SimplePlayerInterface({
             <span className="text-white text-sm">
               {connected ? 'Connected' : 'Disconnected'}
             </span>
-            <GameRulesViewer 
-              room={room} 
+            <GameRulesViewer
+              room={room}
               trigger={
                 <Button
                   variant="outline"
@@ -346,22 +346,22 @@ export function SimplePlayerInterface({
                     </div>
                   </div>
                 )}
-                
+
                 {/* Hand actions */}
                 <div className="space-y-2">
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
                       data-testid="button-draw-from-deck"
                     >
                       <Hand className="w-3 h-3 mr-1" />
                       Draw Card
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700"
                       data-testid="button-organize-hand"
                     >
@@ -369,9 +369,9 @@ export function SimplePlayerInterface({
                       Organize
                     </Button>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
                     onClick={() => setShowHandViewer(true)}
                     data-testid="button-expand-hand"
@@ -403,8 +403,8 @@ export function SimplePlayerInterface({
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm text-gray-300 mb-2 block">Dice Type</label>
-                <select 
-                  value={selectedDice} 
+                <select
+                  value={selectedDice}
                   onChange={(e) => setSelectedDice(e.target.value)}
                   className="w-full p-2 bg-[#374151] text-gray-100 rounded border border-gray-600"
                 >
@@ -413,20 +413,20 @@ export function SimplePlayerInterface({
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="text-sm text-gray-300 mb-2 block">Count</label>
-                <input 
-                  type="number" 
-                  min="1" 
-                  max="10" 
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
                   value={diceCount}
                   onChange={(e) => setDiceCount(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-full p-2 bg-[#374151] text-gray-100 rounded border border-gray-600"
                 />
               </div>
-              
-              <Button 
+
+              <Button
                 onClick={handleRollDice}
                 className="w-full bg-green-600 hover:bg-green-700"
                 data-testid="roll-dice-button"
@@ -434,7 +434,7 @@ export function SimplePlayerInterface({
                 <Dices className="w-4 h-4 mr-2" />
                 Roll {diceCount} {selectedDice.toUpperCase()}
               </Button>
-              
+
               {lastRoll && (
                 <div className="mt-4 p-3 bg-[#374151] rounded-lg border border-green-500">
                   <div className="text-center">
@@ -482,7 +482,7 @@ export function SimplePlayerInterface({
 
           {/* Chat */}
           <div className="h-80 bg-[#1F2937] rounded-lg border border-gray-600 overflow-hidden">
-            <ChatComponent 
+            <ChatComponent
               roomId={room.id}
               websocket={websocket}
               currentUserId={currentUser.id}
@@ -521,18 +521,18 @@ export function SimplePlayerInterface({
                     {/* Card actions on hover */}
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                       <div className="space-x-1">
-                        <Button 
-                          size="sm" 
-                          variant="secondary" 
+                        <Button
+                          size="sm"
+                          variant="secondary"
                           className="text-xs h-6 px-2"
                           data-testid={`button-play-card-${card.id}`}
                         >
                           Play
                         </Button>
                         {card.faceUp && (
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className="text-xs h-6 px-2"
                             data-testid={`button-flip-card-${card.id}`}
                           >
@@ -551,21 +551,21 @@ export function SimplePlayerInterface({
                 <p className="text-sm mt-2">Cards dealt by the Game Master will appear here</p>
               </div>
             )}
-            
+
             <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {playerHand.length} cards in hand
               </div>
               <div className="space-x-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowHandViewer(false)}
                   className="border-gray-300 dark:border-gray-600"
                   data-testid="button-close-hand-viewer"
                 >
                   Close
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   className="border-gray-300 dark:border-gray-600"
                   data-testid="button-organize-hand-large"
@@ -573,7 +573,7 @@ export function SimplePlayerInterface({
                   <Eye className="w-4 h-4 mr-1" />
                   Sort by Value
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   className="border-gray-300 dark:border-gray-600"
                   data-testid="button-draw-card-large"

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { 
+import {
   createInsertGameRoomSchema,
   createInsertAssetSchema,
   createInsertDeckSchema,
@@ -230,7 +230,7 @@ describe('Schema Validation', () => {
   describe('Schema Edge Cases', () => {
     it('should handle null and undefined values properly', () => {
       const gameRoomSchema = createInsertGameRoomSchema;
-      
+
       const roomWithNulls = {
         name: 'Test Room',
         description: null,
@@ -245,7 +245,7 @@ describe('Schema Validation', () => {
 
     it('should validate array fields properly', () => {
       const assetSchema = createInsertAssetSchema;
-      
+
       const assetWithTags = {
         name: 'Tagged Asset',
         type: 'token' as const,
@@ -261,7 +261,7 @@ describe('Schema Validation', () => {
 
     it('should reject invalid array elements', () => {
       const assetSchema = createInsertAssetSchema;
-      
+
       const assetWithInvalidTags = {
         name: 'Invalid Tags',
         type: 'token' as const,

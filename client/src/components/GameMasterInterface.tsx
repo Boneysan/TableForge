@@ -1,28 +1,28 @@
-import { useState } from "react";
-import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft, Hand, FolderOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { ObjectUploader } from "./ObjectUploader";
-import { GameBoard } from "./GameBoard";
-import { GameControls } from "./GameControls";
-import { AssetLibrary } from "./AssetLibrary";
-import { ChatComponent } from "./ChatComponent";
-import { CardDeckManager } from "./CardDeckManager";
-import { GameTemplateManager } from "./GameTemplateManager";
-import { GameSystemManager } from "./GameSystemManager";
-import { PlayerScoreboard } from "./PlayerScoreboard";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { useLocation } from "wouter";
-import type { GameAsset, BoardAsset, RoomPlayerWithName, CardPile } from "@shared/schema";
+import { useState } from 'react';
+import { Upload, Settings, Users, Dice6, Eye, EyeOff, Edit, MessageCircle, ArrowLeft, Hand, FolderOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { ObjectUploader } from './ObjectUploader';
+import { GameBoard } from './GameBoard';
+import { GameControls } from './GameControls';
+import { AssetLibrary } from './AssetLibrary';
+import { ChatComponent } from './ChatComponent';
+import { CardDeckManager } from './CardDeckManager';
+import { GameTemplateManager } from './GameTemplateManager';
+import { GameSystemManager } from './GameSystemManager';
+import { PlayerScoreboard } from './PlayerScoreboard';
+import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useLocation } from 'wouter';
+import type { GameAsset, BoardAsset, RoomPlayerWithName, CardPile } from '@shared/schema';
 
 interface GameMasterInterfaceProps {
   roomId: string;
@@ -53,48 +53,48 @@ export function GameMasterInterface({
   onSwitchView,
   room,
 }: GameMasterInterfaceProps) {
-  
+
   // Debug logging for GameMasterInterface
   console.log(`🎮 [GameMasterInterface] Assets received: ${assets.length}`);
   if (assets.length > 0) {
     console.log(`🎮 [GameMasterInterface] First asset:`, assets[0]);
   }
   const [isGMPanelVisible, setIsGMPanelVisible] = useState(true);
-  const [selectedTab, setSelectedTab] = useState("game");
+  const [selectedTab, setSelectedTab] = useState('game');
   const [showNameEdit, setShowNameEdit] = useState(false);
-  const [newFirstName, setNewFirstName] = useState(currentUser.firstName || "");
-  const [newLastName, setNewLastName] = useState(currentUser.lastName || "");
+  const [newFirstName, setNewFirstName] = useState(currentUser.firstName || '');
+  const [newLastName, setNewLastName] = useState(currentUser.lastName || '');
   const [showHandViewer, setShowHandViewer] = useState(false);
-  
+
   // Fetch GM hand data from card piles
   const { data: cardPiles = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "piles"],
+    queryKey: ['/api/rooms', roomId, 'piles'],
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", `/api/rooms/${roomId}/piles`);
+      const response = await authenticatedApiRequest('GET', `/api/rooms/${roomId}/piles`);
       return response.json();
     },
   });
 
   // Get GM's hand pile (pileType: "hand" and ownerId: currentUser.id)
-  const gmHandPile = cardPiles.find((pile: CardPile) => 
-    pile.pileType === 'hand' && pile.ownerId === currentUser.id
+  const gmHandPile = cardPiles.find((pile: CardPile) =>
+    pile.pileType === 'hand' && pile.ownerId === currentUser.id,
   );
 
   // Get GM hand cards from the pile
   const gmHandCardIds = gmHandPile?.cardOrder ? (Array.isArray(gmHandPile.cardOrder) ? gmHandPile.cardOrder : []) : [];
-  const gmHandCards = gmHandCardIds.map((cardId: string) => 
-    assets.find(asset => asset.id === cardId)
+  const gmHandCards = gmHandCardIds.map((cardId: string) =>
+    assets.find(asset => asset.id === cardId),
   ).filter(Boolean);
 
   // Create a GM hand pile if it doesn't exist
   const createGMHandMutation = useMutation({
     mutationFn: async () => {
-      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles`, {
-        name: "GM Hand",
+      const response = await authenticatedApiRequest('POST', `/api/rooms/${roomId}/piles`, {
+        name: 'GM Hand',
         positionX: 0, // Off-board position for hands
         positionY: 0,
-        pileType: "hand",
-        visibility: "gm",
+        pileType: 'hand',
+        visibility: 'gm',
         ownerId: currentUser.id,
         cardOrder: [],
         faceDown: false,
@@ -102,11 +102,11 @@ export function GameMasterInterface({
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
-      toast({ title: "GM Hand created" });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'piles'] });
+      toast({ title: 'GM Hand created' });
     },
   });
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
@@ -114,22 +114,22 @@ export function GameMasterInterface({
   // Return cards to deck mutation
   const returnCardsToDeckMutation = useMutation({
     mutationFn: async () => {
-      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/return-cards-to-deck`);
+      const response = await authenticatedApiRequest('POST', `/api/rooms/${roomId}/return-cards-to-deck`);
       return response.json();
     },
     onSuccess: (data) => {
       toast({
-        title: "Cards returned",
+        title: 'Cards returned',
         description: `${data.cardsReturned} cards returned to their decks`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "board-assets"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'piles'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'board-assets'] });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to return cards to deck",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to return cards to deck',
+        variant: 'destructive',
       });
     },
   });
@@ -147,37 +147,37 @@ export function GameMasterInterface({
           roomId,
           payload: {
             playerId,
-            score: newScore
-          }
+            score: newScore,
+          },
         }));
       }
 
       // Also update via API for persistence
-      await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/players/${playerId}/score`, {
-        score: newScore
+      await authenticatedApiRequest('PATCH', `/api/rooms/${roomId}/players/${playerId}/score`, {
+        score: newScore,
       });
 
       toast({
-        title: "Score Updated",
-        description: "Player score has been updated successfully.",
+        title: 'Score Updated',
+        description: 'Player score has been updated successfully.',
       });
     } catch (error) {
-      console.error("Error updating score:", error);
+      console.error('Error updating score:', error);
       toast({
-        title: "Error",
-        description: "Failed to update player score. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update player score. Please try again.',
+        variant: 'destructive',
       });
     }
   };
 
   const handleGetUploadParameters = async () => {
-    const response = await fetch("/api/objects/upload", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/objects/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
     const { uploadURL } = await response.json();
-    return { method: "PUT" as const, url: uploadURL };
+    return { method: 'PUT' as const, url: uploadURL };
   };
 
   const handleUploadComplete = async (result: any) => {
@@ -185,42 +185,42 @@ export function GameMasterInterface({
       if (result.successful && result.successful.length > 0) {
         const uploadedFile = result.successful[0];
         const response = await fetch(`/api/rooms/${roomId}/assets`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: uploadedFile.name,
-            type: "other",
+            type: 'other',
             filePath: uploadedFile.uploadURL,
           }),
         });
-        
+
         if (response.ok) {
           onAssetUploaded();
         }
       }
     } catch (error) {
-      console.error("Error uploading asset:", error);
+      console.error('Error uploading asset:', error);
     }
   };
 
   const updateNameMutation = useMutation({
     mutationFn: async (updates: { firstName?: string; lastName?: string }) => {
-      const response = await authenticatedApiRequest("PUT", "/api/auth/user", updates);
+      const response = await authenticatedApiRequest('PUT', '/api/auth/user', updates);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       setShowNameEdit(false);
       toast({
-        title: "Success",
-        description: "Your name has been updated successfully!",
+        title: 'Success',
+        description: 'Your name has been updated successfully!',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to update your name. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update your name. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -229,20 +229,20 @@ export function GameMasterInterface({
     const updates: { firstName?: string; lastName?: string } = {};
     if (newFirstName.trim()) updates.firstName = newFirstName.trim();
     if (newLastName.trim()) updates.lastName = newLastName.trim();
-    
+
     if (Object.keys(updates).length === 0) {
       toast({
-        title: "Error",
-        description: "Please enter at least a first name or last name.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please enter at least a first name or last name.',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     updateNameMutation.mutate(updates);
   };
 
-  const currentPlayerName = currentUser.firstName || currentUser.lastName 
+  const currentPlayerName = currentUser.firstName || currentUser.lastName
     ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim()
     : 'Game Master';
 
@@ -262,9 +262,9 @@ export function GameMasterInterface({
               </span>
               <Dialog open={showNameEdit} onOpenChange={setShowNameEdit}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="h-5 w-5 p-0 text-purple-600 hover:text-purple-800 hover:bg-purple-100 dark:text-purple-300 dark:hover:text-purple-100 dark:hover:bg-purple-800"
                     data-testid="edit-gm-name-button"
                   >
@@ -297,16 +297,16 @@ export function GameMasterInterface({
                       />
                     </div>
                     <div className="flex space-x-2">
-                      <Button 
+                      <Button
                         onClick={handleNameSubmit}
                         disabled={updateNameMutation.isPending}
                         className="flex-1 bg-purple-600 hover:bg-purple-700"
                         data-testid="gm-save-name-button"
                       >
-                        {updateNameMutation.isPending ? "Saving..." : "Save"}
+                        {updateNameMutation.isPending ? 'Saving...' : 'Save'}
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setShowNameEdit(false)}
                         className="flex-1 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
                         data-testid="gm-cancel-name-button"
@@ -364,9 +364,9 @@ export function GameMasterInterface({
             Leave Room
           </Button>
           {onSwitchView && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={onSwitchView}
               data-testid="button-switch-view-gm"
             >
@@ -520,8 +520,8 @@ export function GameMasterInterface({
                           <Hand className="w-4 h-4" />
                           <span>GM Hand</span>
                         </CardTitle>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => setShowHandViewer(true)}
                           className="text-xs"
@@ -552,8 +552,8 @@ export function GameMasterInterface({
                                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                     <div className="text-center p-1">
                                       <div className="text-[10px] leading-tight text-white font-semibold drop-shadow-md">
-                                        {card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').length > 12 
-                                          ? card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').substring(0, 12) + '...' 
+                                        {card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').length > 12
+                                          ? `${card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').substring(0, 12)  }...`
                                           : card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '')}
                                       </div>
                                     </div>
@@ -580,7 +580,7 @@ export function GameMasterInterface({
                                 Create GM Hand
                               </Button>
                             ) : (
-                              "Draw cards from decks"
+                              'Draw cards from decks'
                             )}
                           </p>
                         </div>
@@ -599,9 +599,9 @@ export function GameMasterInterface({
                         className="w-full justify-start text-xs"
                         onClick={() => {
                           // For now, show a message about drawing functionality
-                          toast({ 
-                            title: "Draw Cards", 
-                            description: "Click deck spots to draw to board, or Shift+Click to draw to your hand" 
+                          toast({
+                            title: 'Draw Cards',
+                            description: 'Click deck spots to draw to board, or Shift+Click to draw to your hand',
                           });
                         }}
                         data-testid="button-draw-card"
@@ -718,7 +718,7 @@ export function GameMasterInterface({
                 {/* Chat Tab */}
                 <TabsContent value="chat" className="h-full">
                   <div className="h-full p-4">
-                    <ChatComponent 
+                    <ChatComponent
                       roomId={roomId}
                       websocket={websocket}
                       currentUserId={currentUser.id}
@@ -759,8 +759,8 @@ export function GameMasterInterface({
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
                         <div className="text-xs leading-tight font-medium text-white text-center">
-                          {card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').length > 20 
-                            ? card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').substring(0, 20) + '...' 
+                          {card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').length > 20
+                            ? `${card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '').substring(0, 20)  }...`
                             : card.name.replace(/\.(jpg|jpeg|png|gif|bmp|webp)$/i, '')}
                         </div>
                       </div>
@@ -768,25 +768,25 @@ export function GameMasterInterface({
                     {/* Card actions on hover */}
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                       <div className="space-x-1">
-                        <Button 
-                          size="sm" 
-                          variant="secondary" 
+                        <Button
+                          size="sm"
+                          variant="secondary"
                           className="text-xs h-6 px-2"
                           data-testid={`button-play-gm-card-${card.id}`}
                         >
                           Play
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-xs h-6 px-2"
                           data-testid={`button-deal-card-${card.id}`}
                         >
                           Deal
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-xs h-6 px-2"
                           data-testid={`button-discard-card-${card.id}`}
                         >
@@ -814,21 +814,21 @@ export function GameMasterInterface({
                 )}
               </div>
             )}
-            
+
             <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {gmHandCards.length} cards in GM hand
               </div>
               <div className="space-x-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowHandViewer(false)}
                   className="border-gray-300 dark:border-gray-600"
                   data-testid="button-close-gm-hand-viewer"
                 >
                   Close
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   className="border-gray-300 dark:border-gray-600"
                   data-testid="button-deal-all-cards"
@@ -836,7 +836,7 @@ export function GameMasterInterface({
                   <Users className="w-4 h-4 mr-1" />
                   Deal to All Players
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   className="border-gray-300 dark:border-gray-600"
                   data-testid="button-organize-gm-hand"

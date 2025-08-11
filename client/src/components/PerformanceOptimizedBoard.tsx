@@ -44,12 +44,12 @@ export function PerformanceOptimizedBoard({
   const updatePerformanceMetrics = useCallback(() => {
     const now = performance.now();
     const monitor = performanceMonitorRef.current;
-    
+
     monitor.frameCount++;
-    
+
     if (now - monitor.lastTime >= 1000) {
       const fps = monitor.frameCount / ((now - monitor.lastTime) / 1000);
-      const avgRenderTime = monitor.renderTimes.length > 0 
+      const avgRenderTime = monitor.renderTimes.length > 0
         ? monitor.renderTimes.reduce((a, b) => a + b, 0) / monitor.renderTimes.length
         : 0;
 
@@ -57,7 +57,7 @@ export function PerformanceOptimizedBoard({
         ...prev,
         fps: Math.round(fps),
         renderTime: Math.round(avgRenderTime * 100) / 100,
-        memoryUsage: (performance as any).memory?.usedJSHeapSize 
+        memoryUsage: (performance as any).memory?.usedJSHeapSize
           ? Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024)
           : 0,
       }));
@@ -73,19 +73,19 @@ export function PerformanceOptimizedBoard({
     if (!enablePerformanceMode) return;
 
     let rafId: number;
-    
+
     const performanceLoop = () => {
       const startTime = performance.now();
       updatePerformanceMetrics();
       const endTime = performance.now();
-      
+
       performanceMonitorRef.current.renderTimes.push(endTime - startTime);
-      
+
       rafId = requestAnimationFrame(performanceLoop);
     };
 
     rafId = requestAnimationFrame(performanceLoop);
-    
+
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
     };
@@ -100,7 +100,7 @@ export function PerformanceOptimizedBoard({
         onAssetSelect={onAssetSelect}
         className="w-full h-full"
       />
-      
+
       {/* Performance Overlay */}
       {enablePerformanceMode && process.env.NODE_ENV === 'development' && (
         <div className="absolute top-4 left-4 bg-black/90 text-green-400 p-3 rounded-lg text-xs font-mono space-y-1 min-w-48">
@@ -135,7 +135,7 @@ export function PerformanceOptimizedBoard({
           </div>
         </div>
       )}
-      
+
       {/* Performance Warning */}
       {enablePerformanceMode && performanceMetrics.fps < 30 && performanceMetrics.fps > 0 && (
         <div className="absolute bottom-4 left-4 bg-red-900/90 text-red-200 p-2 rounded text-xs">

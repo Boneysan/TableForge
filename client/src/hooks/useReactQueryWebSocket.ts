@@ -1,6 +1,6 @@
 /**
  * Enhanced WebSocket hook with React Query integration
- * 
+ *
  * Features:
  * - Automatic query invalidation on socket events
  * - Optimistic updates for card/token interactions
@@ -8,13 +8,13 @@
  * - Room-scoped state management
  */
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useWebSocket } from "./useWebSocket";
-import { queryKeys, queryKeyMatchers } from "@/lib/queryKeys";
-import { useCallback, useRef } from "react";
+import { useQueryClient } from '@tanstack/react-query';
+import { useWebSocket } from './useWebSocket';
+import { queryKeys, queryKeyMatchers } from '@/lib/queryKeys';
+import { useCallback, useRef } from 'react';
 
 // Import the shared WebSocketMessage type
-import type { WebSocketMessage } from "@shared/schema";
+import type { WebSocketMessage } from '@shared/schema';
 
 export interface UseReactQueryWebSocketOptions {
   roomId?: string;
@@ -36,7 +36,7 @@ export function useReactQueryWebSocket({
 
   // Enhanced message handler with query invalidation
   const handleMessage = useCallback((message: WebSocketMessage) => {
-    console.log("📡 [WebSocket] Received message:", message.type, message.payload);
+    console.log('📡 [WebSocket] Received message:', message.type, message.payload);
 
     // Call user-provided message handler first
     onMessage?.(message);
@@ -166,14 +166,14 @@ export function useReactQueryWebSocket({
   // Optimistic update functions
   const updateBoardAssetOptimistically = useCallback((roomId: string, payload: any) => {
     const queryKey = queryKeys.rooms.boardAssets(roomId);
-    
+
     queryClient.setQueryData(queryKey, (oldData: any[]) => {
       if (!oldData) return oldData;
-      
-      return oldData.map(asset => 
-        asset.id === payload.assetId 
+
+      return oldData.map(asset =>
+        asset.id === payload.assetId
           ? { ...asset, ...payload.updates }
-          : asset
+          : asset,
       );
     });
 
@@ -189,7 +189,7 @@ export function useReactQueryWebSocket({
 
   const updateDeckOptimistically = useCallback((roomId: string, deckId: string, updates: any) => {
     const queryKey = queryKeys.decks.byId(roomId, deckId);
-    
+
     queryClient.setQueryData(queryKey, (oldData: any) => {
       if (!oldData) return oldData;
       return { ...oldData, ...updates, lastModified: Date.now() };
@@ -199,12 +199,12 @@ export function useReactQueryWebSocket({
   const updateCardMovementOptimistically = useCallback((roomId: string, payload: any) => {
     // This is complex - for now, we'll rely on server invalidation
     // Future enhancement: implement proper optimistic card movement
-    console.log("🃏 [Optimistic] Card movement:", payload);
+    console.log('🃏 [Optimistic] Card movement:', payload);
   }, []);
 
   const addChatMessageOptimistically = useCallback((roomId: string, message: any) => {
     const queryKey = queryKeys.chat.messages(roomId);
-    
+
     queryClient.setQueryData(queryKey, (oldData: any[]) => {
       if (!oldData) return [message];
       return [...oldData, { ...message, optimistic: true }];
@@ -213,7 +213,7 @@ export function useReactQueryWebSocket({
 
   const addDiceRollOptimistically = useCallback((roomId: string, result: any) => {
     const queryKey = queryKeys.dice.rolls(roomId);
-    
+
     queryClient.setQueryData(queryKey, (oldData: any[]) => {
       if (!oldData) return [result];
       return [result, ...oldData.slice(0, 49)]; // Keep last 50 rolls
@@ -222,20 +222,20 @@ export function useReactQueryWebSocket({
 
   // Enhanced connect handler
   const handleConnect = useCallback(() => {
-    console.log("📡 [WebSocket] Connected with React Query integration");
+    console.log('📡 [WebSocket] Connected with React Query integration');
     onConnect?.();
-    
+
     // Invalidate stale data on reconnect
     if (roomId) {
       queryClient.invalidateQueries(queryKeyMatchers.room(roomId));
     }
   }, [onConnect, queryClient, roomId]);
 
-  // Enhanced disconnect handler  
+  // Enhanced disconnect handler
   const handleDisconnect = useCallback(() => {
-    console.log("📡 [WebSocket] Disconnected - clearing optimistic updates");
+    console.log('📡 [WebSocket] Disconnected - clearing optimistic updates');
     onDisconnect?.();
-    
+
     // Clear optimistic updates on disconnect
     optimisticUpdatesRef.current.clear();
   }, [onDisconnect]);
@@ -270,7 +270,7 @@ export function useReactQueryWebSocket({
           });
         }
         break;
-      
+
       case 'MOVE_BOARD_ASSET':
         if (message.payload) {
           updateBoardAssetOptimistically(roomId, message.payload);

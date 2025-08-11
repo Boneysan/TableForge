@@ -20,35 +20,35 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     console.log('🔐 [Auth Middleware] Authenticating request:', {
       method: req.method,
       path: req.path,
-      hasAuth: !!req.headers.authorization
+      hasAuth: !!req.headers.authorization,
     });
 
     const token = extractTokenFromRequest(req);
     if (!token) {
-      res.status(401).json({ 
+      res.status(401).json({
         error: 'Authentication required',
-        message: 'Valid authentication token must be provided'
+        message: 'Valid authentication token must be provided',
       });
       return;
     }
 
     const user = await validateFirebaseToken(token);
-    
+
     if (!validateTokenFreshness(user)) {
       res.status(401).json({
         error: 'Token expired',
-        message: 'Authentication token has expired, please sign in again'
+        message: 'Authentication token has expired, please sign in again',
       });
       return;
     }
 
     // Attach validated user to request
     req.user = user;
-    
+
     console.log('✅ [Auth Middleware] User authenticated:', {
       uid: user.uid,
       email: user.email,
-      source: user.source
+      source: user.source,
     });
 
     next();
@@ -56,7 +56,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     console.error('❌ [Auth Middleware] Authentication failed:', error);
     res.status(401).json({
       error: 'Authentication failed',
-      message: error instanceof Error ? error.message : 'Invalid authentication token'
+      message: error instanceof Error ? error.message : 'Invalid authentication token',
     });
   }
 };
@@ -64,7 +64,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 /**
  * Middleware to validate room membership and permissions
  */
-export const authorizeRoom = (requiredPermission: string = 'read_room') => {
+export const authorizeRoom = (requiredPermission = 'read_room') => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.user) {
@@ -82,35 +82,35 @@ export const authorizeRoom = (requiredPermission: string = 'read_room') => {
         userId: req.user.uid,
         roomId,
         requiredPermission,
-        path: req.path
+        path: req.path,
       });
 
       const result = await roomAuthManager.validateRoomAction(
         req.user,
         roomId,
         req.path,
-        requiredPermission
+        requiredPermission,
       );
 
       if (!result.allowed) {
         console.log('❌ [Room Auth Middleware] Access denied:', result.reason);
         res.status(403).json({
           error: 'Access denied',
-          message: result.reason || 'Insufficient permissions for this room'
+          message: result.reason || 'Insufficient permissions for this room',
         });
         return;
       }
 
       // Attach room claims to request
       req.roomClaims = result.claims;
-      
+
       console.log('✅ [Room Auth Middleware] Room access authorized');
       next();
     } catch (error) {
       console.error('❌ [Room Auth Middleware] Authorization error:', error);
       res.status(500).json({
         error: 'Authorization error',
-        message: 'Failed to validate room permissions'
+        message: 'Failed to validate room permissions',
       });
     }
   };
@@ -142,7 +142,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
  */
 export const logAuthEvents = (req: Request, res: Response, next: NextFunction): void => {
   const originalSend = res.send;
-  
+
   res.send = function(body: any) {
     // Log authentication failures
     if (res.statusCode === 401 || res.statusCode === 403) {
@@ -153,12 +153,12 @@ export const logAuthEvents = (req: Request, res: Response, next: NextFunction): 
         userAgent: req.get('User-Agent'),
         statusCode: res.statusCode,
         userId: req.user?.uid,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
-    
+
     return originalSend.call(this, body);
   };
-  
+
   next();
 };

@@ -21,7 +21,7 @@ interface UseFocusManagementOptions {
 
 export function useFocusManagement(options: UseFocusManagementOptions) {
   const { containerRef, onFocusChange, trapFocus = false, restoreFocus = true } = options;
-  
+
   const [focusedElementId, setFocusedElementId] = useState<string | null>(null);
   const [isKeyboardNavigation, setIsKeyboardNavigation] = useState(false);
   const focusableElementsRef = useRef<FocusableElement[]>([]);
@@ -43,8 +43,8 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
       '[data-focusable="true"]',
     ].join(', ');
 
-    const elements = Array.from(container.querySelectorAll(focusableSelectors)) as HTMLElement[];
-    
+    const elements = Array.from(container.querySelectorAll(focusableSelectors));
+
     focusableElementsRef.current = elements.map((element, index) => ({
       element,
       id: element.getAttribute('data-focus-id') || element.id || `focus-${index}`,
@@ -67,14 +67,14 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
     if (focusableElement) {
       focusableElement.element.focus();
       setFocusedElementId(id);
-      
+
       // Add to focus history
       focusHistoryRef.current = focusHistoryRef.current.filter(historyId => historyId !== id);
       focusHistoryRef.current.push(id);
       if (focusHistoryRef.current.length > 10) {
         focusHistoryRef.current.shift();
       }
-      
+
       onFocusChange?.(id, focusableElement.element);
     }
   }, [onFocusChange]);
@@ -82,7 +82,7 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
   // Move focus in a direction
   const moveFocus = useCallback((direction: 'next' | 'previous' | 'up' | 'down' | 'left' | 'right') => {
     updateFocusableElements();
-    
+
     const currentIndex = focusableElementsRef.current.findIndex(item => item.id === focusedElementId);
     let nextIndex = -1;
 
@@ -93,14 +93,14 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
           nextIndex = trapFocus ? 0 : currentIndex;
         }
         break;
-        
+
       case 'previous':
         nextIndex = currentIndex - 1;
         if (nextIndex < 0) {
           nextIndex = trapFocus ? focusableElementsRef.current.length - 1 : currentIndex;
         }
         break;
-        
+
       case 'up':
       case 'down':
       case 'left':
@@ -118,53 +118,53 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
   // Find focus target based on spatial relationships
   const findSpatialFocus = useCallback((direction: 'up' | 'down' | 'left' | 'right', currentIndex: number) => {
     if (currentIndex < 0) return -1;
-    
+
     const currentElement = focusableElementsRef.current[currentIndex];
     if (!currentElement.bounds) return -1;
-    
+
     const currentRect = currentElement.bounds;
     let bestCandidate = -1;
     let bestDistance = Infinity;
-    
+
     focusableElementsRef.current.forEach((candidate, index) => {
       if (index === currentIndex || !candidate.bounds) return;
-      
+
       const candidateRect = candidate.bounds;
       let isInDirection = false;
       let distance = 0;
-      
+
       switch (direction) {
         case 'up':
           isInDirection = candidateRect.bottom <= currentRect.top;
-          distance = currentRect.top - candidateRect.bottom + 
+          distance = currentRect.top - candidateRect.bottom +
                    Math.abs(candidateRect.left + candidateRect.width / 2 - currentRect.left - currentRect.width / 2);
           break;
-          
+
         case 'down':
           isInDirection = candidateRect.top >= currentRect.bottom;
-          distance = candidateRect.top - currentRect.bottom + 
+          distance = candidateRect.top - currentRect.bottom +
                    Math.abs(candidateRect.left + candidateRect.width / 2 - currentRect.left - currentRect.width / 2);
           break;
-          
+
         case 'left':
           isInDirection = candidateRect.right <= currentRect.left;
-          distance = currentRect.left - candidateRect.right + 
+          distance = currentRect.left - candidateRect.right +
                    Math.abs(candidateRect.top + candidateRect.height / 2 - currentRect.top - currentRect.height / 2);
           break;
-          
+
         case 'right':
           isInDirection = candidateRect.left >= currentRect.right;
-          distance = candidateRect.left - currentRect.right + 
+          distance = candidateRect.left - currentRect.right +
                    Math.abs(candidateRect.top + candidateRect.height / 2 - currentRect.top - currentRect.height / 2);
           break;
       }
-      
+
       if (isInDirection && distance < bestDistance) {
         bestDistance = distance;
         bestCandidate = index;
       }
     });
-    
+
     return bestCandidate;
   }, []);
 
@@ -201,17 +201,17 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
   const handleFocusIn = useCallback((event: FocusEvent) => {
     const target = event.target as HTMLElement;
     const container = containerRef.current;
-    
-    if (!container || !container.contains(target)) return;
-    
+
+    if (!container?.contains(target)) return;
+
     updateFocusableElements();
     const focusableElement = focusableElementsRef.current.find(item => item.element === target);
-    
+
     if (focusableElement) {
       setFocusedElementId(focusableElement.id);
       onFocusChange?.(focusableElement.id, focusableElement.element);
     }
-    
+
     // Track keyboard navigation
     if (event.relatedTarget) {
       setIsKeyboardNavigation(true);
@@ -223,9 +223,9 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
     const target = event.target as HTMLElement;
     const relatedTarget = event.relatedTarget as HTMLElement;
     const container = containerRef.current;
-    
+
     if (!container) return;
-    
+
     // If focus is moving outside the container
     if (!relatedTarget || !container.contains(relatedTarget)) {
       if (restoreFocus) {
@@ -249,7 +249,7 @@ export function useFocusManagement(options: UseFocusManagementOptions) {
     container.addEventListener('focusin', handleFocusIn);
     container.addEventListener('focusout', handleFocusOut);
     container.addEventListener('mousedown', handleMouseDown);
-    
+
     // Initial update
     updateFocusableElements();
 

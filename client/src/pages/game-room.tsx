@@ -1,17 +1,17 @@
-import { useParams } from "wouter";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { useWebSocket } from "@/hooks/useWebSocket";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useParams } from 'wouter';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
-import { SimplePlayerInterface } from "@/components/SimplePlayerInterface";
-import { GameMasterInterface } from "@/components/GameMasterInterface";
-import { AdminInterface } from "@/components/AdminInterface";
-import { ViewSelector } from "@/components/ViewSelector";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, RoomPlayerWithName, User } from "@shared/schema";
+import { SimplePlayerInterface } from '@/components/SimplePlayerInterface';
+import { GameMasterInterface } from '@/components/GameMasterInterface';
+import { AdminInterface } from '@/components/AdminInterface';
+import { ViewSelector } from '@/components/ViewSelector';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import type { GameRoom, GameAsset, BoardAsset, RoomPlayer, RoomPlayerWithName, User } from '@shared/schema';
 
 export default function GameRoom() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -20,40 +20,40 @@ export default function GameRoom() {
   const queryClient = useQueryClient();
   const [userRole, setUserRole] = useState<'admin' | 'player' | null>(null);
   const [selectedView, setSelectedView] = useState<'admin' | 'gamemaster' | 'player' | null>(null);
-  const currentPlayer = { id: user?.id || "unknown", name: user?.firstName || user?.email || "Player" };
-  
+  const currentPlayer = { id: user?.id || 'unknown', name: user?.firstName || user?.email || 'Player' };
+
   // Check if this is a "join" navigation (from home page join button) - check on component mount
   const [wasJoiningRoom] = useState(() => sessionStorage.getItem('joining-room') === 'true');
-  
+
   // Fetch room data
   const { data: room, isLoading: roomLoading } = useQuery({
-    queryKey: ["/api/rooms", roomId],
+    queryKey: ['/api/rooms', roomId],
     enabled: !!roomId,
   });
 
   const { data: assets = [], refetch: refetchAssets } = useQuery({
-    queryKey: ["/api/rooms", roomId, "assets"],
+    queryKey: ['/api/rooms', roomId, 'assets'],
     enabled: !!roomId,
   });
 
   const { data: boardAssets = [], refetch: refetchBoardAssets } = useQuery({
-    queryKey: ["/api/rooms", roomId, "board-assets"],
+    queryKey: ['/api/rooms', roomId, 'board-assets'],
     enabled: !!roomId,
   });
 
   const { data: roomPlayers = [] } = useQuery<RoomPlayerWithName[]>({
-    queryKey: ["/api/rooms", roomId, "players"],
+    queryKey: ['/api/rooms', roomId, 'players'],
     enabled: !!roomId,
   });
 
   // Fetch card piles and decks
   const { data: cardPiles = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "piles"],
+    queryKey: ['/api/rooms', roomId, 'piles'],
     enabled: !!roomId,
   });
 
   const { data: cardDecks = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "decks"],
+    queryKey: ['/api/rooms', roomId, 'decks'],
     enabled: !!roomId,
   });
 
@@ -76,32 +76,32 @@ export default function GameRoom() {
         case 'dice_rolled':
           console.log('Dice roll received via WebSocket:', message.payload);
           toast({
-            title: "Dice Rolled",
+            title: 'Dice Rolled',
             description: `${message.payload.diceCount}d${message.payload.diceType.substring(1)} = ${message.payload.total}`,
           });
           break;
         case 'player_joined':
           toast({
-            title: "Player Joined",
+            title: 'Player Joined',
             description: `${message.payload.player.name} joined the room`,
           });
           break;
         case 'player_left':
           toast({
-            title: "Player Left",
-            description: "A player left the room",
+            title: 'Player Left',
+            description: 'A player left the room',
           });
           break;
         case 'player_score_updated':
           // Refetch room players to get updated scores
-          queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "players"] });
+          queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'players'] });
           toast({
-            title: "Score Updated",
+            title: 'Score Updated',
             description: `${message.payload.playerName}'s score: ${message.payload.score}`,
           });
           break;
       }
-    }
+    },
   });
 
   // Join room and get user role
@@ -110,24 +110,24 @@ export default function GameRoom() {
       if (roomId && user) {
         try {
           // Join the room first
-          const joinResponse = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/join`);
+          const joinResponse = await authenticatedApiRequest('POST', `/api/rooms/${roomId}/join`);
           const joinData = await joinResponse.json();
-          
+
           // Get user role
-          const roleResponse = await authenticatedApiRequest("GET", `/api/rooms/${roomId}/role`);
+          const roleResponse = await authenticatedApiRequest('GET', `/api/rooms/${roomId}/role`);
           const roleData = await roleResponse.json();
-          
+
           setUserRole(roleData.role);
-          
+
           // Clear the joining flag after successfully joining
           sessionStorage.removeItem('joining-room');
         } catch (error) {
-          console.error("Error joining room or getting role:", error);
+          console.error('Error joining room or getting role:', error);
           sessionStorage.removeItem('joining-room');
           toast({
-            title: "Error",
-            description: "Failed to join room. Please try again.",
-            variant: "destructive",
+            title: 'Error',
+            description: 'Failed to join room. Please try again.',
+            variant: 'destructive',
           });
         }
       }
@@ -142,7 +142,7 @@ export default function GameRoom() {
       sendMessage({
         type: 'join_room',
         roomId,
-        payload: { player: currentPlayer }
+        payload: { player: currentPlayer },
       });
     }
   }, [connected, roomId, sendMessage, currentPlayer]);
@@ -161,7 +161,7 @@ export default function GameRoom() {
     sendMessage({
       type: 'asset_moved',
       roomId: actualRoomId,
-      payload: { assetId, positionX: x, positionY: y }
+      payload: { assetId, positionX: x, positionY: y },
     });
   };
 
@@ -177,8 +177,8 @@ export default function GameRoom() {
         diceType,
         diceCount,
         results,
-        total
-      }
+        total,
+      },
     });
   };
 

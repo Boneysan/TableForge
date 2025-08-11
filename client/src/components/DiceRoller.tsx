@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Plus, Minus, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import type { DiceRoll } from "@shared/schema";
+import { useState } from 'react';
+import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Plus, Minus, RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import type { DiceRoll } from '@shared/schema';
 
 interface DiceRollerProps {
   onDiceRolled: (diceType: string, diceCount: number, results: number[], total: number) => void;
@@ -24,25 +24,25 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
   const [selectedDice, setSelectedDice] = useState<DiceSelection[]>([]);
 
   const diceTypes = [
-    { type: "d4", sides: 4, icon: "🔺" },
-    { type: "d6", sides: 6, icon: "🎲" },
-    { type: "d8", sides: 8, icon: "🔶" },
-    { type: "d10", sides: 10, icon: "🔹" },
-    { type: "d12", sides: 12, icon: "🔸" },
-    { type: "d20", sides: 20, icon: "🎯" },
+    { type: 'd4', sides: 4, icon: '🔺' },
+    { type: 'd6', sides: 6, icon: '🎲' },
+    { type: 'd8', sides: 8, icon: '🔶' },
+    { type: 'd10', sides: 10, icon: '🔹' },
+    { type: 'd12', sides: 12, icon: '🔸' },
+    { type: 'd20', sides: 20, icon: '🎯' },
   ];
 
-  const rollDice = async (sides: number, count: number = 1, diceType: string) => {
+  const rollDice = async (sides: number, count = 1, diceType: string) => {
     setIsRolling(true);
-    
+
     // Simulate rolling animation delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     const results: number[] = [];
     for (let i = 0; i < count; i++) {
       results.push(Math.floor(Math.random() * sides) + 1);
     }
-    
+
     const total = results.reduce((sum, result) => sum + result, 0);
     onDiceRolled(diceType, count, results, total);
     setIsRolling(false);
@@ -51,8 +51,8 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
   const addDiceToSelection = (dice: { type: string; sides: number; icon: string }) => {
     const existing = selectedDice.find(d => d.type === dice.type);
     if (existing) {
-      setSelectedDice(prev => 
-        prev.map(d => d.type === dice.type ? { ...d, count: d.count + 1 } : d)
+      setSelectedDice(prev =>
+        prev.map(d => d.type === dice.type ? { ...d, count: d.count + 1 } : d),
       );
     } else {
       setSelectedDice(prev => [...prev, { ...dice, count: 1 }]);
@@ -76,30 +76,30 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
 
   const rollSelectedDice = async () => {
     if (selectedDice.length === 0) return;
-    
+
     setIsRolling(true);
-    
+
     // Simulate rolling animation delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Roll each type of dice
     const allResults: number[] = [];
     const rollDetails: string[] = [];
-    
+
     for (const dice of selectedDice) {
       const results: number[] = [];
       for (let i = 0; i < dice.count; i++) {
         results.push(Math.floor(Math.random() * dice.sides) + 1);
       }
       allResults.push(...results);
-      
+
       const diceTotal = results.reduce((sum, result) => sum + result, 0);
       rollDetails.push(`${dice.count}${dice.type}=${diceTotal}${dice.count > 1 ? `(${results.join(',')})` : ''}`);
     }
-    
+
     const grandTotal = allResults.reduce((sum, result) => sum + result, 0);
     const combinedType = rollDetails.join(' + ');
-    
+
     onDiceRolled(combinedType, allResults.length, allResults, grandTotal);
     setIsRolling(false);
   };
@@ -110,11 +110,11 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
 
   const handleCustomDiceRoll = () => {
     if (customCount < 1 || customCount > 10) {
-      alert("Dice count must be between 1 and 10");
+      alert('Dice count must be between 1 and 10');
       return;
     }
     if (customSides < 2 || customSides > 100) {
-      alert("Dice sides must be between 2 and 100");
+      alert('Dice sides must be between 2 and 100');
       return;
     }
     rollDice(customSides, customCount, `d${customSides}`);
@@ -126,7 +126,7 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
         <Dice1 className="mr-2 text-[#F59E0B]" />
         Dice Roller
       </h3>
-      
+
       {/* Quick Roll - Standard Dice */}
       <div className="mb-4">
         <h4 className="text-sm font-medium text-gray-300 mb-2">Quick Roll</h4>
@@ -165,7 +165,7 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
             </Button>
           )}
         </div>
-        
+
         {/* Add dice to selection */}
         <div className="grid grid-cols-3 gap-2 mb-3">
           {diceTypes.map((dice) => (
@@ -191,8 +191,8 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
             <div className="flex flex-wrap gap-1 mb-3">
               {selectedDice.map((dice) => (
                 <div key={dice.type} className="flex items-center">
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className="bg-[#10B981] text-white text-xs px-2 py-1 flex items-center gap-1"
                     data-testid={`badge-selected-${dice.type}`}
                   >
@@ -214,12 +214,12 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
               className="w-full bg-[#10B981] hover:bg-green-600 text-white"
               data-testid="button-roll-selected"
             >
-              {isRolling ? "Rolling..." : `Roll All (${selectedDice.reduce((sum, d) => sum + d.count, 0)} dice)`}
+              {isRolling ? 'Rolling...' : `Roll All (${selectedDice.reduce((sum, d) => sum + d.count, 0)} dice)`}
             </Button>
           </div>
         )}
       </div>
-      
+
       {/* Custom Dice Roll */}
       <div className="mb-4">
         <h4 className="text-sm font-medium text-gray-300 mb-2">Custom Dice</h4>
@@ -251,11 +251,11 @@ export function DiceRoller({ onDiceRolled, diceRolls }: DiceRollerProps) {
           className="flex-1 bg-[#2563EB] hover:bg-blue-700 text-sm"
           data-testid="button-roll-custom"
         >
-          {isRolling ? "Rolling..." : "Roll"}
+          {isRolling ? 'Rolling...' : 'Roll'}
           </Button>
         </div>
       </div>
-      
+
       {/* Dice Results */}
       <div className="bg-[#1F2937] p-3 rounded-lg">
         <div className="text-sm text-gray-400 mb-2">Recent Rolls:</div>

@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Folder, Upload, ChevronDown, ChevronUp, Layers, Coins, Map, Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { BulkUploader } from "@/components/BulkUploader";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useDragAndDrop } from "@/hooks/useDragAndDrop";
-import type { GameAsset } from "@shared/schema";
-import type { UploadResult } from "@uppy/core";
+import { useState, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { Folder, Upload, ChevronDown, ChevronUp, Layers, Coins, Map, Package } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ObjectUploader } from '@/components/ObjectUploader';
+import { BulkUploader } from '@/components/BulkUploader';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
+import type { GameAsset } from '@shared/schema';
+import type { UploadResult } from '@uppy/core';
 
 interface AssetLibraryProps {
   roomId: string;
@@ -19,9 +19,9 @@ interface AssetLibraryProps {
 
 export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['cards', 'tokens', 'map'])
+    new Set(['cards', 'tokens', 'map']),
   );
-  const [selectedCategory, setSelectedCategory] = useState<string>("auto");
+  const [selectedCategory, setSelectedCategory] = useState<string>('auto');
   const { toast } = useToast();
   const { dragStart } = useDragAndDrop();
 
@@ -48,27 +48,27 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
       height?: number;
       uploadedBy: string;
     }) => {
-      const response = await apiRequest("POST", "/api/assets", data);
+      const response = await apiRequest('POST', '/api/assets', data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "assets"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'assets'] });
       onAssetUploaded();
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to save asset. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to save asset. Please try again.',
+        variant: 'destructive',
       });
     },
   });
 
   const getUploadParameters = async () => {
-    const response = await apiRequest("POST", "/api/objects/upload", {});
+    const response = await apiRequest('POST', '/api/objects/upload', {});
     const data = await response.json();
     return {
-      method: "PUT" as const,
+      method: 'PUT' as const,
       url: data.uploadURL,
     };
   };
@@ -76,11 +76,11 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const file = result.successful[0];
-      const fileName = file.name || "Untitled Asset";
-      
+      const fileName = file.name || 'Untitled Asset';
+
       // Determine file type based on user selection or automatic detection
       let fileType: string;
-      if (selectedCategory === "auto") {
+      if (selectedCategory === 'auto') {
         // Use automatic detection based on filename
         fileType = fileName.toLowerCase().includes('card') ? 'card' :
                   fileName.toLowerCase().includes('token') ? 'token' :
@@ -94,8 +94,8 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
         roomId,
         name: fileName,
         type: fileType,
-        filePath: file.uploadURL || "",
-        uploadedBy: "mock-user-id", // In a real app, get from auth
+        filePath: file.uploadURL || '',
+        uploadedBy: 'mock-user-id', // In a real app, get from auth
       });
     }
   };
@@ -111,30 +111,30 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   };
 
   const categorizedAssets = {
-    cards: assets.filter(asset => 
-      asset.type === 'card' || 
+    cards: assets.filter(asset =>
+      asset.type === 'card' ||
       (asset.type?.startsWith('image/') && (
         asset.name?.toLowerCase().includes('card') ||
         asset.name?.toLowerCase().includes('.jpg') ||
         asset.name?.toLowerCase().includes('.jpeg') ||
         asset.name?.toLowerCase().includes('.png')
-      ))
+      )),
     ),
-    tokens: assets.filter(asset => 
-      asset.type === 'token' || 
-      (asset.type?.startsWith('image/') && asset.name?.toLowerCase().includes('token'))
+    tokens: assets.filter(asset =>
+      asset.type === 'token' ||
+      (asset.type?.startsWith('image/') && asset.name?.toLowerCase().includes('token')),
     ),
-    map: assets.filter(asset => 
-      asset.type === 'map' || 
-      (asset.type?.startsWith('image/') && asset.name?.toLowerCase().includes('map'))
+    map: assets.filter(asset =>
+      asset.type === 'map' ||
+      (asset.type?.startsWith('image/') && asset.name?.toLowerCase().includes('map')),
     ),
-    other: assets.filter(asset => 
-      !['card', 'token', 'map'].includes(asset.type || '') && 
+    other: assets.filter(asset =>
+      !['card', 'token', 'map'].includes(asset.type || '') &&
       !(asset.type?.startsWith('image/') && (
         asset.name?.toLowerCase().includes('card') ||
         asset.name?.toLowerCase().includes('token') ||
         asset.name?.toLowerCase().includes('map')
-      ))
+      )),
     ),
   };
 
@@ -145,7 +145,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
     tokens: categorizedAssets.tokens.length,
     map: categorizedAssets.map.length,
     other: categorizedAssets.other.length,
-    sampleTypes: assets.slice(0, 3).map(a => a.type)
+    sampleTypes: assets.slice(0, 3).map(a => a.type),
   });
 
   const categoryIcons = {
@@ -156,13 +156,11 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
   };
 
   const categoryColors = {
-    cards: "text-[#7C3AED]",
-    tokens: "text-[#F59E0B]",
-    map: "text-[#10B981]",
-    other: "text-gray-400",
+    cards: 'text-[#7C3AED]',
+    tokens: 'text-[#F59E0B]',
+    map: 'text-[#10B981]',
+    other: 'text-gray-400',
   };
-
-
 
   const handleAssetDragStart = (asset: GameAsset, event: React.DragEvent) => {
     dragStart(event, {
@@ -178,7 +176,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
           <Folder className="mr-2 text-[#10B981]" />
           Game Assets
         </h2>
-        
+
         {/* Category Selection */}
         <div className="mb-3">
           <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -209,7 +207,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="grid grid-cols-1 gap-2">
           <ObjectUploader
             maxNumberOfFiles={10}
@@ -221,7 +219,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
             <Upload className="mr-2 w-4 h-4" />
             Upload Assets (up to 10)
           </ObjectUploader>
-          
+
           <BulkUploader
             maxTotalFiles={200}
             batchSize={20}
@@ -238,16 +236,16 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
           </BulkUploader>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-4">
         {Object.entries(categorizedAssets).map(([category, categoryAssets]) => {
           const Icon = categoryIcons[category as keyof typeof categoryIcons];
           const iconColor = categoryColors[category as keyof typeof categoryColors];
           const isExpanded = expandedCategories.has(category);
-          
+
           return (
             <div key={category} className="mb-6">
-              <button 
+              <button
                 className="flex items-center justify-between w-full text-left mb-2 text-gray-300 hover:text-white transition-colors"
                 onClick={() => toggleCategory(category)}
                 data-testid={`button-toggle-${category}`}
@@ -262,7 +260,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                   <ChevronDown className="w-4 h-4" />
                 )}
               </button>
-              
+
               {isExpanded && (
                 <div className="space-y-2 ml-6">
                   {categoryAssets.length === 0 ? (
@@ -278,8 +276,8 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                         onDragStart={(e) => handleAssetDragStart(asset, e)}
                         data-testid={`asset-${asset.id}`}
                       >
-                        <img 
-                          src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/') 
+                        <img
+                          src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/')
                             ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
                             : asset.filePath}
                           alt={asset.name}
@@ -291,7 +289,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                             console.error(`❌ [AssetLibrary] Original URL: ${asset.filePath}`);
                             console.error(`❌ [AssetLibrary] Attempted URL: ${target.src}`);
                             console.error(`❌ [AssetLibrary] Error event:`, e);
-                            target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjNEI1NTYzIi8+CjxwYXRoIGQ9Ik0xNiA5QzEyLjEzNCA5IDkgMTIuMTM0IDkgMTZTMTIuMTM0IDIzIDE2IDIzUzIzIDE5Ljg2NiAyMyAxNlMxOS44NjYgOSAxNiA5Wk0xNiAyMUMxMy4yMzkgMjEgMTEgMTguNzYxIDExIDE2UzEzLjIzOSAxMSAxNiAxMVMxOSAxMy4yMzkgMTkgMTZTMTguNzYxIDIxIDE2IDIxWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K";
+                            target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjNEI1NTYzIi8+CjxwYXRoIGQ9Ik0xNiA5QzEyLjEzNCA5IDkgMTIuMTM0IDkgMTZTMTIuMTM0IDIzIDE2IDIzUzIzIDE5Ljg2NiAyMyAxNlMxOS44NjYgOSAxNiA5Wk0xNiAyMUMxMy4yMzkgMjEgMTEgMTguNzYxIDExIDE2UzEzLjIzOSAxMSAxNiAxMVMxOSAxMy4yMzkgMTkgMTZTMTguNzYxIDIxIDE2IDIxWiIgZmlsbD0iIzZCNzI4MCIvPgo8L3N2Zz4K';
                           }}
                           onLoad={() => {
                             console.log(`✅ [AssetLibrary] Successfully loaded image for ${asset.name}`);

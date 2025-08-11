@@ -1,6 +1,6 @@
-import { File } from "@google-cloud/storage";
+import type { File } from '@google-cloud/storage';
 
-const ACL_POLICY_METADATA_KEY = "custom:aclPolicy";
+const ACL_POLICY_METADATA_KEY = 'custom:aclPolicy';
 
 // The type of the access group.
 //
@@ -36,8 +36,8 @@ export interface ObjectAccessGroup {
 }
 
 export enum ObjectPermission {
-  READ = "read",
-  WRITE = "write",
+  READ = 'read',
+  WRITE = 'write',
 }
 
 export interface ObjectAclRule {
@@ -51,8 +51,8 @@ export interface ObjectAclRule {
 // - value: JSON string of the ObjectAclPolicy object.
 export interface ObjectAclPolicy {
   owner: string;
-  visibility: "public" | "private";
-  aclRules?: Array<ObjectAclRule>;
+  visibility: 'public' | 'private';
+  aclRules?: ObjectAclRule[];
 }
 
 // Check if the requested permission is allowed based on the granted permission.
@@ -149,7 +149,7 @@ export async function canAccessObject({
 
   // Public objects are always accessible for read.
   if (
-    aclPolicy.visibility === "public" &&
+    aclPolicy.visibility === 'public' &&
     requestedPermission === ObjectPermission.READ
   ) {
     return true;

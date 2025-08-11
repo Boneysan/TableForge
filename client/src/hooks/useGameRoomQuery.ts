@@ -1,6 +1,6 @@
 /**
  * Centralized React Query hooks for game room data
- * 
+ *
  * Provides consistent query patterns with:
  * - Stable query keys
  * - Standard error handling
@@ -8,19 +8,19 @@
  * - WebSocket invalidation support
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { queryKeys } from "@/lib/queryKeys";
-import { useOptimisticUpdates } from "./useOptimisticUpdates";
-import { useToast } from "./use-toast";
-import type { 
-  GameRoom, 
-  CardDeck, 
-  CardPile, 
-  GameAsset, 
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { useOptimisticUpdates } from './useOptimisticUpdates';
+import { useToast } from './use-toast';
+import type {
+  GameRoom,
+  CardDeck,
+  CardPile,
+  GameAsset,
   RoomPlayerWithName,
-  ChatMessage 
-} from "@shared/schema";
+  ChatMessage,
+} from '@shared/schema';
 
 // Room data hooks
 export function useGameRoom(roomId: string) {
@@ -103,26 +103,26 @@ export function useCreateDeck(roomId: string) {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: { 
-      name: string; 
-      description: string; 
+    mutationFn: async (data: {
+      name: string;
+      description: string;
       deckOrder: string[];
       cardBackId?: string;
     }) => {
-      const response = await apiRequest("POST", `/api/rooms/${roomId}/decks`, data);
+      const response = await apiRequest('POST', `/api/rooms/${roomId}/decks`, data);
       return response.json();
     },
     onSuccess: (newDeck) => {
       // Optimistically add the deck
       queryClient.setQueryData(
-        queryKeys.decks.all(roomId), 
-        (oldDecks: CardDeck[] | undefined) => oldDecks ? [...oldDecks, newDeck] : [newDeck]
+        queryKeys.decks.all(roomId),
+        (oldDecks: CardDeck[] | undefined) => oldDecks ? [...oldDecks, newDeck] : [newDeck],
       );
-      
-      toast({ title: "Deck created successfully!" });
+
+      toast({ title: 'Deck created successfully!' });
     },
     onError: () => {
-      toast({ title: "Failed to create deck", variant: "destructive" });
+      toast({ title: 'Failed to create deck', variant: 'destructive' });
     },
   });
 }
@@ -136,9 +136,9 @@ export function useShuffleDeck(roomId: string) {
     mutationFn: async (deckId: string) => {
       // Apply optimistic update
       const rollback = optimisticDeckShuffle(deckId);
-      
+
       try {
-        const response = await apiRequest("POST", `/api/rooms/${roomId}/decks/${deckId}/shuffle`);
+        const response = await apiRequest('POST', `/api/rooms/${roomId}/decks/${deckId}/shuffle`);
         return response.json();
       } catch (error) {
         rollback(); // Rollback on error
@@ -148,10 +148,10 @@ export function useShuffleDeck(roomId: string) {
     onSuccess: (data, deckId) => {
       // Invalidate to get real data
       queryClient.invalidateQueries({ queryKey: queryKeys.decks.byId(roomId, deckId) });
-      toast({ title: "Deck shuffled!" });
+      toast({ title: 'Deck shuffled!' });
     },
     onError: () => {
-      toast({ title: "Failed to shuffle deck", variant: "destructive" });
+      toast({ title: 'Failed to shuffle deck', variant: 'destructive' });
     },
   });
 }
@@ -169,9 +169,9 @@ export function useDrawCards(roomId: string) {
     }) => {
       // Apply optimistic update
       const rollback = optimisticCardDraw(deckId, count);
-      
+
       try {
-        const response = await apiRequest("POST", `/api/rooms/${roomId}/decks/${deckId}/draw`, {
+        const response = await apiRequest('POST', `/api/rooms/${roomId}/decks/${deckId}/draw`, {
           playerId,
           count,
         });
@@ -185,14 +185,14 @@ export function useDrawCards(roomId: string) {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: queryKeys.decks.byId(roomId, variables.deckId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.piles.all(roomId) });
-      
-      toast({ 
+
+      toast({
         title: `Drew ${variables.count || 1} card${(variables.count || 1) > 1 ? 's' : ''}!`,
-        description: "Cards added to your hand"
+        description: 'Cards added to your hand',
       });
     },
     onError: () => {
-      toast({ title: "Failed to draw cards", variant: "destructive" });
+      toast({ title: 'Failed to draw cards', variant: 'destructive' });
     },
   });
 }
@@ -207,15 +207,15 @@ export function useCreatePile(roomId: string) {
       name: string;
       positionX: number;
       positionY: number;
-      pileType: "custom" | "deck" | "discard" | "hand";
-      visibility: "public" | "owner" | "gm";
+      pileType: 'custom' | 'deck' | 'discard' | 'hand';
+      visibility: 'public' | 'owner' | 'gm';
       ownerId?: string;
     }) => {
       // Apply optimistic update
       const rollback = optimisticPileCreate(data);
-      
+
       try {
-        const response = await apiRequest("POST", `/api/rooms/${roomId}/piles`, data);
+        const response = await apiRequest('POST', `/api/rooms/${roomId}/piles`, data);
         return response.json();
       } catch (error) {
         rollback(); // Rollback on error
@@ -228,16 +228,16 @@ export function useCreatePile(roomId: string) {
         queryKeys.piles.all(roomId),
         (oldPiles: CardPile[] | undefined) => {
           if (!oldPiles) return [newPile];
-          return oldPiles.map(pile => 
-            pile.id.startsWith('temp-') ? newPile : pile
+          return oldPiles.map(pile =>
+            pile.id.startsWith('temp-') ? newPile : pile,
           );
-        }
+        },
       );
-      
-      toast({ title: "Card pile created successfully!" });
+
+      toast({ title: 'Card pile created successfully!' });
     },
     onError: () => {
-      toast({ title: "Failed to create pile", variant: "destructive" });
+      toast({ title: 'Failed to create pile', variant: 'destructive' });
     },
   });
 }
@@ -256,9 +256,9 @@ export function useMoveAsset(roomId: string) {
     }) => {
       // Apply optimistic update
       const rollback = optimisticAssetMove(assetId, { x: positionX, y: positionY }, rotation);
-      
+
       try {
-        const response = await apiRequest("PUT", `/api/rooms/${roomId}/board-assets/${assetId}`, {
+        const response = await apiRequest('PUT', `/api/rooms/${roomId}/board-assets/${assetId}`, {
           positionX,
           positionY,
           rotation,
@@ -273,7 +273,7 @@ export function useMoveAsset(roomId: string) {
       // Let optimistic update stand, will be confirmed by WebSocket
     },
     onError: () => {
-      toast({ title: "Failed to move asset", variant: "destructive" });
+      toast({ title: 'Failed to move asset', variant: 'destructive' });
     },
   });
 }

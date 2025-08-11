@@ -20,13 +20,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { 
-  Accessibility, 
-  Contrast, 
+import {
+  Accessibility,
+  Contrast,
   Keyboard,
   Eye,
   Volume2,
-  Settings
+  Settings,
 } from 'lucide-react';
 
 interface AccessibleGameBoardProps {
@@ -95,7 +95,7 @@ export function AccessibleGameBoard({
     }
 
     onAssetMove(selectedAsset.id, newX, newY);
-    
+
     if (announceActions) {
       announceAction(`Moved ${selectedAsset.name || 'asset'} ${direction} by ${distance} pixels`);
     }
@@ -116,7 +116,7 @@ export function AccessibleGameBoard({
 
     if (nextIndex >= 0 && assets[nextIndex]) {
       onAssetSelect?.(assets[nextIndex].id);
-      
+
       if (announceActions) {
         announceAction(`Selected ${assets[nextIndex].name || 'asset'}`);
       }
@@ -126,7 +126,7 @@ export function AccessibleGameBoard({
   // Recenter board view
   const handleRecenterBoard = useCallback(() => {
     setViewport({ x: 0, y: 0, scale: 1 });
-    
+
     if (announceActions) {
       announceAction('Board view recentered');
     }
@@ -146,12 +146,12 @@ export function AccessibleGameBoard({
   // Handle asset actions
   const handleRotateAsset = useCallback((degrees: number) => {
     if (!selectedAsset || !onAssetMove) return;
-    
+
     const currentRotation = selectedAsset.rotation || 0;
     const newRotation = (currentRotation + degrees) % 360;
-    
+
     onAssetMove(selectedAsset.id, selectedAsset.positionX || 0, selectedAsset.positionY || 0, newRotation);
-    
+
     if (announceActions) {
       announceAction(`Rotated ${selectedAsset.name || 'asset'} ${degrees > 0 ? 'clockwise' : 'counterclockwise'}`);
     }
@@ -182,11 +182,11 @@ export function AccessibleGameBoard({
     setHighContrastMode(prev => {
       const newMode = !prev;
       document.documentElement.classList.toggle('high-contrast', newMode);
-      
+
       if (announceActions) {
         announceAction(`High contrast mode ${newMode ? 'enabled' : 'disabled'}`);
       }
-      
+
       return newMode;
     });
   }, [announceActions]);
@@ -234,7 +234,7 @@ export function AccessibleGameBoard({
 
   return (
     <TooltipProvider>
-      <div 
+      <div
         ref={boardRef}
         className={`
           relative w-full h-full flex flex-col
@@ -268,7 +268,7 @@ export function AccessibleGameBoard({
             {/* Accessibility Status */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Badge 
+                <Badge
                   variant={accessibilityStatus === 'excellent' ? 'default' : 'secondary'}
                   className={`
                     ${accessibilityStatus === 'excellent' ? 'bg-green-500' : ''}
@@ -392,10 +392,10 @@ export function AccessibleGameBoard({
         />
 
         {/* Screen Reader Status Region */}
-        <div 
-          role="status" 
-          aria-live="polite" 
-          aria-atomic="true" 
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
           className="sr-only"
           data-testid="screen-reader-status"
         >

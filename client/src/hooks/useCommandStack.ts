@@ -105,7 +105,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
       if (!skipHistory) {
         setState(prev => {
           let newUndoStack = [...prev.undoStack];
-          let newRedoStack: Command[] = [];
+          const newRedoStack: Command[] = [];
 
           // Check if we can merge with the last command
           if (newUndoStack.length > 0 && canMergeCommands(newUndoStack[newUndoStack.length - 1], command)) {
@@ -115,7 +115,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
           } else {
             // Add new command to stack
             newUndoStack.push(command);
-            
+
             // Limit stack size
             if (newUndoStack.length > maxStackSize) {
               newUndoStack = newUndoStack.slice(-maxStackSize);
@@ -158,7 +158,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
     if (state.undoStack.length === 0 || state.isExecuting) return false;
 
     const command = state.undoStack[state.undoStack.length - 1];
-    
+
     setState(prev => ({ ...prev, isExecuting: true }));
 
     try {
@@ -196,7 +196,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
     if (state.redoStack.length === 0 || state.isExecuting) return false;
 
     const command = state.redoStack[0];
-    
+
     setState(prev => ({ ...prev, isExecuting: true }));
 
     try {
@@ -272,7 +272,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
     executeFunction: () => Promise<void> | void,
     undoFunction: () => Promise<void> | void,
     data?: any,
-    redoFunction?: () => Promise<void> | void
+    redoFunction?: () => Promise<void> | void,
   ): Command => {
     return {
       id: generateCommandId(),
@@ -334,7 +334,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
     canRedo: state.redoStack.length > 0 && !state.isExecuting,
     isExecuting: state.isExecuting,
     stackSize: state.undoStack.length,
-    
+
     // Actions
     executeCommand: executeAndTrack,
     undo,
@@ -342,7 +342,7 @@ export function useCommandStack(options: UseCommandStackOptions) {
     clearHistory,
     createCommand,
     queueCommand,
-    
+
     // Utilities
     getHistory,
     state,

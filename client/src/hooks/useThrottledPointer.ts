@@ -80,7 +80,7 @@ export function useThrottledPointer(options: UseThrottledPointerOptions): UseThr
   const calculateVelocity = useCallback((
     currentPos: { x: number; y: number },
     lastPos: { x: number; y: number } | null,
-    deltaTime: number
+    deltaTime: number,
   ): { x: number; y: number } => {
     if (!lastPos || deltaTime === 0) {
       return { x: 0, y: 0 };
@@ -178,7 +178,7 @@ export function useThrottledPointer(options: UseThrottledPointerOptions): UseThr
     if (!currentState.isDragging && currentState.dragStartPos) {
       const distance = Math.sqrt(
         Math.pow(e.clientX - currentState.dragStartPos.x, 2) +
-        Math.pow(e.clientY - currentState.dragStartPos.y, 2)
+        Math.pow(e.clientY - currentState.dragStartPos.y, 2),
       );
 
       if (distance >= dragThreshold) {
@@ -195,7 +195,7 @@ export function useThrottledPointer(options: UseThrottledPointerOptions): UseThr
       if (enableRafCoalescing) {
         // Add to pending events for coalescing
         pendingEvents.current.push(eventData);
-        
+
         // Schedule RAF if not already scheduled
         if (pendingRafId.current === null) {
           pendingRafId.current = requestAnimationFrame(processCoalescedEvents);

@@ -59,7 +59,7 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
   const [snapshots, setSnapshots] = useState<GameSnapshot[]>([]);
   const [isCreatingSnapshot, setIsCreatingSnapshot] = useState(false);
   const [isRestoringSnapshot, setIsRestoringSnapshot] = useState(false);
-  
+
   const lastAutoSnapshotRef = useRef<number>(0);
   const currentStateRef = useRef<GameState | null>(null);
   const { sendMessage, isConnected } = useWebSocket(roomId);
@@ -84,10 +84,10 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
   // Compress game state (simple JSON compression)
   const compressState = useCallback((state: GameState): string => {
     if (!enableCompression) return JSON.stringify(state);
-    
+
     // Simple compression: remove unnecessary whitespace and repeated keys
     const jsonStr = JSON.stringify(state);
-    
+
     // In a real implementation, you might use pako or similar for gzip compression
     return jsonStr;
   }, [enableCompression]);
@@ -100,27 +100,27 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
   // Calculate state diff between two states
   const calculateStateDiff = useCallback((oldState: GameState, newState: GameState) => {
     const diff: any = {};
-    
+
     // Compare assets
     if (JSON.stringify(oldState.assets) !== JSON.stringify(newState.assets)) {
       diff.assets = newState.assets;
     }
-    
+
     // Compare board
     if (JSON.stringify(oldState.board) !== JSON.stringify(newState.board)) {
       diff.board = newState.board;
     }
-    
+
     // Compare viewport
     if (JSON.stringify(oldState.viewport) !== JSON.stringify(newState.viewport)) {
       diff.viewport = newState.viewport;
     }
-    
+
     // Compare layers
     if (JSON.stringify(oldState.layers) !== JSON.stringify(newState.layers)) {
       diff.layers = newState.layers;
     }
-    
+
     return diff;
   }, []);
 
@@ -138,12 +138,12 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
     state: GameState,
     type: GameSnapshot['type'] = 'manual',
     name?: string,
-    description?: string
+    description?: string,
   ): Promise<GameSnapshot | null> => {
     if (isCreatingSnapshot) return null;
-    
+
     setIsCreatingSnapshot(true);
-    
+
     try {
       const snapshot: GameSnapshot = {
         id: generateSnapshotId(),
@@ -160,18 +160,18 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
         size: JSON.stringify(state).length,
         description,
       };
-      
+
       setSnapshots(prev => {
         let newSnapshots = [snapshot, ...prev];
-        
+
         // Remove old snapshots if over limit
         if (newSnapshots.length > maxSnapshots) {
           newSnapshots = newSnapshots.slice(0, maxSnapshots);
         }
-        
+
         return newSnapshots;
       });
-      
+
       // Backup to server if enabled
       if (enableServerBackup && isConnected) {
         sendMessage({
@@ -185,7 +185,7 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
           },
         });
       }
-      
+
       return snapshot;
     } catch (error) {
       console.error('Failed to create snapshot:', error);
@@ -210,27 +210,27 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
   // Restore from snapshot
   const restoreSnapshot = useCallback(async (
     snapshotId: string,
-    onRestore: (state: GameState) => Promise<void>
+    onRestore: (state: GameState) => Promise<void>,
   ): Promise<boolean> => {
     if (isRestoringSnapshot) return false;
-    
+
     const snapshot = snapshots.find(s => s.id === snapshotId);
     if (!snapshot) return false;
-    
+
     setIsRestoringSnapshot(true);
-    
+
     try {
       // Verify checksum
       const calculatedChecksum = calculateChecksum(snapshot.state);
       if (snapshot.state.checksum && calculatedChecksum !== snapshot.state.checksum) {
         console.warn('Snapshot checksum mismatch, data may be corrupted');
       }
-      
+
       await onRestore(snapshot.state);
-      
+
       // Update current state reference
       currentStateRef.current = snapshot.state;
-      
+
       // Notify server
       if (enableServerBackup && isConnected) {
         sendMessage({
@@ -241,7 +241,7 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
           },
         });
       }
-      
+
       return true;
     } catch (error) {
       console.error('Failed to restore snapshot:', error);
@@ -254,7 +254,7 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
   // Delete snapshot
   const deleteSnapshot = useCallback((snapshotId: string) => {
     setSnapshots(prev => prev.filter(s => s.id !== snapshotId));
-    
+
     // Notify server
     if (enableServerBackup && isConnected) {
       sendMessage({
@@ -272,15 +272,15 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
     const now = Date.now();
     const timeSinceLastSnapshot = now - lastAutoSnapshotRef.current;
     const intervalMs = autoSnapshotInterval * 60 * 1000; // Convert to milliseconds
-    
+
     if (timeSinceLastSnapshot >= intervalMs) {
       const snapshot = await createSnapshot(
         currentState,
         'auto',
         `Auto save ${new Date(now).toLocaleTimeString()}`,
-        'Automatic snapshot'
+        'Automatic snapshot',
       );
-      
+
       if (snapshot) {
         lastAutoSnapshotRef.current = now;
       }
@@ -305,14 +305,14 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
       if (exportData.roomId !== roomId) {
         console.warn('Importing snapshots from different room');
       }
-      
+
       const importedSnapshots = exportData.snapshots.map((snapshot: any) => ({
         ...snapshot,
-        state: typeof snapshot.state === 'string' 
-          ? decompressState(snapshot.state) 
+        state: typeof snapshot.state === 'string'
+          ? decompressState(snapshot.state)
           : snapshot.state,
       }));
-      
+
       setSnapshots(prev => [...importedSnapshots, ...prev].slice(0, maxSnapshots));
       return true;
     } catch (error) {
@@ -328,7 +328,7 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
       acc[snap.type] = (acc[snap.type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    
+
     return {
       totalSnapshots: snapshots.length,
       totalSize,
@@ -341,7 +341,7 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
   // Update current state (for auto-snapshot tracking)
   const updateCurrentState = useCallback((state: GameState) => {
     currentStateRef.current = state;
-    
+
     // Check if we need an auto snapshot
     if (autoSnapshotInterval > 0) {
       checkAutoSnapshot(state);
@@ -353,20 +353,20 @@ export function useGameSnapshot(options: UseGameSnapshotOptions) {
     snapshots,
     isCreatingSnapshot,
     isRestoringSnapshot,
-    
+
     // Actions
     createSnapshot,
     restoreSnapshot,
     deleteSnapshot,
     updateCurrentState,
-    
+
     // Import/Export
     exportSnapshots,
     importSnapshots,
-    
+
     // Utilities
     getStatistics,
-    
+
     // Current state
     currentState: currentStateRef.current,
   };

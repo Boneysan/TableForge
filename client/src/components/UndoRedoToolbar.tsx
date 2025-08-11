@@ -20,12 +20,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { 
-  Undo2, 
-  Redo2, 
-  History, 
-  Save, 
-  Clock, 
+import {
+  Undo2,
+  Redo2,
+  History,
+  Save,
+  Clock,
   ChevronDown,
   Trash2,
   Download,
@@ -77,12 +77,12 @@ export function UndoRedoToolbar({
 
   const handleCreateSnapshot = async () => {
     if (!currentGameState) return;
-    
+
     await createSnapshot(
       currentGameState,
       'manual',
       `Manual save ${new Date().toLocaleTimeString()}`,
-      'User created checkpoint'
+      'User created checkpoint',
     );
   };
 
@@ -196,7 +196,7 @@ export function UndoRedoToolbar({
           <DropdownMenuContent align="start" className="w-80">
             <DropdownMenuLabel>Command History</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            
+
             {history.undo.length === 0 && history.redo.length === 0 ? (
               <div className="p-2 text-sm text-muted-foreground">
                 No commands in history
@@ -222,7 +222,7 @@ export function UndoRedoToolbar({
                     <DropdownMenuSeparator />
                   </>
                 )}
-                
+
                 {history.undo.length > 0 && (
                   <>
                     <DropdownMenuLabel className="text-xs text-muted-foreground">
@@ -241,9 +241,9 @@ export function UndoRedoToolbar({
                     ))}
                   </>
                 )}
-                
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={clearHistory}
                   className="text-destructive text-xs"
                 >
@@ -292,7 +292,7 @@ export function UndoRedoToolbar({
           <DropdownMenuContent align="start" className="w-96">
             <DropdownMenuLabel>Game Snapshots</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            
+
             {snapshots.length === 0 ? (
               <div className="p-2 text-sm text-muted-foreground">
                 No snapshots available
@@ -300,7 +300,7 @@ export function UndoRedoToolbar({
             ) : (
               <>
                 {snapshots.slice(0, 10).map((snapshot) => (
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     key={snapshot.id}
                     onClick={() => handleRestoreSnapshot(snapshot.id)}
                     disabled={isRestoringSnapshot}
@@ -311,7 +311,7 @@ export function UndoRedoToolbar({
                         {snapshot.name || `Snapshot ${new Date(snapshot.timestamp).toLocaleString()}`}
                       </span>
                       <div className="flex items-center gap-2">
-                        <Badge 
+                        <Badge
                           variant={snapshot.type === 'manual' ? 'default' : 'secondary'}
                           className="h-5 text-xs"
                         >
@@ -339,15 +339,15 @@ export function UndoRedoToolbar({
                     </div>
                   </DropdownMenuItem>
                 ))}
-                
+
                 {snapshots.length > 10 && (
                   <div className="p-2 text-xs text-muted-foreground text-center">
                     ... and {snapshots.length - 10} more snapshots
                   </div>
                 )}
-                
+
                 <DropdownMenuSeparator />
-                
+
                 <div className="p-2 space-y-1">
                   <div className="text-xs text-muted-foreground">
                     Total: {stats.totalSnapshots} snapshots, {(stats.totalSize / 1024).toFixed(1)}KB
@@ -385,7 +385,7 @@ export function UndoRedoToolbar({
             Executing...
           </div>
         )}
-        
+
         {(isCreatingSnapshot || isRestoringSnapshot) && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />

@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Clock, 
-  Users, 
-  SkipForward, 
-  RotateCcw, 
-  Play, 
-  Pause, 
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Clock,
+  Users,
+  SkipForward,
+  RotateCcw,
+  Play,
+  Pause,
   Square,
-  Timer
-} from "lucide-react";
+  Timer,
+} from 'lucide-react';
 
 interface Player {
   id: string;
@@ -50,13 +50,13 @@ export function TurnTracker({
   onStartTimer,
   onPauseTimer,
   onStopTimer,
-  playerRole
+  playerRole,
 }: TurnTrackerProps) {
   const [customTime, setCustomTime] = useState(turnDuration);
   const [showTimeInput, setShowTimeInput] = useState(false);
 
   const currentPlayer = players[currentTurnIndex];
-  
+
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -64,9 +64,9 @@ export function TurnTracker({
   };
 
   const getTimeColor = () => {
-    if (timeRemaining <= 10) return "text-red-500";
-    if (timeRemaining <= 30) return "text-yellow-500";
-    return "text-green-500";
+    if (timeRemaining <= 10) return 'text-red-500';
+    if (timeRemaining <= 30) return 'text-yellow-500';
+    return 'text-green-500';
   };
 
   const handleSetCustomTime = () => {
@@ -92,7 +92,7 @@ export function TurnTracker({
             Current Turn
           </div>
           <div className="font-semibold text-lg">
-            {currentPlayer?.name || "No players"}
+            {currentPlayer?.name || 'No players'}
           </div>
           <div className="text-xs text-gray-500">
             Player {currentTurnIndex + 1} of {players.length}
@@ -133,7 +133,7 @@ export function TurnTracker({
                   </>
                 )}
               </Button>
-              
+
               <Button
                 size="sm"
                 variant="outline"
@@ -142,7 +142,7 @@ export function TurnTracker({
               >
                 <Square className="w-3 h-3" />
               </Button>
-              
+
               <Button
                 size="sm"
                 variant="outline"
@@ -198,7 +198,7 @@ export function TurnTracker({
                 <RotateCcw className="w-3 h-3 mr-1" />
                 Previous
               </Button>
-              
+
               <Button
                 size="sm"
                 onClick={onNextTurn}
@@ -241,7 +241,7 @@ export function TurnTracker({
                     {player.name}
                   </span>
                 </div>
-                
+
                 {index === currentTurnIndex && (
                   <Badge variant="default" className="text-xs">
                     Active

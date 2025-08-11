@@ -1,18 +1,18 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { config } from "./configLoader";
-import { 
-  createRateLimiter, 
-  createApiRateLimiter, 
+import express, { type Request, Response, NextFunction } from 'express';
+import { registerRoutes } from './routes';
+import { setupVite, serveStatic, log } from './vite';
+import { config } from './configLoader';
+import {
+  createRateLimiter,
+  createApiRateLimiter,
   createAuthRateLimiter,
   createSecurityHeaders,
   securityLogger,
-  healthCheck
-} from "./middleware";
-import { logger, healthCheck as loggerHealthCheck } from "./utils/logger";
-import { errorHandler, addCorrelationId, setupGlobalErrorHandlers } from "./middleware/errorHandler";
-import { JobScheduler } from "./jobs/jobScheduler";
+  healthCheck,
+} from './middleware';
+import { logger, healthCheck as loggerHealthCheck } from './utils/logger';
+import { errorHandler, addCorrelationId, setupGlobalErrorHandlers } from './middleware/errorHandler';
+import { JobScheduler } from './jobs/jobScheduler';
 
 const app = express();
 
@@ -51,16 +51,16 @@ app.use((req, res, next) => {
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
 
-  res.on("finish", () => {
+  res.on('finish', () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
+    if (path.startsWith('/api')) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
 
       if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
+        logLine = `${logLine.slice(0, 79)  }…`;
       }
 
       log(logLine);
@@ -77,13 +77,13 @@ app.use((req, res, next) => {
   let jobScheduler: JobScheduler | null = null;
   if (server) {
     // Extract WebSocket server from the HTTP server
-    const wss = (server as any).wss; 
+    const wss = (server as any).wss;
     if (wss) {
       jobScheduler = new JobScheduler(wss);
       jobScheduler.start();
-      
-      logger.info("✅ Job scheduler initialized and started", {
-        jobs: ['roomCleanup', 'assetCleanup', 'socketCleanup', 'healthCheck']
+
+      logger.info('✅ Job scheduler initialized and started', {
+        jobs: ['roomCleanup', 'assetCleanup', 'socketCleanup', 'healthCheck'],
       });
     }
   }
@@ -94,7 +94,7 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (app.get('env') === 'development') {
     await setupVite(app, server);
   } else {
     serveStatic(app);
@@ -103,15 +103,15 @@ app.use((req, res, next) => {
   // Use validated configuration for port
   server.listen({
     port: config.PORT,
-    host: "0.0.0.0",
+    host: '0.0.0.0',
     reusePort: true,
   }, () => {
     log(`serving on port ${config.PORT}`);
-    logger.info("🚀 Server started successfully", { 
+    logger.info('🚀 Server started successfully', {
       port: config.PORT,
       environment: process.env.NODE_ENV,
       version: process.env.npm_package_version,
-      jobScheduler: jobScheduler ? 'enabled' : 'disabled'
+      jobScheduler: jobScheduler ? 'enabled' : 'disabled',
     });
     loggerHealthCheck('server', 'healthy');
   });
@@ -119,14 +119,14 @@ app.use((req, res, next) => {
   // Graceful shutdown handling
   const gracefulShutdown = async (signal: string) => {
     logger.info(`📤 Graceful shutdown initiated by ${signal}`);
-    
+
     if (jobScheduler) {
-      logger.info("⏹️ Stopping job scheduler...");
+      logger.info('⏹️ Stopping job scheduler...');
       await jobScheduler.stop();
     }
-    
+
     server.close(() => {
-      logger.info("✅ Server closed successfully");
+      logger.info('✅ Server closed successfully');
       process.exit(0);
     });
   };

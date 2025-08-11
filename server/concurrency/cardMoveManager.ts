@@ -1,6 +1,6 @@
 /**
  * Card Move Concurrency Manager
- * 
+ *
  * Implements comprehensive concurrency control for card deck and pile operations:
  * - Optimistic concurrency control with version columns
  * - Append-only move ledger for audit trails and reconciliation
@@ -61,7 +61,7 @@ export interface ConflictResolution {
 
 export class CardMoveManager {
   private static instance: CardMoveManager;
-  
+
   public static getInstance(): CardMoveManager {
     if (!CardMoveManager.instance) {
       CardMoveManager.instance = new CardMoveManager();
@@ -74,14 +74,14 @@ export class CardMoveManager {
    */
   async executeMove(request: CardMoveRequest): Promise<CardMoveResult> {
     const correlationId = `move_${request.moveId}_${Date.now()}`;
-    
+
     logger.info('🎴 [Card Move] Starting move execution', {
       correlationId,
       moveId: request.moveId,
       clientId: request.clientId,
       moveType: request.moveType,
       playerId: request.playerId,
-      roomId: request.roomId
+      roomId: request.roomId,
     } as any);
 
     // Check for existing move (idempotency)
@@ -90,14 +90,14 @@ export class CardMoveManager {
       logger.info('🎴 [Card Move] Move already executed (idempotent)', {
         correlationId,
         existingMoveId: existingMove.id,
-        isApplied: existingMove.isApplied
+        isApplied: existingMove.isApplied,
       } as any);
-      
+
       return {
         success: existingMove.isApplied,
         moveId: request.moveId,
         sequenceNumber: existingMove.moveSequence,
-        error: existingMove.isApplied ? undefined : 'Move previously failed'
+        error: existingMove.isApplied ? undefined : 'Move previously failed',
       };
     }
 
@@ -106,22 +106,22 @@ export class CardMoveManager {
       return await db.transaction(async (tx) => {
         // Get next sequence number for room
         const sequenceNumber = await this.getNextSequenceNumber(tx, request.roomId);
-        
+
         // Validate and apply the move
         const result = await this.applyMoveWithConcurrencyControl(tx, request, sequenceNumber, correlationId);
-        
+
         // Record move in ledger
         await this.recordMoveInLedger(tx, request, sequenceNumber, result, correlationId);
-        
+
         logger.info('🎴 [Card Move] Move execution completed', {
           correlationId,
           success: result.success,
-          sequenceNumber
+          sequenceNumber,
         } as any);
 
         return {
           ...result,
-          sequenceNumber
+          sequenceNumber,
         };
       });
 
@@ -129,7 +129,7 @@ export class CardMoveManager {
       logger.error('🎴 [Card Move] Move execution failed', {
         correlationId,
         error: (error as Error).message,
-        stack: (error as Error).stack
+        stack: (error as Error).stack,
       } as any);
 
       // Record failed move in ledger for audit
@@ -138,14 +138,14 @@ export class CardMoveManager {
       } catch (ledgerError) {
         logger.error('🎴 [Card Move] Failed to record move failure', {
           correlationId,
-          ledgerError: (ledgerError as Error).message
+          ledgerError: (ledgerError as Error).message,
         } as any);
       }
 
       return {
         success: false,
         moveId: request.moveId,
-        error: (error as Error).message
+        error: (error as Error).message,
       };
     }
   }
@@ -154,19 +154,19 @@ export class CardMoveManager {
    * Apply move with optimistic concurrency control
    */
   private async applyMoveWithConcurrencyControl(
-    tx: any, 
-    request: CardMoveRequest, 
+    tx: any,
+    request: CardMoveRequest,
     sequenceNumber: number,
-    correlationId: string
+    correlationId: string,
   ): Promise<CardMoveResult> {
-    
+
     // Validate source state and version
     const sourceValidation = await this.validateEntityVersion(
-      tx, 
-      request.sourceType, 
-      request.sourceId, 
+      tx,
+      request.sourceType,
+      request.sourceId,
       request.expectedSourceVersion,
-      correlationId
+      correlationId,
     );
 
     if (!sourceValidation.valid) {
@@ -174,14 +174,14 @@ export class CardMoveManager {
         correlationId,
         expected: request.expectedSourceVersion,
         actual: sourceValidation.currentVersion,
-        sourceId: request.sourceId
+        sourceId: request.sourceId,
       } as any);
 
       return {
         success: false,
         moveId: request.moveId,
         error: 'Source version conflict',
-        conflictResolution: sourceValidation.conflictReason
+        conflictResolution: sourceValidation.conflictReason,
       };
     }
 
@@ -189,11 +189,11 @@ export class CardMoveManager {
     let targetValidation = { valid: true, currentVersion: undefined };
     if (request.targetId && request.targetId !== request.sourceId) {
       targetValidation = await this.validateEntityVersion(
-        tx, 
-        request.targetType, 
-        request.targetId, 
+        tx,
+        request.targetType,
+        request.targetId,
         request.expectedTargetVersion,
-        correlationId
+        correlationId,
       );
 
       if (!targetValidation.valid) {
@@ -201,42 +201,42 @@ export class CardMoveManager {
           correlationId,
           expected: request.expectedTargetVersion,
           actual: targetValidation.currentVersion,
-          targetId: request.targetId
+          targetId: request.targetId,
         } as any);
 
         return {
           success: false,
           moveId: request.moveId,
           error: 'Target version conflict',
-          conflictResolution: targetValidation.conflictReason
+          conflictResolution: targetValidation.conflictReason,
         };
       }
     }
 
     // Apply the actual move operations
     const moveResult = await this.executeMoveOperations(tx, request, correlationId);
-    
+
     if (!moveResult.success) {
       return moveResult;
     }
 
     // Update versions and last modified info
     const newSourceVersion = await this.incrementEntityVersion(
-      tx, 
-      request.sourceType, 
-      request.sourceId, 
+      tx,
+      request.sourceType,
+      request.sourceId,
       request.playerId,
-      correlationId
+      correlationId,
     );
 
     let newTargetVersion = undefined;
     if (request.targetId && request.targetId !== request.sourceId) {
       newTargetVersion = await this.incrementEntityVersion(
-        tx, 
-        request.targetType, 
-        request.targetId, 
+        tx,
+        request.targetType,
+        request.targetId,
         request.playerId,
-        correlationId
+        correlationId,
       );
     }
 
@@ -244,14 +244,14 @@ export class CardMoveManager {
       correlationId,
       newSourceVersion,
       newTargetVersion,
-      moveType: request.moveType
+      moveType: request.moveType,
     } as any);
 
     return {
       success: true,
       moveId: request.moveId,
       newSourceVersion,
-      newTargetVersion
+      newTargetVersion,
     };
   }
 
@@ -263,15 +263,15 @@ export class CardMoveManager {
     entityType: string,
     entityId: string | undefined,
     expectedVersion: number | undefined,
-    correlationId: string
+    correlationId: string,
   ): Promise<{ valid: boolean; currentVersion?: number; conflictReason?: string }> {
-    
+
     if (!entityId) {
       return { valid: true }; // No entity to validate
     }
 
     let currentEntity;
-    
+
     try {
       if (entityType === 'deck') {
         currentEntity = await tx.select().from(cardDecks).where(eq(cardDecks.id, entityId)).limit(1);
@@ -283,12 +283,12 @@ export class CardMoveManager {
         logger.warn('🎴 [Card Move] Entity not found during validation', {
           correlationId,
           entityType,
-          entityId
+          entityId,
         } as any);
-        
-        return { 
-          valid: false, 
-          conflictReason: `${entityType} not found` 
+
+        return {
+          valid: false,
+          conflictReason: `${entityType} not found`,
         };
       }
 
@@ -301,13 +301,13 @@ export class CardMoveManager {
           entityType,
           entityId,
           expectedVersion,
-          currentVersion
+          currentVersion,
         } as any);
 
         return {
           valid: false,
           currentVersion,
-          conflictReason: `Expected version ${expectedVersion}, found ${currentVersion}`
+          conflictReason: `Expected version ${expectedVersion}, found ${currentVersion}`,
         };
       }
 
@@ -318,12 +318,12 @@ export class CardMoveManager {
         correlationId,
         entityType,
         entityId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
 
-      return { 
-        valid: false, 
-        conflictReason: `Validation error: ${error.message}` 
+      return {
+        valid: false,
+        conflictReason: `Validation error: ${error.message}`,
       };
     }
   }
@@ -334,46 +334,46 @@ export class CardMoveManager {
   private async executeMoveOperations(
     tx: any,
     request: CardMoveRequest,
-    correlationId: string
+    correlationId: string,
   ): Promise<CardMoveResult> {
-    
+
     try {
       switch (request.moveType) {
         case 'card_to_pile':
           return await this.executeCardToPile(tx, request, correlationId);
-        
+
         case 'pile_to_pile':
           return await this.executePileToPile(tx, request, correlationId);
-        
+
         case 'shuffle':
           return await this.executeShuffle(tx, request, correlationId);
-        
+
         case 'pile_reorder':
           return await this.executePileReorder(tx, request, correlationId);
-        
+
         default:
           logger.error('🎴 [Card Move] Unknown move type', {
             correlationId,
-            moveType: request.moveType
+            moveType: request.moveType,
           } as any);
-          
+
           return {
             success: false,
             moveId: request.moveId,
-            error: `Unknown move type: ${request.moveType}`
+            error: `Unknown move type: ${request.moveType}`,
           };
       }
     } catch (error) {
       logger.error('🎴 [Card Move] Error executing move operations', {
         correlationId,
         moveType: request.moveType,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
 
       return {
         success: false,
         moveId: request.moveId,
-        error: `Move execution failed: ${(error as Error).message}`
+        error: `Move execution failed: ${(error as Error).message}`,
       };
     }
   }
@@ -384,20 +384,20 @@ export class CardMoveManager {
   private async executeCardToPile(
     tx: any,
     request: CardMoveRequest,
-    correlationId: string
+    correlationId: string,
   ): Promise<CardMoveResult> {
-    
+
     logger.info('🎴 [Card Move] Executing card to pile move', {
       correlationId,
       sourceType: request.sourceType,
       sourceId: request.sourceId,
       targetType: request.targetType,
       targetId: request.targetId,
-      cardCount: request.cardAssetIds.length
+      cardCount: request.cardAssetIds.length,
     } as any);
 
     // Get current source state
-    const sourceEntity = request.sourceType === 'deck' 
+    const sourceEntity = request.sourceType === 'deck'
       ? await tx.select().from(cardDecks).where(eq(cardDecks.id, request.sourceId!)).limit(1)
       : await tx.select().from(cardPiles).where(eq(cardPiles.id, request.sourceId!)).limit(1);
 
@@ -405,11 +405,11 @@ export class CardMoveManager {
       return {
         success: false,
         moveId: request.moveId,
-        error: 'Source entity not found'
+        error: 'Source entity not found',
       };
     }
 
-    // Get current target state  
+    // Get current target state
     const targetEntity = request.targetType === 'deck'
       ? await tx.select().from(cardDecks).where(eq(cardDecks.id, request.targetId!)).limit(1)
       : await tx.select().from(cardPiles).where(eq(cardPiles.id, request.targetId!)).limit(1);
@@ -418,7 +418,7 @@ export class CardMoveManager {
       return {
         success: false,
         moveId: request.moveId,
-        error: 'Target entity not found'
+        error: 'Target entity not found',
       };
     }
 
@@ -427,17 +427,17 @@ export class CardMoveManager {
 
     // Manipulate card orders
     let sourceCardOrder = (source.deckOrder || source.cardOrder || []) as string[];
-    let targetCardOrder = (target.deckOrder || target.cardOrder || []) as string[];
+    const targetCardOrder = (target.deckOrder || target.cardOrder || []) as string[];
 
     // Remove cards from source
     const sourceBeforeCount = sourceCardOrder.length;
     sourceCardOrder = sourceCardOrder.filter(cardId => !request.cardAssetIds.includes(cardId));
-    
+
     if (sourceCardOrder.length === sourceBeforeCount) {
       logger.warn('🎴 [Card Move] No cards were found in source to move', {
         correlationId,
         requestedCards: request.cardAssetIds,
-        sourceCards: sourceCardOrder
+        sourceCards: sourceCardOrder,
       } as any);
     }
 
@@ -449,10 +449,10 @@ export class CardMoveManager {
     }
 
     // Update source entity
-    const sourceUpdateData = request.sourceType === 'deck' 
+    const sourceUpdateData = request.sourceType === 'deck'
       ? { deckOrder: sourceCardOrder }
       : { cardOrder: sourceCardOrder };
-    
+
     if (request.sourceType === 'deck') {
       await tx.update(cardDecks)
         .set(sourceUpdateData)
@@ -467,7 +467,7 @@ export class CardMoveManager {
     const targetUpdateData = request.targetType === 'deck'
       ? { deckOrder: targetCardOrder }
       : { cardOrder: targetCardOrder };
-    
+
     if (request.targetType === 'deck') {
       await tx.update(cardDecks)
         .set(targetUpdateData)
@@ -481,12 +481,12 @@ export class CardMoveManager {
     logger.info('🎴 [Card Move] Card to pile move completed', {
       correlationId,
       sourceCardsRemaining: sourceCardOrder.length,
-      targetCardsTotal: targetCardOrder.length
+      targetCardsTotal: targetCardOrder.length,
     } as any);
 
     return {
       success: true,
-      moveId: request.moveId
+      moveId: request.moveId,
     };
   }
 
@@ -496,21 +496,21 @@ export class CardMoveManager {
   private async executePileToPile(
     tx: any,
     request: CardMoveRequest,
-    correlationId: string
+    correlationId: string,
   ): Promise<CardMoveResult> {
-    
+
     // Similar to card_to_pile but moves entire pile contents
     logger.info('🎴 [Card Move] Executing pile to pile move', {
       correlationId,
       sourceId: request.sourceId,
-      targetId: request.targetId
+      targetId: request.targetId,
     } as any);
 
     // Implementation would be similar to executeCardToPile but handling entire pile
     // This is a simplified version for demonstration
     return {
       success: true,
-      moveId: request.moveId
+      moveId: request.moveId,
     };
   }
 
@@ -520,13 +520,13 @@ export class CardMoveManager {
   private async executeShuffle(
     tx: any,
     request: CardMoveRequest,
-    correlationId: string
+    correlationId: string,
   ): Promise<CardMoveResult> {
-    
+
     logger.info('🎴 [Card Move] Executing shuffle', {
       correlationId,
       entityType: request.sourceType,
-      entityId: request.sourceId
+      entityId: request.sourceId,
     } as any);
 
     const entity = request.sourceType === 'deck'
@@ -537,12 +537,12 @@ export class CardMoveManager {
       return {
         success: false,
         moveId: request.moveId,
-        error: 'Entity not found for shuffle'
+        error: 'Entity not found for shuffle',
       };
     }
 
     const currentEntity = entity[0];
-    let cardOrder = (currentEntity.deckOrder || currentEntity.cardOrder || []) as string[];
+    const cardOrder = (currentEntity.deckOrder || currentEntity.cardOrder || []) as string[];
 
     // Shuffle the array using Fisher-Yates algorithm
     for (let i = cardOrder.length - 1; i > 0; i--) {
@@ -553,7 +553,7 @@ export class CardMoveManager {
     // Update entity with shuffled order
     const updateData = request.sourceType === 'deck'
       ? { deckOrder: cardOrder, isShuffled: true }
-      : { cardOrder: cardOrder };
+      : { cardOrder };
 
     if (request.sourceType === 'deck') {
       await tx.update(cardDecks)
@@ -567,12 +567,12 @@ export class CardMoveManager {
 
     logger.info('🎴 [Card Move] Shuffle completed', {
       correlationId,
-      cardCount: cardOrder.length
+      cardCount: cardOrder.length,
     } as any);
 
     return {
       success: true,
-      moveId: request.moveId
+      moveId: request.moveId,
     };
   }
 
@@ -582,13 +582,13 @@ export class CardMoveManager {
   private async executePileReorder(
     tx: any,
     request: CardMoveRequest,
-    correlationId: string
+    correlationId: string,
   ): Promise<CardMoveResult> {
-    
+
     logger.info('🎴 [Card Move] Executing pile reorder', {
       correlationId,
       entityId: request.sourceId,
-      newOrder: request.cardAssetIds
+      newOrder: request.cardAssetIds,
     } as any);
 
     // Update the pile with the new order provided in cardAssetIds
@@ -608,7 +608,7 @@ export class CardMoveManager {
 
     return {
       success: true,
-      moveId: request.moveId
+      moveId: request.moveId,
     };
   }
 
@@ -620,35 +620,35 @@ export class CardMoveManager {
     entityType: string,
     entityId: string | undefined,
     playerId: string,
-    correlationId: string
+    correlationId: string,
   ): Promise<number | undefined> {
-    
+
     if (!entityId) return undefined;
 
     const now = new Date();
-    
+
     try {
       if (entityType === 'deck') {
         const result = await tx.update(cardDecks)
           .set({
             version: sql`${cardDecks.version} + 1`,
             lastModifiedBy: playerId,
-            lastModifiedAt: now
+            lastModifiedAt: now,
           })
           .where(eq(cardDecks.id, entityId))
           .returning({ version: cardDecks.version });
-        
+
         return result[0]?.version;
       } else if (entityType === 'pile') {
         const result = await tx.update(cardPiles)
           .set({
             version: sql`${cardPiles.version} + 1`,
             lastModifiedBy: playerId,
-            lastModifiedAt: now
+            lastModifiedAt: now,
           })
           .where(eq(cardPiles.id, entityId))
           .returning({ version: cardPiles.version });
-        
+
         return result[0]?.version;
       }
     } catch (error) {
@@ -656,7 +656,7 @@ export class CardMoveManager {
         correlationId,
         entityType,
         entityId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       throw error;
     }
@@ -672,9 +672,9 @@ export class CardMoveManager {
     request: CardMoveRequest,
     sequenceNumber: number,
     result: CardMoveResult,
-    correlationId: string
+    correlationId: string,
   ): Promise<void> {
-    
+
     try {
       await tx.insert(cardMoveLedger).values({
         roomId: request.roomId,
@@ -695,19 +695,19 @@ export class CardMoveManager {
         isRolledBack: false,
         conflictResolution: result.conflictResolution,
         playerId: request.playerId,
-        metadata: request.metadata
+        metadata: request.metadata,
       });
 
       logger.info('🎴 [Card Move] Move recorded in ledger', {
         correlationId,
         sequenceNumber,
-        success: result.success
+        success: result.success,
       } as any);
 
     } catch (error) {
       logger.error('🎴 [Card Move] Error recording move in ledger', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       throw error;
     }
@@ -734,13 +734,13 @@ export class CardMoveManager {
         isApplied: false,
         isRolledBack: false,
         playerId: request.playerId,
-        metadata: { error: errorMessage }
+        metadata: { error: errorMessage },
       });
     } catch (ledgerError) {
       // Log but don't throw - we don't want ledger failures to cascade
       logger.error('🎴 [Card Move] Failed to record failed move', {
         originalError: errorMessage,
-        ledgerError: (ledgerError as Error).message
+        ledgerError: (ledgerError as Error).message,
       } as any);
     }
   }
@@ -754,7 +754,7 @@ export class CardMoveManager {
         .from(cardMoveLedger)
         .where(and(
           eq(cardMoveLedger.clientId, clientId),
-          eq(cardMoveLedger.moveId, moveId)
+          eq(cardMoveLedger.moveId, moveId),
         ))
         .limit(1);
 
@@ -763,7 +763,7 @@ export class CardMoveManager {
       logger.error('🎴 [Card Move] Error checking existing move', {
         clientId,
         moveId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return null;
     }
@@ -792,7 +792,7 @@ export class CardMoveManager {
       if (fromSequence) {
         query = query.where(and(
           eq(cardMoveLedger.roomId, roomId),
-          sql`${cardMoveLedger.moveSequence} > ${fromSequence}`
+          sql`${cardMoveLedger.moveSequence} > ${fromSequence}`,
         ));
       }
 
@@ -803,7 +803,7 @@ export class CardMoveManager {
       logger.info('🎴 [Card Move] Retrieved move history', {
         roomId,
         fromSequence,
-        moveCount: moves.length
+        moveCount: moves.length,
       } as any);
 
       return moves;
@@ -811,7 +811,7 @@ export class CardMoveManager {
       logger.error('🎴 [Card Move] Error retrieving move history', {
         roomId,
         fromSequence,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return [];
     }
@@ -825,11 +825,11 @@ export class CardMoveManager {
     missedMoves: any[];
     fullState?: any;
   }> {
-    
+
     try {
       // Get current sequence number
-      const currentSeq = await db.select({ 
-        maxSequence: sql`COALESCE(MAX(${cardMoveLedger.moveSequence}), 0)` 
+      const currentSeq = await db.select({
+        maxSequence: sql`COALESCE(MAX(${cardMoveLedger.moveSequence}), 0)`,
       })
         .from(cardMoveLedger)
         .where(eq(cardMoveLedger.roomId, roomId));
@@ -837,7 +837,7 @@ export class CardMoveManager {
       const currentSequence = currentSeq[0]?.maxSequence || 0;
 
       // Get missed moves since client sequence
-      const missedMoves = clientSequence 
+      const missedMoves = clientSequence
         ? await this.getMoveHistory(roomId, clientSequence)
         : await this.getMoveHistory(roomId);
 
@@ -845,24 +845,24 @@ export class CardMoveManager {
         roomId,
         clientSequence,
         currentSequence,
-        missedMovesCount: missedMoves.length
+        missedMovesCount: missedMoves.length,
       } as any);
 
       return {
         currentSequence,
-        missedMoves
+        missedMoves,
       };
 
     } catch (error) {
       logger.error('🎴 [Card Move] Error during client reconciliation', {
         roomId,
         clientSequence,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
 
       return {
         currentSequence: 0,
-        missedMoves: []
+        missedMoves: [],
       };
     }
   }

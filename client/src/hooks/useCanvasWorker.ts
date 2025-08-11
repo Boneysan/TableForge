@@ -24,7 +24,7 @@ export function useCanvasWorker(): UseCanvasWorkerReturn {
     try {
       workerRef.current = new Worker(
         new URL('../workers/canvasWorker.ts', import.meta.url),
-        { type: 'module' }
+        { type: 'module' },
       );
 
       workerRef.current.onmessage = (event: MessageEvent<WorkerResponse>) => {
@@ -33,7 +33,7 @@ export function useCanvasWorker(): UseCanvasWorkerReturn {
 
         if (request) {
           pendingRequests.current.delete(id);
-          
+
           if (type === 'ERROR') {
             request.reject(new Error(payload.error));
           } else {
@@ -73,7 +73,7 @@ export function useCanvasWorker(): UseCanvasWorkerReturn {
       }
 
       const id = `${type}-${Date.now()}-${Math.random()}`;
-      
+
       pendingRequests.current.set(id, { resolve, reject });
 
       const message: WorkerMessage = {
@@ -124,14 +124,14 @@ export function useCanvasWorker(): UseCanvasWorkerReturn {
           right: asset.x + (asset.width * asset.scale) / 2,
           bottom: asset.y + (asset.height * asset.scale) / 2,
         };
-        
+
         const viewportBounds = {
           left: viewport.x - buffer,
           top: viewport.y - buffer,
           right: viewport.x + viewport.width / viewport.scale + buffer,
           bottom: viewport.y + viewport.height / viewport.scale + buffer,
         };
-        
+
         return (
           assetBounds.right >= viewportBounds.left &&
           assetBounds.left <= viewportBounds.right &&
@@ -146,8 +146,8 @@ export function useCanvasWorker(): UseCanvasWorkerReturn {
 
   // Detect collisions
   const detectCollisions = useCallback(async (
-    draggedAsset: AssetTransform, 
-    otherAssets: AssetTransform[]
+    draggedAsset: AssetTransform,
+    otherAssets: AssetTransform[],
   ): Promise<string[]> => {
     if (!isWorkerReadyRef.current) {
       // Simple fallback collision detection
@@ -157,17 +157,17 @@ export function useCanvasWorker(): UseCanvasWorkerReturn {
         right: draggedAsset.x + (draggedAsset.width * draggedAsset.scale) / 2,
         bottom: draggedAsset.y + (draggedAsset.height * draggedAsset.scale) / 2,
       };
-      
+
       return otherAssets.filter(asset => {
         if (asset.id === draggedAsset.id) return false;
-        
+
         const assetBounds = {
           left: asset.x - (asset.width * asset.scale) / 2,
           top: asset.y - (asset.height * asset.scale) / 2,
           right: asset.x + (asset.width * asset.scale) / 2,
           bottom: asset.y + (asset.height * asset.scale) / 2,
         };
-        
+
         return (
           draggedBounds.right >= assetBounds.left &&
           draggedBounds.left <= assetBounds.right &&

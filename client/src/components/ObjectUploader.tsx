@@ -1,18 +1,18 @@
-import { useState } from "react";
-import type { ReactNode } from "react";
-import Uppy from "@uppy/core";
-import { DashboardModal } from "@uppy/react";
-import "@uppy/core/dist/style.min.css";
-import "@uppy/dashboard/dist/style.min.css";
-import AwsS3 from "@uppy/aws-s3";
-import type { UploadResult } from "@uppy/core";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+import Uppy from '@uppy/core';
+import { DashboardModal } from '@uppy/react';
+import '@uppy/core/dist/style.min.css';
+import '@uppy/dashboard/dist/style.min.css';
+import AwsS3 from '@uppy/aws-s3';
+import type { UploadResult } from '@uppy/core';
+import { Button } from '@/components/ui/button';
 
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
   maxFileSize?: number;
   onGetUploadParameters: () => Promise<{
-    method: "PUT";
+    method: 'PUT';
     url: string;
   }>;
   onComplete?: (
@@ -25,7 +25,7 @@ interface ObjectUploaderProps {
 /**
  * A file upload component that renders as a button and provides a modal interface for
  * file management.
- * 
+ *
  * Features:
  * - Renders as a customizable button that opens a file upload modal
  * - Provides a modal interface for:
@@ -33,7 +33,7 @@ interface ObjectUploaderProps {
  *   - File preview
  *   - Upload progress tracking
  *   - Upload status display
- * 
+ *
  * The component uses Uppy under the hood to handle all file upload functionality.
  * All file management features are automatically handled by the Uppy dashboard modal.
  */
@@ -58,7 +58,7 @@ export function ObjectUploader({
         shouldUseMultipart: false,
         getUploadParameters: onGetUploadParameters,
       })
-      .on("complete", (result) => {
+      .on('complete', (result) => {
         onComplete?.(result);
         // Clear files after successful upload to allow new uploads
         if (result.successful && result.successful.length > 0) {
@@ -67,7 +67,7 @@ export function ObjectUploader({
             uppy.clear();
           }, 1000);
         }
-      })
+      }),
   );
 
   return (

@@ -8,21 +8,21 @@ import { getCorsOrigins } from '../../shared/config';
 export const createRateLimiter = () => {
   // In development, be very permissive with rate limiting
   const limit = config.NODE_ENV === 'development' ? 1000 : config.RATE_LIMIT_PER_MINUTE;
-  
+
   return rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: limit,
     message: {
       error: 'Too many requests',
       message: `Rate limit exceeded. Maximum ${limit} requests per minute.`,
-      retryAfter: '1 minute'
+      retryAfter: '1 minute',
     },
     standardHeaders: true,
     legacyHeaders: false,
     // Skip rate limiting for health checks, static assets, and in development mode
     skip: (req) => {
-      return req.path === '/health' || 
-             req.path.startsWith('/assets/') || 
+      return req.path === '/health' ||
+             req.path.startsWith('/assets/') ||
              req.path.startsWith('/src/') ||
              config.NODE_ENV === 'development';
     },
@@ -35,14 +35,14 @@ export const createApiRateLimiter = () => {
   if (config.NODE_ENV === 'development') {
     return (req: Request, res: Response, next: NextFunction) => next();
   }
-  
+
   return rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
     max: Math.floor(config.RATE_LIMIT_PER_MINUTE * 0.8), // 80% of general limit
     message: {
       error: 'API rate limit exceeded',
       message: 'Too many API requests. Please slow down.',
-      retryAfter: '1 minute'
+      retryAfter: '1 minute',
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -55,14 +55,14 @@ export const createAuthRateLimiter = () => {
   if (config.NODE_ENV === 'development') {
     return (req: Request, res: Response, next: NextFunction) => next();
   }
-  
+
   return rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // 5 attempts per 15 minutes
     message: {
       error: 'Authentication rate limit exceeded',
       message: 'Too many authentication attempts. Please try again in 15 minutes.',
-      retryAfter: '15 minutes'
+      retryAfter: '15 minutes',
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -73,20 +73,20 @@ export const createAuthRateLimiter = () => {
 // Security headers middleware
 export const createSecurityHeaders = () => {
   const corsOrigins = getCorsOrigins();
-  
+
   // CORS configuration
   const corsOptions = {
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile apps, Postman, etc.)
       if (!origin) return callback(null, true);
-      
+
       // In development, allow localhost origins
       if (config.NODE_ENV === 'development') {
         if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('replit.dev')) {
           return callback(null, true);
         }
       }
-      
+
       // Check configured origins
       if (corsOrigins.length === 0 || corsOrigins.includes(origin)) {
         callback(null, true);
@@ -109,18 +109,18 @@ export const createSecurityHeaders = () => {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        connectSrc: ["'self'", "https:", "wss:", "ws:"],
+        connectSrc: ["'self'", 'https:', 'wss:', 'ws:'],
         objectSrc: ["'none'"],
-        mediaSrc: ["'self'", "https:", "blob:"],
+        mediaSrc: ["'self'", 'https:', 'blob:'],
         frameSrc: ["'none'"],
       },
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" as const },
+    crossOriginResourcePolicy: { policy: 'cross-origin' as const },
   };
 
   return {
@@ -132,18 +132,18 @@ export const createSecurityHeaders = () => {
         res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
         res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
         res.header('Access-Control-Max-Age', '86400');
-        
+
         if (req.method === 'OPTIONS') {
           return res.sendStatus(200);
         }
-        
+
         return next();
       }
-      
+
       // Production CORS handling
       const origin = req.get('origin');
       const allowedOrigins = getCorsOrigins();
-      
+
       if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
         res.header('Access-Control-Allow-Origin', origin || '*');
         res.header('Access-Control-Allow-Credentials', 'true');
@@ -151,11 +151,11 @@ export const createSecurityHeaders = () => {
         res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
         res.header('Access-Control-Max-Age', '86400');
       }
-      
+
       if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
       }
-      
+
       next();
     },
     helmet: helmet(helmetOptions),
@@ -175,9 +175,9 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction) 
 
   const url = req.url.toLowerCase();
   const body = JSON.stringify(req.body || {}).toLowerCase();
-  
-  const isSuspicious = suspiciousPatterns.some(pattern => 
-    pattern.test(url) || pattern.test(body)
+
+  const isSuspicious = suspiciousPatterns.some(pattern =>
+    pattern.test(url) || pattern.test(body),
   );
 
   if (isSuspicious) {

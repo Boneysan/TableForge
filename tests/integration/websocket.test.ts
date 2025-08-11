@@ -129,7 +129,7 @@ describe('WebSocket Integration Tests', () => {
 
     it('should allow users to join rooms', (done) => {
       let joinCount = 0;
-      
+
       const handleJoin = () => {
         joinCount++;
         if (joinCount === 2) {
@@ -153,7 +153,7 @@ describe('WebSocket Integration Tests', () => {
 
       // First client joins, second client should be notified
       context.clientSocket2.emit('join_room', { roomId: testRoomId });
-      
+
       setTimeout(() => {
         context.clientSocket1.emit('join_room', { roomId: testRoomId });
       }, 100);
@@ -248,7 +248,7 @@ describe('WebSocket Integration Tests', () => {
 
       context.clientSocket2.on('asset_moved', () => {
         receivedCount++;
-        
+
         // Should receive fewer events due to throttling
         if (receivedCount >= 3) {
           setTimeout(() => {
@@ -387,13 +387,13 @@ describe('WebSocket Integration Tests', () => {
 
     it('should handle connection drops during operations', async () => {
       const testRoomId = 'drop-test-room';
-      
+
       context.clientSocket1.emit('join_room', { roomId: testRoomId });
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // Simulate connection drop
       context.clientSocket1.disconnect();
-      
+
       // Verify cleanup happened (room membership removed)
       expect(context.clientSocket1.connected).toBe(false);
     });
@@ -401,14 +401,14 @@ describe('WebSocket Integration Tests', () => {
     it('should handle rapid connect/disconnect cycles', async () => {
       for (let i = 0; i < 5; i++) {
         const client = Client(`http://localhost:${context.serverPort}`);
-        
+
         await new Promise<void>((resolve) => {
           client.on('connect', resolve);
           client.connect();
         });
 
         expect(client.connected).toBe(true);
-        
+
         client.disconnect();
         expect(client.connected).toBe(false);
       }
@@ -416,7 +416,7 @@ describe('WebSocket Integration Tests', () => {
 
     it('should enforce message rate limits', (done) => {
       let errorReceived = false;
-      
+
       context.clientSocket1.on('error', (error) => {
         if (error.message.includes('rate limit') && !errorReceived) {
           errorReceived = true;
@@ -453,8 +453,8 @@ describe('WebSocket Integration Tests', () => {
         // Wait for all to connect
         await Promise.all(
           connections.map(
-            client => new Promise<void>(resolve => client.on('connect', resolve))
-          )
+            client => new Promise<void>(resolve => client.on('connect', resolve)),
+          ),
         );
 
         // Verify all connected

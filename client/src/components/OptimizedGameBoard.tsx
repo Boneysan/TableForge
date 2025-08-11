@@ -29,12 +29,12 @@ export function OptimizedGameBoard({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
-  
+
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [draggedAsset, setDraggedAsset] = useState<AssetTransform | null>(null);
-  
+
   const { detectCollisions } = useCanvasWorker();
-  
+
   // Initialize virtualized canvas system
   const {
     layers,
@@ -78,18 +78,18 @@ export function OptimizedGameBoard({
     // Detect collisions in worker
     try {
       const collisions = await detectCollisions(newAsset, assetTransforms);
-      
+
       // Highlight colliding assets or handle collision response
       if (collisions.length > 0) {
         console.log('Collisions detected with:', collisions);
       }
 
       setDraggedAsset(newAsset);
-      
+
       // Update layer with optimistic transform
       updateLayer('board', {
-        assets: assetTransforms.map(asset => 
-          asset.id === draggedAsset.id ? newAsset : asset
+        assets: assetTransforms.map(asset =>
+          asset.id === draggedAsset.id ? newAsset : asset,
         ),
       });
 
@@ -111,7 +111,7 @@ export function OptimizedGameBoard({
 
     // Call parent handler
     onAssetMove?.(finalAsset.id, finalAsset.x, finalAsset.y, finalAsset.rotation);
-    
+
     setDraggedAsset(null);
   }, [draggedAsset, onAssetMove]);
 
@@ -135,7 +135,7 @@ export function OptimizedGameBoard({
           bottom: asset.y + (asset.height * asset.scale) / 2,
         };
 
-        return x >= bounds.left && x <= bounds.right && 
+        return x >= bounds.left && x <= bounds.right &&
                y >= bounds.top && y <= bounds.bottom;
       });
 
@@ -175,14 +175,14 @@ export function OptimizedGameBoard({
 
     // Process render queue
     const renderQueue = getRenderQueue();
-    
+
     renderQueue.forEach((batch) => {
       batch.assets.forEach((asset, index) => {
         const transform = batch.transforms[index];
         if (!transform) return;
 
         ctx.save();
-        
+
         // Apply transform matrix
         ctx.setTransform(
           transform.matrix.a,
@@ -190,7 +190,7 @@ export function OptimizedGameBoard({
           transform.matrix.c,
           transform.matrix.d,
           transform.matrix.e,
-          transform.matrix.f
+          transform.matrix.f,
         );
 
         // Render asset (simplified - would normally load and draw images)
@@ -199,7 +199,7 @@ export function OptimizedGameBoard({
           -asset.width / 2,
           -asset.height / 2,
           asset.width,
-          asset.height
+          asset.height,
         );
 
         // Add selection outline
@@ -210,7 +210,7 @@ export function OptimizedGameBoard({
             -asset.width / 2 - 2,
             -asset.height / 2 - 2,
             asset.width + 4,
-            asset.height + 4
+            asset.height + 4,
           );
         }
 
@@ -230,7 +230,7 @@ export function OptimizedGameBoard({
     if (!canvas) return;
 
     contextRef.current = canvas.getContext('2d');
-    
+
     // Set up canvas size
     const resizeCanvas = () => {
       const container = containerRef.current;
@@ -255,7 +255,7 @@ export function OptimizedGameBoard({
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-    
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
@@ -285,7 +285,7 @@ export function OptimizedGameBoard({
   }, [renderCanvas]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`relative w-full h-full overflow-hidden ${className}`}
       data-testid="optimized-game-board"
@@ -296,7 +296,7 @@ export function OptimizedGameBoard({
         {...bindPointerEvents()}
         data-testid="game-canvas"
       />
-      
+
       {/* Performance Stats (dev mode) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="absolute top-2 right-2 bg-black/80 text-white p-2 rounded text-xs font-mono">
@@ -306,7 +306,7 @@ export function OptimizedGameBoard({
           <div>Dragging: {dragState.isDragging ? 'Yes' : 'No'}</div>
         </div>
       )}
-      
+
       {/* Layer Controls (dev mode) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="absolute bottom-2 left-2 bg-black/80 text-white p-2 rounded text-xs">

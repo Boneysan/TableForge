@@ -1,6 +1,6 @@
 /**
  * WebSocket Card Move Handler
- * 
+ *
  * Handles real-time card movement operations with concurrency control:
  * - Processes card move WebSocket messages
  * - Integrates with CardMoveManager for conflict resolution
@@ -89,26 +89,26 @@ export class CardMoveHandler {
     const { payload } = message;
     const roomId = ws.roomId;
     const playerId = ws.user?.uid;
-    
+
     if (!roomId || !playerId) {
       logger.warn('🎴 [Card Move WS] Invalid connection state', {
         roomId,
         playerId,
-        moveId: payload.moveId
+        moveId: payload.moveId,
       });
-      
+
       this.sendError(ws, payload.moveId, 'Invalid connection state');
       return;
     }
 
     const correlationId = `ws_move_${payload.moveId}_${Date.now()}`;
-    
+
     logger.info('🎴 [Card Move WS] Processing card move request', {
       correlationId,
       roomId,
       playerId,
       moveId: payload.moveId,
-      moveType: payload.moveType
+      moveType: payload.moveType,
     });
 
     try {
@@ -131,16 +131,16 @@ export class CardMoveHandler {
         metadata: {
           ...payload.metadata,
           clientTimestamp: Date.now(),
-          userAgent: ws.userAgent
-        }
+          userAgent: ws.userAgent,
+        },
       };
 
       // Execute move with concurrency control
       const result = await this.cardMoveManager.executeMove(moveRequest);
-      
+
       // Send result to requesting client
       this.sendMoveResult(ws, result);
-      
+
       // Broadcast successful moves to other clients in room
       if (result.success) {
         this.broadcastMoveToRoom(roomId, payload, result, ws);
@@ -152,7 +152,7 @@ export class CardMoveHandler {
       logger.info('🎴 [Card Move WS] Card move processing completed', {
         correlationId,
         success: result.success,
-        sequenceNumber: result.sequenceNumber
+        sequenceNumber: result.sequenceNumber,
       });
 
     } catch (error) {
@@ -160,7 +160,7 @@ export class CardMoveHandler {
         correlationId,
         moveId: payload.moveId,
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
 
       this.sendError(ws, payload.moveId, `Move processing failed: ${error.message}`);
@@ -171,37 +171,37 @@ export class CardMoveHandler {
    * Handle reconciliation request from client
    */
   async handleReconciliationRequest(
-    ws: AuthenticatedSocket, 
-    message: ReconciliationRequestMessage
+    ws: AuthenticatedSocket,
+    message: ReconciliationRequestMessage,
   ): Promise<void> {
-    
+
     const roomId = ws.roomId;
     const { lastKnownSequence } = message.payload;
-    
+
     if (!roomId) {
       logger.warn('🎴 [Card Move WS] Reconciliation request without room ID', {
-        playerId: ws.user?.uid
+        playerId: ws.user?.uid,
       });
       return;
     }
 
     const correlationId = `reconcile_${roomId}_${Date.now()}`;
-    
+
     logger.info('🎴 [Card Move WS] Processing reconciliation request', {
       correlationId,
       roomId,
       playerId: ws.user?.uid,
-      lastKnownSequence
+      lastKnownSequence,
     });
 
     try {
       // Get reconciliation data from move manager
       const reconciliation = await this.cardMoveManager.reconcileClientState(roomId, lastKnownSequence);
-      
+
       // Send reconciliation response
       const response: ReconciliationResponseMessage = {
         type: 'reconciliation_response',
-        payload: reconciliation
+        payload: reconciliation,
       };
 
       ws.send(JSON.stringify(response));
@@ -209,14 +209,14 @@ export class CardMoveHandler {
       logger.info('🎴 [Card Move WS] Reconciliation response sent', {
         correlationId,
         currentSequence: reconciliation.currentSequence,
-        missedMovesCount: reconciliation.missedMoves.length
+        missedMovesCount: reconciliation.missedMoves.length,
       });
 
     } catch (error) {
       logger.error('🎴 [Card Move WS] Error processing reconciliation', {
         correlationId,
         roomId,
-        error: error.message
+        error: error.message,
       });
 
       this.sendError(ws, 'reconciliation', `Reconciliation failed: ${error.message}`);
@@ -237,8 +237,8 @@ export class CardMoveHandler {
         newTargetVersion: result.newTargetVersion,
         conflictResolution: result.conflictResolution,
         error: result.error,
-        rollbackRequired: result.rollbackRequired
-      }
+        rollbackRequired: result.rollbackRequired,
+      },
     };
 
     ws.send(JSON.stringify(response));
@@ -248,12 +248,12 @@ export class CardMoveHandler {
    * Broadcast successful move to other clients in room
    */
   private broadcastMoveToRoom(
-    roomId: string, 
-    originalPayload: CardMoveMessage['payload'], 
+    roomId: string,
+    originalPayload: CardMoveMessage['payload'],
     result: CardMoveResult,
-    excludeSocket: AuthenticatedSocket
+    excludeSocket: AuthenticatedSocket,
   ): void {
-    
+
     const roomSockets = this.roomConnections.get(roomId);
     if (!roomSockets) return;
 
@@ -264,8 +264,8 @@ export class CardMoveHandler {
         sequenceNumber: result.sequenceNumber,
         newSourceVersion: result.newSourceVersion,
         newTargetVersion: result.newTargetVersion,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     };
 
     const message = JSON.stringify(broadcast);
@@ -277,7 +277,7 @@ export class CardMoveHandler {
         } catch (error) {
           logger.warn('🎴 [Card Move WS] Error broadcasting to socket', {
             roomId,
-            error: error.message
+            error: error.message,
           });
         }
       }
@@ -286,7 +286,7 @@ export class CardMoveHandler {
     logger.debug('🎴 [Card Move WS] Move broadcasted to room', {
       roomId,
       broadcastCount: roomSockets.size - 1,
-      moveId: originalPayload.moveId
+      moveId: originalPayload.moveId,
     });
   }
 
@@ -294,11 +294,11 @@ export class CardMoveHandler {
    * Handle move conflicts
    */
   private handleMoveConflict(
-    ws: AuthenticatedSocket, 
-    payload: CardMoveMessage['payload'], 
-    result: CardMoveResult
+    ws: AuthenticatedSocket,
+    payload: CardMoveMessage['payload'],
+    result: CardMoveResult,
   ): void {
-    
+
     let conflictType: 'version_mismatch' | 'entity_not_found' | 'permission_denied' = 'version_mismatch';
     let suggestedResolution: 'retry' | 'refresh_state' | 'abort' = 'retry';
 
@@ -320,8 +320,8 @@ export class CardMoveHandler {
         moveId: payload.moveId,
         conflictType,
         conflictDetails: result.error || 'Unknown conflict',
-        suggestedResolution
-      }
+        suggestedResolution,
+      },
     };
 
     ws.send(JSON.stringify(conflictMessage));
@@ -330,7 +330,7 @@ export class CardMoveHandler {
       roomId: ws.roomId,
       moveId: payload.moveId,
       conflictType,
-      suggestedResolution
+      suggestedResolution,
     });
   }
 
@@ -342,8 +342,8 @@ export class CardMoveHandler {
       type: 'card_move_error',
       payload: {
         moveId,
-        error
-      }
+        error,
+      },
     };
 
     ws.send(JSON.stringify(errorMessage));
@@ -354,36 +354,36 @@ export class CardMoveHandler {
    */
   async handleClientReconnection(ws: AuthenticatedSocket): Promise<void> {
     const roomId = ws.roomId;
-    
+
     if (!roomId) return;
 
     logger.info('🎴 [Card Move WS] Handling client reconnection', {
       roomId,
-      playerId: ws.user?.uid
+      playerId: ws.user?.uid,
     });
 
     try {
       // Automatically trigger reconciliation for reconnected client
       const reconciliation = await this.cardMoveManager.reconcileClientState(roomId);
-      
+
       if (reconciliation.missedMoves.length > 0) {
         const response: ReconciliationResponseMessage = {
           type: 'reconciliation_response',
-          payload: reconciliation
+          payload: reconciliation,
         };
 
         ws.send(JSON.stringify(response));
 
         logger.info('🎴 [Card Move WS] Reconnection reconciliation sent', {
           roomId,
-          missedMovesCount: reconciliation.missedMoves.length
+          missedMovesCount: reconciliation.missedMoves.length,
         });
       }
 
     } catch (error) {
       logger.error('🎴 [Card Move WS] Error handling client reconnection', {
         roomId,
-        error: error.message
+        error: error.message,
       });
     }
   }

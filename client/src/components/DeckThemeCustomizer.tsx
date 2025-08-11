@@ -1,27 +1,27 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Palette, Eye, Save, RotateCcw } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import type { CardDeck, DeckTheme, GameAsset } from "@shared/schema";
+} from '@/components/ui/select';
+import { Palette, Eye, Save, RotateCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { CardDeck, DeckTheme, GameAsset } from '@shared/schema';
 
 interface DeckThemeCustomizerProps {
   deck: CardDeck;
@@ -33,66 +33,66 @@ interface DeckThemeCustomizerProps {
 // Predefined theme templates
 const THEME_TEMPLATES = {
   classic: {
-    name: "Classic",
-    cardBackColor: "#2B4C8C",
-    cardBorderColor: "#1E3A8A",
-    deckBackgroundColor: "#F3F4F6",
-    textColor: "#1F2937",
-    borderStyle: "solid",
+    name: 'Classic',
+    cardBackColor: '#2B4C8C',
+    cardBorderColor: '#1E3A8A',
+    deckBackgroundColor: '#F3F4F6',
+    textColor: '#1F2937',
+    borderStyle: 'solid',
     cornerRadius: 8,
-    shadowIntensity: "medium"
+    shadowIntensity: 'medium',
   },
   vintage: {
-    name: "Vintage",
-    cardBackColor: "#92400E",
-    cardBorderColor: "#78350F",
-    deckBackgroundColor: "#FEF3C7",
-    textColor: "#451A03",
-    borderStyle: "double",
+    name: 'Vintage',
+    cardBackColor: '#92400E',
+    cardBorderColor: '#78350F',
+    deckBackgroundColor: '#FEF3C7',
+    textColor: '#451A03',
+    borderStyle: 'double',
     cornerRadius: 12,
-    shadowIntensity: "high"
+    shadowIntensity: 'high',
   },
   modern: {
-    name: "Modern",
-    cardBackColor: "#1F2937",
-    cardBorderColor: "#374151",
-    deckBackgroundColor: "#F9FAFB",
-    textColor: "#111827",
-    borderStyle: "solid",
+    name: 'Modern',
+    cardBackColor: '#1F2937',
+    cardBorderColor: '#374151',
+    deckBackgroundColor: '#F9FAFB',
+    textColor: '#111827',
+    borderStyle: 'solid',
     cornerRadius: 4,
-    shadowIntensity: "low"
+    shadowIntensity: 'low',
   },
   fantasy: {
-    name: "Fantasy",
-    cardBackColor: "#7C3AED",
-    cardBorderColor: "#5B21B6",
-    deckBackgroundColor: "#EDE9FE",
-    textColor: "#3730A3",
-    borderStyle: "dashed",
+    name: 'Fantasy',
+    cardBackColor: '#7C3AED',
+    cardBorderColor: '#5B21B6',
+    deckBackgroundColor: '#EDE9FE',
+    textColor: '#3730A3',
+    borderStyle: 'dashed',
     cornerRadius: 16,
-    shadowIntensity: "high"
+    shadowIntensity: 'high',
   },
   cyberpunk: {
-    name: "Cyberpunk",
-    cardBackColor: "#DC2626",
-    cardBorderColor: "#B91C1C",
-    deckBackgroundColor: "#1F2937",
-    textColor: "#F59E0B",
-    borderStyle: "solid",
+    name: 'Cyberpunk',
+    cardBackColor: '#DC2626',
+    cardBorderColor: '#B91C1C',
+    deckBackgroundColor: '#1F2937',
+    textColor: '#F59E0B',
+    borderStyle: 'solid',
     cornerRadius: 2,
-    shadowIntensity: "medium"
-  }
+    shadowIntensity: 'medium',
+  },
 };
 
-export function DeckThemeCustomizer({ 
-  deck, 
-  roomId, 
+export function DeckThemeCustomizer({
+  deck,
+  roomId,
   assets,
-  onThemeUpdated 
+  onThemeUpdated,
 }: DeckThemeCustomizerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<DeckTheme>(
-    deck.theme || THEME_TEMPLATES.classic
+    deck.theme || THEME_TEMPLATES.classic,
   );
   const [previewMode, setPreviewMode] = useState(false);
   const { toast } = useToast();
@@ -102,26 +102,26 @@ export function DeckThemeCustomizer({
   const saveThemeMutation = useMutation({
     mutationFn: async (theme: DeckTheme) => {
       const response = await fetch(`/api/rooms/${roomId}/decks/${deck.id}/theme`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ theme }),
       });
-      if (!response.ok) throw new Error("Failed to save theme");
+      if (!response.ok) throw new Error('Failed to save theme');
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "decks"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'decks'] });
       onThemeUpdated?.(deck.id, currentTheme);
       setIsOpen(false);
-      toast({ 
-        title: "Theme saved!", 
-        description: "Your deck theme has been updated successfully." 
+      toast({
+        title: 'Theme saved!',
+        description: 'Your deck theme has been updated successfully.',
       });
     },
     onError: () => {
-      toast({ 
-        title: "Failed to save theme", 
-        variant: "destructive" 
+      toast({
+        title: 'Failed to save theme',
+        variant: 'destructive',
       });
     },
   });
@@ -155,9 +155,9 @@ export function DeckThemeCustomizer({
     borderStyle: currentTheme.borderStyle,
     borderRadius: `${currentTheme.cornerRadius}px`,
     color: currentTheme.textColor,
-    boxShadow: currentTheme.shadowIntensity === "low" ? "0 1px 3px rgba(0,0,0,0.1)" :
-               currentTheme.shadowIntensity === "medium" ? "0 4px 6px rgba(0,0,0,0.1)" :
-               "0 10px 15px rgba(0,0,0,0.2)"
+    boxShadow: currentTheme.shadowIntensity === 'low' ? '0 1px 3px rgba(0,0,0,0.1)' :
+               currentTheme.shadowIntensity === 'medium' ? '0 4px 6px rgba(0,0,0,0.1)' :
+               '0 10px 15px rgba(0,0,0,0.2)',
   };
 
   const previewDeckStyle = {
@@ -168,9 +168,9 @@ export function DeckThemeCustomizer({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          size="sm" 
-          variant="ghost" 
+        <Button
+          size="sm"
+          variant="ghost"
           data-testid={`button-theme-${deck.id}`}
           title="Customize deck theme"
         >
@@ -200,7 +200,7 @@ export function DeckThemeCustomizer({
                     className="justify-start"
                     data-testid={`template-${key}`}
                   >
-                    <div 
+                    <div
                       className="w-3 h-3 rounded mr-2 border"
                       style={{ backgroundColor: template.cardBackColor }}
                     />
@@ -212,7 +212,7 @@ export function DeckThemeCustomizer({
 
             <div className="space-y-3">
               <Label className="text-sm font-medium">Custom Colors</Label>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="card-back-color" className="text-xs">Card Back</Label>
@@ -298,12 +298,12 @@ export function DeckThemeCustomizer({
 
             <div className="space-y-3">
               <Label className="text-sm font-medium">Style Options</Label>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="border-style" className="text-xs">Border Style</Label>
-                  <Select 
-                    value={currentTheme.borderStyle} 
+                  <Select
+                    value={currentTheme.borderStyle}
                     onValueChange={(value) => updateThemeProperty('borderStyle', value)}
                   >
                     <SelectTrigger data-testid="select-border-style">
@@ -334,8 +334,8 @@ export function DeckThemeCustomizer({
 
                 <div className="col-span-2">
                   <Label htmlFor="shadow-intensity" className="text-xs">Shadow Intensity</Label>
-                  <Select 
-                    value={currentTheme.shadowIntensity} 
+                  <Select
+                    value={currentTheme.shadowIntensity}
                     onValueChange={(value) => updateThemeProperty('shadowIntensity', value)}
                   >
                     <SelectTrigger data-testid="select-shadow-intensity">
@@ -363,7 +363,7 @@ export function DeckThemeCustomizer({
                 data-testid="button-toggle-preview"
               >
                 <Eye className="w-3 h-3 mr-1" />
-                {previewMode ? "Exit Preview" : "Full Preview"}
+                {previewMode ? 'Exit Preview' : 'Full Preview'}
               </Button>
             </div>
 
@@ -398,16 +398,16 @@ export function DeckThemeCustomizer({
                             alt={cardAsset.name}
                             className="w-full h-full object-cover"
                             style={{
-                              filter: index > 0 ? 'brightness(0.7) contrast(0.8)' : 'none'
+                              filter: index > 0 ? 'brightness(0.7) contrast(0.8)' : 'none',
                             }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs font-medium">
-                            {index === 0 && "No Cards"}
+                            {index === 0 && 'No Cards'}
                           </div>
                         )}
                         {/* Theme overlay for visual effect */}
-                        <div 
+                        <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
                             background: `linear-gradient(135deg, ${currentTheme.cardBackColor}15, transparent 50%, ${currentTheme.cardBorderColor}10)`,
@@ -427,7 +427,7 @@ export function DeckThemeCustomizer({
             {previewMode && (
               <Card className="p-3 border-dashed">
                 <div className="text-xs text-gray-600 space-y-1">
-                  <div><strong>Theme:</strong> {currentTheme.name || "Custom"}</div>
+                  <div><strong>Theme:</strong> {currentTheme.name || 'Custom'}</div>
                   <div><strong>Card Back:</strong> {currentTheme.cardBackColor}</div>
                   <div><strong>Border:</strong> {currentTheme.borderStyle} {currentTheme.cardBorderColor}</div>
                   <div><strong>Radius:</strong> {currentTheme.cornerRadius}px</div>
@@ -448,7 +448,7 @@ export function DeckThemeCustomizer({
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -463,7 +463,7 @@ export function DeckThemeCustomizer({
               data-testid="button-save-theme"
             >
               <Save className="w-4 h-4 mr-2" />
-              {saveThemeMutation.isPending ? "Saving..." : "Save Theme"}
+              {saveThemeMutation.isPending ? 'Saving...' : 'Save Theme'}
             </Button>
           </div>
         </div>

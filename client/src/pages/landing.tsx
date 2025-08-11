@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dice1, Users, Upload, Gamepad2 } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dice1, Users, Upload, Gamepad2 } from 'lucide-react';
 
 export default function Landing() {
   return (
@@ -13,7 +13,7 @@ export default function Landing() {
             <h1 className="text-5xl font-bold text-white">TabletopHub</h1>
           </div>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            The ultimate virtual tabletop platform for board games. Upload your assets, 
+            The ultimate virtual tabletop platform for board games. Upload your assets,
             create rooms, and play with friends in real-time.
           </p>
         </div>
@@ -29,7 +29,7 @@ export default function Landing() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-300">
-                Upload and organize your cards, tokens, maps, and game pieces. 
+                Upload and organize your cards, tokens, maps, and game pieces.
                 Automatic categorization makes it easy to find what you need.
               </p>
             </CardContent>
@@ -44,7 +44,7 @@ export default function Landing() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-300">
-                Create private game rooms and invite friends. Real-time 
+                Create private game rooms and invite friends. Real-time
                 synchronization ensures everyone sees the same game state.
               </p>
             </CardContent>
@@ -59,7 +59,7 @@ export default function Landing() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-300">
-                Drag and drop pieces, roll dice, flip cards, and interact 
+                Drag and drop pieces, roll dice, flip cards, and interact
                 with your game assets just like a physical tabletop.
               </p>
             </CardContent>
@@ -74,10 +74,10 @@ export default function Landing() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-300 mb-6">
-                Sign in with your Replit account to start creating game rooms 
+                Sign in with your Replit account to start creating game rooms
                 and uploading your tabletop assets.
               </p>
-              <Button 
+              <Button
                 onClick={() => window.location.href = '/api/login'}
                 className="w-full bg-[#2563EB] hover:bg-blue-700 text-white"
                 data-testid="button-login"

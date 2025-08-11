@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageCircle } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
-import type { ChatMessage } from "@shared/schema";
-import { format } from "date-fns";
+import React, { useState, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Send, MessageCircle } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
+import type { ChatMessage } from '@shared/schema';
+import { format } from 'date-fns';
 
 interface ChatComponentProps {
   roomId: string;
@@ -20,7 +20,7 @@ interface ChatMessageWithName extends ChatMessage {
 }
 
 export function ChatComponent({ roomId, websocket, currentUserId }: ChatComponentProps) {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessageWithName[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -74,24 +74,24 @@ export function ChatComponent({ roomId, websocket, currentUserId }: ChatComponen
   const sendMessageMutation = useMutation({
     mutationFn: async (messageText: string) => {
       const response = await fetch(`/api/rooms/${roomId}/chat`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           message: messageText,
-          messageType: "chat",
+          messageType: 'chat',
         }),
       });
-      if (!response.ok) throw new Error("Failed to send message");
+      if (!response.ok) throw new Error('Failed to send message');
       return response.json();
     },
     onSuccess: () => {
-      setMessage("");
+      setMessage('');
       queryClient.invalidateQueries({ queryKey: [`/api/rooms/${roomId}/chat`] });
     },
     onError: (error) => {
-      console.error("Error sending message:", error);
+      console.error('Error sending message:', error);
     },
   });
 
@@ -103,7 +103,7 @@ export function ChatComponent({ roomId, websocket, currentUserId }: ChatComponen
   };
 
   const formatMessageTime = (sentAt: string | Date | null) => {
-    if (!sentAt) return "";
+    if (!sentAt) return '';
     return format(new Date(sentAt), 'HH:mm');
   };
 
@@ -128,8 +128,8 @@ export function ChatComponent({ roomId, websocket, currentUserId }: ChatComponen
               </p>
             ) : (
               chatMessages.map((msg) => (
-                <div 
-                  key={msg.id} 
+                <div
+                  key={msg.id}
                   className={`flex flex-col gap-1 ${
                     msg.playerId === currentUserId ? 'items-end' : 'items-start'
                   }`}
@@ -167,8 +167,8 @@ export function ChatComponent({ roomId, websocket, currentUserId }: ChatComponen
             className="flex-1"
             data-testid="chat-input"
           />
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={!message.trim() || sendMessageMutation.isPending}
             size="sm"
             data-testid="chat-send-button"

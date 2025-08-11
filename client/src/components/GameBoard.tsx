@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { GridOverlay, snapToGrid } from "./GridOverlay";
-import { MeasurementTool } from "./MeasurementTool";
-import { AnnotationSystem } from "./AnnotationSystem";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import type { GameAsset, BoardAsset, CardPile, CardDeck } from "@shared/schema";
-import { DiscardPileViewer } from "./DiscardPileViewer";
-import { useToast } from "@/hooks/use-toast";
-import { useDragAndDrop } from "@/hooks/useDragAndDrop";
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { GridOverlay, snapToGrid } from './GridOverlay';
+import { MeasurementTool } from './MeasurementTool';
+import { AnnotationSystem } from './AnnotationSystem';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import type { GameAsset, BoardAsset, CardPile, CardDeck } from '@shared/schema';
+import { DiscardPileViewer } from './DiscardPileViewer';
+import { useToast } from '@/hooks/use-toast';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 
 interface GameBoardProps {
   assets: GameAsset[];
@@ -21,16 +21,16 @@ interface GameBoardProps {
   'data-testid'?: string;
 }
 
-export function GameBoard({ 
-  assets, 
-  boardAssets, 
-  onAssetMoved, 
-  onAssetPlaced, 
+export function GameBoard({
+  assets,
+  boardAssets,
+  onAssetMoved,
+  onAssetPlaced,
   playerRole,
   roomId,
   roomBoardWidth = 800,
   roomBoardHeight = 600,
-  'data-testid': testId 
+  'data-testid': testId,
 }: GameBoardProps) {
   // Board Tools State
   const [showGrid, setShowGrid] = useState(false);
@@ -51,20 +51,20 @@ export function GameBoard({
     setCustomWidth(roomBoardWidth.toString());
     setCustomHeight(roomBoardHeight.toString());
   }, [roomBoardWidth, roomBoardHeight]);
-  
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { dragOver, drop } = useDragAndDrop();
 
   // Fetch card piles for the room
   const { data: cardPiles = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "piles"],
+    queryKey: ['/api/rooms', roomId, 'piles'],
     enabled: !!roomId,
   });
 
   // Fetch card decks for the room
   const { data: cardDecks = [] } = useQuery({
-    queryKey: ["/api/rooms", roomId, "decks"],
+    queryKey: ['/api/rooms', roomId, 'decks'],
     enabled: !!roomId,
   });
 
@@ -72,23 +72,23 @@ export function GameBoard({
   const movePileMutation = useMutation({
     mutationFn: async ({ pileId, x, y }: { pileId: string; x: number; y: number }) => {
       console.log(`🌐 [Move Pile API] Sending PATCH request for pile ${pileId} to position (${x}, ${y})`);
-      const response = await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/piles/${pileId}/position`, {
+      const response = await authenticatedApiRequest('PATCH', `/api/rooms/${roomId}/piles/${pileId}/position`, {
         positionX: x,
         positionY: y,
       });
-      
+
       if (!response.ok) {
         console.error(`❌ [Move Pile API] Request failed with status ${response.status}: ${response.statusText}`);
         throw new Error(`Failed to move pile: ${response.status}`);
       }
-      
+
       const result = await response.json();
       console.log(`✅ [Move Pile API] Successfully moved pile ${pileId} to (${x}, ${y}). Server response:`, result);
       return result;
     },
     onSuccess: (data, variables) => {
       console.log(`🔄 [Move Pile] Invalidating queries for pile ${variables.pileId}`);
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'piles'] });
     },
     onError: (error, variables) => {
       console.error(`❌ [Move Pile] Failed to move pile ${variables.pileId} to (${variables.x}, ${variables.y}):`, error);
@@ -98,15 +98,15 @@ export function GameBoard({
   // Draw card to board mutation
   const drawCardToBoardMutation = useMutation({
     mutationFn: async ({ pileId, x, y }: { pileId: string; x: number; y: number }) => {
-      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles/${pileId}/draw-to-board`, {
+      const response = await authenticatedApiRequest('POST', `/api/rooms/${roomId}/piles/${pileId}/draw-to-board`, {
         x,
         y,
       });
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "board-assets"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'piles'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'board-assets'] });
     },
   });
 
@@ -114,22 +114,22 @@ export function GameBoard({
   const drawCardToHandMutation = useMutation({
     mutationFn: async ({ pileId }: { pileId: string }) => {
       console.log(`🌐 [Draw to Hand API] Sending POST request for pile ${pileId}`);
-      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles/${pileId}/draw-to-hand`);
-      
+      const response = await authenticatedApiRequest('POST', `/api/rooms/${roomId}/piles/${pileId}/draw-to-hand`);
+
       if (!response.ok) {
         console.error(`❌ [Draw to Hand API] Request failed with status ${response.status}: ${response.statusText}`);
         throw new Error(`Failed to draw card to hand: ${response.status}`);
       }
-      
+
       const result = await response.json();
       console.log(`✅ [Draw to Hand API] Successfully drew card to hand:`, result);
       return result;
     },
     onSuccess: (data) => {
       console.log(`🔄 [Draw to Hand] Invalidating queries and showing success`);
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId, 'piles'] });
       toast({
-        title: "Card drawn to hand",
+        title: 'Card drawn to hand',
         description: `Drew ${data.cardAsset?.name || 'card'} to your hand. Check the Hand tab!`,
       });
     },
@@ -142,7 +142,7 @@ export function GameBoard({
   const updateBoardSizeMutation = useMutation({
     mutationFn: async ({ width, height }: { width: number; height: number }) => {
       console.log(`[GameBoard] Updating board size to ${width}x${height}`);
-      const response = await authenticatedApiRequest("PATCH", `/api/rooms/${roomId}/board-size`, {
+      const response = await authenticatedApiRequest('PATCH', `/api/rooms/${roomId}/board-size`, {
         width,
         height,
       });
@@ -152,7 +152,7 @@ export function GameBoard({
     },
     onSuccess: (data) => {
       console.log(`[GameBoard] Board size updated successfully:`, data);
-      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rooms', roomId] });
     },
     onError: (error) => {
       console.error(`[GameBoard] Board size update failed:`, error);
@@ -172,13 +172,13 @@ export function GameBoard({
   // Handle dropping assets from Asset Library onto the board
   const handleAssetDrop = (event: React.DragEvent) => {
     if (playerRole !== 'admin') return; // Only admins can place assets
-    
+
     const dragData = drop(event);
     if (dragData && dragData.type === 'asset') {
       const rect = event.currentTarget.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      
+
       // Apply snap-to-grid if enabled
       if (showGrid) {
         const snapped = snapToGrid(x, y, gridSize);
@@ -190,13 +190,13 @@ export function GameBoard({
   };
 
   return (
-    <div 
+    <div
       className={`bg-gray-800 rounded-lg relative overflow-hidden ${
         playerRole === 'player' ? 'w-full' : ''
       }`}
       data-testid={testId}
-      style={playerRole === 'player' ? 
-        { height: boardHeight, minHeight: boardHeight } : 
+      style={playerRole === 'player' ?
+        { height: boardHeight, minHeight: boardHeight } :
         { width: boardWidth, height: boardHeight, minWidth: boardWidth, minHeight: boardHeight }
       }
       onDragOver={playerRole === 'admin' ? dragOver : undefined}
@@ -204,7 +204,7 @@ export function GameBoard({
     >
       {/* Background Layer */}
       <div className="absolute inset-0 bg-gradient-to-br from-green-900 to-green-800"></div>
-      
+
       {/* Grid Overlay */}
       {showGrid && (
         <GridOverlay
@@ -216,7 +216,7 @@ export function GameBoard({
           boardHeight={boardHeight}
         />
       )}
-      
+
       {/* Game Board Controls */}
       <div className="absolute top-2 right-2 z-40 flex gap-2">
         {/* Resize Controls - Only show for GMs */}
@@ -301,7 +301,7 @@ export function GameBoard({
           )}
         </div>
         )}
-        
+
         {/* Admin-only tools */}
         {playerRole === 'admin' && (
           <>
@@ -315,8 +315,8 @@ export function GameBoard({
             <button
               onClick={() => setMeasurementActive(!measurementActive)}
               className={`px-2 py-1 text-xs rounded ${
-                measurementActive 
-                  ? 'bg-blue-600 text-white' 
+                measurementActive
+                  ? 'bg-blue-600 text-white'
                   : 'bg-gray-700 text-white hover:bg-gray-600'
               }`}
               data-testid="button-toggle-measurement"
@@ -326,8 +326,8 @@ export function GameBoard({
             <button
               onClick={() => setAnnotationActive(!annotationActive)}
               className={`px-2 py-1 text-xs rounded ${
-                annotationActive 
-                  ? 'bg-purple-600 text-white' 
+                annotationActive
+                  ? 'bg-purple-600 text-white'
                   : 'bg-gray-700 text-white hover:bg-gray-600'
               }`}
               data-testid="button-toggle-annotation"
@@ -354,12 +354,12 @@ export function GameBoard({
         boardWidth={boardWidth}
         boardHeight={boardHeight}
       />
-      
+
       {/* Game Assets Layer */}
       <div className="absolute inset-0 z-15">
         {boardAssets.map((boardAsset) => {
           const asset = assets.find(a => a.id === boardAsset.assetId);
-          
+
           return (
             <div
               key={boardAsset.id}
@@ -384,7 +384,7 @@ export function GameBoard({
                     const deltaY = moveEvent.clientY - startY;
                     const newX = Math.max(0, Math.min(boardWidth - 50, initialX + deltaX));
                     const newY = Math.max(0, Math.min(boardHeight - 50, initialY + deltaY));
-                    
+
                     handleAssetMove(boardAsset.id, newX, newY);
                   };
 
@@ -400,15 +400,15 @@ export function GameBoard({
             >
               {asset ? (
                 <div className="relative">
-                  <img 
-                    src={asset.filePath.includes('.private/uploads/') 
+                  <img
+                    src={asset.filePath.includes('.private/uploads/')
                       ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
                       : asset.filePath
                     }
                     alt={asset.name}
                     className="w-16 h-16 object-cover rounded-md border-2 border-white"
                     style={{
-                      transform: boardAsset.isFlipped ? 'scaleX(-1)' : 'none'
+                      transform: boardAsset.isFlipped ? 'scaleX(-1)' : 'none',
                     }}
                   />
                   {boardAsset.isLocked && (
@@ -428,16 +428,16 @@ export function GameBoard({
             </div>
           );
         })}
-        
+
         {/* Empty state */}
         {boardAssets.length === 0 && (cardPiles as CardPile[]).length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-gray-400">
               <div className="text-lg font-medium mb-2">Empty Game Board</div>
               <div className="text-sm">
-                {playerRole === 'admin' 
-                  ? "Upload assets and place them on the board to get started" 
-                  : "Wait for the Game Master to place assets on the board"
+                {playerRole === 'admin'
+                  ? 'Upload assets and place them on the board to get started'
+                  : 'Wait for the Game Master to place assets on the board'
                 }
               </div>
             </div>
@@ -452,11 +452,9 @@ export function GameBoard({
           const baseName = pile.name.replace(/ - (Main|Discard)$/, '');
           const deck = (cardDecks as CardDeck[]).find(d => d.name === baseName);
           const cardCount = Array.isArray(pile.cardOrder) ? pile.cardOrder.length : 0;
-          const cardBackAsset = deck?.cardBackAssetId ? 
+          const cardBackAsset = deck?.cardBackAssetId ?
             assets.find(a => a.id === deck.cardBackAssetId) : null;
-          
 
-          
           return (
             <div
               key={pile.id}
@@ -479,7 +477,7 @@ export function GameBoard({
                 if (playerRole === 'admin') {
                   e.preventDefault();
                   console.log(`🔍 [Mouse Event] Mouse down on pile ${pile.name} - button: ${e.button}, shiftKey: ${e.shiftKey}`);
-                  
+
                   let isDragging = false;
                   let currentX = pile.positionX;
                   let currentY = pile.positionY;
@@ -493,7 +491,7 @@ export function GameBoard({
                     if (throttleTimeout) {
                       clearTimeout(throttleTimeout);
                     }
-                    
+
                     const delay = immediate ? 0 : 50; // Update every 50ms for smoother movement
                     throttleTimeout = setTimeout(() => {
                       movePileMutation.mutate({ pileId: pile.id, x, y });
@@ -503,20 +501,20 @@ export function GameBoard({
                   const handleMouseMove = (moveEvent: MouseEvent) => {
                     const deltaX = moveEvent.clientX - startX;
                     const deltaY = moveEvent.clientY - startY;
-                    
+
                     // Only start dragging if moved more than 5 pixels
                     if (!isDragging && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
                       isDragging = true;
                       console.log(`🎯 [Deck Drag] Started dragging pile ${pile.name} (${pile.id})`);
                     }
-                    
+
                     if (isDragging) {
                       const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
                       const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
-                      
+
                       currentX = newX;
                       currentY = newY;
-                      
+
                       // Apply snap-to-grid if enabled
                       if (showGrid) {
                         const snapped = snapToGrid(newX, newY, gridSize);
@@ -532,7 +530,7 @@ export function GameBoard({
                   const handleMouseUp = (upEvent: MouseEvent) => {
                     document.removeEventListener('mousemove', handleMouseMove);
                     document.removeEventListener('mouseup', handleMouseUp);
-                    
+
                     if (isDragging) {
                       // Clear any pending throttled updates
                       if (throttleTimeout) {
@@ -544,12 +542,12 @@ export function GameBoard({
                     } else if (cardCount > 0) {
                       // If it was just a click (not a drag) and there are cards, draw one
                       console.log(`🃏 [Card Draw] Drawing card from pile ${pile.name} (${pile.id}) with ${cardCount} cards`);
-                      
+
                       // Check if shift key was held or right button for hand draw
                       if (upEvent.shiftKey || upEvent.button === 2) {
                         console.log(`🃏 [Card Draw] ${upEvent.shiftKey ? 'Shift-click' : 'Right-click'} detected - drawing to hand from pile ${pile.id}`);
                         drawCardToHandMutation.mutate({
-                          pileId: pile.id
+                          pileId: pile.id,
                         });
                       } else {
                         console.log(`🃏 [Card Draw] Normal click - drawing to board from pile ${pile.id}`);
@@ -559,7 +557,7 @@ export function GameBoard({
                         drawCardToBoardMutation.mutate({
                           pileId: pile.id,
                           x: pile.positionX + randomOffsetX,
-                          y: pile.positionY + randomOffsetY
+                          y: pile.positionY + randomOffsetY,
                         });
                       }
                     } else {
@@ -574,8 +572,8 @@ export function GameBoard({
             >
               {/* Deck Spot Visual */}
               <div className={`relative w-16 h-24 rounded-lg border-2 shadow-lg ${
-                pile.pileType === 'deck' 
-                  ? 'bg-blue-800 border-blue-600' 
+                pile.pileType === 'deck'
+                  ? 'bg-blue-800 border-blue-600'
                   : pile.pileType === 'discard'
                   ? 'bg-red-800 border-red-600'
                   : 'bg-gray-800 border-gray-600'
@@ -587,14 +585,14 @@ export function GameBoard({
                     <div className="absolute -top-0.5 -left-0.5 w-16 h-24 rounded-lg border-2 border-gray-400 bg-gray-700 opacity-80"></div>
                   </>
                 )}
-                
+
                 {/* Main deck area */}
                 <div className="relative w-full h-full rounded-lg overflow-hidden">
                   {/* Show card back for main decks with cards, solid color for others */}
                   {pile.pileType === 'deck' && cardCount > 0 && cardBackAsset ? (
                     <>
                       {/* Card back image */}
-                      <img 
+                      <img
                         src={`/api/image-proxy?url=${encodeURIComponent(cardBackAsset.filePath)}`}
                         alt={`${pile.name} card back`}
                         className="w-full h-full object-cover rounded-lg"
@@ -624,17 +622,17 @@ export function GameBoard({
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Pile type indicator */}
                   <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${
-                    pile.pileType === 'deck' 
-                      ? 'bg-blue-400' 
+                    pile.pileType === 'deck'
+                      ? 'bg-blue-400'
                       : pile.pileType === 'discard'
                       ? 'bg-red-400'
                       : 'bg-gray-400'
                   }`}></div>
                 </div>
-                
+
                 {/* GM controls indicator */}
                 {playerRole === 'admin' && (
                   <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs px-1 rounded font-bold">
@@ -642,7 +640,7 @@ export function GameBoard({
                   </div>
                 )}
               </div>
-              
+
               {/* Text below deck */}
               <div className="mt-1 text-center">
                 {/* Deck name */}
@@ -651,7 +649,7 @@ export function GameBoard({
                     <div key={index}>{part}</div>
                   ))}
                 </div>
-                
+
                 {/* Card count and type */}
                 <div className="text-xs text-gray-300 leading-tight">
                   <div>{cardCount} {cardCount === 1 ? 'card' : 'cards'}</div>
@@ -667,13 +665,13 @@ export function GameBoard({
                   )}
                 </div>
               </div>
-              
+
               {/* Discard pile viewer */}
-              <DiscardPileViewer 
+              <DiscardPileViewer
                 pile={{
                   ...pile,
                   cardOrder: pile.cardOrder as string[] || [],
-                  pileType: pile.pileType || 'custom'
+                  pileType: pile.pileType || 'custom',
                 }}
                 assets={assets}
                 isVisible={pile.pileType === 'discard' && cardCount > 0}

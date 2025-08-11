@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { validateSchema, createValidationError, ValidationError } from '@shared/validators';
+import type { ValidationError } from '@shared/validators';
+import { validateSchema, createValidationError } from '@shared/validators';
 
 // Enhanced request interface with validated data
 interface ValidatedRequest<T = any> extends Request {
@@ -14,7 +15,7 @@ export function validateBody<T>(schema: z.ZodSchema<T>) {
     console.log(`🔍 [Validation] Request body:`, req.body);
 
     const result = validateSchema(schema, req.body);
-    
+
     if (!result.success) {
       console.log(`❌ [Validation] Body validation failed:`, result.error);
       return res.status(400).json(result.error);
@@ -33,7 +34,7 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
     console.log(`🔍 [Validation] Query params:`, req.query);
 
     const result = validateSchema(schema, req.query);
-    
+
     if (!result.success) {
       console.log(`❌ [Validation] Query validation failed:`, result.error);
       return res.status(400).json(result.error);
@@ -52,7 +53,7 @@ export function validateParams<T>(schema: z.ZodSchema<T>) {
     console.log(`🔍 [Validation] Route params:`, req.params);
 
     const result = validateSchema(schema, req.params);
-    
+
     if (!result.success) {
       console.log(`❌ [Validation] Params validation failed:`, result.error);
       return res.status(400).json(result.error);
@@ -66,8 +67,8 @@ export function validateParams<T>(schema: z.ZodSchema<T>) {
 
 // Combined validation middleware for body + params
 export function validateBodyAndParams<TBody, TParams>(
-  bodySchema: z.ZodSchema<TBody>, 
-  paramsSchema: z.ZodSchema<TParams>
+  bodySchema: z.ZodSchema<TBody>,
+  paramsSchema: z.ZodSchema<TParams>,
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
     console.log(`🔍 [Validation] Validating body and params for ${req.method} ${req.path}`);
@@ -142,7 +143,7 @@ export function validateWebSocketMessage<T>(schema: z.ZodSchema<T>, message: unk
   console.log(`🔍 [WS Validation] Message:`, message);
 
   const result = validateSchema(schema, message);
-  
+
   if (!result.success) {
     console.log(`❌ [WS Validation] Message validation failed:`, result.error);
   } else {

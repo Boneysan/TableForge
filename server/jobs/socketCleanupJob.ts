@@ -1,9 +1,10 @@
 import { logger } from '../utils/logger';
-import { WebSocketServer, WebSocket } from 'ws';
+import type { WebSocketServer} from 'ws';
+import { WebSocket } from 'ws';
 
 /**
  * Socket Cleanup Job - Handles inactive WebSocket connection cleanup
- * 
+ *
  * Features:
  * - Closes inactive/stale WebSocket connections
  * - Removes disconnected clients from room tracking
@@ -18,12 +19,12 @@ export class SocketCleanupJob {
     userId?: string;
     clientId: string;
   }>;
-  
+
   // TTL configurations (in milliseconds)
   private static readonly INACTIVE_CONNECTION_TTL = 30 * 60 * 1000; // 30 minutes
   private static readonly STALE_CONNECTION_TTL = 2 * 60 * 60 * 1000; // 2 hours
   private static readonly PING_INTERVAL = 30 * 1000; // 30 seconds
-  
+
   constructor(wss: WebSocketServer) {
     this.wss = wss;
     this.connectionTracking = new Map();
@@ -43,11 +44,11 @@ export class SocketCleanupJob {
   }> {
     const correlationId = `socket_cleanup_${Date.now()}`;
     const startTime = Date.now();
-    
+
     logger.info('🔌 [Socket Cleanup] Starting socket cleanup', {
       correlationId,
       timestamp: new Date().toISOString(),
-      totalConnections: this.connectionTracking.size
+      totalConnections: this.connectionTracking.size,
     } as any);
 
     const results = {
@@ -55,7 +56,7 @@ export class SocketCleanupJob {
       staleConnections: 0,
       totalClosed: 0,
       activeConnections: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     try {
@@ -63,11 +64,11 @@ export class SocketCleanupJob {
       const inactiveThreshold = now - SocketCleanupJob.INACTIVE_CONNECTION_TTL;
       const staleThreshold = now - SocketCleanupJob.STALE_CONNECTION_TTL;
 
-      const connectionsToClose: Array<{
+      const connectionsToClose: {
         socket: WebSocket;
         reason: 'inactive' | 'stale';
         info: any;
-      }> = [];
+      }[] = [];
 
       // Analyze all tracked connections
       for (const [socket, info] of this.connectionTracking.entries()) {
@@ -81,14 +82,14 @@ export class SocketCleanupJob {
           connectionsToClose.push({
             socket,
             reason: 'stale',
-            info
+            info,
           });
           results.staleConnections++;
         } else if (info.lastActivity < inactiveThreshold) {
           connectionsToClose.push({
             socket,
             reason: 'inactive',
-            info
+            info,
           });
           results.inactiveConnections++;
         }
@@ -110,17 +111,17 @@ export class SocketCleanupJob {
       logger.info('✅ [Socket Cleanup] Socket cleanup completed successfully', {
         correlationId,
         duration,
-        results
+        results,
       } as any);
 
     } catch (error) {
       const errorMessage = (error as Error).message;
       results.errors.push(errorMessage);
-      
+
       logger.error('❌ [Socket Cleanup] Socket cleanup failed', {
         correlationId,
         error: errorMessage,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       } as any);
     }
 
@@ -133,15 +134,15 @@ export class SocketCleanupJob {
   private setupConnectionTracking(): void {
     this.wss.on('connection', (socket: WebSocket, request) => {
       const clientId = this.generateClientId();
-      
+
       this.connectionTracking.set(socket, {
         lastActivity: Date.now(),
-        clientId
+        clientId,
       });
 
       logger.info('🔌 [Socket Cleanup] New connection tracked', {
         clientId,
-        totalConnections: this.connectionTracking.size
+        totalConnections: this.connectionTracking.size,
       } as any);
 
       // Track activity on this socket
@@ -157,14 +158,14 @@ export class SocketCleanupJob {
         this.connectionTracking.delete(socket);
         logger.info('🔌 [Socket Cleanup] Connection removed from tracking', {
           clientId,
-          totalConnections: this.connectionTracking.size
+          totalConnections: this.connectionTracking.size,
         } as any);
       });
 
       socket.on('error', (error) => {
         logger.error('🔌 [Socket Cleanup] Connection error', {
           clientId,
-          error: error.message
+          error: error.message,
         } as any);
         this.connectionTracking.delete(socket);
       });
@@ -186,7 +187,7 @@ export class SocketCleanupJob {
   private pingAllConnections(): void {
     const now = Date.now();
     let pingsSent = 0;
-    
+
     for (const [socket, info] of this.connectionTracking.entries()) {
       if (socket.readyState === WebSocket.OPEN) {
         try {
@@ -195,9 +196,9 @@ export class SocketCleanupJob {
         } catch (error) {
           logger.error('🔌 [Socket Cleanup] Failed to ping connection', {
             clientId: info.clientId,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
-          
+
           // Remove failed connections
           this.connectionTracking.delete(socket);
         }
@@ -210,7 +211,7 @@ export class SocketCleanupJob {
     if (pingsSent > 0) {
       logger.debug('🔌 [Socket Cleanup] Sent pings to connections', {
         pingsSent,
-        totalTracked: this.connectionTracking.size
+        totalTracked: this.connectionTracking.size,
       } as any);
     }
   }
@@ -231,10 +232,10 @@ export class SocketCleanupJob {
    * Close a specific connection with cleanup
    */
   private async closeConnection(
-    socket: WebSocket, 
+    socket: WebSocket,
     reason: 'inactive' | 'stale',
     info: any,
-    correlationId: string
+    correlationId: string,
   ): Promise<void> {
     try {
       logger.info('🔌 [Socket Cleanup] Closing connection', {
@@ -243,7 +244,7 @@ export class SocketCleanupJob {
         roomId: info.roomId,
         userId: info.userId,
         reason,
-        inactiveTime: Date.now() - info.lastActivity
+        inactiveTime: Date.now() - info.lastActivity,
       } as any);
 
       // Send close frame if connection is still open
@@ -263,7 +264,7 @@ export class SocketCleanupJob {
       logger.error('❌ [Socket Cleanup] Error closing connection', {
         correlationId,
         clientId: info.clientId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       throw error;
     }
@@ -291,14 +292,14 @@ export class SocketCleanupJob {
     const now = Date.now();
     const inactiveThreshold = now - SocketCleanupJob.INACTIVE_CONNECTION_TTL;
     const staleThreshold = now - SocketCleanupJob.STALE_CONNECTION_TTL;
-    
+
     const connectionsByState: Record<string, number> = {
       CONNECTING: 0,
       OPEN: 0,
       CLOSING: 0,
-      CLOSED: 0
+      CLOSED: 0,
     };
-    
+
     let totalAge = 0;
     let eligibleInactive = 0;
     let eligibleStale = 0;
@@ -340,36 +341,36 @@ export class SocketCleanupJob {
       averageConnectionAge,
       connectionsEligibleForCleanup: {
         inactive: eligibleInactive,
-        stale: eligibleStale
-      }
+        stale: eligibleStale,
+      },
     };
   }
 
   /**
    * Force close all connections (used during server shutdown)
    */
-  async closeAllConnections(reason: string = 'Server shutdown'): Promise<void> {
+  async closeAllConnections(reason = 'Server shutdown'): Promise<void> {
     const correlationId = `shutdown_${Date.now()}`;
-    
+
     logger.info('🔌 [Socket Cleanup] Closing all connections', {
       correlationId,
       totalConnections: this.connectionTracking.size,
-      reason
+      reason,
     } as any);
 
     const closePromises: Promise<void>[] = [];
 
     for (const [socket, info] of this.connectionTracking.entries()) {
       closePromises.push(
-        this.closeConnection(socket, 'stale', info, correlationId)
+        this.closeConnection(socket, 'stale', info, correlationId),
       );
     }
 
     await Promise.allSettled(closePromises);
-    
+
     logger.info('✅ [Socket Cleanup] All connections closed', {
       correlationId,
-      reason
+      reason,
     } as any);
   }
 }

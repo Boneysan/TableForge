@@ -31,7 +31,7 @@ interface DiscardPileViewerProps {
 
 export function DiscardPileViewer({ pile, assets, isVisible = true }: DiscardPileViewerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Only show for discard piles
   if (pile.pileType !== 'discard') {
     return null;
@@ -39,10 +39,10 @@ export function DiscardPileViewer({ pile, assets, isVisible = true }: DiscardPil
 
   const cardOrder = Array.isArray(pile.cardOrder) ? pile.cardOrder : [];
   const cardCount = cardOrder.length;
-  
+
   // Get the cards in order (most recently discarded first)
-  const discardedCards = cardOrder.map(cardId => 
-    assets.find(asset => asset.id === cardId)
+  const discardedCards = cardOrder.map(cardId =>
+    assets.find(asset => asset.id === cardId),
   ).filter(Boolean);
 
   if (!isVisible || cardCount === 0) {
@@ -62,7 +62,7 @@ export function DiscardPileViewer({ pile, assets, isVisible = true }: DiscardPil
           View ({cardCount})
         </Button>
       </DialogTrigger>
-      
+
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export function DiscardPileViewer({ pile, assets, isVisible = true }: DiscardPil
             <span className="text-sm text-gray-500">({cardCount} cards)</span>
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="overflow-y-auto max-h-[60vh] pr-2">
           {discardedCards.length > 0 ? (
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
@@ -97,12 +97,12 @@ export function DiscardPileViewer({ pile, assets, isVisible = true }: DiscardPil
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Card order indicator */}
                   <div className="absolute top-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
                     {discardedCards.length - index}
                   </div>
-                  
+
                   {/* Card name tooltip on hover */}
                   {card && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs p-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity truncate">
@@ -118,12 +118,12 @@ export function DiscardPileViewer({ pile, assets, isVisible = true }: DiscardPil
             </div>
           )}
         </div>
-        
+
         <div className="flex justify-between items-center pt-4 border-t">
           <div className="text-sm text-gray-600">
             Cards are shown in discard order (most recent first)
           </div>
-          <Button 
+          <Button
             onClick={() => setIsOpen(false)}
             variant="outline"
             size="sm"

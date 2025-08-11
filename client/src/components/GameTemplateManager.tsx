@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { Save, FolderOpen, Download, Trash2, Eye, Users, Crown } from "lucide-react";
-import type { GameTemplate } from "@shared/schema";
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { Save, FolderOpen, Download, Trash2, Eye, Users, Crown } from 'lucide-react';
+import type { GameTemplate } from '@shared/schema';
 
 interface GameTemplateManagerProps {
   roomId: string;
@@ -24,7 +24,7 @@ interface GameTemplateManagerProps {
 
 export function GameTemplateManager({ roomId, children }: GameTemplateManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("browse");
+  const [activeTab, setActiveTab] = useState('browse');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,17 +47,17 @@ export function GameTemplateManager({ roomId, children }: GameTemplateManagerPro
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Game template saved successfully!",
+        title: 'Success',
+        description: 'Game template saved successfully!',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
-      setActiveTab("browse");
+      setActiveTab('browse');
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to save template",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to save template',
+        variant: 'destructive',
       });
     },
   });
@@ -69,16 +69,16 @@ export function GameTemplateManager({ roomId, children }: GameTemplateManagerPro
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Template applied to room successfully!",
+        title: 'Success',
+        description: 'Template applied to room successfully!',
       });
       setIsOpen(false);
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to apply template",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to apply template',
+        variant: 'destructive',
       });
     },
   });
@@ -90,16 +90,16 @@ export function GameTemplateManager({ roomId, children }: GameTemplateManagerPro
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Template deleted successfully!",
+        title: 'Success',
+        description: 'Template deleted successfully!',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/templates'] });
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete template",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to delete template',
+        variant: 'destructive',
       });
     },
   });
@@ -116,7 +116,7 @@ export function GameTemplateManager({ roomId, children }: GameTemplateManagerPro
             Game Templates
           </DialogTitle>
         </DialogHeader>
-        
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="browse" className="flex items-center gap-2">
@@ -197,11 +197,11 @@ function TemplateCard({ template, onApply, onDelete, isApplying, isDeleting }: T
               )}
             </CardTitle>
             <CardDescription className="mt-1">
-              {template.description || "No description"}
+              {template.description || 'No description'}
             </CardDescription>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           {template.category && (
             <span className="font-medium">{template.category}</span>
@@ -231,16 +231,16 @@ function TemplateCard({ template, onApply, onDelete, isApplying, isDeleting }: T
             Created {template.createdAt ? new Date(template.createdAt).toLocaleDateString() : 'Unknown date'}
           </div>
           <div className="flex gap-2">
-            <Button 
+            <Button
               onClick={onApply}
               disabled={isApplying}
               size="sm"
               data-testid={`button-apply-template-${template.id}`}
             >
               <Download className="w-4 h-4 mr-1" />
-              {isApplying ? "Applying..." : "Apply"}
+              {isApplying ? 'Applying...' : 'Apply'}
             </Button>
-            <Button 
+            <Button
               onClick={onDelete}
               disabled={isDeleting}
               size="sm"
@@ -269,24 +269,24 @@ interface SaveTemplateFormProps {
 
 function SaveTemplateForm({ onSave, isSaving }: SaveTemplateFormProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    name: '',
+    description: '',
     isPublic: false,
-    category: "Custom",
+    category: 'Custom',
     tags: [] as string[],
-    tagInput: "",
+    tagInput: '',
   });
 
   const categories = [
-    "Custom",
-    "RPG",
-    "Board Game",
-    "Card Game",
-    "Strategy",
-    "Party Game",
-    "War Game",
-    "Abstract",
-    "Simulation"
+    'Custom',
+    'RPG',
+    'Board Game',
+    'Card Game',
+    'Strategy',
+    'Party Game',
+    'War Game',
+    'Abstract',
+    'Simulation',
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -308,7 +308,7 @@ function SaveTemplateForm({ onSave, isSaving }: SaveTemplateFormProps) {
       setFormData(prev => ({
         ...prev,
         tags: [...prev.tags, tag],
-        tagInput: "",
+        tagInput: '',
       }));
     }
   };
@@ -349,8 +349,8 @@ function SaveTemplateForm({ onSave, isSaving }: SaveTemplateFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="template-category">Category</Label>
-          <Select 
-            value={formData.category} 
+          <Select
+            value={formData.category}
             onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
           >
             <SelectTrigger data-testid="select-template-category">
@@ -372,7 +372,7 @@ function SaveTemplateForm({ onSave, isSaving }: SaveTemplateFormProps) {
             <Checkbox
               id="template-public"
               checked={formData.isPublic}
-              onCheckedChange={(checked) => 
+              onCheckedChange={(checked) =>
                 setFormData(prev => ({ ...prev, isPublic: !!checked }))
               }
               data-testid="checkbox-template-public"
@@ -398,7 +398,7 @@ function SaveTemplateForm({ onSave, isSaving }: SaveTemplateFormProps) {
             Add
           </Button>
         </div>
-        
+
         {formData.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
             {formData.tags.map((tag) => (
@@ -420,13 +420,13 @@ function SaveTemplateForm({ onSave, isSaving }: SaveTemplateFormProps) {
       <Separator />
 
       <div className="flex justify-end gap-2">
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={!formData.name.trim() || isSaving}
           data-testid="button-save-template"
         >
           <Save className="w-4 h-4 mr-2" />
-          {isSaving ? "Saving..." : "Save Template"}
+          {isSaving ? 'Saving...' : 'Save Template'}
         </Button>
       </div>
     </form>

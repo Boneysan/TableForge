@@ -16,7 +16,7 @@ export class RoomAuthManager {
   async validateRoomMembership(user: ValidatedUser, roomId: string): Promise<RoomClaims | null> {
     const cacheKey = `${user.uid}:${roomId}`;
     const cached = this.membershipCache.get(cacheKey);
-    
+
     // Return cached claims if valid
     if (cached && Date.now() < cached.expiry) {
       console.log('🏠 [Room Auth] Using cached membership for', { userId: user.uid, roomId });
@@ -25,7 +25,7 @@ export class RoomAuthManager {
 
     try {
       console.log('🏠 [Room Auth] Validating room membership', { userId: user.uid, roomId });
-      
+
       // Get room from database
       const room = await storage.getRoom(roomId);
       if (!room) {
@@ -42,18 +42,18 @@ export class RoomAuthManager {
 
       // Create room claims based on membership
       const claims = createRoomClaims(user.uid, roomId, membership.role as any);
-      
+
       // Cache the claims
       this.membershipCache.set(cacheKey, {
         claims,
-        expiry: Date.now() + this.CACHE_TTL
+        expiry: Date.now() + this.CACHE_TTL,
       });
 
       console.log('✅ [Room Auth] Room membership validated', {
         userId: user.uid,
         roomId,
         role: claims.role,
-        permissions: claims.permissions.length
+        permissions: claims.permissions.length,
       });
 
       return claims;
@@ -67,17 +67,17 @@ export class RoomAuthManager {
    * Validates user can perform action in room
    */
   async validateRoomAction(
-    user: ValidatedUser, 
-    roomId: string, 
+    user: ValidatedUser,
+    roomId: string,
     action: string,
-    requiredPermission: string
+    requiredPermission: string,
   ): Promise<{ allowed: boolean; claims?: RoomClaims; reason?: string }> {
-    
+
     console.log('🔒 [Room Auth] Validating room action', {
       userId: user.uid,
       roomId,
       action,
-      requiredPermission
+      requiredPermission,
     });
 
     // Get room membership
@@ -85,7 +85,7 @@ export class RoomAuthManager {
     if (!claims) {
       return {
         allowed: false,
-        reason: 'User is not a member of this room'
+        reason: 'User is not a member of this room',
       };
     }
 
@@ -96,13 +96,13 @@ export class RoomAuthManager {
         roomId,
         action,
         requiredPermission,
-        userPermissions: claims.permissions
+        userPermissions: claims.permissions,
       });
-      
+
       return {
         allowed: false,
         claims,
-        reason: `User lacks required permission: ${requiredPermission}`
+        reason: `User lacks required permission: ${requiredPermission}`,
       };
     }
 
@@ -110,12 +110,12 @@ export class RoomAuthManager {
       userId: user.uid,
       roomId,
       action,
-      role: claims.role
+      role: claims.role,
     });
 
     return {
       allowed: true,
-      claims
+      claims,
     };
   }
 
@@ -144,14 +144,14 @@ export class RoomAuthManager {
   cleanExpiredCache(): void {
     const now = Date.now();
     let cleanedCount = 0;
-    
+
     for (const [key, { expiry }] of this.membershipCache) {
       if (now >= expiry) {
         this.membershipCache.delete(key);
         cleanedCount++;
       }
     }
-    
+
     if (cleanedCount > 0) {
       console.log('🧹 [Room Auth] Cleaned expired cache entries:', cleanedCount);
     }

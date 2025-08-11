@@ -6,7 +6,7 @@ import { ObjectStorageService } from '../objectStorage';
 
 /**
  * Room Cleanup Job - Handles TTL-based room lifecycle management
- * 
+ *
  * Features:
  * - Removes abandoned rooms based on inactivity
  * - Cleans up associated game data (decks, piles, tokens, sessions)
@@ -15,12 +15,12 @@ import { ObjectStorageService } from '../objectStorage';
  */
 export class RoomCleanupJob {
   private objectStorageService: ObjectStorageService;
-  
+
   // TTL configurations (in milliseconds)
   private static readonly ROOM_TTL_INACTIVE = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly ROOM_TTL_EMPTY = 7 * 24 * 60 * 60 * 1000; // 7 days
   private static readonly ROOM_TTL_ABANDONED = 30 * 24 * 60 * 60 * 1000; // 30 days
-  
+
   constructor() {
     this.objectStorageService = new ObjectStorageService();
   }
@@ -37,10 +37,10 @@ export class RoomCleanupJob {
   }> {
     const correlationId = `cleanup_${Date.now()}`;
     const startTime = Date.now();
-    
+
     logger.info('🧹 [Room Cleanup] Starting room lifecycle cleanup', {
       correlationId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     } as any);
 
     const results = {
@@ -48,7 +48,7 @@ export class RoomCleanupJob {
       emptyRooms: 0,
       inactiveRooms: 0,
       totalCleaned: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     try {
@@ -70,17 +70,17 @@ export class RoomCleanupJob {
       logger.info('✅ [Room Cleanup] Cleanup completed successfully', {
         correlationId,
         duration,
-        results
+        results,
       } as any);
 
     } catch (error) {
       const errorMessage = (error as Error).message;
       results.errors.push(errorMessage);
-      
+
       logger.error('❌ [Room Cleanup] Cleanup failed', {
         correlationId,
         error: errorMessage,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       } as any);
     }
 
@@ -92,10 +92,10 @@ export class RoomCleanupJob {
    */
   private async cleanAbandonedRooms(correlationId: string): Promise<number> {
     const cutoffDate = new Date(Date.now() - RoomCleanupJob.ROOM_TTL_ABANDONED);
-    
+
     logger.info('🧹 [Room Cleanup] Cleaning abandoned rooms', {
       correlationId,
-      cutoffDate: cutoffDate.toISOString()
+      cutoffDate: cutoffDate.toISOString(),
     } as any);
 
     try {
@@ -106,8 +106,8 @@ export class RoomCleanupJob {
         .where(
           and(
             lt(gameRooms.updatedAt, cutoffDate),
-            isNull(gameRooms.lastActivityAt) // Rooms with no recent activity
-          )
+            isNull(gameRooms.lastActivityAt), // Rooms with no recent activity
+          ),
         );
 
       let cleanedCount = 0;
@@ -115,18 +115,18 @@ export class RoomCleanupJob {
         try {
           await this.cleanupSingleRoom(room.id, 'abandoned', correlationId);
           cleanedCount++;
-          
+
           logger.info('🧹 [Room Cleanup] Abandoned room cleaned', {
             correlationId,
             roomId: room.id,
-            roomName: room.name
+            roomName: room.name,
           } as any);
-          
+
         } catch (error) {
           logger.error('❌ [Room Cleanup] Failed to clean abandoned room', {
             correlationId,
             roomId: room.id,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
         }
       }
@@ -135,7 +135,7 @@ export class RoomCleanupJob {
     } catch (error) {
       logger.error('❌ [Room Cleanup] Error finding abandoned rooms', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return 0;
     }
@@ -146,23 +146,23 @@ export class RoomCleanupJob {
    */
   private async cleanEmptyRooms(correlationId: string): Promise<number> {
     const cutoffDate = new Date(Date.now() - RoomCleanupJob.ROOM_TTL_EMPTY);
-    
+
     logger.info('🧹 [Room Cleanup] Cleaning empty rooms', {
       correlationId,
-      cutoffDate: cutoffDate.toISOString()
+      cutoffDate: cutoffDate.toISOString(),
     } as any);
 
     try {
       // Find rooms with no active players for 7+ days
       const emptyRooms = await db
-        .select({ 
-          id: gameRooms.id, 
+        .select({
+          id: gameRooms.id,
           name: gameRooms.name,
           playerCount: sql<number>`(
             SELECT COUNT(*) 
             FROM ${roomPlayers} 
             WHERE ${roomPlayers.roomId} = ${gameRooms.id}
-          )`
+          )`,
         })
         .from(gameRooms)
         .where(
@@ -172,8 +172,8 @@ export class RoomCleanupJob {
               SELECT COUNT(*) 
               FROM ${roomPlayers} 
               WHERE ${roomPlayers.roomId} = ${gameRooms.id}
-            ) = 0`
-          )
+            ) = 0`,
+          ),
         );
 
       let cleanedCount = 0;
@@ -181,18 +181,18 @@ export class RoomCleanupJob {
         try {
           await this.cleanupSingleRoom(room.id, 'empty', correlationId);
           cleanedCount++;
-          
+
           logger.info('🧹 [Room Cleanup] Empty room cleaned', {
             correlationId,
             roomId: room.id,
-            roomName: room.name
+            roomName: room.name,
           } as any);
-          
+
         } catch (error) {
           logger.error('❌ [Room Cleanup] Failed to clean empty room', {
             correlationId,
             roomId: room.id,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
         }
       }
@@ -201,7 +201,7 @@ export class RoomCleanupJob {
     } catch (error) {
       logger.error('❌ [Room Cleanup] Error finding empty rooms', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return 0;
     }
@@ -212,26 +212,26 @@ export class RoomCleanupJob {
    */
   private async cleanInactiveRooms(correlationId: string): Promise<number> {
     const cutoffDate = new Date(Date.now() - RoomCleanupJob.ROOM_TTL_INACTIVE);
-    
+
     logger.info('🧹 [Room Cleanup] Cleaning inactive rooms', {
       correlationId,
-      cutoffDate: cutoffDate.toISOString()
+      cutoffDate: cutoffDate.toISOString(),
     } as any);
 
     try {
       // Find rooms that haven't been updated in 24+ hours
       const inactiveRooms = await db
-        .select({ 
-          id: gameRooms.id, 
+        .select({
+          id: gameRooms.id,
           name: gameRooms.name,
-          createdAt: gameRooms.createdAt
+          createdAt: gameRooms.createdAt,
         })
         .from(gameRooms)
         .where(
           and(
             lt(gameRooms.createdAt, cutoffDate),
-            eq(gameRooms.isActive, true)
-          )
+            eq(gameRooms.isActive, true),
+          ),
         );
 
       let cleanedCount = 0;
@@ -239,19 +239,19 @@ export class RoomCleanupJob {
         try {
           await this.cleanupSingleRoom(room.id, 'inactive', correlationId);
           cleanedCount++;
-          
+
           logger.info('🧹 [Room Cleanup] Inactive room cleaned', {
             correlationId,
             roomId: room.id,
             roomName: room.name,
-            createdAt: room.createdAt
+            createdAt: room.createdAt,
           } as any);
-          
+
         } catch (error) {
           logger.error('❌ [Room Cleanup] Failed to clean inactive room', {
             correlationId,
             roomId: room.id,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
         }
       }
@@ -260,7 +260,7 @@ export class RoomCleanupJob {
     } catch (error) {
       logger.error('❌ [Room Cleanup] Error finding inactive rooms', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return 0;
     }
@@ -270,23 +270,23 @@ export class RoomCleanupJob {
    * Clean up a single room and all its associated data
    */
   private async cleanupSingleRoom(
-    roomId: string, 
+    roomId: string,
     reason: 'abandoned' | 'empty' | 'inactive',
-    correlationId: string
+    correlationId: string,
   ): Promise<void> {
-    
+
     await db.transaction(async (tx) => {
       logger.info('🧹 [Room Cleanup] Starting single room cleanup', {
         correlationId,
         roomId,
-        reason
+        reason,
       } as any);
 
       // 1. Delete card decks (preserves system assets)
       await tx.delete(cardDecks)
         .where(eq(cardDecks.roomId, roomId));
 
-      // 2. Delete card piles 
+      // 2. Delete card piles
       await tx.delete(cardPiles)
         .where(eq(cardPiles.roomId, roomId));
 
@@ -308,7 +308,7 @@ export class RoomCleanupJob {
       logger.info('✅ [Room Cleanup] Single room cleanup completed', {
         correlationId,
         roomId,
-        reason
+        reason,
       } as any);
     });
   }
@@ -336,11 +336,11 @@ export class RoomCleanupJob {
         .where(
           and(
             lt(gameRooms.updatedAt, abandonedCutoff),
-            isNull(gameRooms.lastActivityAt)
-          )
+            isNull(gameRooms.lastActivityAt),
+          ),
         ),
 
-      // Empty rooms count  
+      // Empty rooms count
       db.select({ count: sql<number>`COUNT(*)` })
         .from(gameRooms)
         .where(
@@ -350,8 +350,8 @@ export class RoomCleanupJob {
               SELECT COUNT(*) 
               FROM ${roomPlayers} 
               WHERE ${roomPlayers.roomId} = ${gameRooms.id}
-            ) = 0`
-          )
+            ) = 0`,
+          ),
         ),
 
       // Inactive rooms count
@@ -364,22 +364,22 @@ export class RoomCleanupJob {
               SELECT 1 FROM ${gameSessions} 
               WHERE ${gameSessions.roomId} = ${gameRooms.id} 
               AND ${gameSessions.isActive} = true
-            )`
-          )
+            )`,
+          ),
         ),
 
       // Total rooms count
       db.select({ count: sql<number>`COUNT(*)` })
-        .from(gameRooms)
+        .from(gameRooms),
     ]);
 
     return {
       roomsEligibleForCleanup: {
         abandoned: abandoned[0]?.count || 0,
         empty: empty[0]?.count || 0,
-        inactive: inactive[0]?.count || 0
+        inactive: inactive[0]?.count || 0,
       },
-      totalRooms: total[0]?.count || 0
+      totalRooms: total[0]?.count || 0,
     };
   }
 }

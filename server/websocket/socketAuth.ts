@@ -42,7 +42,7 @@ export class SocketAuthManager {
   async authenticateConnection(socket: AuthenticatedSocket, request: IncomingMessage): Promise<boolean> {
     try {
       console.log('🔌 [Socket Auth] Authenticating WebSocket connection');
-      
+
       const token = extractTokenFromWebSocket(request);
       if (!token) {
         this.sendAuthError(socket, 'Authentication token required');
@@ -50,7 +50,7 @@ export class SocketAuthManager {
       }
 
       const user = await validateFirebaseToken(token);
-      
+
       if (!validateTokenFreshness(user)) {
         this.sendAuthError(socket, 'Authentication token has expired');
         return false;
@@ -60,19 +60,19 @@ export class SocketAuthManager {
       socket.user = user;
       socket.isAuthenticated = true;
       socket.lastHeartbeat = Date.now();
-      
+
       // Store authenticated socket
       this.authenticatedSockets.set(user.uid, socket);
-      
+
       console.log('✅ [Socket Auth] WebSocket authenticated:', {
         uid: user.uid,
         email: user.email,
-        socketId: this.getSocketId(socket)
+        socketId: this.getSocketId(socket),
       });
 
       // Send success message
       this.sendMessage(socket, 'auth:success', { user });
-      
+
       return true;
     } catch (error) {
       console.error('❌ [Socket Auth] WebSocket authentication failed:', error);
@@ -87,9 +87,9 @@ export class SocketAuthManager {
   async reauthenticate(socket: AuthenticatedSocket, token: string): Promise<boolean> {
     try {
       console.log('🔄 [Socket Auth] Re-authenticating WebSocket');
-      
+
       const user = await validateFirebaseToken(token);
-      
+
       if (!validateTokenFreshness(user)) {
         this.sendAuthError(socket, 'New token has expired');
         return false;
@@ -98,10 +98,10 @@ export class SocketAuthManager {
       // Update socket user
       socket.user = user;
       socket.lastHeartbeat = Date.now();
-      
+
       console.log('✅ [Socket Auth] WebSocket re-authenticated:', user.uid);
       this.sendMessage(socket, 'auth:success', { user });
-      
+
       return true;
     } catch (error) {
       console.error('❌ [Socket Auth] Re-authentication failed:', error);
@@ -115,9 +115,9 @@ export class SocketAuthManager {
    */
   async authorizeRoomJoin(socket: AuthenticatedSocket, roomId: string): Promise<boolean> {
     if (!socket.user || !socket.isAuthenticated) {
-      this.sendMessage(socket, 'room:unauthorized', { 
-        roomId, 
-        reason: 'Socket not authenticated' 
+      this.sendMessage(socket, 'room:unauthorized', {
+        roomId,
+        reason: 'Socket not authenticated',
       });
       return false;
     }
@@ -125,14 +125,14 @@ export class SocketAuthManager {
     try {
       console.log('🏠 [Socket Auth] Authorizing room join:', {
         userId: socket.user.uid,
-        roomId
+        roomId,
       });
 
       const claims = await roomAuthManager.validateRoomMembership(socket.user, roomId);
       if (!claims) {
         this.sendMessage(socket, 'room:unauthorized', {
           roomId,
-          reason: 'Not a member of this room'
+          reason: 'Not a member of this room',
         });
         return false;
       }
@@ -140,24 +140,24 @@ export class SocketAuthManager {
       // Attach room claims to socket
       socket.roomId = roomId;
       socket.roomClaims = claims;
-      
+
       console.log('✅ [Socket Auth] Room join authorized:', {
         userId: socket.user.uid,
         roomId,
-        role: claims.role
+        role: claims.role,
       });
 
-      this.sendMessage(socket, 'room:joined', { 
-        roomId, 
-        role: claims.role 
+      this.sendMessage(socket, 'room:joined', {
+        roomId,
+        role: claims.role,
       });
-      
+
       return true;
     } catch (error) {
       console.error('❌ [Socket Auth] Room authorization error:', error);
       this.sendMessage(socket, 'room:unauthorized', {
         roomId,
-        reason: 'Authorization error'
+        reason: 'Authorization error',
       });
       return false;
     }
@@ -167,11 +167,11 @@ export class SocketAuthManager {
    * Validate socket action in room
    */
   async validateRoomAction(
-    socket: AuthenticatedSocket, 
-    action: string, 
-    requiredPermission: string
+    socket: AuthenticatedSocket,
+    action: string,
+    requiredPermission: string,
   ): Promise<{ allowed: boolean; reason?: string }> {
-    
+
     if (!socket.user || !socket.isAuthenticated) {
       return { allowed: false, reason: 'Socket not authenticated' };
     }
@@ -184,7 +184,7 @@ export class SocketAuthManager {
       socket.user,
       socket.roomId,
       action,
-      requiredPermission
+      requiredPermission,
     );
 
     if (!result.allowed) {
@@ -192,7 +192,7 @@ export class SocketAuthManager {
         userId: socket.user.uid,
         roomId: socket.roomId,
         action,
-        reason: result.reason
+        reason: result.reason,
       });
     }
 
@@ -206,9 +206,9 @@ export class SocketAuthManager {
     if (socket.user) {
       console.log('👋 [Socket Auth] Socket disconnected:', {
         userId: socket.user.uid,
-        roomId: socket.roomId
+        roomId: socket.roomId,
       });
-      
+
       this.authenticatedSockets.delete(socket.user.uid);
     }
   }
@@ -229,8 +229,8 @@ export class SocketAuthManager {
 
     // Disconnect expired sockets
     for (const socket of expiredSockets) {
-      this.sendMessage(socket, 'token:expired', { 
-        message: 'Authentication token expired, please reconnect' 
+      this.sendMessage(socket, 'token:expired', {
+        message: 'Authentication token expired, please reconnect',
       });
       socket.terminate();
     }

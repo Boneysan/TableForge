@@ -1,65 +1,63 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Search, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Users, 
-  Calendar, 
-  Database, 
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  Calendar,
+  Database,
   Settings,
   Eye,
   Download,
   Upload,
   Copy,
-  ArrowLeft
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { queryClient } from "@/lib/queryClient";
-import { useLocation } from "wouter";
-import type { GameRoom, GameTemplate, GameSystem } from "@shared/schema";
-
+  ArrowLeft,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { queryClient } from '@/lib/queryClient';
+import { useLocation } from 'wouter';
+import type { GameRoom, GameTemplate, GameSystem } from '@shared/schema';
 
 export default function AdminDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTab, setSelectedTab] = useState("rooms");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTab, setSelectedTab] = useState('rooms');
 
-  
   // Fetch all data
   const { data: allRooms = [], isLoading: roomsLoading } = useQuery<GameRoom[]>({
-    queryKey: ["/api/admin/rooms"],
+    queryKey: ['/api/admin/rooms'],
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", "/api/admin/rooms");
+      const response = await authenticatedApiRequest('GET', '/api/admin/rooms');
       return response.json();
     },
   });
 
   const { data: allTemplates = [], isLoading: templatesLoading } = useQuery<GameTemplate[]>({
-    queryKey: ["/api/admin/templates"],
+    queryKey: ['/api/admin/templates'],
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", "/api/admin/templates");
+      const response = await authenticatedApiRequest('GET', '/api/admin/templates');
       return response.json();
     },
   });
 
   const { data: allGameSystems = [], isLoading: systemsLoading } = useQuery<GameSystem[]>({
-    queryKey: ["/api/admin/game-systems"],
+    queryKey: ['/api/admin/game-systems'],
     queryFn: async () => {
-      const response = await authenticatedApiRequest("GET", "/api/admin/game-systems");
+      const response = await authenticatedApiRequest('GET', '/api/admin/game-systems');
       return response.json();
     },
   });
@@ -67,76 +65,76 @@ export default function AdminDashboard() {
   // Delete mutations
   const deleteRoomMutation = useMutation({
     mutationFn: async (roomId: string) => {
-      const response = await authenticatedApiRequest("DELETE", `/api/rooms/${roomId}`);
+      const response = await authenticatedApiRequest('DELETE', `/api/rooms/${roomId}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/rooms"] });
-      toast({ title: "Room deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/rooms'] });
+      toast({ title: 'Room deleted successfully' });
     },
     onError: () => {
-      toast({ title: "Failed to delete room", variant: "destructive" });
+      toast({ title: 'Failed to delete room', variant: 'destructive' });
     },
   });
 
   const deleteTemplateMutation = useMutation({
     mutationFn: async (templateId: string) => {
-      const response = await authenticatedApiRequest("DELETE", `/api/templates/${templateId}`);
+      const response = await authenticatedApiRequest('DELETE', `/api/templates/${templateId}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/templates"] });
-      toast({ title: "Template deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/templates'] });
+      toast({ title: 'Template deleted successfully' });
     },
     onError: () => {
-      toast({ title: "Failed to delete template", variant: "destructive" });
+      toast({ title: 'Failed to delete template', variant: 'destructive' });
     },
   });
 
   const deleteGameSystemMutation = useMutation({
     mutationFn: async (systemId: string) => {
-      const response = await authenticatedApiRequest("DELETE", `/api/game-systems/${systemId}`);
+      const response = await authenticatedApiRequest('DELETE', `/api/game-systems/${systemId}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/game-systems"] });
-      toast({ title: "Game system deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/game-systems'] });
+      toast({ title: 'Game system deleted successfully' });
     },
     onError: () => {
-      toast({ title: "Failed to delete game system", variant: "destructive" });
+      toast({ title: 'Failed to delete game system', variant: 'destructive' });
     },
   });
 
   // Cleanup orphaned files mutation
   const cleanupOrphanedFilesMutation = useMutation({
     mutationFn: async () => {
-      const response = await authenticatedApiRequest("POST", "/api/admin/cleanup-orphaned-files");
+      const response = await authenticatedApiRequest('POST', '/api/admin/cleanup-orphaned-files');
       return response.json();
     },
     onSuccess: (data) => {
-      toast({ 
-        title: "Cleanup completed", 
-        description: `Deleted ${data.deleted} orphaned files` 
+      toast({
+        title: 'Cleanup completed',
+        description: `Deleted ${data.deleted} orphaned files`,
       });
     },
     onError: () => {
-      toast({ title: "Failed to cleanup orphaned files", variant: "destructive" });
+      toast({ title: 'Failed to cleanup orphaned files', variant: 'destructive' });
     },
   });
 
   // Filter functions
-  const filteredRooms = allRooms.filter(room => 
-    room.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRooms = allRooms.filter(room =>
+    room.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const filteredTemplates = allTemplates.filter(template => 
+  const filteredTemplates = allTemplates.filter(template =>
     template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    template.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    template.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const filteredGameSystems = allGameSystems.filter(system => 
+  const filteredGameSystems = allGameSystems.filter(system =>
     system.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    system.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    system.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const formatDate = (date: Date | string | null) => {
@@ -146,7 +144,7 @@ export default function AdminDashboard() {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -158,7 +156,7 @@ export default function AdminDashboard() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation('/')}
             className="flex items-center gap-2"
             data-testid="button-back-home"
           >
@@ -193,8 +191,8 @@ export default function AdminDashboard() {
             )}
           </Button>
           <ThemeToggle />
-          <Button 
-            onClick={() => setLocation("/")}
+          <Button
+            onClick={() => setLocation('/')}
             variant="ghost"
             size="sm"
             data-testid="button-home"
@@ -330,8 +328,8 @@ export default function AdminDashboard() {
                             <Badge variant="secondary">
                               ID: {template.id.slice(0, 8)}...
                             </Badge>
-                            <Badge variant={template.isPublic ? "default" : "outline"}>
-                              {template.isPublic ? "Public" : "Private"}
+                            <Badge variant={template.isPublic ? 'default' : 'outline'}>
+                              {template.isPublic ? 'Public' : 'Private'}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
@@ -403,7 +401,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex space-x-2">
               <Button
-                onClick={() => setLocation("/create-game-system")}
+                onClick={() => setLocation('/create-game-system')}
                 className="flex items-center gap-2"
                 data-testid="button-create-game-system"
               >
@@ -412,7 +410,7 @@ export default function AdminDashboard() {
               </Button>
             </div>
           </div>
-          
+
           {systemsLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -439,8 +437,8 @@ export default function AdminDashboard() {
                             <Badge variant="secondary">
                               ID: {system.id.slice(0, 8)}...
                             </Badge>
-                            <Badge variant={system.isPublic ? "default" : "outline"}>
-                              {system.isPublic ? "Public" : "Private"}
+                            <Badge variant={system.isPublic ? 'default' : 'outline'}>
+                              {system.isPublic ? 'Public' : 'Private'}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">

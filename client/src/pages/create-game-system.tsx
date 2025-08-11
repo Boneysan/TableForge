@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { 
-  ArrowLeft, 
-  Upload, 
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import {
+  ArrowLeft,
+  Upload,
   Save,
   Plus,
   X,
@@ -20,14 +20,14 @@ import {
   Circle,
   Map,
   FileText,
-  Package
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import { BulkUploader } from "@/components/BulkUploader";
-import { useLocation } from "wouter";
-import { authenticatedApiRequest } from "@/lib/authClient";
-import { queryClient } from "@/lib/queryClient";
+  Package,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { ObjectUploader } from '@/components/ObjectUploader';
+import { BulkUploader } from '@/components/BulkUploader';
+import { useLocation } from 'wouter';
+import { authenticatedApiRequest } from '@/lib/authClient';
+import { queryClient } from '@/lib/queryClient';
 
 interface UploadedAsset {
   name: string;
@@ -40,13 +40,13 @@ interface UploadedAsset {
 export default function CreateGameSystem() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  
+
   // Form state
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState("");
+  const [newTag, setNewTag] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [uploadedAssets, setUploadedAssets] = useState<UploadedAsset[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'cards' | 'tokens' | 'maps' | 'rules'>('cards');
@@ -55,21 +55,21 @@ export default function CreateGameSystem() {
   // Handle asset upload
   const handleAssetUpload = async () => {
     try {
-      const response = await authenticatedApiRequest("POST", "/api/objects/upload");
+      const response = await authenticatedApiRequest('POST', '/api/objects/upload');
       if (!response.ok) {
-        throw new Error("Failed to get upload parameters");
+        throw new Error('Failed to get upload parameters');
       }
       const data = await response.json();
       return {
-        method: "PUT" as const,
+        method: 'PUT' as const,
         url: data.uploadURL,
       };
     } catch (error) {
-      console.error("Error getting upload parameters:", error);
+      console.error('Error getting upload parameters:', error);
       toast({
-        title: "Upload Error",
-        description: "Failed to prepare upload. Please try again.",
-        variant: "destructive",
+        title: 'Upload Error',
+        description: 'Failed to prepare upload. Please try again.',
+        variant: 'destructive',
       });
       throw error;
     }
@@ -86,7 +86,7 @@ export default function CreateGameSystem() {
       }));
       setUploadedAssets(prev => [...prev, ...newAssets]);
       toast({
-        title: "Assets Uploaded",
+        title: 'Assets Uploaded',
         description: `Successfully uploaded ${result.successful.length} ${selectedCategory} asset(s)`,
       });
     }
@@ -97,15 +97,15 @@ export default function CreateGameSystem() {
     console.log('🎯 [System Asset Upload] Processing completed upload:', {
       hasSystemId: !!currentSystemId,
       systemId: currentSystemId,
-      successfulCount: result.successful?.length || 0
+      successfulCount: result.successful?.length || 0,
     });
 
     if (!currentSystemId) {
       console.error('❌ [System Asset Upload] No system ID available for asset creation');
       toast({
-        title: "Upload Error",
-        description: "Please create the system first before uploading assets",
-        variant: "destructive",
+        title: 'Upload Error',
+        description: 'Please create the system first before uploading assets',
+        variant: 'destructive',
       });
       return;
     }
@@ -127,13 +127,13 @@ export default function CreateGameSystem() {
             systemId: currentSystemId,
             name: assetData.name,
             type: assetData.type,
-            path: assetData.filePath
+            path: assetData.filePath,
           });
 
           const response = await authenticatedApiRequest(
-            "POST", 
-            `/api/systems/${currentSystemId}/assets`, 
-            assetData
+            'POST',
+            `/api/systems/${currentSystemId}/assets`,
+            assetData,
           );
 
           if (!response.ok) {
@@ -154,17 +154,17 @@ export default function CreateGameSystem() {
           category: selectedCategory,
         }));
         setUploadedAssets(prev => [...prev, ...newAssets]);
-        
+
         toast({
-          title: "System Assets Created",
+          title: 'System Assets Created',
           description: `Successfully created ${result.successful.length} ${selectedCategory} asset(s) in database`,
         });
       } catch (error) {
         console.error('❌ [System Asset Upload] Failed to create database records:', error);
         toast({
-          title: "Database Error",
+          title: 'Database Error',
           description: `Upload succeeded but failed to create database records: ${error.message}`,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     }
@@ -173,19 +173,19 @@ export default function CreateGameSystem() {
   // Handle tag management
   // Preset tag suggestions categorized by type
   const tagSuggestions = {
-    "Game Types": ["strategy", "card-game", "board-game", "rpg", "party-game", "cooperative", "competitive", "abstract"],
-    "Mechanics": ["deck-building", "area-control", "worker-placement", "dice-rolling", "tile-placement", "trading", "resource-management", "drafting"],
-    "Themes": ["fantasy", "sci-fi", "medieval", "modern", "historical", "horror", "adventure", "mystery", "war", "space"],
-    "Player Count": ["solo", "2-player", "3-4-players", "5+ players", "party-size"],
-    "Complexity": ["beginner", "family", "intermediate", "advanced", "expert"],
-    "Time": ["quick", "30-min", "60-min", "90+ min", "epic"]
+    'Game Types': ['strategy', 'card-game', 'board-game', 'rpg', 'party-game', 'cooperative', 'competitive', 'abstract'],
+    'Mechanics': ['deck-building', 'area-control', 'worker-placement', 'dice-rolling', 'tile-placement', 'trading', 'resource-management', 'drafting'],
+    'Themes': ['fantasy', 'sci-fi', 'medieval', 'modern', 'historical', 'horror', 'adventure', 'mystery', 'war', 'space'],
+    'Player Count': ['solo', '2-player', '3-4-players', '5+ players', 'party-size'],
+    'Complexity': ['beginner', 'family', 'intermediate', 'advanced', 'expert'],
+    'Time': ['quick', '30-min', '60-min', '90+ min', 'epic'],
   };
 
   const addTag = (tag?: string) => {
     const tagToAdd = tag || newTag.trim();
     if (tagToAdd && !tags.includes(tagToAdd.toLowerCase())) {
       setTags([...tags, tagToAdd.toLowerCase()]);
-      setNewTag("");
+      setNewTag('');
       setShowTagSuggestions(false);
     }
   };
@@ -196,10 +196,10 @@ export default function CreateGameSystem() {
       .split(/[,;\n\r]+/)
       .map(tag => tag.trim().toLowerCase())
       .filter(tag => tag && !tags.includes(tag));
-    
+
     if (newTags.length > 0) {
       setTags([...tags, ...newTags]);
-      setNewTag("");
+      setNewTag('');
       setShowTagSuggestions(false);
     }
   };
@@ -246,31 +246,31 @@ export default function CreateGameSystem() {
         assets: uploadedAssets,
       };
 
-      const response = await authenticatedApiRequest("POST", "/api/systems", gameSystemData);
-      
+      const response = await authenticatedApiRequest('POST', '/api/systems', gameSystemData);
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create game system");
+        throw new Error(errorData.message || 'Failed to create game system');
       }
-      
+
       return response.json();
     },
     onSuccess: (data) => {
       console.log('🎯 [Game System] Created successfully:', data.id);
       setCurrentSystemId(data.id); // Store system ID for asset uploads
-      
+
       toast({
-        title: "Game System Created",
+        title: 'Game System Created',
         description: `"${name}" has been created successfully! You can now upload assets.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/game-systems"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/game-systems"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/game-systems'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/game-systems'] });
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to Create Game System",
-        description: error.message || "An error occurred while creating the game system.",
-        variant: "destructive",
+        title: 'Failed to Create Game System',
+        description: error.message || 'An error occurred while creating the game system.',
+        variant: 'destructive',
       });
     },
   });
@@ -278,9 +278,9 @@ export default function CreateGameSystem() {
   const handleSave = () => {
     if (!name.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Please provide a name for your game system.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please provide a name for your game system.',
+        variant: 'destructive',
       });
       return;
     }
@@ -292,7 +292,7 @@ export default function CreateGameSystem() {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))  } ${  sizes[i]}`;
   };
 
   const assetCategories = [
@@ -314,7 +314,7 @@ export default function CreateGameSystem() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation('/')}
             className="flex items-center gap-2"
             data-testid="button-back-home"
           >
@@ -378,14 +378,14 @@ export default function CreateGameSystem() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-gray-600">Add tags to help players discover your game system</p>
-            
+
             {/* Current Tags */}
             <div className="flex flex-wrap gap-2 mb-2">
               {tags.map((tag, index) => (
                 <Badge key={index} variant="secondary" className="flex items-center gap-1">
                   {tag}
-                  <X 
-                    className="w-3 h-3 cursor-pointer" 
+                  <X
+                    className="w-3 h-3 cursor-pointer"
                     onClick={() => removeTag(tag)}
                     data-testid={`remove-tag-${tag}`}
                   />
@@ -395,7 +395,7 @@ export default function CreateGameSystem() {
                 <span className="text-gray-400 text-sm">No tags added yet</span>
               )}
             </div>
-            
+
             {/* Tag Input */}
             <div className="relative">
               <div className="flex gap-2">
@@ -408,9 +408,9 @@ export default function CreateGameSystem() {
                   onFocus={() => setShowTagSuggestions(true)}
                   data-testid="input-new-tag"
                 />
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     if (newTag.includes(',') || newTag.includes(';') || newTag.includes('\n')) {
                       addMultipleTags(newTag);
@@ -423,16 +423,16 @@ export default function CreateGameSystem() {
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setShowTagSuggestions(!showTagSuggestions)}
                   data-testid="button-toggle-suggestions"
                 >
                   Suggestions
                 </Button>
               </div>
-              
+
               {/* Tag Suggestions Dropdown */}
               {showTagSuggestions && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
@@ -448,7 +448,7 @@ export default function CreateGameSystem() {
                         <X className="w-3 h-3" />
                       </Button>
                     </div>
-                    
+
                     {Object.entries(tagSuggestions).map(([category, categoryTags]) => (
                       <div key={category} className="mb-4 last:mb-0">
                         <h5 className="text-xs font-medium text-gray-500 mb-2">{category}</h5>
@@ -457,8 +457,8 @@ export default function CreateGameSystem() {
                             <button
                               key={tag}
                               className={`px-2 py-1 text-xs rounded-md border transition-colors
-                                ${tags.includes(tag) 
-                                  ? 'bg-blue-100 border-blue-300 text-blue-700 cursor-not-allowed' 
+                                ${tags.includes(tag)
+                                  ? 'bg-blue-100 border-blue-300 text-blue-700 cursor-not-allowed'
                                   : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
                                 }`}
                               onClick={() => addTag(tag)}
@@ -475,7 +475,7 @@ export default function CreateGameSystem() {
                 </div>
               )}
             </div>
-            
+
             {/* Tag Helper Text */}
             <div className="text-xs text-gray-500 space-y-1">
               <div>
@@ -507,7 +507,7 @@ export default function CreateGameSystem() {
                   return (
                     <Button
                       key={category.id}
-                      variant={isSelected ? "default" : "outline"}
+                      variant={isSelected ? 'default' : 'outline'}
                       onClick={() => setSelectedCategory(category.id)}
                       className="flex flex-col h-auto p-4 text-center"
                       data-testid={`button-category-${category.id}`}
@@ -530,7 +530,7 @@ export default function CreateGameSystem() {
                     <Settings className="w-4 h-4" />
                   </div>
                   <div className="text-sm text-amber-800">
-                    <strong>First Step:</strong> Create your game system by filling out the basic information and clicking "Create Game System" below. 
+                    <strong>First Step:</strong> Create your game system by filling out the basic information and clicking "Create Game System" below.
                     Once created, you can upload assets that will be automatically saved to the database.
                   </div>
                 </div>
@@ -552,13 +552,13 @@ export default function CreateGameSystem() {
 
             {/* Upload Options */}
             <div className="space-y-4">
-              {selectedCategory === "cards" ? (
+              {selectedCategory === 'cards' ? (
                 <div className="space-y-4">
                   <div className="text-center">
                     <h4 className="font-medium text-lg mb-2">Card Upload Options</h4>
                     <p className="text-sm text-muted-foreground">Choose your upload method based on the number of cards</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Standard Upload */}
                     <div className="text-center">
@@ -574,7 +574,7 @@ export default function CreateGameSystem() {
                       </ObjectUploader>
                       <p className="text-xs text-muted-foreground mt-2">Good for smaller card sets</p>
                     </div>
-                    
+
                     {/* Bulk Upload */}
                     <div className="text-center">
                       <BulkUploader
@@ -585,7 +585,7 @@ export default function CreateGameSystem() {
                         onBatchComplete={currentSystemId ? handleSystemAssetUploadComplete : handleUploadComplete}
                         onAllComplete={(total) => {
                           toast({
-                            title: "System Assets Complete",
+                            title: 'System Assets Complete',
                             description: `Successfully processed ${total} cards! ${currentSystemId ? 'All assets created in database.' : 'Create the system first to save assets.'}`,
                           });
                         }}
@@ -597,7 +597,7 @@ export default function CreateGameSystem() {
                       <p className="text-xs text-muted-foreground mt-2">Perfect for complete card sets like your 140 cards</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-start gap-3">
                       <div className="text-blue-600 mt-0.5">
@@ -639,9 +639,9 @@ export default function CreateGameSystem() {
                 {assetCategories.map((category) => {
                   const categoryAssets = getAssetsByCategory(category.id);
                   const Icon = category.icon;
-                  
+
                   if (categoryAssets.length === 0) return null;
-                  
+
                   return (
                     <div key={category.id} className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -652,8 +652,8 @@ export default function CreateGameSystem() {
                         {categoryAssets.map((asset, index) => {
                           const globalIndex = uploadedAssets.indexOf(asset);
                           return (
-                            <div 
-                              key={globalIndex} 
+                            <div
+                              key={globalIndex}
                               className="flex items-center justify-between p-3 bg-muted rounded-lg"
                             >
                               <div className="flex items-center space-x-3">
@@ -689,7 +689,7 @@ export default function CreateGameSystem() {
         <div className="flex justify-end space-x-4">
           <Button
             variant="outline"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation('/')}
             data-testid="button-cancel"
           >
             Cancel
@@ -714,7 +714,7 @@ export default function CreateGameSystem() {
             </Button>
           ) : (
             <Button
-              onClick={() => setLocation("/admin")}
+              onClick={() => setLocation('/admin')}
               data-testid="button-finish"
             >
               <Save className="w-4 h-4 mr-2" />

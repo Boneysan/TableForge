@@ -4,28 +4,28 @@ import { z } from 'zod';
 export const ServerConfigSchema = z.object({
   // Database
   DATABASE_URL: z.string().url('Invalid DATABASE_URL format'),
-  
+
   // Firebase
   FIREBASE_PROJECT_ID: z.string().min(1, 'FIREBASE_PROJECT_ID is required').default('board-games-f2082'),
-  
+
   // Google Cloud Storage
   GOOGLE_APPLICATION_CREDENTIALS: z.string().optional(),
   GOOGLE_SERVICE_ACCOUNT_KEY: z.string().optional(),
   GOOGLE_STORAGE_BUCKET: z.string().min(1, 'GOOGLE_STORAGE_BUCKET is required').default('board-games-f2082.firebasestorage.app'),
-  
+
   // Server
   PORT: z.coerce.number().int().min(1).max(65535).default(5000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  
+
   // Security
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
-  
+
   // Optional configurations
   CORS_ORIGINS: z.string().optional(),
   DEBUG: z.string().optional(),
   MAX_FILE_SIZE: z.coerce.number().int().positive().default(52428800), // 50MB
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(100),
-  
+
   // Replit-specific (auto-populated)
   REPL_ID: z.string().optional(),
   REPL_SLUG: z.string().optional(),
@@ -35,7 +35,7 @@ export const ServerConfigSchema = z.object({
   {
     message: 'Either GOOGLE_APPLICATION_CREDENTIALS or GOOGLE_SERVICE_ACCOUNT_KEY must be provided',
     path: ['GOOGLE_APPLICATION_CREDENTIALS'],
-  }
+  },
 );
 
 export const ClientConfigSchema = z.object({
@@ -54,7 +54,7 @@ export type ClientConfig = z.infer<typeof ClientConfigSchema>;
 export function validateServerConfig(): ServerConfig {
   try {
     const config = ServerConfigSchema.parse(process.env);
-    
+
     // Additional validation logging in development
     if (config.NODE_ENV === 'development') {
       console.log('✅ [Config] Server configuration validated successfully');
@@ -64,7 +64,7 @@ export function validateServerConfig(): ServerConfig {
       console.log(`🔥 [Config] Firebase Project: ${config.FIREBASE_PROJECT_ID}`);
       console.log(`☁️  [Config] Storage Bucket: ${config.GOOGLE_STORAGE_BUCKET}`);
     }
-    
+
     return config;
   } catch (error) {
     console.error('❌ [Config] Server configuration validation failed:');
@@ -77,7 +77,7 @@ export function validateServerConfig(): ServerConfig {
     } else {
       console.error('  •', error);
     }
-    
+
     console.error('\n🚨 [Config] Application cannot start with invalid configuration');
     process.exit(1);
   }
@@ -87,13 +87,13 @@ export function validateClientConfig(): ClientConfig {
   try {
     // In the client environment, use import.meta.env instead of process.env
     const env = typeof window !== 'undefined' ? import.meta.env : process.env;
-    
+
     const config = ClientConfigSchema.parse(env);
-    
+
     if (config.VITE_NODE_ENV === 'development') {
       console.log('✅ [Config] Client configuration validated successfully');
     }
-    
+
     return config;
   } catch (error) {
     console.error('❌ [Config] Client configuration validation failed:');
@@ -105,7 +105,7 @@ export function validateClientConfig(): ClientConfig {
     } else {
       console.error('  •', error);
     }
-    
+
     throw new Error('Invalid client configuration');
   }
 }

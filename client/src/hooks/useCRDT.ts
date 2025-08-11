@@ -7,7 +7,7 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { useWebSocket } from './useWebSocket';
 
 // Basic CRDT operation types
-export type CRDTOperation = 
+export type CRDTOperation =
   | { type: 'set'; key: string; value: any; timestamp: number; userId: string; }
   | { type: 'delete'; key: string; timestamp: number; userId: string; }
   | { type: 'list_insert'; key: string; index: number; value: any; timestamp: number; userId: string; }
@@ -72,10 +72,10 @@ export function useCRDT(options: UseCRDTOptions) {
     switch (conflictResolution) {
       case 'timestamp':
         return op1.timestamp > op2.timestamp ? op1 : op2;
-      
+
       case 'userId':
         return op1.userId > op2.userId ? op1 : op2;
-      
+
       default:
         return op1.timestamp > op2.timestamp ? op1 : op2;
     }
@@ -131,9 +131,9 @@ export function useCRDT(options: UseCRDTOptions) {
   const processOperations = useCallback((operations: CRDTOperation[]): Record<string, any> => {
     // Sort operations by timestamp for causal ordering
     const sortedOps = [...operations].sort((a, b) => a.timestamp - b.timestamp);
-    
+
     let state = { ...initialState };
-    
+
     // Group conflicting operations by key and resolve conflicts
     const operationsByKey = sortedOps.reduce((acc, op) => {
       const key = op.key;
@@ -146,10 +146,10 @@ export function useCRDT(options: UseCRDTOptions) {
     Object.entries(operationsByKey).forEach(([key, ops]) => {
       // For conflicting operations on the same key at similar timestamps, resolve conflicts
       const resolvedOps = ops.reduce((resolved, currentOp) => {
-        const conflictingOp = resolved.find(op => 
+        const conflictingOp = resolved.find(op =>
           Math.abs(op.timestamp - currentOp.timestamp) < 1000 && // Within 1ms
           op.type === currentOp.type &&
-          op.key === currentOp.key
+          op.key === currentOp.key,
         );
 
         if (conflictingOp) {
@@ -210,8 +210,8 @@ export function useCRDT(options: UseCRDTOptions) {
   const mergeRemoteOperation = useCallback((operation: CRDTOperation) => {
     setDocument(prev => {
       // Check if we already have this operation
-      const existingOp = prev.operations.find(op => 
-        op.timestamp === operation.timestamp && op.userId === operation.userId
+      const existingOp = prev.operations.find(op =>
+        op.timestamp === operation.timestamp && op.userId === operation.userId,
       );
 
       if (existingOp) return prev;
@@ -232,7 +232,7 @@ export function useCRDT(options: UseCRDTOptions) {
       remoteVersion: prev.remoteVersion + 1,
       // Remove pending operation if it was acknowledged
       pendingOperations: prev.pendingOperations.filter(
-        op => !(op.timestamp === operation.timestamp && op.userId === operation.userId)
+        op => !(op.timestamp === operation.timestamp && op.userId === operation.userId),
       ),
     }));
   }, [processOperations]);
@@ -326,11 +326,11 @@ export function useCRDT(options: UseCRDTOptions) {
     state: document.state,
     version: document.version,
     lastModified: document.lastModified,
-    
+
     // Sync state
     isSync: syncState.isSync,
     pendingOperations: syncState.pendingOperations.length,
-    
+
     // Operations
     setValue,
     deleteValue,
@@ -338,14 +338,14 @@ export function useCRDT(options: UseCRDTOptions) {
     deleteFromList,
     moveInList,
     getValue,
-    
+
     // Raw operations
     applyLocalOperation,
     mergeRemoteOperation,
-    
+
     // Sync
     syncWithServer,
-    
+
     // Import/Export
     exportDocument,
     importDocument,

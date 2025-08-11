@@ -89,21 +89,21 @@ export function useCanvasPerformance(options: UseCanvasPerformanceOptions = {}) 
     setMetrics(prev => {
       const currentFps = prev.fps;
       const targetRatio = currentFps / targetFps;
-      
-      let newSettings = { ...prev.adaptiveSettings };
+
+      const newSettings = { ...prev.adaptiveSettings };
 
       // Performance is below threshold, optimize for speed
       if (targetRatio < performanceThreshold) {
         // Increase throttling (reduce frequency)
         newSettings.throttleMs = Math.min(32, newSettings.throttleMs + 2);
-        
+
         // Reduce batch size for lighter processing
         newSettings.batchSize = Math.max(10, newSettings.batchSize - 10);
-        
+
         // Keep virtualization and workers enabled for heavy scenes
         newSettings.enableVirtualization = true;
         newSettings.enableWorkers = true;
-        
+
       } else if (targetRatio > 0.95) {
         // Performance is good, can increase quality
         newSettings.throttleMs = Math.max(8, newSettings.throttleMs - 1);
@@ -130,7 +130,7 @@ export function useCanvasPerformance(options: UseCanvasPerformanceOptions = {}) 
 
     if (now - metrics_ref.lastTime >= 1000) {
       const fps = metrics_ref.frameCount / ((now - metrics_ref.lastTime) / 1000);
-      
+
       const avgRenderTime = metrics_ref.renderTimes.length > 0
         ? metrics_ref.renderTimes.reduce((a, b) => a + b, 0) / metrics_ref.renderTimes.length
         : 0;

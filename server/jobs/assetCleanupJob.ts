@@ -6,7 +6,7 @@ import { ObjectStorageService } from '../objectStorage';
 
 /**
  * Asset Cleanup Job - Handles TTL-based temporary asset management
- * 
+ *
  * Features:
  * - Removes orphaned temporary assets
  * - Cleans up uploaded files with no database references
@@ -15,12 +15,12 @@ import { ObjectStorageService } from '../objectStorage';
  */
 export class AssetCleanupJob {
   private objectStorageService: ObjectStorageService;
-  
+
   // TTL configurations (in milliseconds)
   private static readonly TEMP_ASSET_TTL = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly ORPHANED_ASSET_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
   private static readonly UNUSED_UPLOAD_TTL = 2 * 60 * 60 * 1000; // 2 hours
-  
+
   constructor() {
     this.objectStorageService = new ObjectStorageService();
   }
@@ -38,10 +38,10 @@ export class AssetCleanupJob {
   }> {
     const correlationId = `asset_cleanup_${Date.now()}`;
     const startTime = Date.now();
-    
+
     logger.info('🗑️ [Asset Cleanup] Starting asset cleanup', {
       correlationId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     } as any);
 
     const results = {
@@ -50,7 +50,7 @@ export class AssetCleanupJob {
       unusedUploads: 0,
       totalCleaned: 0,
       storageFreed: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     try {
@@ -72,17 +72,17 @@ export class AssetCleanupJob {
       logger.info('✅ [Asset Cleanup] Asset cleanup completed successfully', {
         correlationId,
         duration,
-        results
+        results,
       } as any);
 
     } catch (error) {
       const errorMessage = (error as Error).message;
       results.errors.push(errorMessage);
-      
+
       logger.error('❌ [Asset Cleanup] Asset cleanup failed', {
         correlationId,
         error: errorMessage,
-        duration: Date.now() - startTime
+        duration: Date.now() - startTime,
       } as any);
     }
 
@@ -94,27 +94,27 @@ export class AssetCleanupJob {
    */
   private async cleanTemporaryAssets(correlationId: string): Promise<number> {
     const cutoffDate = new Date(Date.now() - AssetCleanupJob.TEMP_ASSET_TTL);
-    
+
     logger.info('🗑️ [Asset Cleanup] Cleaning temporary assets', {
       correlationId,
-      cutoffDate: cutoffDate.toISOString()
+      cutoffDate: cutoffDate.toISOString(),
     } as any);
 
     try {
       // Find temporary assets that have expired
       const expiredAssets = await db
-        .select({ 
-          id: gameAssets.id, 
+        .select({
+          id: gameAssets.id,
           fileName: gameAssets.fileName,
           filePath: gameAssets.filePath,
-          fileSize: gameAssets.fileSize
+          fileSize: gameAssets.fileSize,
         })
         .from(gameAssets)
         .where(
           and(
             eq(gameAssets.isTemporary, true),
-            lt(gameAssets.createdAt, cutoffDate)
-          )
+            lt(gameAssets.createdAt, cutoffDate),
+          ),
         );
 
       let cleanedCount = 0;
@@ -133,19 +133,19 @@ export class AssetCleanupJob {
 
           cleanedCount++;
           totalSize += asset.fileSize || 0;
-          
+
           logger.info('🗑️ [Asset Cleanup] Temporary asset cleaned', {
             correlationId,
             assetId: asset.id,
             fileName: asset.fileName,
-            fileSize: asset.fileSize
+            fileSize: asset.fileSize,
           } as any);
-          
+
         } catch (error) {
           logger.error('❌ [Asset Cleanup] Failed to clean temporary asset', {
             correlationId,
             assetId: asset.id,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
         }
       }
@@ -153,14 +153,14 @@ export class AssetCleanupJob {
       logger.info('✅ [Asset Cleanup] Temporary assets cleanup completed', {
         correlationId,
         cleanedCount,
-        totalSize
+        totalSize,
       } as any);
 
       return cleanedCount;
     } catch (error) {
       logger.error('❌ [Asset Cleanup] Error cleaning temporary assets', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return 0;
     }
@@ -171,10 +171,10 @@ export class AssetCleanupJob {
    */
   private async cleanOrphanedAssets(correlationId: string): Promise<number> {
     const cutoffDate = new Date(Date.now() - AssetCleanupJob.ORPHANED_ASSET_TTL);
-    
+
     logger.info('🗑️ [Asset Cleanup] Cleaning orphaned assets', {
       correlationId,
-      cutoffDate: cutoffDate.toISOString()
+      cutoffDate: cutoffDate.toISOString(),
     } as any);
 
     try {
@@ -222,19 +222,19 @@ export class AssetCleanupJob {
 
           cleanedCount++;
           totalSize += asset.file_size || 0;
-          
+
           logger.info('🗑️ [Asset Cleanup] Orphaned asset cleaned', {
             correlationId,
             assetId: asset.id,
             fileName: asset.file_name,
-            fileSize: asset.file_size
+            fileSize: asset.file_size,
           } as any);
-          
+
         } catch (error) {
           logger.error('❌ [Asset Cleanup] Failed to clean orphaned asset', {
             correlationId,
             assetId: asset.id,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
         }
       }
@@ -242,14 +242,14 @@ export class AssetCleanupJob {
       logger.info('✅ [Asset Cleanup] Orphaned assets cleanup completed', {
         correlationId,
         cleanedCount,
-        totalSize
+        totalSize,
       } as any);
 
       return cleanedCount;
     } catch (error) {
       logger.error('❌ [Asset Cleanup] Error cleaning orphaned assets', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return 0;
     }
@@ -260,17 +260,17 @@ export class AssetCleanupJob {
    */
   private async cleanUnusedUploads(correlationId: string): Promise<number> {
     const cutoffDate = new Date(Date.now() - AssetCleanupJob.UNUSED_UPLOAD_TTL);
-    
+
     logger.info('🗑️ [Asset Cleanup] Cleaning unused uploads', {
       correlationId,
-      cutoffDate: cutoffDate.toISOString()
+      cutoffDate: cutoffDate.toISOString(),
     } as any);
 
     try {
       // This would typically scan the object storage for files
       // that don't have corresponding database records
       // For now, we'll implement a basic version
-      
+
       const unusedUploads = await this.findUnusedUploads(cutoffDate);
       let cleanedCount = 0;
 
@@ -278,17 +278,17 @@ export class AssetCleanupJob {
         try {
           await this.deleteFromObjectStorage(filePath);
           cleanedCount++;
-          
+
           logger.info('🗑️ [Asset Cleanup] Unused upload cleaned', {
             correlationId,
-            filePath
+            filePath,
           } as any);
-          
+
         } catch (error) {
           logger.error('❌ [Asset Cleanup] Failed to clean unused upload', {
             correlationId,
             filePath,
-            error: (error as Error).message
+            error: (error as Error).message,
           } as any);
         }
       }
@@ -297,7 +297,7 @@ export class AssetCleanupJob {
     } catch (error) {
       logger.error('❌ [Asset Cleanup] Error cleaning unused uploads', {
         correlationId,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       return 0;
     }
@@ -312,7 +312,7 @@ export class AssetCleanupJob {
     // 1. List files in the object storage bucket
     // 2. Check each file against the database
     // 3. Return files that don't have database references
-    
+
     return [];
   }
 
@@ -324,13 +324,13 @@ export class AssetCleanupJob {
       // The ObjectStorageService would need a delete method
       // This is a placeholder for the actual implementation
       logger.info('🗑️ [Asset Cleanup] Deleting from object storage', {
-        filePath
+        filePath,
       } as any);
-      
+
     } catch (error) {
       logger.error('❌ [Asset Cleanup] Failed to delete from object storage', {
         filePath,
-        error: (error as Error).message
+        error: (error as Error).message,
       } as any);
       throw error;
     }
@@ -358,8 +358,8 @@ export class AssetCleanupJob {
         .where(
           and(
             eq(gameAssets.isTemporary, true),
-            lt(gameAssets.createdAt, tempCutoff)
-          )
+            lt(gameAssets.createdAt, tempCutoff),
+          ),
         ),
 
       // Orphaned assets count (complex query)
@@ -384,19 +384,19 @@ export class AssetCleanupJob {
         .from(gameAssets),
 
       // Total storage used
-      db.select({ 
-        totalSize: sql<number>`COALESCE(SUM(file_size), 0)` 
+      db.select({
+        totalSize: sql<number>`COALESCE(SUM(file_size), 0)`,
       })
-        .from(gameAssets)
+        .from(gameAssets),
     ]);
 
     return {
       assetsEligibleForCleanup: {
         temporary: tempAssets[0]?.count || 0,
-        orphaned: (orphanedAssets[0] as any)?.count || 0
+        orphaned: (orphanedAssets[0] as any)?.count || 0,
       },
       totalAssets: totalAssets[0]?.count || 0,
-      totalStorageUsed: storageUsed[0]?.totalSize || 0
+      totalStorageUsed: storageUsed[0]?.totalSize || 0,
     };
   }
 }

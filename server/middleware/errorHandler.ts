@@ -22,7 +22,7 @@ export enum ErrorCode {
   CONFLICT = 'CONFLICT',
   RATE_LIMITED = 'RATE_LIMITED',
   BAD_REQUEST = 'BAD_REQUEST',
-  
+
   // Server errors (5xx)
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   DATABASE_ERROR = 'DATABASE_ERROR',
@@ -36,7 +36,7 @@ export class AppError extends Error {
     public code: ErrorCode,
     public message: string,
     public details?: any,
-    public statusCode: number = 500
+    public statusCode = 500,
   ) {
     super(message);
     this.name = 'AppError';
@@ -97,15 +97,15 @@ export function addCorrelationId(req: Request, res: Response, next: NextFunction
   const correlationId = randomUUID();
   req.correlationId = correlationId;
   res.setHeader('X-Correlation-ID', correlationId);
-  
+
   // Add correlation context to logger
   req.log = logger.child({
     correlationId,
     method: req.method,
     url: req.url,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get('User-Agent'),
   });
-  
+
   next();
 }
 
@@ -116,18 +116,18 @@ function mapErrorToEnvelope(error: any, requestId: string): ErrorEnvelope {
     const details = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-      code: err.code
+      code: err.code,
     }));
-    
+
     return {
       code: ErrorCode.VALIDATION_ERROR,
       message: 'Validation failed',
       details,
       requestId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-  
+
   // Custom app errors
   if (error instanceof AppError) {
     return {
@@ -135,28 +135,28 @@ function mapErrorToEnvelope(error: any, requestId: string): ErrorEnvelope {
       message: error.message,
       details: error.details,
       requestId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-  
+
   // Database errors (Drizzle/PostgreSQL)
   if (error?.code?.startsWith?.('23')) { // PostgreSQL constraint violations
     const code = error.code === '23505' ? ErrorCode.CONFLICT : ErrorCode.DATABASE_ERROR;
     const message = error.code === '23505' ? 'Resource already exists' : 'Database constraint violation';
-    
+
     return {
       code,
       message,
       details: {
         constraint: error.constraint,
         detail: error.detail,
-        table: error.table
+        table: error.table,
       },
       requestId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-  
+
   // Firebase auth errors
   if (error?.code?.startsWith?.('auth/')) {
     return {
@@ -164,53 +164,53 @@ function mapErrorToEnvelope(error: any, requestId: string): ErrorEnvelope {
       message: 'Authentication failed',
       details: {
         firebaseCode: error.code,
-        firebaseMessage: error.message
+        firebaseMessage: error.message,
       },
       requestId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-  
+
   // Rate limiting errors
   if (error?.status === 429 || error?.message?.includes?.('rate limit')) {
     return {
       code: ErrorCode.RATE_LIMITED,
       message: 'Too many requests',
       details: {
-        retryAfter: error.retryAfter || 60
+        retryAfter: error.retryAfter || 60,
       },
       requestId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
-  
+
   // Default to internal server error
   return {
     code: ErrorCode.INTERNAL_ERROR,
-    message: process.env.NODE_ENV === 'production' 
-      ? 'An unexpected error occurred' 
+    message: process.env.NODE_ENV === 'production'
+      ? 'An unexpected error occurred'
       : error.message || 'Internal server error',
-    details: process.env.NODE_ENV === 'production' 
-      ? undefined 
+    details: process.env.NODE_ENV === 'production'
+      ? undefined
       : {
           stack: error.stack,
-          name: error.name
+          name: error.name,
         },
     requestId,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 }
 
 // Central error handling middleware
 export function errorHandler(
-  error: any, 
-  req: Request, 
-  res: Response, 
-  next: NextFunction
+  error: any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) {
   const requestId = req.correlationId || randomUUID();
   const errorEnvelope = mapErrorToEnvelope(error, requestId);
-  
+
   // Determine status code
   let statusCode = 500;
   if (error instanceof AppError) {
@@ -224,39 +224,39 @@ export function errorHandler(
   } else if (error?.status === 429) {
     statusCode = 429;
   }
-  
+
   // Log error with context
   const logContext = {
     error: {
       ...errorEnvelope,
       originalError: error.message,
-      stack: error.stack
+      stack: error.stack,
     },
     request: {
       method: req.method,
       url: req.url,
       headers: req.headers,
       body: req.method !== 'GET' ? req.body : undefined,
-      user: req.user?.uid || null
+      user: req.user?.uid || null,
     },
     response: {
-      statusCode
-    }
+      statusCode,
+    },
   };
-  
+
   if (statusCode >= 500) {
     req.log?.error(logContext, '🚨 Server error occurred');
   } else if (statusCode >= 400) {
     req.log?.warn(logContext, '⚠️ Client error occurred');
   }
-  
+
   // Send error response
   res.status(statusCode).json(errorEnvelope);
 }
 
 // Handle async route errors
 export function asyncHandler<T extends Request, U extends Response>(
-  fn: (req: T, res: U, next: NextFunction) => Promise<any>
+  fn: (req: T, res: U, next: NextFunction) => Promise<any>,
 ) {
   return (req: T, res: U, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -268,26 +268,26 @@ export function setupGlobalErrorHandlers() {
   process.on('unhandledRejection', (reason, promise) => {
     logger.error({
       error: reason,
-      promise: promise,
-      type: 'unhandledRejection'
+      promise,
+      type: 'unhandledRejection',
     }, '🚨 Unhandled promise rejection');
-    
+
     // Graceful shutdown in production
     if (process.env.NODE_ENV === 'production') {
       process.exit(1);
     }
   });
-  
+
   process.on('uncaughtException', (error) => {
     logger.error({
       error: {
         message: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
       },
-      type: 'uncaughtException'
+      type: 'uncaughtException',
     }, '🚨 Uncaught exception');
-    
+
     // Force exit
     process.exit(1);
   });

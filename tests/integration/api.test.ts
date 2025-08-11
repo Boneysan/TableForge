@@ -506,11 +506,11 @@ describe('API Integration Tests', () => {
       const requests = Array.from({ length: 20 }, () =>
         request(app)
           .get('/api/rooms')
-          .set('Authorization', `Bearer ${authToken}`)
+          .set('Authorization', `Bearer ${authToken}`),
       );
 
       const responses = await Promise.all(requests);
-      
+
       // Some requests should be rate limited
       const rateLimitedResponses = responses.filter(r => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);

@@ -1,6 +1,6 @@
 /**
  * Centralized query key management for React Query
- * 
+ *
  * Provides stable, hierarchical query keys that enable:
  * - Precise cache invalidation
  * - Consistent patterns across components
@@ -64,43 +64,43 @@ export const queryKeys = {
  */
 export const queryKeyMatchers = {
   // Match all room-related queries
-  room: (roomId: string) => ({ predicate: (query: any) => 
-    query.queryKey[0] === 'rooms' && query.queryKey[1] === roomId 
+  room: (roomId: string) => ({ predicate: (query: any) =>
+    query.queryKey[0] === 'rooms' && query.queryKey[1] === roomId,
   }),
-  
+
   // Match specific resource types within a room
-  roomDecks: (roomId: string) => ({ predicate: (query: any) => 
-    query.queryKey[0] === 'rooms' && 
-    query.queryKey[1] === roomId && 
-    query.queryKey[2] === 'decks' 
+  roomDecks: (roomId: string) => ({ predicate: (query: any) =>
+    query.queryKey[0] === 'rooms' &&
+    query.queryKey[1] === roomId &&
+    query.queryKey[2] === 'decks',
   }),
-  
-  roomPiles: (roomId: string) => ({ predicate: (query: any) => 
-    query.queryKey[0] === 'rooms' && 
-    query.queryKey[1] === roomId && 
-    query.queryKey[2] === 'piles' 
+
+  roomPiles: (roomId: string) => ({ predicate: (query: any) =>
+    query.queryKey[0] === 'rooms' &&
+    query.queryKey[1] === roomId &&
+    query.queryKey[2] === 'piles',
   }),
-  
-  roomAssets: (roomId: string) => ({ predicate: (query: any) => 
-    query.queryKey[0] === 'rooms' && 
-    query.queryKey[1] === roomId && 
-    (query.queryKey[2] === 'assets' || query.queryKey[2] === 'board-assets')
+
+  roomAssets: (roomId: string) => ({ predicate: (query: any) =>
+    query.queryKey[0] === 'rooms' &&
+    query.queryKey[1] === roomId &&
+    (query.queryKey[2] === 'assets' || query.queryKey[2] === 'board-assets'),
   }),
-  
+
   // Match all queries for a specific deck
-  deck: (roomId: string, deckId: string) => ({ predicate: (query: any) => 
-    query.queryKey[0] === 'rooms' && 
-    query.queryKey[1] === roomId && 
-    query.queryKey[2] === 'decks' && 
-    query.queryKey[3] === deckId 
+  deck: (roomId: string, deckId: string) => ({ predicate: (query: any) =>
+    query.queryKey[0] === 'rooms' &&
+    query.queryKey[1] === roomId &&
+    query.queryKey[2] === 'decks' &&
+    query.queryKey[3] === deckId,
   }),
-  
+
   // Match all queries for a specific pile
-  pile: (roomId: string, pileId: string) => ({ predicate: (query: any) => 
-    query.queryKey[0] === 'rooms' && 
-    query.queryKey[1] === roomId && 
-    query.queryKey[2] === 'piles' && 
-    query.queryKey[3] === pileId 
+  pile: (roomId: string, pileId: string) => ({ predicate: (query: any) =>
+    query.queryKey[0] === 'rooms' &&
+    query.queryKey[1] === roomId &&
+    query.queryKey[2] === 'piles' &&
+    query.queryKey[3] === pileId,
   }),
 };
 

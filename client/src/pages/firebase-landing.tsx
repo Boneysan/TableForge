@@ -1,27 +1,27 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { signInWithGoogle, isFirebaseConfigured } from "@/lib/firebase";
-import { useToast } from "@/hooks/use-toast";
-import { Dice1, Users, Upload, Shield } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { signInWithGoogle, isFirebaseConfigured } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { Dice1, Users, Upload, Shield } from 'lucide-react';
 
 export default function FirebaseLanding() {
   const { toast } = useToast();
-  
+
   const handleGoogleSignIn = async () => {
     if (!isFirebaseConfigured()) {
       toast({
-        title: "Configuration Required",
-        description: "Firebase secrets need to be configured for Google OAuth to work.",
-        variant: "destructive",
+        title: 'Configuration Required',
+        description: 'Firebase secrets need to be configured for Google OAuth to work.',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     try {
       await signInWithGoogle();
     } catch (error) {
-      console.error("Sign in error:", error);
-      
+      console.error('Sign in error:', error);
+
       // If Firebase fails in development, fall back to Replit Auth
       const isReplitDev = window.location.hostname.includes('.replit.dev');
       if (isReplitDev) {
@@ -31,11 +31,11 @@ export default function FirebaseLanding() {
         }, 1000);
         return;
       }
-      
+
       toast({
-        title: "Sign In Error",
+        title: 'Sign In Error',
         description: `Failed to initiate Google sign-in: ${(error as Error).message}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
@@ -51,7 +51,7 @@ export default function FirebaseLanding() {
           <p className="text-xl text-gray-300 mb-8">
             Play board games online with friends. Upload your own cards, tokens, and maps.
           </p>
-          
+
           {/* Google Sign In Button */}
           <Button
             onClick={handleGoogleSignIn}
@@ -125,7 +125,7 @@ export default function FirebaseLanding() {
                 Create an account using your Google account for quick access
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                 2
@@ -135,7 +135,7 @@ export default function FirebaseLanding() {
                 Set up your game room and upload your game assets
               </p>
             </div>
-            
+
             <div className="text-center">
               <div className="bg-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                 3

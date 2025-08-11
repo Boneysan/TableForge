@@ -1,5 +1,6 @@
-import { QueryClient, DefaultOptions, QueryFunction } from "@tanstack/react-query";
-import { authenticatedApiRequest } from "./authClient";
+import type { DefaultOptions, QueryFunction } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { authenticatedApiRequest } from './authClient';
 
 const queryConfig: DefaultOptions = {
   queries: {
@@ -20,9 +21,9 @@ export const authQueryClient = new QueryClient({ defaultOptions: queryConfig });
 // Enhanced default query function that uses Firebase auth
 const defaultQueryFn: QueryFunction = async ({ queryKey }) => {
   const url = queryKey[0] as string;
-  
+
   try {
-    const response = await authenticatedApiRequest("GET", url);
+    const response = await authenticatedApiRequest('GET', url);
     return response.json();
   } catch (error) {
     console.error(`Query failed for ${url}:`, error);

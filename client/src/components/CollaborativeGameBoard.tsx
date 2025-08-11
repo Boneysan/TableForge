@@ -91,10 +91,10 @@ export function CollaborativeGameBoard({
 
   // Handle asset movement with undo/redo support
   const handleAssetMoveWithHistory = useCallback(async (
-    assetId: string, 
-    newX: number, 
-    newY: number, 
-    rotation?: number
+    assetId: string,
+    newX: number,
+    newY: number,
+    rotation?: number,
   ) => {
     const asset = gameState.assets.find(a => a.id === assetId);
     if (!asset) return;
@@ -121,10 +121,10 @@ export function CollaborativeGameBoard({
         // Execute: Update local state and CRDT
         setGameState(prev => ({
           ...prev,
-          assets: prev.assets.map(a => 
-            a.id === assetId 
+          assets: prev.assets.map(a =>
+            a.id === assetId
               ? { ...a, positionX: newX, positionY: newY, rotation: rotation ?? a.rotation }
-              : a
+              : a,
           ),
           version: prev.version + 1,
         }));
@@ -139,10 +139,10 @@ export function CollaborativeGameBoard({
         // Undo: Restore original state
         setGameState(prev => ({
           ...prev,
-          assets: prev.assets.map(a => 
-            a.id === assetId 
+          assets: prev.assets.map(a =>
+            a.id === assetId
               ? { ...a, positionX: originalState.x, positionY: originalState.y, rotation: originalState.rotation }
-              : a
+              : a,
           ),
           version: prev.version + 1,
         }));
@@ -153,7 +153,7 @@ export function CollaborativeGameBoard({
         // Call original handler
         onAssetMove?.(assetId, originalState.x, originalState.y, originalState.rotation);
       },
-      { originalState, newState }
+      { originalState, newState },
     );
 
     await executeCommand(command);
@@ -162,7 +162,7 @@ export function CollaborativeGameBoard({
   // Handle asset selection with CRDT sync
   const handleAssetSelectWithSync = useCallback((assetId: string) => {
     onAssetSelect?.(assetId);
-    
+
     // Update CRDT with selection (for showing other users' selections)
     setValue(`user_${userId}_selection`, {
       assetId,
@@ -238,7 +238,7 @@ export function CollaborativeGameBoard({
       setIsOnline(true);
       syncWithServer();
     };
-    
+
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);

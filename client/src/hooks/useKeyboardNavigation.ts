@@ -50,180 +50,180 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
   // Key bindings configuration
   const keyBindings: KeyBinding[] = [
     // Asset movement (fine control)
-    { 
-      keys: ['ArrowUp'], 
+    {
+      keys: ['ArrowUp'],
       action: () => onMoveAsset?.('up', 1),
       description: 'Move selected asset up (1px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['ArrowDown'], 
+    {
+      keys: ['ArrowDown'],
       action: () => onMoveAsset?.('down', 1),
       description: 'Move selected asset down (1px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['ArrowLeft'], 
+    {
+      keys: ['ArrowLeft'],
       action: () => onMoveAsset?.('left', 1),
       description: 'Move selected asset left (1px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['ArrowRight'], 
+    {
+      keys: ['ArrowRight'],
       action: () => onMoveAsset?.('right', 1),
       description: 'Move selected asset right (1px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
 
     // Asset movement (coarse control with Shift)
-    { 
-      keys: ['Shift', 'ArrowUp'], 
+    {
+      keys: ['Shift', 'ArrowUp'],
       action: () => onMoveAsset?.('up', 10),
       description: 'Move selected asset up (10px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Shift', 'ArrowDown'], 
+    {
+      keys: ['Shift', 'ArrowDown'],
       action: () => onMoveAsset?.('down', 10),
       description: 'Move selected asset down (10px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Shift', 'ArrowLeft'], 
+    {
+      keys: ['Shift', 'ArrowLeft'],
       action: () => onMoveAsset?.('left', 10),
       description: 'Move selected asset left (10px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Shift', 'ArrowRight'], 
+    {
+      keys: ['Shift', 'ArrowRight'],
       action: () => onMoveAsset?.('right', 10),
       description: 'Move selected asset right (10px)',
       category: 'manipulation',
-      preventDefault: true
+      preventDefault: true,
     },
 
     // Asset selection
-    { 
-      keys: ['Tab'], 
+    {
+      keys: ['Tab'],
       action: () => onSelectAsset?.('next'),
       description: 'Select next asset',
       category: 'selection',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Shift', 'Tab'], 
+    {
+      keys: ['Shift', 'Tab'],
       action: () => onSelectAsset?.('previous'),
       description: 'Select previous asset',
       category: 'selection',
-      preventDefault: true
+      preventDefault: true,
     },
 
     // Asset manipulation
-    { 
-      keys: ['r'], 
+    {
+      keys: ['r'],
       action: () => onRotateAsset?.(90),
       description: 'Rotate asset 90 degrees clockwise',
-      category: 'manipulation'
+      category: 'manipulation',
     },
-    { 
-      keys: ['Shift', 'r'], 
+    {
+      keys: ['Shift', 'r'],
       action: () => onRotateAsset?.(-90),
       description: 'Rotate asset 90 degrees counterclockwise',
-      category: 'manipulation'
+      category: 'manipulation',
     },
-    { 
-      keys: ['Delete'], 
+    {
+      keys: ['Delete'],
       action: () => onDeleteAsset?.(),
       description: 'Delete selected asset',
-      category: 'manipulation'
+      category: 'manipulation',
     },
-    { 
-      keys: ['Backspace'], 
+    {
+      keys: ['Backspace'],
       action: () => onDeleteAsset?.(),
       description: 'Delete selected asset',
-      category: 'manipulation'
+      category: 'manipulation',
     },
-    { 
-      keys: ['d'], 
+    {
+      keys: ['d'],
       action: () => onDuplicateAsset?.(),
       description: 'Duplicate selected asset',
-      category: 'manipulation'
+      category: 'manipulation',
     },
 
     // Board navigation
-    { 
-      keys: ['c'], 
+    {
+      keys: ['c'],
       action: () => onRecenterBoard?.(),
       description: 'Recenter board view',
-      category: 'board'
+      category: 'board',
     },
-    { 
-      keys: ['Home'], 
+    {
+      keys: ['Home'],
       action: () => onRecenterBoard?.(),
       description: 'Recenter board view',
-      category: 'board'
+      category: 'board',
     },
-    { 
-      keys: ['+'], 
+    {
+      keys: ['+'],
       action: () => onZoomIn?.(),
       description: 'Zoom in',
-      category: 'board'
+      category: 'board',
     },
-    { 
-      keys: ['='], 
+    {
+      keys: ['='],
       action: () => onZoomIn?.(),
       description: 'Zoom in',
-      category: 'board'
+      category: 'board',
     },
-    { 
-      keys: ['-'], 
+    {
+      keys: ['-'],
       action: () => onZoomOut?.(),
       description: 'Zoom out',
-      category: 'board'
+      category: 'board',
     },
 
     // System actions
-    { 
-      keys: ['Meta', 'z'], 
+    {
+      keys: ['Meta', 'z'],
       action: () => onUndoAction?.(),
       description: 'Undo last action',
       category: 'system',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Control', 'z'], 
+    {
+      keys: ['Control', 'z'],
       action: () => onUndoAction?.(),
       description: 'Undo last action',
       category: 'system',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Meta', 'Shift', 'z'], 
+    {
+      keys: ['Meta', 'Shift', 'z'],
       action: () => onRedoAction?.(),
       description: 'Redo last action',
       category: 'system',
-      preventDefault: true
+      preventDefault: true,
     },
-    { 
-      keys: ['Control', 'y'], 
+    {
+      keys: ['Control', 'y'],
       action: () => onRedoAction?.(),
       description: 'Redo last action',
       category: 'system',
-      preventDefault: true
+      preventDefault: true,
     },
   ];
 
   // Check if current key combination matches a binding
   const matchesKeyBinding = useCallback((binding: KeyBinding): boolean => {
     if (binding.keys.length !== activeKeysRef.current.size) return false;
-    
+
     return binding.keys.every(key => activeKeysRef.current.has(key));
   }, []);
 
@@ -231,7 +231,7 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
   const throttleAction = useCallback((action: () => void, delay = 50): boolean => {
     const now = Date.now();
     if (now - lastActionTimeRef.current < delay) return false;
-    
+
     lastActionTimeRef.current = now;
     action();
     return true;
@@ -252,17 +252,17 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
 
     // Find matching key binding
     const matchingBinding = keyBindings.find(matchesKeyBinding);
-    
+
     if (matchingBinding) {
       if (matchingBinding.preventDefault) {
         event.preventDefault();
       }
-      
+
       // Throttle movement actions more aggressively
-      const isMovement = matchingBinding.category === 'manipulation' && 
+      const isMovement = matchingBinding.category === 'manipulation' &&
                         matchingBinding.keys.some(k => k.startsWith('Arrow'));
       const delay = isMovement ? 16 : 100; // 60fps for movement, slower for other actions
-      
+
       throttleAction(matchingBinding.action, delay);
     }
   }, [disabled, keyBindings, matchesKeyBinding, throttleAction]);
@@ -305,7 +305,7 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
         description: binding.description,
       });
       return acc;
-    }, {} as Record<string, Array<{ keys: string; description: string }>>);
+    }, {} as Record<string, { keys: string; description: string }[]>);
 
     return categories;
   }, [keyBindings]);
@@ -317,9 +317,9 @@ export function useKeyboardNavigation(options: KeyboardNavigationOptions) {
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
     announcement.textContent = message;
-    
+
     document.body.appendChild(announcement);
-    
+
     setTimeout(() => {
       document.body.removeChild(announcement);
     }, 1000);

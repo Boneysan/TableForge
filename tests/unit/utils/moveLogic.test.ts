@@ -30,7 +30,7 @@ interface Bounds {
 export function calculateNewPosition(
   currentPos: Position,
   delta: Position,
-  bounds?: Bounds
+  bounds?: Bounds,
 ): Position {
   let newX = currentPos.x + delta.x;
   let newY = currentPos.y + delta.y;
@@ -72,7 +72,7 @@ export function snapToGrid(position: Position, gridSize: number): Position {
 export function rotatePoint(
   point: Position,
   center: Position,
-  angleDegrees: number
+  angleDegrees: number,
 ): Position {
   const angleRadians = (angleDegrees * Math.PI) / 180;
   const cos = Math.cos(angleRadians);
@@ -96,7 +96,7 @@ export function calculateDistance(pos1: Position, pos2: Position): number {
 export function findNearestAsset(
   targetPos: Position,
   assets: Asset[],
-  maxDistance: number = Infinity
+  maxDistance = Infinity,
 ): Asset | null {
   let nearest: Asset | null = null;
   let minDistance = maxDistance;
@@ -106,9 +106,9 @@ export function findNearestAsset(
       x: asset.positionX + asset.width / 2,
       y: asset.positionY + asset.height / 2,
     };
-    
+
     const distance = calculateDistance(targetPos, assetCenter);
-    
+
     if (distance < minDistance) {
       minDistance = distance;
       nearest = asset;

@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import type { CardDeck, DeckTheme, GameAsset, CardPile } from "@shared/schema";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import type { CardDeck, DeckTheme, GameAsset, CardPile } from '@shared/schema';
 
 interface ThemedDeckCardProps {
   deck: CardDeck;
@@ -12,49 +12,49 @@ interface ThemedDeckCardProps {
 
 // Default theme
 const DEFAULT_THEME: DeckTheme = {
-  name: "Classic",
-  cardBackColor: "#2B4C8C",
-  cardBorderColor: "#1E3A8A",
-  deckBackgroundColor: "#F3F4F6",
-  textColor: "#1F2937",
-  borderStyle: "solid",
+  name: 'Classic',
+  cardBackColor: '#2B4C8C',
+  cardBorderColor: '#1E3A8A',
+  deckBackgroundColor: '#F3F4F6',
+  textColor: '#1F2937',
+  borderStyle: 'solid',
   cornerRadius: 8,
-  shadowIntensity: "medium"
+  shadowIntensity: 'medium',
 };
 
-export function ThemedDeckCard({ deck, assets, piles = [], children, className = "" }: ThemedDeckCardProps) {
+export function ThemedDeckCard({ deck, assets, piles = [], children, className = '' }: ThemedDeckCardProps) {
   const theme = deck.theme || DEFAULT_THEME;
-  
+
   // Find the main pile for this deck (contains the actual cards)
   const mainPile = piles.find(pile => pile.name === `${deck.name} - Main`);
   const cardOrder = mainPile?.cardOrder as string[] || deck.deckOrder as string[] || [];
-  
+
   // Get the card assets for this deck
   const deckCards = cardOrder
     .map(cardId => assets.find(asset => asset.id === cardId))
     .filter(Boolean) as GameAsset[];
-  
+
   // Generate CSS styles from theme
   const deckStyle = {
     backgroundColor: theme.deckBackgroundColor,
     borderRadius: `${theme.cornerRadius}px`,
     color: theme.textColor,
-    boxShadow: theme.shadowIntensity === "low" ? "0 1px 3px rgba(0,0,0,0.1)" :
-               theme.shadowIntensity === "medium" ? "0 4px 6px rgba(0,0,0,0.1)" :
-               "0 10px 15px rgba(0,0,0,0.2)"
+    boxShadow: theme.shadowIntensity === 'low' ? '0 1px 3px rgba(0,0,0,0.1)' :
+               theme.shadowIntensity === 'medium' ? '0 4px 6px rgba(0,0,0,0.1)' :
+               '0 10px 15px rgba(0,0,0,0.2)',
   };
 
   const cardPreviewStyle = {
     backgroundColor: theme.cardBackColor,
     borderColor: theme.cardBorderColor,
     borderStyle: theme.borderStyle,
-    borderWidth: "2px",
+    borderWidth: '2px',
     borderRadius: `${theme.cornerRadius}px`,
     color: theme.textColor,
   };
 
   return (
-    <Card 
+    <Card
       className={`relative overflow-hidden ${className}`}
       style={deckStyle}
       data-testid={`themed-deck-${deck.id}`}
@@ -71,7 +71,7 @@ export function ThemedDeckCard({ deck, assets, piles = [], children, className =
               </div>
             )}
           </div>
-          
+
           {/* Card stack preview with actual images */}
           <div className="relative w-16 h-20 ml-3">
             {[0, 1, 2].map((index) => {
@@ -88,18 +88,18 @@ export function ThemedDeckCard({ deck, assets, piles = [], children, className =
                 >
                   {cardAsset ? (
                     <img
-                      src={cardAsset.filePath.includes('storage.googleapis.com') && cardAsset.filePath.includes('.private/uploads/') 
+                      src={cardAsset.filePath.includes('storage.googleapis.com') && cardAsset.filePath.includes('.private/uploads/')
                         ? `/api/image-proxy?url=${encodeURIComponent(cardAsset.filePath)}`
                         : cardAsset.filePath}
                       alt={cardAsset.name}
                       className="w-full h-full object-cover"
                       style={{
-                        filter: index > 0 ? 'brightness(0.8)' : 'none'
+                        filter: index > 0 ? 'brightness(0.8)' : 'none',
                       }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-xs">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full opacity-50"
                         style={{ backgroundColor: theme.textColor }}
                       />
@@ -112,35 +112,35 @@ export function ThemedDeckCard({ deck, assets, piles = [], children, className =
         </div>
 
         <div className="flex items-center gap-2 mb-3">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="text-xs border-current"
-            style={{ 
+            style={{
               color: theme.textColor,
-              borderColor: theme.textColor + "40" // 25% opacity
+              borderColor: `${theme.textColor  }40`, // 25% opacity
             }}
           >
             {cardOrder.length} cards
           </Badge>
           {deck.isShuffled && (
-            <Badge 
-              variant="secondary" 
+            <Badge
+              variant="secondary"
               className="text-xs"
-              style={{ 
-                backgroundColor: theme.cardBackColor + "20", // 12% opacity
-                color: theme.textColor 
+              style={{
+                backgroundColor: `${theme.cardBackColor  }20`, // 12% opacity
+                color: theme.textColor,
               }}
             >
               Shuffled
             </Badge>
           )}
-          {theme.name && theme.name !== "Classic" && (
-            <Badge 
-              variant="outline" 
+          {theme.name && theme.name !== 'Classic' && (
+            <Badge
+              variant="outline"
               className="text-xs border-current"
-              style={{ 
+              style={{
                 color: theme.cardBackColor,
-                borderColor: theme.cardBackColor + "60" // 38% opacity
+                borderColor: `${theme.cardBackColor  }60`, // 38% opacity
               }}
             >
               {theme.name}

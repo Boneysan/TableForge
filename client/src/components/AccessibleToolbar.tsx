@@ -224,7 +224,7 @@ export function AccessibleToolbar({
   // Handle toolbar item activation
   const handleItemAction = useCallback((item: ToolbarItem) => {
     if (disabled || item.disabled) return;
-    
+
     item.action();
     announceAction(`${item.label} activated`);
   }, [disabled, announceAction]);
@@ -237,24 +237,24 @@ export function AccessibleToolbar({
         event.preventDefault();
         handleItemAction(item);
         break;
-        
+
       case 'ArrowLeft':
       case 'ArrowUp':
         event.preventDefault();
         moveFocus('previous');
         break;
-        
+
       case 'ArrowRight':
       case 'ArrowDown':
         event.preventDefault();
         moveFocus('next');
         break;
-        
+
       case 'Home':
         event.preventDefault();
         moveFocus('next'); // This will focus the first element
         break;
-        
+
       case 'End':
         event.preventDefault();
         // Focus last element by going to first then navigating backwards
@@ -269,12 +269,12 @@ export function AccessibleToolbar({
       {items.map((item) => (
         <Button
           key={item.id}
-          variant={item.pressed ? "default" : "ghost"}
+          variant={item.pressed ? 'default' : 'ghost'}
           size="sm"
           className={`
             relative p-2 h-9 w-9
-            ${focusedElementId === item.id && isKeyboardNavigation 
-              ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-background' 
+            ${focusedElementId === item.id && isKeyboardNavigation
+              ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-background'
               : ''
             }
             ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}
@@ -292,14 +292,14 @@ export function AccessibleToolbar({
           title={`${item.label}${item.hotkey ? ` (${item.hotkey})` : ''}`}
         >
           <item.icon size={16} className="text-current" />
-          
+
           {/* Hotkey indicator */}
           {item.hotkey && (
             <span className="absolute -bottom-1 -right-1 text-xs opacity-60 pointer-events-none">
               {item.hotkey.length <= 2 ? item.hotkey : '⌘'}
             </span>
           )}
-          
+
           {/* Hidden description for screen readers */}
           <span id={`${item.id}-description`} className="sr-only">
             {item.label}
@@ -330,12 +330,12 @@ export function AccessibleToolbar({
           {renderSection(category, items)}
         </React.Fragment>
       ))}
-      
+
       {/* Status region for screen reader announcements */}
-      <div 
-        role="status" 
-        aria-live="polite" 
-        aria-atomic="true" 
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
         className="sr-only"
         data-testid="toolbar-status"
       >
