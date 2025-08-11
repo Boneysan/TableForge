@@ -65,19 +65,29 @@ Vorpal Board supports rules-agnostic gameplay with advanced features for managin
 npm install
 ```
 
-2. Set up environment variables (create `.env` file):
-```
-DATABASE_URL=your_postgresql_connection_string
-GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
-FIREBASE_PROJECT_ID=your_firebase_project_id
+2. Set up environment variables (copy from example):
+```bash
+cp .env.example .env
 ```
 
-3. Run database migrations:
+Edit `.env` and configure the required variables:
+- `DATABASE_URL`: PostgreSQL connection string
+- `FIREBASE_PROJECT_ID`: Your Firebase project ID
+- `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_SERVICE_ACCOUNT_KEY`: Google Cloud credentials
+- `GOOGLE_STORAGE_BUCKET`: Your Google Cloud Storage bucket
+- `SESSION_SECRET`: Secure random string (32+ characters)
+
+3. Validate your configuration:
+```bash
+npm run check-env
+```
+
+4. Run database migrations:
 ```bash
 npm run db:push
 ```
 
-4. Start the development server:
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -133,6 +143,11 @@ The application uses PostgreSQL with the following main entities:
 
 ## Recent Updates
 
+- **Schema-validated Configuration System**: Added Zod-based environment validation with fail-fast startup
+- **Enhanced Security Architecture**: Implemented rate limiting, CORS, Helmet security headers, and request monitoring
+- **Environment Separation**: Created proper server/client config separation with validation
+- **Health Check Endpoint**: Added `/health` endpoint for monitoring and deployment readiness
+- **Configuration Utilities**: Added environment validation script and comprehensive error handling
 - Fixed critical system apply logic for complete asset transfers
 - Enhanced card deck management with proper filtering
 - Improved drag-and-drop functionality with grid snapping

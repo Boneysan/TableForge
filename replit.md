@@ -3,6 +3,11 @@
 Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform designed for browser-based real-time tabletop gaming with digital components. It supports rules-agnostic gameplay with advanced features for managing cards, tokens, dice, and boards. The platform aims to provide a robust and flexible environment for diverse tabletop gaming experiences, offering a powerful tool for GMs and players to create and play digital versions of tabletop games without asset duplication across game rooms.
 
 ## Recent Changes (August 11, 2025)
+- **Schema-Validated Configuration System**: Implemented comprehensive Zod-based environment validation with fail-fast startup and clear error messages
+- **Enhanced Security Architecture**: Added rate limiting (general/API/auth tiers), CORS handling, Helmet security headers, and suspicious request monitoring
+- **Environment Separation**: Created proper server/client configuration separation with validation scripts and comprehensive error handling
+- **Security Middleware System**: Implemented tiered rate limiting, request validation, security logging, and health check endpoints
+- **Configuration Management**: Added environment validation utilities, secure secret generation, and comprehensive configuration documentation
 - **Fixed Empty Deck Issue**: Resolved problem where created decks showed 0 cards in the Game Master Console Cards tab
 - **Enhanced Drag & Drop**: Implemented complete drag-and-drop functionality from Asset Library to GameBoard with proper grid snapping
 - **Image Display Fix**: All game assets now display correctly using image proxy for private Google Cloud Storage URLs

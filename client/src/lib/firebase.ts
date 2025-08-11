@@ -1,26 +1,31 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRedirectResult, signOut, onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
+import { FIREBASE_PROJECT_ID, GOOGLE_STORAGE_BUCKET, isDevelopment } from "./config";
 
 // Check if Firebase configuration is available
-console.log("🔥 [Firebase Client] Checking Firebase configuration...");
-console.log("🔥 [Firebase Client] VITE_FIREBASE_API_KEY present:", !!import.meta.env.VITE_FIREBASE_API_KEY);
-console.log("🔥 [Firebase Client] VITE_FIREBASE_PROJECT_ID:", import.meta.env.VITE_FIREBASE_PROJECT_ID || "NOT_SET");
-console.log("🔥 [Firebase Client] VITE_FIREBASE_APP_ID present:", !!import.meta.env.VITE_FIREBASE_APP_ID);
+if (isDevelopment) {
+  console.log("🔥 [Firebase Client] Checking Firebase configuration...");
+  console.log("🔥 [Firebase Client] VITE_FIREBASE_API_KEY present:", !!import.meta.env.VITE_FIREBASE_API_KEY);
+  console.log("🔥 [Firebase Client] VITE_FIREBASE_PROJECT_ID:", FIREBASE_PROJECT_ID);
+  console.log("🔥 [Firebase Client] VITE_FIREBASE_APP_ID present:", !!import.meta.env.VITE_FIREBASE_APP_ID);
+}
 
 const hasFirebaseConfig = !!(
   import.meta.env.VITE_FIREBASE_API_KEY &&
-  import.meta.env.VITE_FIREBASE_PROJECT_ID &&
+  FIREBASE_PROJECT_ID &&
   import.meta.env.VITE_FIREBASE_APP_ID
 );
 
-console.log("🔥 [Firebase Client] Has complete Firebase config:", hasFirebaseConfig);
+if (isDevelopment) {
+  console.log("🔥 [Firebase Client] Has complete Firebase config:", hasFirebaseConfig);
+}
 
 const firebaseConfig = hasFirebaseConfig ? {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
+  authDomain: `${FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: `${FIREBASE_PROJECT_ID}.firebasestorage.app`,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 } : null;
 
