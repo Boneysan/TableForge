@@ -162,16 +162,7 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
     other: "text-gray-400",
   };
 
-  const getProxiedImageUrl = (originalUrl: string) => {
-    console.log(`🖼️ [AssetLibrary] Processing URL: ${originalUrl}`);
-    if (originalUrl.includes('storage.googleapis.com') && originalUrl.includes('.private/uploads/')) {
-      const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(originalUrl)}`;
-      console.log(`🔄 [AssetLibrary] Using proxy URL: ${proxiedUrl}`);
-      return proxiedUrl;
-    }
-    console.log(`✅ [AssetLibrary] Using direct URL: ${originalUrl}`);
-    return originalUrl;
-  };
+
 
   const handleAssetDragStart = (asset: GameAsset, event: React.DragEvent) => {
     dragStart(event, {
@@ -288,9 +279,12 @@ export function AssetLibrary({ roomId, assets, onAssetUploaded }: AssetLibraryPr
                         data-testid={`asset-${asset.id}`}
                       >
                         <img 
-                          src={getProxiedImageUrl(asset.filePath)} 
+                          src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/') 
+                            ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
+                            : asset.filePath}
                           alt={asset.name}
                           className="w-12 h-12 rounded object-cover mr-3"
+                          loading="lazy"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             console.error(`❌ [AssetLibrary] Failed to load image for ${asset.name}`);

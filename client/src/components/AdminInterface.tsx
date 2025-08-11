@@ -195,7 +195,9 @@ export function AdminInterface({ roomId, assets, boardAssets, players, currentUs
                     <div key={asset.id} className="relative group" data-testid={`asset-${asset.id}`}>
                       <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                         <img
-                          src={asset.filePath}
+                          src={asset.filePath.includes('storage.googleapis.com') && asset.filePath.includes('.private/uploads/') 
+                            ? `/api/image-proxy?url=${encodeURIComponent(asset.filePath)}`
+                            : asset.filePath}
                           alt={asset.name}
                           className="w-full h-full object-cover"
                         />
