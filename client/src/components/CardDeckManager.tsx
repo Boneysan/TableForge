@@ -227,7 +227,6 @@ export function CardDeckManager({
       name: deckName,
       description: deckDescription,
       deckOrder: selectedCards,
-      cardBackAssetId: selectedCardBack || undefined,
     });
   };
 
@@ -628,7 +627,7 @@ export function CardDeckManager({
                   key={deck.id}
                   deck={deck}
                   assets={assets}
-                  piles={piles}
+                  piles={piles as any[]}
                   className="mb-3"
                 >
                   <div className="flex items-center gap-1">
@@ -638,7 +637,7 @@ export function CardDeckManager({
                       variant="outline"
                       onClick={() => drawCardMutation.mutate({ deckId: deck.id, count: 1 })}
                       disabled={drawCardMutation.isPending || (() => {
-                        const mainPile = piles.find(pile => pile.name === `${deck.name} - Main`);
+                        const mainPile = (piles as any[]).find((pile: any) => pile.name === `${deck.name} - Main`);
                         const cardOrder = mainPile?.cardOrder as string[] || deck.deckOrder as string[] || [];
                         return cardOrder.length === 0;
                       })()}

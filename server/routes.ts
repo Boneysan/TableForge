@@ -822,6 +822,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Draw card as individual board asset
+  app.post("/api/rooms/:roomId/piles/:pileId/draw-to-board", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId, pileId } = req.params;
+      const { x = 100, y = 100 } = req.body;
+      const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
+      
+      // Get the pile
+      const pile = await storage.getCardPile(pileId);
+      if (!pile) {
+        return res.status(404).json({ error: "Pile not found" });
+      }
+
+      // Get card order and check if there are cards
+      const cardOrder = pile.cardOrder as string[] || [];
+      if (cardOrder.length === 0) {
+        return res.status(400).json({ error: "No cards in pile" });
+      }
+
+      // Draw the top card
+      const cardAssetId = cardOrder[0];
+      const remainingCards = cardOrder.slice(1);
+
+      // Update pile to remove the drawn card
+      await storage.updateCardPile(pileId, {
+        cardOrder: remainingCards
+      });
+
+      // Get the card asset
+      const cardAsset = await storage.getGameAsset(cardAssetId);
+      if (!cardAsset) {
+        return res.status(404).json({ error: "Card asset not found" });
+      }
+
+      // Create board asset for the drawn card
+      const boardAsset = await storage.createBoardAsset({
+        roomId,
+        assetId: cardAssetId,
+        positionX: Math.floor(x),
+        positionY: Math.floor(y),
+        rotation: 0,
+        scale: 100,
+        zIndex: 10,
+        visibility: "public",
+        isLocked: false,
+        isFlipped: false,
+        assetType: "card",
+        stackOrder: 0,
+        faceDown: false,
+      });
+
+      console.log(`[Draw Card] Drew card ${cardAsset.name} from pile ${pile.name} to board position (${x}, ${y})`);
+
+      res.json({ 
+        boardAsset,
+        cardAsset,
+        remainingCards: remainingCards.length
+      });
+    } catch (error) {
+      console.error("Error drawing card to board:", error);
+      res.status(500).json({ error: "Failed to draw card to board" });
+    }
+  });
+
   // Room board size endpoint
   app.patch("/api/rooms/:roomId/board-size", hybridAuthMiddleware, async (req: any, res) => {
     try {
@@ -929,7 +993,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[Fix Deck Spots] Admin ${userId} fixing deck spots for room ${roomId}`);
 
       // Get all assets in the room
-      const assets = await storage.getGameAssets(roomId);
+      const assets = await storage.getRoomAssets(roomId);
       const assetsByName = new Map<string, string>();
       assets.forEach((asset: any) => {
         assetsByName.set(asset.name, asset.id);
@@ -967,13 +1031,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Map theme cards to asset IDs
           cardOrder = partyThemeCards
             .map(cardName => assetsByName.get(cardName))
-            .filter(Boolean);
+            .filter(Boolean) as string[];
           console.log(`[Fix Deck Spots] Party Themes pile will get ${cardOrder.length} cards`);
         } else if (pile.name === "Party Guests - Main") {
           // Map guest cards to asset IDs
           cardOrder = partyGuestCards
             .map(cardName => assetsByName.get(cardName))
-            .filter(Boolean);
+            .filter(Boolean) as string[];
           console.log(`[Fix Deck Spots] Party Guests pile will get ${cardOrder.length} cards`);
         }
 

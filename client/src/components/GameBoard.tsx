@@ -77,6 +77,21 @@ export function GameBoard({
     },
   });
 
+  // Draw card to board mutation
+  const drawCardToBoardMutation = useMutation({
+    mutationFn: async ({ pileId, x, y }: { pileId: string; x: number; y: number }) => {
+      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles/${pileId}/draw-to-board`, {
+        x,
+        y,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "board-assets"] });
+    },
+  });
+
   // Board size mutation - only for admins
   const updateBoardSizeMutation = useMutation({
     mutationFn: async ({ width, height }: { width: number; height: number }) => {
@@ -406,6 +421,19 @@ export function GameBoard({
 
                   document.addEventListener('mousemove', handleMouseMove);
                   document.addEventListener('mouseup', handleMouseUp);
+                }
+              }}
+              onClick={(e) => {
+                // Only handle clicks, not drags
+                if (playerRole === 'admin' && cardCount > 0) {
+                  e.stopPropagation();
+                  
+                  // Draw a card from this pile to the board
+                  drawCardToBoardMutation.mutate({
+                    pileId: pile.id,
+                    x: pile.positionX + 30, // Offset from pile position
+                    y: pile.positionY + 30
+                  });
                 }
               }}
             >
