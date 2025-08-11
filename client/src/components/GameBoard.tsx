@@ -390,10 +390,17 @@ export function GameBoard({
       {/* Card Piles/Deck Spots Layer */}
       <div className="absolute inset-0 z-20">
         {(cardPiles as CardPile[]).map((pile) => {
-          const deck = (cardDecks as CardDeck[]).find(d => d.name === pile.name);
+          // Find the deck by matching the base name (remove " - Main/Discard" suffixes)
+          const baseName = pile.name.replace(/ - (Main|Discard)$/, '');
+          const deck = (cardDecks as CardDeck[]).find(d => d.name === baseName);
           const cardCount = Array.isArray(pile.cardOrder) ? pile.cardOrder.length : 0;
           const cardBackAsset = deck?.cardBackAssetId ? 
-            (assets as Asset[]).find(a => a.id === deck.cardBackAssetId) : null;
+            assets.find(a => a.id === deck.cardBackAssetId) : null;
+          
+          // Debug logging
+          if (pile.pileType === 'deck' && cardCount > 0) {
+            console.log(`🃏 [Deck Debug] Pile: ${pile.name}, Base: ${baseName}, Found deck:`, !!deck, 'Card back asset:', !!cardBackAsset, deck?.cardBackAssetId);
+          }
           
           return (
             <div
@@ -516,10 +523,19 @@ export function GameBoard({
                         src={`/api/image-proxy?url=${encodeURIComponent(cardBackAsset.filePath)}`}
                         alt={`${pile.name} card back`}
                         className="w-full h-full object-cover rounded-lg"
+                        onLoad={() => {
+                          console.log(`✅ [Card Back] Loaded image for ${pile.name}:`, cardBackAsset.filePath);
+                        }}
                         onError={(e) => {
-                          // Fallback to solid color if image fails to load
+                          console.error(`❌ [Card Back] Failed to load image for ${pile.name}:`, cardBackAsset.filePath);
+                          // Show a fallback background instead of hiding
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
+                          // Show fallback background on parent
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.style.background = '#374151'; // gray-700
+                          }
                         }}
                       />
                       {/* Card count overlay */}
@@ -531,7 +547,7 @@ export function GameBoard({
                     </>
                   ) : (
                     /* Solid color for discard piles and empty decks */
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center bg-gray-700">
                       <div className="text-white text-lg font-bold">
                         {cardCount}
                       </div>
