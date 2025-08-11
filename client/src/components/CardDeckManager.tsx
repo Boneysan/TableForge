@@ -543,9 +543,9 @@ export function CardDeckManager({
                       </div>
                     </div>
                     <div>
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="space-y-2 mb-3">
                         <Label>Select Cards ({selectedCards.length} selected)</Label>
-                        <div className="flex gap-1">
+                        <div className="flex flex-wrap gap-2">
                           <Button
                             variant="default"
                             size="sm"
@@ -553,7 +553,7 @@ export function CardDeckManager({
                             disabled={availableCardAssets.length === 0}
                             data-testid="button-select-all-available"
                           >
-                            Select All Available
+                            Select All Available ({availableCardAssets.length})
                           </Button>
                           <Button
                             variant="outline"
@@ -562,7 +562,7 @@ export function CardDeckManager({
                             disabled={filteredCardAssets.length === 0}
                             data-testid="button-select-all-filtered"
                           >
-                            Select Filtered
+                            Select Filtered ({filteredCardAssets.length})
                           </Button>
                           <Button
                             variant="outline"
@@ -571,7 +571,7 @@ export function CardDeckManager({
                             disabled={selectedCards.length === 0}
                             data-testid="button-deselect-all"
                           >
-                            Clear
+                            Clear ({selectedCards.length})
                           </Button>
                         </div>
                       </div>
