@@ -216,10 +216,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteGameRoom(id: string): Promise<void> {
-    // Delete related data first
+    // Delete related data in correct order to avoid foreign key constraints
     await db.delete(diceRolls).where(eq(diceRolls.roomId, id));
     await db.delete(boardAssets).where(eq(boardAssets.roomId, id));
+    
+    // Delete card piles first (they may reference game assets as card backs)
+    await db.delete(cardPiles).where(eq(cardPiles.roomId, id));
+    
+    // Delete card decks (they reference game assets as card backs)
+    await db.delete(cardDecks).where(eq(cardDecks.roomId, id));
+    
+    // Now safe to delete game assets
     await db.delete(gameAssets).where(eq(gameAssets.roomId, id));
+    
     await db.delete(roomPlayers).where(eq(roomPlayers.roomId, id));
     await db.delete(gameRooms).where(eq(gameRooms.id, id));
   }
