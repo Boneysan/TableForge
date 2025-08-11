@@ -5,6 +5,7 @@ import { MeasurementTool } from "./MeasurementTool";
 import { AnnotationSystem } from "./AnnotationSystem";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameAsset, BoardAsset, CardPile, CardDeck } from "@shared/schema";
+import { DiscardPileViewer } from "./DiscardPileViewer";
 
 interface GameBoardProps {
   assets: GameAsset[];
@@ -582,6 +583,13 @@ export function GameBoard({
                   </div>
                 </div>
               </div>
+              
+              {/* Discard pile viewer */}
+              <DiscardPileViewer 
+                pile={pile as CardPile}
+                assets={assets}
+                isVisible={pile.pileType === 'discard' && cardCount > 0}
+              />
             </div>
           );
         })}
