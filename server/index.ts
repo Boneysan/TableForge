@@ -12,6 +12,7 @@ import {
 } from "./middleware";
 import { logger, healthCheck as loggerHealthCheck } from "./utils/logger";
 import { errorHandler, addCorrelationId, setupGlobalErrorHandlers } from "./middleware/errorHandler";
+import { JobScheduler } from "./jobs/jobScheduler";
 
 const app = express();
 
@@ -72,6 +73,21 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Initialize job scheduler with WebSocket server
+  let jobScheduler: JobScheduler | null = null;
+  if (server) {
+    // Extract WebSocket server from the HTTP server
+    const wss = (server as any).wss; 
+    if (wss) {
+      jobScheduler = new JobScheduler(wss);
+      jobScheduler.start();
+      
+      logger.info("✅ Job scheduler initialized and started", {
+        jobs: ['roomCleanup', 'assetCleanup', 'socketCleanup', 'healthCheck']
+      });
+    }
+  }
+
   // Use comprehensive error handling middleware
   app.use(errorHandler);
 
@@ -94,8 +110,27 @@ app.use((req, res, next) => {
     logger.info("🚀 Server started successfully", { 
       port: config.PORT,
       environment: process.env.NODE_ENV,
-      version: process.env.npm_package_version 
+      version: process.env.npm_package_version,
+      jobScheduler: jobScheduler ? 'enabled' : 'disabled'
     });
     loggerHealthCheck('server', 'healthy');
   });
+
+  // Graceful shutdown handling
+  const gracefulShutdown = async (signal: string) => {
+    logger.info(`📤 Graceful shutdown initiated by ${signal}`);
+    
+    if (jobScheduler) {
+      logger.info("⏹️ Stopping job scheduler...");
+      await jobScheduler.stop();
+    }
+    
+    server.close(() => {
+      logger.info("✅ Server closed successfully");
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 })();

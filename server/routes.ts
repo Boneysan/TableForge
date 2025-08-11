@@ -32,6 +32,9 @@ import { createRequestLogger, auditLog } from "./utils/logger";
 import { authenticateToken, authorizeRoom, optionalAuth, logAuthEvents } from './auth/middleware';
 import { socketAuthManager, type AuthenticatedSocket } from './websocket/socketAuth';
 
+// Import route modules
+import { createJobRoutes } from './routes/jobRoutes';
+
 // Import validation middleware
 import { 
   validateBody, 
@@ -148,6 +151,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // WebSocket server for real-time multiplayer
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  // Store WebSocket server reference for job scheduler access
+  (httpServer as any).wss = wss;
 
   wss.on('connection', async (ws: AuthenticatedSocket, req) => {
     console.log('🔌 [WebSocket] New connection attempt');
