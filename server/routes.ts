@@ -473,9 +473,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/rooms/:id", async (req, res) => {
+  app.delete("/api/rooms/:id", hybridAuthMiddleware, async (req: any, res) => {
     try {
-      await storage.deleteGameRoom(req.params.id);
+      const userId = req.user.uid;
+      await storage.deleteGameRoom(req.params.id, userId);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting room:", error);

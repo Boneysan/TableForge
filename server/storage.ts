@@ -215,7 +215,24 @@ export class DatabaseStorage implements IStorage {
     return updatedRoom;
   }
 
-  async deleteGameRoom(id: string): Promise<void> {
+  async deleteGameRoom(id: string, userId?: string): Promise<void> {
+    // Create or find orphaned assets room to preserve game system assets
+    let orphanedRoom;
+    try {
+      orphanedRoom = await this.getGameRoomByName("_orphaned_assets");
+      if (!orphanedRoom) {
+        // Create the orphaned assets room if it doesn't exist
+        orphanedRoom = await this.createGameRoom({
+          name: "_orphaned_assets",
+          isActive: false,
+          gameState: { description: "System room for preserving assets from deleted rooms" }
+        }, userId || "system");
+      }
+    } catch (error) {
+      console.log("[Delete Room] Could not create orphaned assets room, falling back to deletion");
+      orphanedRoom = null;
+    }
+    
     // Delete related data in correct order to avoid foreign key constraints
     await db.delete(diceRolls).where(eq(diceRolls.roomId, id));
     await db.delete(boardAssets).where(eq(boardAssets.roomId, id));
@@ -226,17 +243,21 @@ export class DatabaseStorage implements IStorage {
     // Delete card decks (they reference game assets as card backs)
     await db.delete(cardDecks).where(eq(cardDecks.roomId, id));
     
-    // NOTE: We DON'T delete game assets because they may be copied from game systems
-    // and should be preserved for potential reuse. This is a conservative approach.
-    // In the future, we should add a field to distinguish room-specific vs system assets.
-    // For now, we leave assets in place to preserve game system integrity.
-    
-    // Only delete assets that were uploaded directly to the room (not from game systems)
-    // This is a safeguard until we implement proper asset source tracking
-    console.log(`[Delete Room] Preserving game assets for room ${id} to maintain game system integrity`);
+    // Preserve game assets by moving them to orphaned room or delete if can't preserve
+    if (orphanedRoom) {
+      await db.update(gameAssets)
+        .set({ roomId: orphanedRoom.id })
+        .where(eq(gameAssets.roomId, id));
+      console.log(`[Delete Room] Moved game assets to orphaned room to preserve game system data`);
+    } else {
+      await db.delete(gameAssets).where(eq(gameAssets.roomId, id));
+      console.log(`[Delete Room] Deleted assets due to inability to preserve them`);
+    }
     
     await db.delete(roomPlayers).where(eq(roomPlayers.roomId, id));
     await db.delete(gameRooms).where(eq(gameRooms.id, id));
+    
+    console.log(`[Delete Room] Successfully deleted room ${id}`);
   }
 
   async getUserRooms(userId: string): Promise<GameRoom[]> {
