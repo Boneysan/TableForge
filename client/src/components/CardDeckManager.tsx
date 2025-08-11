@@ -262,6 +262,11 @@ export function CardDeckManager({
     setSelectedCards(prev => Array.from(new Set([...prev, ...allFilteredIds])));
   };
 
+  const selectAllAvailableCards = () => {
+    const allCardIds = cardAssets.map(asset => asset.id);
+    setSelectedCards(allCardIds);
+  };
+
   const deselectAllFilteredCards = () => {
     const filteredAssets = cardAssets.filter(asset => 
       asset.name.toLowerCase().includes(cardFilter.toLowerCase())
@@ -531,13 +536,22 @@ export function CardDeckManager({
                         <Label>Select Cards ({selectedCards.length} selected)</Label>
                         <div className="flex gap-1">
                           <Button
+                            variant="default"
+                            size="sm"
+                            onClick={selectAllAvailableCards}
+                            disabled={cardAssets.length === 0}
+                            data-testid="button-select-all-available"
+                          >
+                            Select All Available
+                          </Button>
+                          <Button
                             variant="outline"
                             size="sm"
                             onClick={selectAllFilteredCards}
                             disabled={filteredCardAssets.length === 0}
-                            data-testid="button-select-all"
+                            data-testid="button-select-all-filtered"
                           >
-                            Select All
+                            Select Filtered
                           </Button>
                           <Button
                             variant="outline"
