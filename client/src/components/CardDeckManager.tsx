@@ -228,12 +228,19 @@ export function CardDeckManager({
   // Filter to show only available (unused) cards
   const availableCardAssets = cardAssets.filter(asset => !usedCardIds.has(asset.id));
   
+  // Filter cards based on search
+  const filteredCardAssets = availableCardAssets.filter(asset => 
+    asset.name.toLowerCase().includes(cardFilter.toLowerCase())
+  );
+  
   // Debug logging
   console.log("🔍 [Deck Manager Debug]");
   console.log("Total cardAssets:", cardAssets.length);
   console.log("Used card IDs:", Array.from(usedCardIds));
   console.log("Available card assets:", availableCardAssets.length);
+  console.log("Filtered card assets:", filteredCardAssets.length);
   console.log("Show create deck dialog:", showCreateDeck);
+  console.log("availableCardAssets.length > 0:", availableCardAssets.length > 0);
 
   const handleCreateDeck = () => {
     if (!deckName.trim() || selectedCards.length === 0) {
@@ -318,10 +325,6 @@ export function CardDeckManager({
       setSelectedCards(matchingCards.map(card => card.id));
     }
   };
-
-  const filteredCardAssets = availableCardAssets.filter(asset => 
-    asset.name.toLowerCase().includes(cardFilter.toLowerCase())
-  );
 
   const canManageDecks = playerRole === "admin";
   const canCreatePiles = playerRole === "admin";
@@ -556,6 +559,9 @@ export function CardDeckManager({
                         {/* Selection Action Buttons */}
                         <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                           <p className="text-sm font-medium text-yellow-800 mb-3">🚀 Quick Selection Options:</p>
+                          <div className="text-xs text-gray-600 mb-2">
+                            DEBUG: availableCardAssets.length = {availableCardAssets.length}, condition: {availableCardAssets.length > 0 ? 'TRUE' : 'FALSE'}
+                          </div>
                           {availableCardAssets.length > 0 ? (
                             <div className="space-y-2">
                               <Button
