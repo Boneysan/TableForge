@@ -1,117 +1,156 @@
-import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
+import { validateSchema, createValidationError, ValidationError } from '@shared/validators';
 
-// Generic validation middleware factory
-export function validateSchema<T extends z.ZodType>(schema: T, source: 'body' | 'query' | 'params' = 'body') {
+// Enhanced request interface with validated data
+interface ValidatedRequest<T = any> extends Request {
+  validatedData: T;
+}
+
+// Generic validation middleware factory for request bodies
+export function validateBody<T>(schema: z.ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = req[source];
-      const validatedData = schema.parse(data);
-      
-      // Replace the original data with validated data
-      (req as any)[source] = validatedData;
-      
-      next();
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: 'Validation failed',
-          details: error.errors.map(err => ({
-            field: err.path.join('.'),
-            message: err.message,
-            code: err.code,
-          })),
-        });
-      }
-      
-      return res.status(400).json({
-        error: 'Invalid request data',
-        message: error instanceof Error ? error.message : 'Unknown validation error',
-      });
+    console.log(`🔍 [Validation] Validating request body for ${req.method} ${req.path}`);
+    console.log(`🔍 [Validation] Request body:`, req.body);
+
+    const result = validateSchema(schema, req.body);
+    
+    if (!result.success) {
+      console.log(`❌ [Validation] Body validation failed:`, result.error);
+      return res.status(400).json(result.error);
     }
+
+    console.log(`✅ [Validation] Body validation passed`);
+    (req as ValidatedRequest<T>).validatedData = result.data;
+    next();
   };
 }
 
-// Common validation schemas
-export const commonSchemas = {
-  objectId: z.string().min(1, 'ID is required'),
-  pagination: z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20),
-  }),
-  search: z.object({
-    q: z.string().optional(),
-    sort: z.enum(['name', 'createdAt', 'updatedAt']).optional(),
-    order: z.enum(['asc', 'desc']).default('desc'),
-  }),
-};
+// Generic validation middleware factory for query parameters
+export function validateQuery<T>(schema: z.ZodSchema<T>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    console.log(`🔍 [Validation] Validating query params for ${req.method} ${req.path}`);
+    console.log(`🔍 [Validation] Query params:`, req.query);
 
-// File upload validation
-export const fileUploadSchema = z.object({
-  filename: z.string().min(1, 'Filename is required'),
-  mimetype: z.string().refine(
-    (type) => [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'image/svg+xml',
-      'application/pdf',
-    ].includes(type),
-    'Invalid file type'
-  ),
-  size: z.number().max(50 * 1024 * 1024, 'File size must be less than 50MB'),
-});
+    const result = validateSchema(schema, req.query);
+    
+    if (!result.success) {
+      console.log(`❌ [Validation] Query validation failed:`, result.error);
+      return res.status(400).json(result.error);
+    }
 
-// Room validation schemas
-export const roomSchemas = {
-  create: z.object({
-    name: z.string().min(1, 'Room name is required').max(100, 'Room name too long'),
-    description: z.string().optional(),
-    isPublic: z.boolean().default(false),
-    maxPlayers: z.number().int().min(1).max(20).default(8),
-  }),
-  update: z.object({
-    name: z.string().min(1).max(100).optional(),
-    description: z.string().optional(),
-    isPublic: z.boolean().optional(),
-    maxPlayers: z.number().int().min(1).max(20).optional(),
-  }),
-  join: z.object({
-    password: z.string().optional(),
-  }),
-};
+    console.log(`✅ [Validation] Query validation passed`);
+    (req as ValidatedRequest<T>).validatedData = result.data;
+    next();
+  };
+}
 
-// Game system validation schemas
-export const systemSchemas = {
-  create: z.object({
-    name: z.string().min(1, 'System name is required').max(100, 'System name too long'),
-    description: z.string().optional(),
-    version: z.string().default('1.0.0'),
-    tags: z.array(z.string()).default([]),
-  }),
-  update: z.object({
-    name: z.string().min(1).max(100).optional(),
-    description: z.string().optional(),
-    version: z.string().optional(),
-    tags: z.array(z.string()).optional(),
-  }),
-};
+// Generic validation middleware factory for route parameters
+export function validateParams<T>(schema: z.ZodSchema<T>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    console.log(`🔍 [Validation] Validating route params for ${req.method} ${req.path}`);
+    console.log(`🔍 [Validation] Route params:`, req.params);
 
-// Asset validation schemas  
-export const assetSchemas = {
-  create: z.object({
-    name: z.string().min(1, 'Asset name is required').max(100, 'Asset name too long'),
-    type: z.enum(['card', 'token', 'map', 'rule']),
-    category: z.string().optional(),
-    tags: z.array(z.string()).default([]),
-    metadata: z.record(z.any()).optional(),
-  }),
-  update: z.object({
-    name: z.string().min(1).max(100).optional(),
-    type: z.enum(['card', 'token', 'map', 'rule']).optional(),
-    category: z.string().optional(),
-    tags: z.array(z.string()).optional(),
-    metadata: z.record(z.any()).optional(),
-  }),
-};
+    const result = validateSchema(schema, req.params);
+    
+    if (!result.success) {
+      console.log(`❌ [Validation] Params validation failed:`, result.error);
+      return res.status(400).json(result.error);
+    }
+
+    console.log(`✅ [Validation] Params validation passed`);
+    (req as ValidatedRequest<T>).validatedData = result.data;
+    next();
+  };
+}
+
+// Combined validation middleware for body + params
+export function validateBodyAndParams<TBody, TParams>(
+  bodySchema: z.ZodSchema<TBody>, 
+  paramsSchema: z.ZodSchema<TParams>
+) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    console.log(`🔍 [Validation] Validating body and params for ${req.method} ${req.path}`);
+
+    // Validate body
+    const bodyResult = validateSchema(bodySchema, req.body);
+    if (!bodyResult.success) {
+      console.log(`❌ [Validation] Body validation failed:`, bodyResult.error);
+      return res.status(400).json(bodyResult.error);
+    }
+
+    // Validate params
+    const paramsResult = validateSchema(paramsSchema, req.params);
+    if (!paramsResult.success) {
+      console.log(`❌ [Validation] Params validation failed:`, paramsResult.error);
+      return res.status(400).json(paramsResult.error);
+    }
+
+    console.log(`✅ [Validation] Combined validation passed`);
+    (req as ValidatedRequest<{ body: TBody; params: TParams }>).validatedData = {
+      body: bodyResult.data,
+      params: paramsResult.data,
+    };
+    next();
+  };
+}
+
+// Specific validation middleware for common patterns
+export const validateRoomId = validateParams(z.object({
+  roomId: z.string().min(1, 'Room ID is required'),
+}));
+
+export const validateAssetId = validateParams(z.object({
+  id: z.string().min(1, 'Asset ID is required'),
+}));
+
+export const validateUserId = validateParams(z.object({
+  userId: z.string().min(1, 'User ID is required'),
+}));
+
+export const validatePagination = validateQuery(z.object({
+  limit: z.coerce.number().min(1).max(100).default(10),
+  offset: z.coerce.number().min(0).default(0),
+}));
+
+export const validateLimit = validateQuery(z.object({
+  limit: z.coerce.number().min(1).max(100).default(10),
+}));
+
+// Error handling for validation failures
+export function handleValidationError(error: ValidationError, res: Response): void {
+  console.log(`❌ [Validation] Sending validation error response:`, error);
+  res.status(400).json(error);
+}
+
+// Type guard for validated requests
+export function isValidatedRequest<T>(req: Request): req is ValidatedRequest<T> {
+  return 'validatedData' in req;
+}
+
+// Helper to get validated data from request
+export function getValidatedData<T>(req: Request): T {
+  if (isValidatedRequest<T>(req)) {
+    return req.validatedData;
+  }
+  throw new Error('Request not validated. Ensure validation middleware is applied.');
+}
+
+// WebSocket validation helper
+export function validateWebSocketMessage<T>(schema: z.ZodSchema<T>, message: unknown): { success: true; data: T } | { success: false; error: ValidationError } {
+  console.log(`🔍 [WS Validation] Validating WebSocket message`);
+  console.log(`🔍 [WS Validation] Message:`, message);
+
+  const result = validateSchema(schema, message);
+  
+  if (!result.success) {
+    console.log(`❌ [WS Validation] Message validation failed:`, result.error);
+  } else {
+    console.log(`✅ [WS Validation] Message validation passed`);
+  }
+
+  return result;
+}
+
+// Export types
+export type { ValidatedRequest };

@@ -10,6 +10,56 @@ import * as admin from "firebase-admin";
 // Import new auth system
 import { authenticateToken, authorizeRoom, optionalAuth, logAuthEvents } from './auth/middleware';
 import { socketAuthManager, type AuthenticatedSocket } from './websocket/socketAuth';
+
+// Import validation middleware
+import { 
+  validateBody, 
+  validateParams, 
+  validateQuery, 
+  validateBodyAndParams,
+  validateWebSocketMessage,
+  getValidatedData,
+  type ValidatedRequest 
+} from './middleware/validation';
+import { 
+  createRoomRequestSchema,
+  updateRoomRequestSchema,
+  createAssetRequestSchema,
+  createBoardAssetRequestSchema,
+  updateBoardAssetRequestSchema,
+  createDiceRollRequestSchema,
+  createChatMessageRequestSchema,
+  createGameTemplateRequestSchema,
+  createGameSystemRequestSchema,
+  createCardDeckRequestSchema,
+  createCardPileRequestSchema,
+  joinRoomRequestSchema,
+  updateUserRequestSchema,
+  uploadRequestSchema,
+  wsEventSchema,
+  wsJoinRoomSchema,
+  wsAssetMovedSchema,
+  wsAssetFlippedSchema,
+  wsDiceRolledSchema,
+  wsChatMessageSchema,
+  wsPlayerScoreUpdatedSchema,
+  wsTokenRefreshSchema,
+  wsBoardResizeSchema,
+  wsCardActionSchema,
+  validatePagination,
+  validateLimit,
+  idSchema,
+  roomIdSchema,
+  userIdSchema,
+  createValidationError,
+  createAuthError,
+  createAuthorizationError,
+  createNotFoundError,
+  createServerError,
+  validateRoomId,
+  validateAssetId,
+  validateUserId
+} from '@shared/validators';
 import type { 
   WebSocketMessage, 
   AssetMovedMessage, 
@@ -576,150 +626,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/auth/user', authenticateToken, async (req: any, res) => {
-    try {
-      const userId = req.user.uid;
-      const updates = req.body;
-      
-      // Validate the updates
-      if (!updates.firstName && !updates.lastName) {
-        return res.status(400).json({ message: "firstName or lastName is required" });
+  app.put('/api/auth/user', 
+    authenticateToken, 
+    validateBody(updateUserRequestSchema), 
+    async (req: any, res) => {
+      try {
+        const userId = req.user.uid;
+        const updates = getValidatedData(req);
+        
+        const user = await storage.updateUser(userId, updates);
+        res.json(user);
+      } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json(createServerError("Failed to update user"));
       }
-      
-      const user = await storage.updateUser(userId, updates);
-      res.json(user);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ message: "Failed to update user" });
     }
-  });
+  );
 
   // Game Room Routes
-  app.post("/api/rooms", authenticateToken, async (req: any, res) => {
-    try {
-      const roomData = insertGameRoomSchema.parse(req.body);
-      const userId = req.user.uid;
-      const room = await storage.createGameRoom(roomData, userId);
-      res.json(room);
-    } catch (error) {
-      console.error("Error creating room:", error);
-      if (error instanceof Error && error.message.includes("unique constraint")) {
-        res.status(409).json({ error: "A room with this name already exists" });
-      } else {
-        res.status(400).json({ error: "Invalid room data" });
+  app.post("/api/rooms", 
+    authenticateToken, 
+    validateBody(createRoomRequestSchema), 
+    async (req: any, res) => {
+      try {
+        const roomData = getValidatedData(req);
+        const userId = req.user.uid;
+        const room = await storage.createGameRoom(roomData, userId);
+        res.json(room);
+      } catch (error) {
+        console.error("Error creating room:", error);
+        if (error instanceof Error && error.message.includes("unique constraint")) {
+          res.status(409).json(createValidationError("A room with this name already exists"));
+        } else {
+          res.status(500).json(createServerError("Failed to create room"));
+        }
       }
     }
-  });
+  );
 
-  app.get("/api/rooms/:id", authenticateToken, authorizeRoom(), async (req, res) => {
-    try {
-      const room = await storage.getGameRoomByIdOrName(req.params.id);
-      if (!room) {
-        return res.status(404).json({ error: "Room not found" });
+  app.get("/api/rooms/:id", 
+    authenticateToken, 
+    validateParams(validateAssetId),
+    authorizeRoom(), 
+    async (req, res) => {
+      try {
+        const { id } = getValidatedData<{ id: string }>(req);
+        const room = await storage.getGameRoomByIdOrName(id);
+        if (!room) {
+          return res.status(404).json(createNotFoundError("Room not found", "room"));
+        }
+        res.json(room);
+      } catch (error) {
+        console.error("Error getting room:", error);
+        res.status(500).json(createServerError("Failed to get room"));
       }
-      res.json(room);
-    } catch (error) {
-      console.error("Error getting room:", error);
-      res.status(500).json({ error: "Internal server error" });
     }
-  });
+  );
 
-  app.get("/api/user/:userId/rooms", authenticateToken, async (req: any, res) => {
-    try {
-      const userId = req.user.uid;
-      // Ensure users can only access their own rooms
-      if (req.params.userId !== userId) {
-        return res.status(403).json({ error: "Access denied" });
+  app.get("/api/user/:userId/rooms", 
+    authenticateToken, 
+    validateParams(validateUserId),
+    async (req: any, res) => {
+      try {
+        const { userId } = getValidatedData<{ userId: string }>(req);
+        const currentUserId = req.user.uid;
+        
+        // Ensure users can only access their own rooms
+        if (userId !== currentUserId) {
+          return res.status(403).json(createAuthorizationError("Access denied - can only view own rooms"));
+        }
+        const rooms = await storage.getUserRooms(userId);
+        res.json(rooms);
+      } catch (error) {
+        console.error("Error getting user rooms:", error);
+        res.status(500).json(createServerError("Failed to get user rooms"));
       }
-      const rooms = await storage.getUserRooms(userId);
-      res.json(rooms);
-    } catch (error) {
-      console.error("Error getting user rooms:", error);
-      res.status(500).json({ error: "Internal server error" });
     }
-  });
+  );
 
-  app.delete("/api/rooms/:id", authenticateToken, authorizeRoom('manage_room'), async (req: any, res) => {
-    try {
-      const userId = req.user.uid;
-      await storage.deleteGameRoom(req.params.id, userId);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error deleting room:", error);
-      if (error instanceof Error && error.message === "Room not found") {
-        res.status(404).json({ error: "Room not found" });
-      } else {
-        res.status(500).json({ error: "Internal server error" });
+  app.delete("/api/rooms/:id", 
+    authenticateToken, 
+    validateParams(validateAssetId),
+    authorizeRoom('manage_room'), 
+    async (req: any, res) => {
+      try {
+        const { id } = getValidatedData<{ id: string }>(req);
+        const userId = req.user.uid;
+        await storage.deleteGameRoom(id, userId);
+        res.json({ success: true });
+      } catch (error) {
+        console.error("Error deleting room:", error);
+        if (error instanceof Error && error.message === "Room not found") {
+          res.status(404).json(createNotFoundError("Room not found", "room"));
+        } else {
+          res.status(500).json(createServerError("Failed to delete room"));
+        }
       }
     }
-  });
+  );
 
   // Game Assets Routes
-  app.post("/api/assets", authenticateToken, authorizeRoom('manage_assets'), async (req: any, res) => {
-    try {
-      const assetData = insertGameAssetSchema.parse(req.body);
-      const userId = req.user.uid;
-      
-      // Check if user has admin role in room (only admins can upload)
-      const userRole = await storage.getPlayerRole(assetData.roomId || '', userId);
-      if (userRole !== 'admin') {
-        return res.status(403).json({ error: "Only game masters can upload assets" });
+  app.post("/api/assets", 
+    authenticateToken, 
+    validateBody(createAssetRequestSchema),
+    authorizeRoom('manage_assets'), 
+    async (req: any, res) => {
+      try {
+        const assetData = getValidatedData(req);
+        const userId = req.user.uid;
+        
+        // Check if user has admin role in room (only admins can upload)
+        const userRole = await storage.getPlayerRole(assetData.roomId || '', userId);
+        if (userRole !== 'admin') {
+          return res.status(403).json(createAuthorizationError("Only game masters can upload assets", "admin"));
+        }
+        
+        // Normalize the object path
+        const objectStorageService = new ObjectStorageService();
+        const normalizedPath = objectStorageService.normalizeObjectEntityPath(assetData.filePath);
+        
+        const asset = await storage.createGameAsset({
+          ...assetData,
+          filePath: normalizedPath
+        }, userId);
+        
+        res.json(asset);
+      } catch (error) {
+        console.error("Error creating asset:", error);
+        res.status(500).json(createServerError("Failed to create asset"));
       }
-      
-      // Normalize the object path
-      const objectStorageService = new ObjectStorageService();
-      const normalizedPath = objectStorageService.normalizeObjectEntityPath(assetData.filePath);
-      
-      const asset = await storage.createGameAsset({
-        ...assetData,
-        filePath: normalizedPath
-      }, userId);
-      
-      res.json(asset);
-    } catch (error) {
-      console.error("Error creating asset:", error);
-      res.status(400).json({ error: "Invalid asset data" });
     }
-  });
+  );
 
-  app.get("/api/rooms/:roomId/assets", authenticateToken, authorizeRoom(), async (req, res) => {
-    try {
-      // First, check if room exists and get the actual room ID
-      const room = await storage.getGameRoomByIdOrName(req.params.roomId);
-      if (!room) {
-        return res.status(404).json({ error: "Room not found" });
+  app.get("/api/rooms/:roomId/assets", 
+    authenticateToken, 
+    validateParams(validateRoomId),
+    authorizeRoom(), 
+    async (req, res) => {
+      try {
+        const { roomId } = getValidatedData<{ roomId: string }>(req);
+        // First, check if room exists and get the actual room ID
+        const room = await storage.getGameRoomByIdOrName(roomId);
+        if (!room) {
+          return res.status(404).json(createNotFoundError("Room not found", "room"));
+        }
+        
+        const assets = await storage.getRoomAssets(room.id);
+        res.json(assets);
+      } catch (error) {
+        console.error("Error getting room assets:", error);
+        res.status(500).json(createServerError("Failed to get room assets"));
       }
-      
-      const assets = await storage.getRoomAssets(room.id);
-      res.json(assets);
-    } catch (error) {
-      console.error("Error getting room assets:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
   });
 
   // Room player routes
-  app.post('/api/rooms/:roomId/join', authenticateToken, async (req: any, res) => {
-    try {
-      const { roomId } = req.params;
-      const userId = req.user.uid;
-      
-      // First, check if room exists and get the actual room ID
-      const room = await storage.getGameRoomByIdOrName(roomId);
-      if (!room) {
-        return res.status(404).json({ message: "Room not found" });
+  app.post('/api/rooms/:roomId/join', 
+    authenticateToken, 
+    validateParams(validateRoomId),
+    async (req: any, res) => {
+      try {
+        const { roomId } = getValidatedData<{ roomId: string }>(req);
+        const userId = req.user.uid;
+        
+        // First, check if room exists and get the actual room ID
+        const room = await storage.getGameRoomByIdOrName(roomId);
+        if (!room) {
+          return res.status(404).json(createNotFoundError("Room not found", "room"));
+        }
+        
+        const roomPlayer = await storage.addPlayerToRoom(room.id, userId);
+        
+        res.json({ success: true, role: roomPlayer.role });
+      } catch (error) {
+        console.error("Error joining room:", error);
+        res.status(500).json(createServerError("Failed to join room"));
       }
-      
-      const roomPlayer = await storage.addPlayerToRoom(room.id, userId);
-      
-      res.json({ success: true, role: roomPlayer.role });
-    } catch (error) {
-      console.error("Error joining room:", error);
-      res.status(500).json({ message: "Failed to join room" });
-    }
   });
 
-  app.get('/api/rooms/:roomId/role', authenticateToken, authorizeRoom(), async (req: any, res) => {
+  app.get('/api/rooms/:roomId/role', 
+    authenticateToken, 
+    validateParams(validateRoomId),
+    authorizeRoom(), 
+    async (req: any, res) => {
     try {
       const { roomId } = req.params;
       const userId = req.user.uid;
