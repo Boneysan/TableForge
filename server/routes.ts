@@ -60,6 +60,28 @@ import {
   validateAssetId,
   validateUserId
 } from '@shared/validators';
+
+// Import enhanced security middleware
+import { 
+  helmetMiddleware, 
+  cspViolationHandler, 
+  strictSecurityHeaders, 
+  logSecurityEvents 
+} from './middleware/helmetConfig';
+import { 
+  corsMiddleware, 
+  corsErrorHandler, 
+  additionalSecurityHeaders
+} from './middleware/corsConfig';
+import {
+  generalRateLimit,
+  authRateLimit,
+  userAuthRateLimit,
+  assetUploadRateLimit,
+  roomOperationRateLimit,
+  websocketRateLimit,
+  adminRateLimit
+} from './middleware/rateLimiting';
 import type { 
   WebSocketMessage, 
   AssetMovedMessage, 
@@ -84,6 +106,15 @@ const roomConnections = new Map<string, Set<WebSocket>>();
 const connectionRooms = new Map<WebSocket, string>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Apply rate limiting and security middleware first
+  app.use(generalRateLimit);
+  app.use(helmetMiddleware);
+  app.use(corsMiddleware);
+  app.use(additionalSecurityHeaders);
+  app.use(logSecurityEvents);
+  app.use(corsErrorHandler);
+  app.use(cspViolationHandler);
+  
   // Auth middleware with security logging
   app.use(logAuthEvents);
   await setupAuth(app);
