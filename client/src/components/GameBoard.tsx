@@ -6,6 +6,7 @@ import { AnnotationSystem } from "./AnnotationSystem";
 import { authenticatedApiRequest } from "@/lib/authClient";
 import type { GameAsset, BoardAsset, CardPile, CardDeck } from "@shared/schema";
 import { DiscardPileViewer } from "./DiscardPileViewer";
+import { useToast } from "@/hooks/use-toast";
 
 interface GameBoardProps {
   assets: GameAsset[];
@@ -51,6 +52,7 @@ export function GameBoard({
   }, [roomBoardWidth, roomBoardHeight]);
   
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Fetch card piles for the room
   const { data: cardPiles = [] } = useQuery({
@@ -109,11 +111,28 @@ export function GameBoard({
   // Draw card to hand mutation
   const drawCardToHandMutation = useMutation({
     mutationFn: async ({ pileId }: { pileId: string }) => {
+      console.log(`🌐 [Draw to Hand API] Sending POST request for pile ${pileId}`);
       const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles/${pileId}/draw-to-hand`);
-      return response.json();
+      
+      if (!response.ok) {
+        console.error(`❌ [Draw to Hand API] Request failed with status ${response.status}: ${response.statusText}`);
+        throw new Error(`Failed to draw card to hand: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log(`✅ [Draw to Hand API] Successfully drew card to hand:`, result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(`🔄 [Draw to Hand] Invalidating queries and showing success`);
       queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      toast({
+        title: "Card drawn to hand",
+        description: `Drew ${data.cardAsset?.name || 'card'} to your hand. Check the Hand tab!`,
+      });
+    },
+    onError: (error) => {
+      console.error(`❌ [Draw to Hand] Failed to draw card to hand:`, error);
     },
   });
 
@@ -423,9 +442,16 @@ export function GameBoard({
                 width: '80px', // Adjusted to match new card width
               }}
               data-testid={`deck-spot-${pile.id}`}
+              onContextMenu={(e) => {
+                // Prevent default right-click menu when drawing cards
+                if (playerRole === 'admin' && cardCount > 0) {
+                  e.preventDefault();
+                }
+              }}
               onMouseDown={(e) => {
                 if (playerRole === 'admin') {
                   e.preventDefault();
+                  console.log(`🔍 [Mouse Event] Mouse down on pile ${pile.name} - button: ${e.button}, shiftKey: ${e.shiftKey}`);
                   
                   let isDragging = false;
                   let currentX = pile.positionX;
@@ -492,14 +518,14 @@ export function GameBoard({
                       // If it was just a click (not a drag) and there are cards, draw one
                       console.log(`🃏 [Card Draw] Drawing card from pile ${pile.name} (${pile.id}) with ${cardCount} cards`);
                       
-                      // Check if shift key was held for hand draw
-                      if (upEvent.shiftKey) {
-                        console.log(`🃏 [Card Draw] Shift-click detected - drawing to hand`);
+                      // Check if shift key was held or right button for hand draw
+                      if (upEvent.shiftKey || upEvent.button === 2) {
+                        console.log(`🃏 [Card Draw] ${upEvent.shiftKey ? 'Shift-click' : 'Right-click'} detected - drawing to hand from pile ${pile.id}`);
                         drawCardToHandMutation.mutate({
                           pileId: pile.id
                         });
                       } else {
-                        console.log(`🃏 [Card Draw] Normal click - drawing to board`);
+                        console.log(`🃏 [Card Draw] Normal click - drawing to board from pile ${pile.id}`);
                         drawCardToBoardMutation.mutate({
                           pileId: pile.id,
                           x: pile.positionX + 30, // Offset from pile position
@@ -604,9 +630,9 @@ export function GameBoard({
                   </div>
                   {/* Draw instructions for decks with cards */}
                   {pile.pileType === 'deck' && cardCount > 0 && (
-                    <div className="text-xs text-yellow-300 mt-1 opacity-75">
-                      Click: to board<br/>
-                      Shift+Click: to hand
+                    <div className="text-xs text-yellow-300 mt-1 opacity-90 bg-black bg-opacity-50 px-1 rounded">
+                      <div className="text-center">📋 Click: board</div>
+                      <div className="text-center">✋ Shift+Click: hand</div>
                     </div>
                   )}
                 </div>
