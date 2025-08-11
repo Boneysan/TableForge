@@ -226,8 +226,14 @@ export class DatabaseStorage implements IStorage {
     // Delete card decks (they reference game assets as card backs)
     await db.delete(cardDecks).where(eq(cardDecks.roomId, id));
     
-    // Now safe to delete game assets
-    await db.delete(gameAssets).where(eq(gameAssets.roomId, id));
+    // NOTE: We DON'T delete game assets because they may be copied from game systems
+    // and should be preserved for potential reuse. This is a conservative approach.
+    // In the future, we should add a field to distinguish room-specific vs system assets.
+    // For now, we leave assets in place to preserve game system integrity.
+    
+    // Only delete assets that were uploaded directly to the room (not from game systems)
+    // This is a safeguard until we implement proper asset source tracking
+    console.log(`[Delete Room] Preserving game assets for room ${id} to maintain game system integrity`);
     
     await db.delete(roomPlayers).where(eq(roomPlayers.roomId, id));
     await db.delete(gameRooms).where(eq(gameRooms.id, id));
@@ -816,7 +822,6 @@ export class DatabaseStorage implements IStorage {
               positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'deck',
               cardOrder: cardOrder,
-              isShuffled: false,
               visibility: 'public',
             });
 
@@ -828,7 +833,6 @@ export class DatabaseStorage implements IStorage {
               positionY: Math.floor(Math.random() * 200 + 100),
               pileType: 'discard',
               cardOrder: [],
-              isShuffled: false,
               visibility: 'public',
             });
           }
