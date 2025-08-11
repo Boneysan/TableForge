@@ -397,10 +397,7 @@ export function GameBoard({
           const cardBackAsset = deck?.cardBackAssetId ? 
             assets.find(a => a.id === deck.cardBackAssetId) : null;
           
-          // Debug logging
-          if (pile.pileType === 'deck' && cardCount > 0) {
-            console.log(`🃏 [Deck Debug] Pile: ${pile.name}, Base: ${baseName}, Found deck:`, !!deck, 'Card back asset:', !!cardBackAsset, deck?.cardBackAssetId);
-          }
+
           
           return (
             <div
@@ -523,11 +520,7 @@ export function GameBoard({
                         src={`/api/image-proxy?url=${encodeURIComponent(cardBackAsset.filePath)}`}
                         alt={`${pile.name} card back`}
                         className="w-full h-full object-cover rounded-lg"
-                        onLoad={() => {
-                          console.log(`✅ [Card Back] Loaded image for ${pile.name}:`, cardBackAsset.filePath);
-                        }}
                         onError={(e) => {
-                          console.error(`❌ [Card Back] Failed to load image for ${pile.name}:`, cardBackAsset.filePath);
                           // Show a fallback background instead of hiding
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
