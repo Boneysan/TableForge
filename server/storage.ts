@@ -836,23 +836,64 @@ export class DatabaseStorage implements IStorage {
       }
     } else {
       // Fallback: create new assets if system assets don't exist yet
-      console.log("[Apply System] No system assets found, creating new ones");
+      console.log("[Apply System] No system assets found, creating new ones in batches");
       if (system.assetLibrary) {
         const assetLibrary = system.assetLibrary as any;
         if (assetLibrary.assets && Array.isArray(assetLibrary.assets)) {
-          for (const assetData of assetLibrary.assets) {
-            const newAsset = await this.createGameAsset({
-              systemId,
-              name: assetData.name,
-              type: assetData.type || assetData.category || 'image',
-              filePath: assetData.url || assetData.filePath,
-              width: assetData.width || null,
-              height: assetData.height || null,
-              isSystemAsset: true,
-            } as any, userId);
+          // Process assets in smaller batches to avoid database timeout
+          const BATCH_SIZE = 20;
+          const totalAssets = assetLibrary.assets.length;
+          console.log(`[Apply System] Processing ${totalAssets} assets in batches of ${BATCH_SIZE}`);
+          
+          for (let i = 0; i < assetLibrary.assets.length; i += BATCH_SIZE) {
+            const batch = assetLibrary.assets.slice(i, i + BATCH_SIZE);
+            console.log(`[Apply System] Processing batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(totalAssets/BATCH_SIZE)} (${batch.length} assets)`);
             
-            createdAssets.set(assetData.url || assetData.filePath, newAsset.id);
+            // Create assets in parallel for this batch
+            const batchPromises = batch.map(async (assetData: any) => {
+              try {
+                const newAsset = await this.createGameAsset({
+                  systemId,
+                  name: assetData.name,
+                  type: assetData.type || assetData.category || 'image',
+                  filePath: assetData.url || assetData.filePath,
+                  width: assetData.width || null,
+                  height: assetData.height || null,
+                  isSystemAsset: true,
+                } as any, userId);
+                
+                return {
+                  url: assetData.url || assetData.filePath,
+                  assetId: newAsset.id,
+                  success: true
+                };
+              } catch (error) {
+                console.error(`[Apply System] Failed to create asset ${assetData.name}:`, error);
+                return {
+                  url: assetData.url || assetData.filePath,
+                  assetId: null,
+                  success: false,
+                  error
+                };
+              }
+            });
+            
+            const batchResults = await Promise.all(batchPromises);
+            
+            // Process batch results
+            for (const result of batchResults) {
+              if (result.success && result.assetId) {
+                createdAssets.set(result.url, result.assetId);
+              }
+            }
+            
+            // Small delay between batches to prevent overwhelming the database
+            if (i + BATCH_SIZE < assetLibrary.assets.length) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
           }
+          
+          console.log(`[Apply System] Successfully created ${createdAssets.size} out of ${totalAssets} system assets`);
         }
       }
     }

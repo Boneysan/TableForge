@@ -1731,17 +1731,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "System ID is required" });
       }
 
+      console.log(`[Apply System] Starting system application: systemId=${systemId}, roomId=${roomId}, userId=${userId}`);
+
       // Verify user has access to the room
       const playerRole = await storage.getPlayerRole(roomId, userId);
       if (!playerRole) {
         return res.status(403).json({ error: "Not authorized to modify this room" });
       }
 
+      // Check if system exists before starting the process
+      const system = await storage.getGameSystem(systemId);
+      if (!system) {
+        return res.status(404).json({ error: "Game system not found" });
+      }
+
+      console.log(`[Apply System] Applying system "${system.name}" to room`);
+      
       await storage.applySystemToRoom(systemId, roomId, userId);
-      res.json({ success: true });
+      
+      console.log(`[Apply System] Successfully applied system "${system.name}" to room`);
+      res.json({ success: true, message: `System "${system.name}" applied successfully` });
     } catch (error) {
       console.error("Error applying system to room:", error);
-      res.status(500).json({ error: "Failed to apply system to room" });
+      
+      // Provide more specific error messages based on error type
+      let errorMessage = "Failed to apply system to room";
+      if (error instanceof Error) {
+        if (error.message.includes("terminating connection")) {
+          errorMessage = "Database connection timeout - please try again in a moment";
+        } else if (error.message.includes("System not found")) {
+          errorMessage = "Game system not found";
+        } else if (error.message.includes("Room not found")) {
+          errorMessage = "Game room not found";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      res.status(500).json({ error: errorMessage });
     }
   });
 
