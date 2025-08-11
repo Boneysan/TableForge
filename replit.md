@@ -8,6 +8,11 @@ Vorpal Board is a comprehensive multiplayer virtual tabletop gaming platform des
 - **Environment Separation**: Created proper server/client configuration separation with validation scripts and comprehensive error handling
 - **Security Middleware System**: Implemented tiered rate limiting, request validation, security logging, and health check endpoints
 - **Configuration Management**: Added environment validation utilities, secure secret generation, and comprehensive configuration documentation
+- **🛡️ ENTERPRISE-GRADE AUTHENTICATION HARDENING**: Implemented comprehensive Firebase ID token validation for both HTTP and WebSocket connections with explicit trust boundaries between client and server authentication states
+- **🔐 Advanced Room Authorization**: Created room-scoped authorization with granular permission system for board modifications, chat, dice rolling, and asset management
+- **🔒 WebSocket Security**: Secured all real-time operations with authentication validation and room membership verification for every socket event
+- **⚡ Memoized Token Validation**: Added performance-optimized Firebase token validation with intelligent caching and automatic re-validation
+- **🏗️ Robust Auth Architecture**: Built modular auth system with tokenValidator.ts, roomAuth.ts, middleware.ts, and socketAuth.ts for comprehensive security coverage
 - **Fixed Empty Deck Issue**: Resolved problem where created decks showed 0 cards in the Game Master Console Cards tab
 - **Enhanced Drag & Drop**: Implemented complete drag-and-drop functionality from Asset Library to GameBoard with proper grid snapping
 - **Image Display Fix**: All game assets now display correctly using image proxy for private Google Cloud Storage URLs
@@ -48,10 +53,13 @@ Preferred communication style: Simple, everyday language.
 - **Schema Structure**: Comprehensive tables for users, game rooms, assets, board elements, players, and dice roll history. Assets are designed for reuse across multiple game rooms without duplication, maintaining a `systemId` and `isSystemAsset` flag.
 
 ## Authentication and Authorization
-- **Hybrid Authentication**: Primary Firebase Google OAuth with automatic Replit Auth fallback.
-- **Environment Support**: Automatic domain detection for Replit environments.
-- **Access Control**: Custom ACL for object storage and room-based permissions.
-- **Security**: All protected API routes verify Firebase ID tokens or Replit Auth.
+- **🛡️ Enterprise-Grade Firebase Authentication**: Comprehensive Firebase ID token validation with explicit trust boundaries and server-side re-validation for every request
+- **🔐 Room-Scoped Authorization**: Granular permission system with role-based access control for board modifications, chat, dice rolling, and asset management
+- **⚡ Performance-Optimized Validation**: Memoized Firebase token validation with intelligent caching and automatic refresh handling
+- **🔒 WebSocket Security**: Full authentication and authorization for real-time operations with room membership validation for every socket event
+- **🏗️ Modular Auth Architecture**: Comprehensive auth system with tokenValidator, roomAuth, middleware, and socketAuth modules for complete security coverage
+- **🔄 Hybrid Fallback**: Automatic Replit Auth fallback for development environments with seamless Firebase integration
+- **📊 Security Logging**: Comprehensive authentication event logging and suspicious activity monitoring
 
 ## Core Features
 - **Three-Interface System**: ViewSelector, Admin Interface, Game Master Console, and Player Interface.

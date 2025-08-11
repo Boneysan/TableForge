@@ -6,6 +6,10 @@ import { setupAuth } from "./replitAuth";
 import { hybridAuthMiddleware } from "./hybridAuth";
 import { ObjectStorageService } from "./objectStorage";
 import * as admin from "firebase-admin";
+
+// Import new auth system
+import { authenticateToken, authorizeRoom, optionalAuth, logAuthEvents } from './auth/middleware';
+import { socketAuthManager, type AuthenticatedSocket } from './websocket/socketAuth';
 import type { 
   WebSocketMessage, 
   AssetMovedMessage, 
@@ -30,7 +34,8 @@ const roomConnections = new Map<string, Set<WebSocket>>();
 const connectionRooms = new Map<WebSocket, string>();
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
+  // Auth middleware with security logging
+  app.use(logAuthEvents);
   await setupAuth(app);
   
   const httpServer = createServer(app);
@@ -38,20 +43,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // WebSocket server for real-time multiplayer
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
 
-  wss.on('connection', (ws, req) => {
-    console.log('WebSocket connection established');
+  wss.on('connection', async (ws: AuthenticatedSocket, req) => {
+    console.log('🔌 [WebSocket] New connection attempt');
+    
+    // Initialize socket properties
+    ws.isAuthenticated = false;
+    ws.lastHeartbeat = Date.now();
+
+    // Attempt to authenticate the connection
+    const isAuthenticated = await socketAuthManager.authenticateConnection(ws, req);
+    
+    if (!isAuthenticated) {
+      console.log('❌ [WebSocket] Authentication failed, closing connection');
+      ws.close(1008, 'Authentication required');
+      return;
+    }
+
+    console.log('✅ [WebSocket] Socket authenticated for user:', ws.user?.uid);
 
     ws.on('message', async (data) => {
       try {
         const message: WebSocketMessage = JSON.parse(data.toString());
         await handleWebSocketMessage(ws, message);
       } catch (error) {
-        console.error('WebSocket message error:', error);
-        ws.send(JSON.stringify({ type: 'error', payload: { message: 'Invalid message format' } }));
+        console.error('❌ [WebSocket] Message error:', error);
+        ws.send(JSON.stringify({ 
+          type: 'error', 
+          payload: { message: 'Invalid message format' } 
+        }));
       }
     });
 
     ws.on('close', () => {
+      console.log('👋 [WebSocket] Connection closed');
+      socketAuthManager.handleDisconnection(ws);
+      
       const roomId = connectionRooms.get(ws);
       if (roomId) {
         const connections = roomConnections.get(roomId);
@@ -66,12 +92,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) {
+  async function handleWebSocketMessage(ws: AuthenticatedSocket, message: WebSocketMessage) {
     const { type, payload, roomId } = message;
 
+    // Validate authentication for all messages
+    if (!ws.isAuthenticated || !ws.user) {
+      console.log('❌ [WebSocket] Unauthenticated message attempt');
+      ws.send(JSON.stringify({
+        type: 'auth:required',
+        data: { message: 'Authentication required for this action' }
+      }));
+      return;
+    }
+
     switch (type) {
+      case 'auth:token_refresh':
+        // Handle token refresh
+        if (payload.token) {
+          const success = await socketAuthManager.reauthenticate(ws, payload.token);
+          if (!success) {
+            ws.close(1008, 'Re-authentication failed');
+          }
+        }
+        break;
+
       case 'join_room':
         if (roomId) {
+          // Authorize room access
+          const authorized = await socketAuthManager.authorizeRoomJoin(ws, roomId);
+          if (!authorized) {
+            console.log('❌ [WebSocket] Room join unauthorized');
+            return;
+          }
+
           // Add connection to room
           if (!roomConnections.has(roomId)) {
             roomConnections.set(roomId, new Set());
@@ -79,16 +132,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
           roomConnections.get(roomId)!.add(ws);
           connectionRooms.set(ws, roomId);
 
+          console.log('✅ [WebSocket] User joined room', {
+            userId: ws.user.uid,
+            roomId,
+            role: ws.roomClaims?.role
+          });
+
           // Broadcast player joined
           broadcastToRoom(roomId, {
             type: 'player_joined',
-            payload: { player: payload.player }
+            payload: { 
+              player: {
+                id: ws.user.uid,
+                name: ws.user.displayName || ws.user.email || 'Player',
+                role: ws.roomClaims?.role || 'player'
+              }
+            }
           } as PlayerJoinedMessage, ws);
         }
         break;
 
       case 'asset_moved':
         if (roomId) {
+          // Validate permission for board modifications
+          const authResult = await socketAuthManager.validateRoomAction(
+            ws, 
+            'move_asset', 
+            'modify_board'
+          );
+          
+          if (!authResult.allowed) {
+            console.log('❌ [WebSocket] Asset move denied:', authResult.reason);
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: authResult.reason }
+            }));
+            return;
+          }
+
           // Update board asset position in storage
           await storage.updateBoardAsset(payload.assetId, {
             positionX: payload.positionX,
@@ -104,6 +185,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       case 'asset_flipped':
         if (roomId) {
+          // Validate permission for board modifications
+          const authResult = await socketAuthManager.validateRoomAction(
+            ws, 
+            'flip_asset', 
+            'modify_board'
+          );
+          
+          if (!authResult.allowed) {
+            console.log('❌ [WebSocket] Asset flip denied:', authResult.reason);
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: authResult.reason }
+            }));
+            return;
+          }
+
           // Update board asset flip state
           await storage.updateBoardAsset(payload.assetId, {
             isFlipped: payload.isFlipped
@@ -116,6 +213,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       case 'dice_rolled':
         if (roomId && payload.playerId) {
+          // Validate permission for dice rolling
+          const authResult = await socketAuthManager.validateRoomAction(
+            ws, 
+            'roll_dice', 
+            'roll_dice'
+          );
+          
+          if (!authResult.allowed) {
+            console.log('❌ [WebSocket] Dice roll denied:', authResult.reason);
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: authResult.reason }
+            }));
+            return;
+          }
+
+          // Verify the player ID matches the authenticated user
+          if (payload.playerId !== ws.user.uid) {
+            console.log('❌ [WebSocket] Player ID mismatch in dice roll');
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: 'Cannot roll dice for another player' }
+            }));
+            return;
+          }
+
           // Save dice roll to storage
           const diceRoll = await storage.createDiceRoll({
             roomId,
@@ -135,6 +258,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       case 'chat_message':
         if (roomId && payload.playerId) {
+          // Validate permission for chat
+          const authResult = await socketAuthManager.validateRoomAction(
+            ws, 
+            'send_chat', 
+            'send_chat'
+          );
+          
+          if (!authResult.allowed) {
+            console.log('❌ [WebSocket] Chat message denied:', authResult.reason);
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: authResult.reason }
+            }));
+            return;
+          }
+
+          // Verify the player ID matches the authenticated user
+          if (payload.playerId !== ws.user.uid) {
+            console.log('❌ [WebSocket] Player ID mismatch in chat message');
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: 'Cannot send messages as another player' }
+            }));
+            return;
+          }
+
           // Save chat message to storage
           const chatMessage = await storage.createChatMessage({
             roomId,
@@ -161,6 +310,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       case 'player_score_updated':
         if (roomId && payload.playerId && typeof payload.score === 'number') {
+          // Validate permission for score updates (GM or self-update)
+          const authResult = await socketAuthManager.validateRoomAction(
+            ws, 
+            'update_score', 
+            'manage_game_state'
+          );
+          
+          // Allow players to update their own score if GM permission fails
+          if (!authResult.allowed && payload.playerId !== ws.user.uid) {
+            console.log('❌ [WebSocket] Score update denied:', authResult.reason);
+            ws.send(JSON.stringify({
+              type: 'action:unauthorized',
+              data: { message: 'Can only update your own score or need GM permissions' }
+            }));
+            return;
+          }
+
           // Update player score in storage
           await storage.updateRoomPlayerScore(roomId, payload.playerId, payload.score);
 
@@ -410,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/auth/user', hybridAuthMiddleware, async (req: any, res) => {
+  app.put('/api/auth/user', authenticateToken, async (req: any, res) => {
     try {
       const userId = req.user.uid;
       const updates = req.body;
@@ -429,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Game Room Routes
-  app.post("/api/rooms", hybridAuthMiddleware, async (req: any, res) => {
+  app.post("/api/rooms", authenticateToken, async (req: any, res) => {
     try {
       const roomData = insertGameRoomSchema.parse(req.body);
       const userId = req.user.uid;
@@ -445,7 +611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/rooms/:id", async (req, res) => {
+  app.get("/api/rooms/:id", authenticateToken, authorizeRoom(), async (req, res) => {
     try {
       const room = await storage.getGameRoomByIdOrName(req.params.id);
       if (!room) {
@@ -458,7 +624,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/user/:userId/rooms", hybridAuthMiddleware, async (req: any, res) => {
+  app.get("/api/user/:userId/rooms", authenticateToken, async (req: any, res) => {
     try {
       const userId = req.user.uid;
       // Ensure users can only access their own rooms
@@ -473,7 +639,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/rooms/:id", hybridAuthMiddleware, async (req: any, res) => {
+  app.delete("/api/rooms/:id", authenticateToken, authorizeRoom('manage_room'), async (req: any, res) => {
     try {
       const userId = req.user.uid;
       await storage.deleteGameRoom(req.params.id, userId);
@@ -489,7 +655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Game Assets Routes
-  app.post("/api/assets", hybridAuthMiddleware, async (req: any, res) => {
+  app.post("/api/assets", authenticateToken, authorizeRoom('manage_assets'), async (req: any, res) => {
     try {
       const assetData = insertGameAssetSchema.parse(req.body);
       const userId = req.user.uid;
@@ -516,7 +682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/rooms/:roomId/assets", async (req, res) => {
+  app.get("/api/rooms/:roomId/assets", authenticateToken, authorizeRoom(), async (req, res) => {
     try {
       // First, check if room exists and get the actual room ID
       const room = await storage.getGameRoomByIdOrName(req.params.roomId);
@@ -533,7 +699,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Room player routes
-  app.post('/api/rooms/:roomId/join', hybridAuthMiddleware, async (req: any, res) => {
+  app.post('/api/rooms/:roomId/join', authenticateToken, async (req: any, res) => {
     try {
       const { roomId } = req.params;
       const userId = req.user.uid;
@@ -553,7 +719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/rooms/:roomId/role', hybridAuthMiddleware, async (req: any, res) => {
+  app.get('/api/rooms/:roomId/role', authenticateToken, authorizeRoom(), async (req: any, res) => {
     try {
       const { roomId } = req.params;
       const userId = req.user.uid;
@@ -573,7 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/rooms/:roomId/players', async (req, res) => {
+  app.get('/api/rooms/:roomId/players', authenticateToken, authorizeRoom(), async (req, res) => {
     try {
       // First, check if room exists and get the actual room ID
       const room = await storage.getGameRoomByIdOrName(req.params.roomId);
@@ -590,7 +756,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes for file uploads
-  app.post("/api/objects/upload", hybridAuthMiddleware, async (req: any, res) => {
+  app.post("/api/objects/upload", authenticateToken, async (req: any, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -603,7 +769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  app.delete("/api/assets/:id", async (req, res) => {
+  app.delete("/api/assets/:id", authenticateToken, async (req, res) => {
     try {
       await storage.deleteGameAsset(req.params.id);
       res.json({ success: true });
@@ -614,7 +780,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Board Assets Routes
-  app.post("/api/board-assets", async (req, res) => {
+  app.post("/api/board-assets", authenticateToken, authorizeRoom('manage_board'), async (req, res) => {
     try {
       const boardAssetData = insertBoardAssetSchema.parse(req.body);
       const boardAsset = await storage.createBoardAsset(boardAssetData);
@@ -625,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/rooms/:roomId/board-assets", async (req, res) => {
+  app.get("/api/rooms/:roomId/board-assets", authenticateToken, authorizeRoom(), async (req, res) => {
     try {
       const boardAssets = await storage.getRoomBoardAssets(req.params.roomId);
       res.json(boardAssets);
@@ -635,7 +801,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/board-assets/:id", async (req, res) => {
+  app.put("/api/board-assets/:id", authenticateToken, authorizeRoom('manage_board'), async (req, res) => {
     try {
       const updates = req.body;
       const boardAsset = await storage.updateBoardAsset(req.params.id, updates);
@@ -646,7 +812,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/board-assets/:id", async (req, res) => {
+  app.delete("/api/board-assets/:id", authenticateToken, authorizeRoom('manage_board'), async (req, res) => {
     try {
       await storage.deleteBoardAsset(req.params.id);
       res.json({ success: true });
@@ -657,7 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dice Roll Routes
-  app.post("/api/dice-rolls", async (req, res) => {
+  app.post("/api/dice-rolls", authenticateToken, authorizeRoom('roll_dice'), async (req, res) => {
     try {
       const diceRollData = insertDiceRollSchema.parse(req.body);
       const playerId = req.body.playerId; // In a real app, get from auth
@@ -669,7 +835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/rooms/:roomId/dice-rolls", async (req, res) => {
+  app.get("/api/rooms/:roomId/dice-rolls", authenticateToken, authorizeRoom(), async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
       const diceRolls = await storage.getRoomDiceRolls(req.params.roomId, limit);
@@ -681,7 +847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chat Message Routes
-  app.get("/api/rooms/:roomId/chat", hybridAuthMiddleware, async (req, res) => {
+  app.get("/api/rooms/:roomId/chat", authenticateToken, authorizeRoom(), async (req, res) => {
     try {
       const { roomId } = req.params;
       const limit = parseInt(req.query.limit as string) || 100;
@@ -694,7 +860,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/rooms/:roomId/chat", hybridAuthMiddleware, async (req: any, res) => {
+  app.post("/api/rooms/:roomId/chat", authenticateToken, authorizeRoom('send_chat'), async (req: any, res) => {
     try {
       const { roomId } = req.params;
       const userId = req.user?.uid || req.user?.claims?.sub;
@@ -734,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Card Deck endpoints
-  app.get("/api/rooms/:roomId/decks", hybridAuthMiddleware, async (req: any, res) => {
+  app.get("/api/rooms/:roomId/decks", authenticateToken, authorizeRoom(), async (req: any, res) => {
     try {
       const { roomId } = req.params;
       const decks = await storage.getCardDecks(roomId);

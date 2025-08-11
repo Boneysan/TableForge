@@ -77,6 +77,10 @@ export interface IStorage {
   getPlayerRole(roomId: string, playerId: string): Promise<'admin' | 'player' | null>;
   updatePlayerStatus(roomId: string, playerId: string, isOnline: boolean): Promise<void>;
   updateRoomPlayerScore(roomId: string, playerId: string, score: number): Promise<void>;
+  
+  // Room membership operations for auth
+  getRoomMembership(userId: string, roomId: string): Promise<RoomPlayer | undefined>;
+  getRoom(id: string): Promise<GameRoom | undefined>;
 
   // Dice Rolls
   createDiceRoll(roll: InsertDiceRoll, playerId: string): Promise<DiceRoll>;
@@ -1062,6 +1066,23 @@ export class DatabaseStorage implements IStorage {
       boardHeight: room.boardHeight 
     });
     return room;
+  }
+
+  // Room membership operations for auth
+  async getRoomMembership(userId: string, roomId: string): Promise<RoomPlayer | undefined> {
+    const [membership] = await db
+      .select()
+      .from(roomPlayers)
+      .where(and(
+        eq(roomPlayers.playerId, userId),
+        eq(roomPlayers.roomId, roomId)
+      ));
+    return membership;
+  }
+
+  async getRoom(id: string): Promise<GameRoom | undefined> {
+    // Alias for getGameRoom to satisfy the auth interface
+    return this.getGameRoom(id);
   }
 }
 
