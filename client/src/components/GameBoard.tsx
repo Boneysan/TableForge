@@ -422,20 +422,24 @@ export function GameBoard({
                     if (!isDragging && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
                       isDragging = true;
                       console.log(`🎯 [Deck Drag] Started dragging pile ${pile.name} (${pile.id})`);
+                      console.log(`🎯 [Deck Drag] Initial position: (${initialX}, ${initialY})`);
                     }
                     
                     if (isDragging) {
                       const newX = Math.max(0, Math.min(boardWidth - 80, initialX + deltaX));
                       const newY = Math.max(0, Math.min(boardHeight - 100, initialY + deltaY));
                       
-                      console.log(`🎯 [Deck Drag] Moving pile ${pile.name} from (${pile.positionX}, ${pile.positionY}) to (${newX}, ${newY})`);
+                      console.log(`🎯 [Deck Drag] Moving pile ${pile.name} from (${initialX}, ${initialY}) to (${newX}, ${newY})`);
+                      console.log(`🎯 [Deck Drag] Delta: (${deltaX}, ${deltaY})`);
                       
                       // Apply snap-to-grid if enabled
                       if (showGrid) {
                         const snapped = snapToGrid(newX, newY, gridSize);
                         console.log(`🎯 [Deck Drag] Snapped to grid: (${snapped.x}, ${snapped.y})`);
+                        console.log(`🎯 [Deck Drag] Calling API with snapped position: (${snapped.x}, ${snapped.y})`);
                         movePileMutation.mutate({ pileId: pile.id, x: snapped.x, y: snapped.y });
                       } else {
+                        console.log(`🎯 [Deck Drag] Calling API with position: (${newX}, ${newY})`);
                         movePileMutation.mutate({ pileId: pile.id, x: newX, y: newY });
                       }
                     }
