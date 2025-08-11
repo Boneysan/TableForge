@@ -82,7 +82,7 @@ export function GameMasterInterface({
 
   // Get GM hand cards from the pile
   const gmHandCardIds = gmHandPile?.cardOrder ? (Array.isArray(gmHandPile.cardOrder) ? gmHandPile.cardOrder : []) : [];
-  const gmHandCards = gmHandCardIds.map(cardId => 
+  const gmHandCards = gmHandCardIds.map((cardId: string) => 
     assets.find(asset => asset.id === cardId)
   ).filter(Boolean);
 
@@ -110,6 +110,33 @@ export function GameMasterInterface({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+
+  // Return cards to deck mutation
+  const returnCardsToDeckMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/return-cards-to-deck`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Cards returned",
+        description: `${data.cardsReturned} cards returned to their decks`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "board-assets"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to return cards to deck",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleReturnCardsToDeck = () => {
+    returnCardsToDeckMutation.mutate();
+  };
 
   const handleScoreUpdate = async (playerId: string, newScore: number) => {
     try {
@@ -451,6 +478,15 @@ export function GameMasterInterface({
                         variant="outline"
                         size="sm"
                         className="w-full justify-start"
+                        onClick={handleReturnCardsToDeck}
+                        data-testid="button-return-cards-to-deck"
+                      >
+                        Return All Cards to Deck
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
                         data-testid="button-clear-board"
                       >
                         Clear Board
@@ -499,7 +535,7 @@ export function GameMasterInterface({
                       {gmHandCards.length > 0 ? (
                         <div className="space-y-3">
                           <div className="grid grid-cols-2 gap-2">
-                            {gmHandCards.map((card) => (
+                            {gmHandCards.map((card: any) => (
                               <div key={card.id} className="relative">
                                 <div className="w-full h-16 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border border-gray-600 flex items-center justify-center text-white text-xs font-medium shadow-lg overflow-hidden">
                                   <div className="absolute inset-0">
@@ -707,7 +743,7 @@ export function GameMasterInterface({
           <div className="mt-4">
             {gmHandCards.length > 0 ? (
               <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-[#374151] rounded-lg max-h-[60vh] overflow-y-auto">
-                {gmHandCards.map((card) => (
+                {gmHandCards.map((card: any) => (
                   <div key={card.id} className="relative group">
                     <div className="w-32 h-40 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg border-2 border-gray-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-shadow cursor-pointer overflow-hidden">
                       <div className="absolute inset-0">

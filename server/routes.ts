@@ -1081,6 +1081,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Return all board cards to their decks
+  app.post("/api/rooms/:roomId/return-cards-to-deck", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId } = req.params;
+      const userId = req.user?.uid || req.user?.claims?.sub || req.user?.id;
+
+      // Verify user has admin privileges
+      const userRole = await storage.getPlayerRole(roomId, userId);
+      if (userRole !== 'admin') {
+        return res.status(403).json({ error: "Only admins can return cards to deck" });
+      }
+
+      console.log(`[Return Cards] Admin ${userId} returning all board cards to decks for room ${roomId}`);
+
+      // Get all board assets (scattered cards)
+      const boardAssets = await storage.getBoardAssets(roomId);
+      console.log(`[Return Cards] Found ${boardAssets.length} board assets to return`);
+
+      // Get all card piles in the room
+      const piles = await storage.getCardPiles(roomId);
+      const deckPiles = piles.filter(p => p.pileType === 'deck');
+
+      console.log(`[Return Cards] Found ${deckPiles.length} deck piles:`, deckPiles.map(p => p.name));
+
+      let cardsReturned = 0;
+      let cardsProcessed = 0;
+
+      // Process each board asset
+      for (const boardAsset of boardAssets) {
+        cardsProcessed++;
+        
+        // Find which deck this card belongs to based on the asset name
+        const asset = await storage.getGameAsset(boardAsset.assetId);
+        if (!asset) continue;
+
+        let targetDeck = null;
+
+        // Determine which deck based on file extension and naming patterns
+        if (asset.name.endsWith('.jpg')) {
+          // Theme cards end with .jpg
+          targetDeck = deckPiles.find(p => p.name.includes('Party Themes') && p.name.includes('Main'));
+        } else if (asset.name.endsWith('.png')) {
+          // Guest cards end with .png
+          targetDeck = deckPiles.find(p => p.name.includes('Party Guests') && p.name.includes('Main'));
+        }
+
+        if (targetDeck) {
+          // Add card to the deck pile
+          const currentOrder = (targetDeck.cardOrder as string[]) || [];
+          const newOrder = [...currentOrder, boardAsset.assetId];
+          
+          await storage.updateCardPile(targetDeck.id, {
+            cardOrder: newOrder
+          });
+
+          // Remove the board asset
+          await storage.deleteBoardAsset(boardAsset.id);
+          
+          cardsReturned++;
+          console.log(`[Return Cards] Returned ${asset.name} to ${targetDeck.name}`);
+        } else {
+          console.log(`[Return Cards] Could not find target deck for ${asset.name}`);
+        }
+      }
+
+      console.log(`[Return Cards] Successfully returned ${cardsReturned}/${cardsProcessed} cards to their decks`);
+      res.json({ 
+        success: true, 
+        message: `Returned ${cardsReturned} cards to their decks`,
+        cardsReturned,
+        cardsProcessed
+      });
+    } catch (error) {
+      console.error("Error returning cards to deck:", error);
+      res.status(500).json({ error: "Failed to return cards to deck" });
+    }
+  });
+
   // Fix deck spots for Wrong Party game system
   app.patch("/api/rooms/:roomId/fix-deck-spots", hybridAuthMiddleware, async (req: any, res) => {
     try {
