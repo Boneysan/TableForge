@@ -883,6 +883,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Draw card to hand
+  app.post("/api/rooms/:roomId/piles/:pileId/draw-to-hand", hybridAuthMiddleware, async (req: any, res) => {
+    try {
+      const { roomId, pileId } = req.params;
+      const user = req.user;
+
+      if (!user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const pile = await storage.getCardPile(pileId);
+      if (!pile) {
+        return res.status(404).json({ error: "Pile not found" });
+      }
+
+      // Get card order and check if there are cards
+      const cardOrder = pile.cardOrder as string[] || [];
+      if (cardOrder.length === 0) {
+        return res.status(400).json({ error: "No cards in pile" });
+      }
+
+      // Draw the top card
+      const cardAssetId = cardOrder[0];
+      const remainingCards = cardOrder.slice(1);
+
+      // Update pile to remove the drawn card
+      await storage.updateCardPile(pileId, {
+        cardOrder: remainingCards
+      });
+
+      // Find or create player's hand pile
+      const allPiles = await storage.getCardPilesByRoom(roomId);
+      let handPile = allPiles.find(p => p.pileType === "hand" && p.ownerId === user.uid);
+      
+      if (!handPile) {
+        // Create a hand pile for this user
+        handPile = await storage.createCardPile({
+          roomId,
+          name: `${user.displayName || 'Player'} Hand`,
+          positionX: 0, // Off-board position
+          positionY: 0,
+          pileType: "hand",
+          visibility: "gm", // GM can see all hands
+          ownerId: user.uid,
+          cardOrder: [],
+          faceDown: false,
+        });
+        console.log(`[Draw to Hand] Created new hand pile for user ${user.uid}`);
+      }
+
+      // Add card to hand
+      const currentHandOrder = handPile.cardOrder as string[] || [];
+      const newHandOrder = [...currentHandOrder, cardAssetId];
+
+      await storage.updateCardPile(handPile.id, {
+        cardOrder: newHandOrder
+      });
+
+      // Get the card asset
+      const cardAsset = await storage.getGameAsset(cardAssetId);
+      
+      console.log(`[Draw to Hand] Drew card ${cardAsset?.name} from pile ${pile.name} to ${user.displayName}'s hand`);
+
+      res.json({ 
+        cardAsset,
+        handPile,
+        remainingCards: remainingCards.length,
+        handSize: newHandOrder.length
+      });
+    } catch (error) {
+      console.error("Error drawing card to hand:", error);
+      res.status(500).json({ error: "Failed to draw card to hand" });
+    }
+  });
+
   // Room board size endpoint
   app.patch("/api/rooms/:roomId/board-size", hybridAuthMiddleware, async (req: any, res) => {
     try {

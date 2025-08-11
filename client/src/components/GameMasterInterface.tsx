@@ -564,8 +564,8 @@ export function GameMasterInterface({
                         onClick={() => {
                           // For now, show a message about drawing functionality
                           toast({ 
-                            title: "Draw from Deck", 
-                            description: "Click on deck spots on the board to draw cards to your hand" 
+                            title: "Draw Cards", 
+                            description: "Click deck spots to draw to board, or Shift+Click to draw to your hand" 
                           });
                         }}
                         data-testid="button-draw-card"

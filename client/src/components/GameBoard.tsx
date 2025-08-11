@@ -106,6 +106,17 @@ export function GameBoard({
     },
   });
 
+  // Draw card to hand mutation
+  const drawCardToHandMutation = useMutation({
+    mutationFn: async ({ pileId }: { pileId: string }) => {
+      const response = await authenticatedApiRequest("POST", `/api/rooms/${roomId}/piles/${pileId}/draw-to-hand`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/rooms", roomId, "piles"] });
+    },
+  });
+
   // Board size mutation - only for admins
   const updateBoardSizeMutation = useMutation({
     mutationFn: async ({ width, height }: { width: number; height: number }) => {
@@ -480,11 +491,21 @@ export function GameBoard({
                     } else if (cardCount > 0) {
                       // If it was just a click (not a drag) and there are cards, draw one
                       console.log(`🃏 [Card Draw] Drawing card from pile ${pile.name} (${pile.id}) with ${cardCount} cards`);
-                      drawCardToBoardMutation.mutate({
-                        pileId: pile.id,
-                        x: pile.positionX + 30, // Offset from pile position
-                        y: pile.positionY + 30
-                      });
+                      
+                      // Check if shift key was held for hand draw
+                      if (upEvent.shiftKey) {
+                        console.log(`🃏 [Card Draw] Shift-click detected - drawing to hand`);
+                        drawCardToHandMutation.mutate({
+                          pileId: pile.id
+                        });
+                      } else {
+                        console.log(`🃏 [Card Draw] Normal click - drawing to board`);
+                        drawCardToBoardMutation.mutate({
+                          pileId: pile.id,
+                          x: pile.positionX + 30, // Offset from pile position
+                          y: pile.positionY + 30
+                        });
+                      }
                     } else {
                       console.log(`🃏 [Card Draw] Cannot draw from empty pile ${pile.name} (${pile.id})`);
                     }
@@ -581,12 +602,23 @@ export function GameBoard({
                   <div className="capitalize text-gray-400">
                     {pile.pileType === 'deck' ? 'Main' : pile.pileType}
                   </div>
+                  {/* Draw instructions for decks with cards */}
+                  {pile.pileType === 'deck' && cardCount > 0 && (
+                    <div className="text-xs text-yellow-300 mt-1 opacity-75">
+                      Click: to board<br/>
+                      Shift+Click: to hand
+                    </div>
+                  )}
                 </div>
               </div>
               
               {/* Discard pile viewer */}
               <DiscardPileViewer 
-                pile={pile as CardPile}
+                pile={{
+                  ...pile,
+                  cardOrder: pile.cardOrder as string[] || [],
+                  pileType: pile.pileType || 'custom'
+                }}
                 assets={assets}
                 isVisible={pile.pileType === 'discard' && cardCount > 0}
               />
