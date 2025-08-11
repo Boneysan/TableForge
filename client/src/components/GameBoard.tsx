@@ -422,7 +422,7 @@ export function GameBoard({
                       clearTimeout(throttleTimeout);
                     }
                     
-                    const delay = immediate ? 0 : 100; // Update every 100ms instead of every mouse move
+                    const delay = immediate ? 0 : 50; // Update every 50ms for smoother movement
                     throttleTimeout = setTimeout(() => {
                       movePileMutation.mutate({ pileId: pile.id, x, y });
                     }, delay);
@@ -445,22 +445,11 @@ export function GameBoard({
                       currentX = newX;
                       currentY = newY;
                       
-                      // Update visual position immediately but throttle API calls
-                      const targetElement = e.target as HTMLElement;
-                      if (targetElement) {
-                        targetElement.style.left = `${newX}px`;
-                        targetElement.style.top = `${newY}px`;
-                      }
-                      
                       // Apply snap-to-grid if enabled
                       if (showGrid) {
                         const snapped = snapToGrid(newX, newY, gridSize);
                         currentX = snapped.x;
                         currentY = snapped.y;
-                        if (targetElement) {
-                          targetElement.style.left = `${snapped.x}px`;
-                          targetElement.style.top = `${snapped.y}px`;
-                        }
                         updatePosition(snapped.x, snapped.y);
                       } else {
                         updatePosition(newX, newY);
