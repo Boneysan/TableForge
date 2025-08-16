@@ -4,15 +4,15 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  createInsertGameRoomSchema,
-  createInsertAssetSchema,
+  insertGameRoomSchema,
+  insertGameAssetSchema,
   createInsertDeckSchema,
   createInsertCardSchema,
 } from '@shared/schema';
 
 describe('Schema Validation', () => {
   describe('Game Room Schema', () => {
-    const gameRoomSchema = createInsertGameRoomSchema;
+    const gameRoomSchema = insertGameRoomSchema;
 
     it('should validate a valid game room', () => {
       const validRoom = {
@@ -72,7 +72,7 @@ describe('Schema Validation', () => {
   });
 
   describe('Asset Schema', () => {
-    const assetSchema = createInsertAssetSchema;
+    const assetSchema = insertGameAssetSchema;
 
     it('should validate a valid asset', () => {
       const validAsset = {
@@ -229,7 +229,7 @@ describe('Schema Validation', () => {
 
   describe('Schema Edge Cases', () => {
     it('should handle null and undefined values properly', () => {
-      const gameRoomSchema = createInsertGameRoomSchema;
+      const gameRoomSchema = insertGameRoomSchema;
 
       const roomWithNulls = {
         name: 'Test Room',
@@ -244,7 +244,7 @@ describe('Schema Validation', () => {
     });
 
     it('should validate array fields properly', () => {
-      const assetSchema = createInsertAssetSchema;
+      const assetSchema = insertGameAssetSchema;
 
       const assetWithTags = {
         name: 'Tagged Asset',
@@ -260,7 +260,7 @@ describe('Schema Validation', () => {
     });
 
     it('should reject invalid array elements', () => {
-      const assetSchema = createInsertAssetSchema;
+      const assetSchema = insertGameAssetSchema;
 
       const assetWithInvalidTags = {
         name: 'Invalid Tags',
