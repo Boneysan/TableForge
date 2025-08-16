@@ -72,42 +72,9 @@ export type {
   BatchUserResult
 } from './user';
 
-// WebSocket types
-export type {
-  WebSocketEventType,
-  BaseWebSocketMessage,
-  ClientToServerMessage,
-  ServerToClientMessage,
-  AuthenticatedWebSocketMessage,
-  RoomWebSocketMessage,
-  GameActionMessage,
-  ChatMessage,
-  ConnectionMessage,
-  DisconnectionMessage,
-  RoomJoinMessage,
-  RoomLeaveMessage,
-  SystemNotificationMessage,
-  ErrorMessage,
-  PingMessage,
-  PongMessage,
-  WebSocketConnection,
-  WebSocketRoom,
-  WebSocketServerEvents,
-  WebSocketClientEvents,
-  MessageHandler,
-  AuthenticatedMessageHandler,
-  RoomMessageHandler,
-  WebSocketMiddleware,
-  WebSocketRateLimit,
-  WebSocketAuthContext,
-  MessageValidationSchema,
-  WebSocketConfig,
-  WebSocketUtils,
-  OfflineMessage,
-  WebSocketMetrics,
-  ConnectionPool,
-  WebSocketLoadBalancer
-} from './websocket';
+// WebSocket types (available in websocket.ts)
+// Note: Import directly from './websocket' when needed
+// export type { WebSocketEventMap, WebSocketEvent, AuthenticatedWebSocket } from './websocket';
 
 // Middleware types
 export type {
@@ -246,14 +213,9 @@ export {
   isGameMaster
 } from './user';
 
-export {
-  isAuthenticatedMessage,
-  isRoomMessage,
-  isGameActionMessage,
-  isChatMessage,
-  isSystemNotification,
-  isErrorMessage
-} from './websocket';
+// WebSocket functions (available in websocket.ts)
+// Note: Import directly from './websocket' when needed
+// export { isWebSocketEvent, createWebSocketEvent } from './websocket';
 
 export {
   isErrorMiddleware,
