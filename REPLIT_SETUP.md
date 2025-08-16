@@ -270,6 +270,39 @@ npm run test:unit -- --watch
 npm run test:unit -- AdminInterface.test.tsx
 ```
 
+**Custom Hooks Testing (Phase 2):**
+```bash
+# Test custom hooks with React Testing Library
+npm run test:hooks
+
+# Test specific hook
+npm run test:unit -- useWebSocket.test.ts
+
+# Test hooks with coverage analysis
+npm run test:unit -- hooks/ --coverage
+
+# Watch mode for hook development
+npm run test:unit -- hooks/ --watch
+
+# Debug hook state changes
+npm run test:unit -- hooks/ --reporter=verbose
+```
+
+**WebSocket Testing Patterns:**
+```bash
+# Test WebSocket functionality
+npm run test:unit -- useWebSocket.test.ts
+
+# Test with real-time message simulation
+npm run test:unit -- useWebSocket.test.ts --reporter=verbose
+
+# Test connection resilience
+npm run test:integration -- websocket/
+
+# Performance test WebSocket load
+npm run test:performance -- websocket-load.js
+```
+
 **Database Setup:**
 ```bash
 # Push schema to database
@@ -371,6 +404,71 @@ curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-am
 - [ ] `vitest --version` - Vitest testing framework available
 - [ ] `npx playwright --version` - Playwright E2E framework available
 - [ ] Test directory structure exists under `tests/`
+- [ ] `npm run test:hooks` - Custom hooks tests pass
+- [ ] `npm run test:components` - React component tests pass
+
+### 🎯 Testing Best Practices for Replit
+
+**Custom Hooks Testing Guidelines:**
+```typescript
+// ✅ Good: Mock external dependencies
+(globalThis as any).WebSocket = MockWebSocket;
+
+// ✅ Good: Test async hook behavior
+await act(async () => {
+  await new Promise(resolve => setTimeout(resolve, 20));
+});
+
+// ✅ Good: Test hook cleanup
+const { unmount } = renderHook(() => useWebSocket());
+unmount(); // Verify no memory leaks
+
+// ✅ Good: Test error scenarios
+expect(result.current.error).toBeTruthy();
+```
+
+**WebSocket Testing Patterns:**
+```typescript
+// ✅ Realistic mock that simulates connection behavior
+class MockWebSocket {
+  constructor(url: string) {
+    setTimeout(() => {
+      if (url.includes('invalid')) {
+        this.onerror?.(new Event('error'));
+      } else {
+        this.onopen?.(new Event('open'));
+      }
+    }, 10);
+  }
+}
+
+// ✅ Test message flow
+const testMessage: WebSocketMessage = {
+  type: 'asset_moved',
+  payload: { assetId: 'test', positionX: 100, positionY: 200 }
+};
+
+// ✅ Test reconnection logic
+expect(result.current.connected).toBe(false);
+await act(async () => {
+  await new Promise(resolve => setTimeout(resolve, 150));
+});
+expect(result.current.connected).toBe(true);
+```
+
+**Component Testing Integration:**
+```typescript
+// ✅ Combine hook and component testing
+const { result } = renderHook(() => useWebSocket({ onMessage }));
+const { rerender } = render(<GameBoard websocket={result.current} />);
+
+// ✅ Test real game scenarios
+fireEvent.dragEnd(screen.getByTestId('game-asset'));
+expect(result.current.sendMessage).toHaveBeenCalledWith({
+  type: 'asset_moved',
+  payload: expect.objectContaining({ positionX: 200, positionY: 150 })
+});
+```
 
 ### 🎯 Expected Output
 
@@ -454,6 +552,13 @@ curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-am
 - User interaction simulation
 - Modern async testing patterns
 
+**Custom Hooks Testing (React Testing Library):**
+- WebSocket hook testing with realistic mock behavior
+- State management hook validation
+- Async hook operations testing
+- Hook cleanup and lifecycle testing
+- Real-time communication pattern testing
+
 **Example React Component Test Pattern:**
 ```typescript
 // tests/unit/components/AdminInterface.test.tsx
@@ -499,6 +604,96 @@ describe('AdminInterface', () => {
     
     uploadButton.focus();
     expect(uploadButton).toHaveFocus();
+  });
+});
+```
+
+**Example Custom Hook Test Pattern:**
+```typescript
+// tests/unit/hooks/useWebSocket.test.ts
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import type { WebSocketMessage } from '@shared/schema';
+
+// Mock WebSocket with realistic behavior
+class MockWebSocket {
+  static OPEN = 1;
+  public readyState = MockWebSocket.OPEN;
+  public onopen: ((event: Event) => void) | null = null;
+  public onmessage: ((event: MessageEvent) => void) | null = null;
+  public onclose: ((event: CloseEvent) => void) | null = null;
+
+  constructor(public url: string) {
+    setTimeout(() => this.onopen?.(new Event('open')), 10);
+  }
+
+  send(data: string) {
+    setTimeout(() => {
+      this.onmessage?.(new MessageEvent('message', { data }));
+    }, 5);
+  }
+
+  close() {
+    this.onclose?.(new CloseEvent('close'));
+  }
+}
+
+(globalThis as any).WebSocket = MockWebSocket;
+
+describe('useWebSocket', () => {
+  it('should connect and handle messages', async () => {
+    const onMessage = vi.fn();
+    const { result } = renderHook(() => useWebSocket({ onMessage }));
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 20));
+    });
+
+    expect(result.current.connected).toBe(true);
+
+    const testMessage: WebSocketMessage = {
+      type: 'asset_moved',
+      payload: { assetId: 'test', positionX: 100, positionY: 200 }
+    };
+
+    act(() => {
+      const event = new MessageEvent('message', { 
+        data: JSON.stringify(testMessage) 
+      });
+      (result.current.websocket as any)?.onmessage?.(event);
+    });
+
+    expect(onMessage).toHaveBeenCalledWith(testMessage);
+  });
+
+  it('should handle reconnection after connection loss', async () => {
+    const { result } = renderHook(() => useWebSocket({ 
+      reconnectAttempts: 2,
+      reconnectInterval: 50 
+    }));
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 20));
+    });
+
+    expect(result.current.connected).toBe(true);
+
+    // Simulate connection loss
+    act(() => {
+      (result.current.websocket as any)?.onclose?.(
+        new CloseEvent('close', { code: 1006, reason: 'Connection lost' })
+      );
+    });
+
+    expect(result.current.connected).toBe(false);
+
+    // Wait for reconnection
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+
+    expect(result.current.connected).toBe(true);
   });
 });
 ```
