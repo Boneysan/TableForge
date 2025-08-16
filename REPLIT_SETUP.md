@@ -525,6 +525,49 @@ expect(result.current.sendMessage).toHaveBeenCalledWith({
 📊 Comprehensive testing framework ready for development
 ```
 
+**Expected Custom Hook Test Output:**
+```
+🧪 Running Custom Hook Tests...
+
+📋 useWebSocket Hook Tests
+  ✅ should connect to WebSocket server
+  ✅ should handle incoming messages
+  ✅ should send messages successfully
+  ✅ should handle connection errors gracefully
+  ✅ should reconnect on connection loss
+  ✅ should handle multiple message types
+  ✅ should cleanup on unmount
+  ✅ should handle malformed messages
+  ✅ should warn when sending while disconnected
+  ✅ should stop reconnecting after max attempts
+  ✅ should handle dice roll messages
+  ✅ should handle asset flip messages
+
+📊 Hook Test Coverage: 100%
+✅ All WebSocket scenarios tested
+🔄 Real-time communication patterns validated
+🛡️ Error handling and resilience confirmed
+```
+
+**Expected Component Test Output:**
+```
+🧪 Running Component Tests...
+
+📋 AdminInterface Component Tests
+  ✅ should display uploaded assets
+  ✅ should handle asset upload successfully
+  ✅ should display online players
+  ✅ should handle player role changes
+  ✅ should be accessible via keyboard navigation
+  ✅ should integrate with QueryClient provider
+
+📊 Component Test Coverage: 95%
+✅ User interactions validated
+🎯 Accessibility patterns confirmed
+🔄 State management integration tested
+```
+```
+
 ### 🔗 Useful Replit Features
 
 - **Version Control:** Built-in Git integration for testing branches
