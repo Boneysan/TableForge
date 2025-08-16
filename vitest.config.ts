@@ -21,10 +21,7 @@ export default defineConfig({
         'e2e/**',
         'performance/**',
         '**/*.config.*',
-        'scripts/**',
-        'server/vite.ts',
-        'tests/fixtures/**',
-        'tests/utils/**'
+        'scripts/**'
       ],
       thresholds: {
         global: {
@@ -40,11 +37,11 @@ export default defineConfig({
           lines: 95,
           statements: 95
         },
-        './server/middleware/': {
-          branches: 95,
-          functions: 95,
-          lines: 95,
-          statements: 95
+        './server/middleware/security.ts': {
+          branches: 100,
+          functions: 100,
+          lines: 100,
+          statements: 100
         }
       }
     },
@@ -67,10 +64,10 @@ export default defineConfig({
   
   resolve: {
     alias: {
-      '@': resolve(__dirname, './client/src'),
-      '@shared': resolve(__dirname, './shared'),
-      '@server': resolve(__dirname, './server'),
-      '@tests': resolve(__dirname, './tests')
+      '@': resolve('./client/src'),
+      '@shared': resolve('./shared'),
+      '@server': resolve('./server'),
+      '@tests': resolve('./tests')
     }
   }
 });
