@@ -14,7 +14,17 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "db:push": "drizzle-kit push",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "test:performance": "k6 run tests/performance/load/websocket-load.js",
+    "test:security": "vitest run tests/security",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:hooks": "vitest run tests/unit/hooks",
+    "test:components": "vitest run tests/unit/components"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.16.0",
