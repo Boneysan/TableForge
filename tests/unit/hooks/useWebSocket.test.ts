@@ -359,15 +359,23 @@ describe('useWebSocket', () => {
   it('should stop reconnecting after max attempts', async () => {
     const onDisconnect = vi.fn();
     
-    // Mock WebSocket to always fail
-    (globalThis as any).WebSocket = class extends MockWebSocket {
-      constructor(url: string) {
-        super(url);
+    // Mock WebSocket to always fail connection without ever opening
+    (globalThis as any).WebSocket = class {
+      public readyState = 3; // CLOSED
+      public onopen: ((event: Event) => void) | null = null;
+      public onclose: ((event: CloseEvent) => void) | null = null;
+      public onmessage: ((event: MessageEvent) => void) | null = null;
+      public onerror: ((event: Event) => void) | null = null;
+
+      constructor(public url: string) {
+        // Immediately fail without ever opening
         setTimeout(() => {
-          this.readyState = MockWebSocket.CLOSED;
           this.onclose?.(new CloseEvent('close', { code: 1006, reason: 'Connection failed' }));
         }, 10);
       }
+
+      send() {}
+      close() {}
     };
 
     const { result } = renderHook(() => useWebSocket({ 
@@ -378,16 +386,18 @@ describe('useWebSocket', () => {
 
     // Wait for initial connection attempt and failure
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 20));
+      await new Promise(resolve => setTimeout(resolve, 50));
     });
 
     expect(result.current.connected).toBe(false);
 
-    // Wait for all reconnection attempts
+    // Wait for all reconnection attempts to complete
+    // 2 attempts * 50ms interval + buffer time
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 250));
     });
 
+    // After max attempts, should have error message
     expect(result.current.error).toBe('Failed to reconnect after multiple attempts');
     expect(onDisconnect).toHaveBeenCalled();
   });
