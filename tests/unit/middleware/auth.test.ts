@@ -2,60 +2,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createMockRequest, createMockResponse } from '@tests/utils';
 import type { Request, Response, NextFunction } from 'express';
+import { authenticateToken } from '../../../server/auth/middleware';
+import { validateFirebaseToken, extractTokenFromRequest, validateTokenFreshness } from '../../../server/auth/tokenValidator';
 
-// Mock authentication middleware function
-interface AuthenticatedRequest extends Request {
-  user?: {
-    uid: string;
-    email: string;
-    displayName: string;
-  };
-}
+// Mock the tokenValidator module
+vi.mock('../../../server/auth/tokenValidator', () => ({
+  validateFirebaseToken: vi.fn(),
+  extractTokenFromRequest: vi.fn(),
+  validateTokenFreshness: vi.fn(),
+}));
 
-async function authenticateToken(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    res.status(401).json({
-      error: 'Authentication required',
-      message: 'Valid authentication token must be provided'
-    });
-    return;
-  }
+// Mock the roomAuth module
+vi.mock('../../../server/auth/roomAuth', () => ({
+  roomAuthManager: {
+    validateRoomMembership: vi.fn(),
+  },
+}));
 
-  const token = authHeader.split(' ')[1];
-  
-  if (!token) {
-    res.status(401).json({
-      error: 'Invalid token format',
-      message: 'Token must be provided in Bearer format'
-    });
-    return;
-  }
-
-  try {
-    // Mock token validation
-    if (token === 'valid-token') {
-      (req as AuthenticatedRequest).user = {
-        uid: 'user123',
-        email: 'test@example.com',
-        displayName: 'Test User'
-      };
-      next();
-    } else {
-      throw new Error('Invalid token');
-    }
-  } catch (error) {
-    res.status(401).json({
-      error: 'Authentication failed',
-      message: 'Invalid or expired token'
-    });
-  }
-}
+const mockValidateFirebaseToken = vi.mocked(validateFirebaseToken);
+const mockExtractTokenFromRequest = vi.mocked(extractTokenFromRequest);
+const mockValidateTokenFreshness = vi.mocked(validateTokenFreshness);
 
 describe('Authentication Middleware', () => {
   let mockRequest: Partial<Request>;
@@ -70,35 +36,39 @@ describe('Authentication Middleware', () => {
   });
 
   describe('authenticateToken', () => {
-    it('should authenticate valid token', async () => {
-      mockRequest.headers = {
-        authorization: 'Bearer valid-token'
+    it('should authenticate valid token and attach user to request', async () => {
+      const mockUser = {
+        uid: 'test-uid',
+        email: 'test@example.com',
+        displayName: 'Test User',
+        photoURL: null,
+        emailVerified: true,
+        source: 'firebase' as const,
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + 3600000
       };
 
-      await authenticateToken(
-        mockRequest as Request,
-        mockResponse as Response,
-        nextFunction
-      );
+      mockExtractTokenFromRequest.mockReturnValue('valid-token');
+      mockValidateFirebaseToken.mockResolvedValue(mockUser);
+      mockValidateTokenFreshness.mockReturnValue(true);
 
-      expect((mockRequest as AuthenticatedRequest).user).toEqual({
-        uid: 'user123',
-        email: 'test@example.com',
-        displayName: 'Test User'
-      });
-      expect(nextFunction).toHaveBeenCalled();
+      await authenticateToken(mockRequest as Request, mockResponse as Response, nextFunction);
+
+      expect(mockExtractTokenFromRequest).toHaveBeenCalledWith(mockRequest);
+      expect(mockValidateFirebaseToken).toHaveBeenCalledWith('valid-token');
+      expect(mockValidateTokenFreshness).toHaveBeenCalledWith(mockUser);
+      expect(mockRequest.user).toEqual(mockUser);
+      expect(nextFunction).toHaveBeenCalledWith();
       expect(mockResponse.status).not.toHaveBeenCalled();
     });
 
-    it('should reject request without authorization header', async () => {
-      mockRequest.headers = {};
+    it('should reject request when token extraction fails', async () => {
+      mockExtractTokenFromRequest.mockReturnValue(null);
 
-      await authenticateToken(
-        mockRequest as Request,
-        mockResponse as Response,
-        nextFunction
-      );
+      await authenticateToken(mockRequest as Request, mockResponse as Response, nextFunction);
 
+      expect(mockExtractTokenFromRequest).toHaveBeenCalledWith(mockRequest);
+      expect(mockValidateFirebaseToken).not.toHaveBeenCalled();
       expect(mockResponse.status).toHaveBeenCalledWith(401);
       expect(mockResponse.json).toHaveBeenCalledWith({
         error: 'Authentication required',
@@ -107,56 +77,80 @@ describe('Authentication Middleware', () => {
       expect(nextFunction).not.toHaveBeenCalled();
     });
 
-    it('should reject malformed authorization header', async () => {
-      mockRequest.headers = {
-        authorization: 'InvalidFormat'
-      };
+    it('should handle invalid token validation', async () => {
+      mockExtractTokenFromRequest.mockReturnValue('invalid-token');
+      mockValidateFirebaseToken.mockRejectedValue(new Error('Invalid token'));
 
-      await authenticateToken(
-        mockRequest as Request,
-        mockResponse as Response,
-        nextFunction
-      );
+      await authenticateToken(mockRequest as Request, mockResponse as Response, nextFunction);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(401);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        error: 'Invalid token format',
-        message: 'Token must be provided in Bearer format'
-      });
-      expect(nextFunction).not.toHaveBeenCalled();
-    });
-
-    it('should reject invalid token', async () => {
-      mockRequest.headers = {
-        authorization: 'Bearer invalid-token'
-      };
-
-      await authenticateToken(
-        mockRequest as Request,
-        mockResponse as Response,
-        nextFunction
-      );
-
+      expect(mockExtractTokenFromRequest).toHaveBeenCalledWith(mockRequest);
+      expect(mockValidateFirebaseToken).toHaveBeenCalledWith('invalid-token');
       expect(mockResponse.status).toHaveBeenCalledWith(401);
       expect(mockResponse.json).toHaveBeenCalledWith({
         error: 'Authentication failed',
-        message: 'Invalid or expired token'
+        message: 'Invalid token'
       });
       expect(nextFunction).not.toHaveBeenCalled();
     });
 
-    it('should handle missing Bearer prefix', async () => {
-      mockRequest.headers = {
-        authorization: 'Bearer '
+    it('should handle expired token', async () => {
+      const mockUser = {
+        uid: 'test-uid',
+        email: 'test@example.com',
+        displayName: 'Test User',
+        photoURL: null,
+        emailVerified: true,
+        source: 'firebase' as const,
+        issuedAt: Date.now() - 7200000, // 2 hours ago
+        expiresAt: Date.now() - 3600000  // 1 hour ago (expired)
       };
 
-      await authenticateToken(
-        mockRequest as Request,
-        mockResponse as Response,
-        nextFunction
-      );
+      mockExtractTokenFromRequest.mockReturnValue('expired-token');
+      mockValidateFirebaseToken.mockResolvedValue(mockUser);
+      mockValidateTokenFreshness.mockReturnValue(false);
 
+      await authenticateToken(mockRequest as Request, mockResponse as Response, nextFunction);
+
+      expect(mockExtractTokenFromRequest).toHaveBeenCalledWith(mockRequest);
+      expect(mockValidateFirebaseToken).toHaveBeenCalledWith('expired-token');
+      expect(mockValidateTokenFreshness).toHaveBeenCalledWith(mockUser);
       expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Token expired',
+        message: 'Authentication token has expired, please sign in again'
+      });
+      expect(nextFunction).not.toHaveBeenCalled();
+    });
+
+    it('should handle server errors during token validation', async () => {
+      mockExtractTokenFromRequest.mockReturnValue('valid-token');
+      mockValidateFirebaseToken.mockRejectedValue(new Error('Server error'));
+
+      await authenticateToken(mockRequest as Request, mockResponse as Response, nextFunction);
+
+      expect(mockExtractTokenFromRequest).toHaveBeenCalledWith(mockRequest);
+      expect(mockValidateFirebaseToken).toHaveBeenCalledWith('valid-token');
+      expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Authentication failed',
+        message: 'Server error'
+      });
+      expect(nextFunction).not.toHaveBeenCalled();
+    });
+
+    it('should handle non-Error exceptions', async () => {
+      mockExtractTokenFromRequest.mockReturnValue('valid-token');
+      mockValidateFirebaseToken.mockRejectedValue('String error');
+
+      await authenticateToken(mockRequest as Request, mockResponse as Response, nextFunction);
+
+      expect(mockExtractTokenFromRequest).toHaveBeenCalledWith(mockRequest);
+      expect(mockValidateFirebaseToken).toHaveBeenCalledWith('valid-token');
+      expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'Authentication failed',
+        message: 'Invalid authentication token'
+      });
       expect(nextFunction).not.toHaveBeenCalled();
     });
   });
@@ -232,9 +226,9 @@ describe('Rate Limiting Middleware', () => {
 describe('Error Handling Middleware', () => {
   function errorHandler(
     error: Error,
-    req: Request,
+    _req: Request,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
   ): void {
     console.error('Error:', error);
 

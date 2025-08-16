@@ -24,7 +24,8 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:hooks": "vitest run tests/unit/hooks",
-    "test:components": "vitest run tests/unit/components"
+    "test:components": "vitest run tests/unit/components",
+    "test:middleware": "vitest run tests/unit/middleware"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.16.0",
