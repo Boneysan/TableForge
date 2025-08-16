@@ -12,6 +12,21 @@ run = ["npm", "run", "start"]
 
 [env]
 PORT = "5000"
+NODE_ENV = "development"
+
+[languages]
+
+[languages.typescript]
+pattern = "**/{*.ts,*.tsx}"
+
+[languages.typescript.languageServer]
+start = "typescript-language-server --stdio"
+
+[languages.javascript]
+pattern = "**/{*.js,*.jsx}"
+
+[languages.javascript.languageServer]
+start = "typescript-language-server --stdio"
 
 [workflows]
 runButton = "Project"
