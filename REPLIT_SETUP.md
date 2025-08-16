@@ -255,6 +255,21 @@ npm run test:security
 npm run test:coverage
 ```
 
+**React Component Testing (Phase 2):**
+```bash
+# Test React components with React Testing Library
+npm run test:components
+
+# Test with coverage
+npm run test:unit -- --coverage
+
+# Watch mode for component development
+npm run test:unit -- --watch
+
+# Test specific component
+npm run test:unit -- AdminInterface.test.tsx
+```
+
 **Database Setup:**
 ```bash
 # Push schema to database
@@ -431,6 +446,62 @@ curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-am
 - Hot reload in watch mode
 - Multiple reporters (HTML, JSON, XML)
 - TypeScript support out of the box
+
+**React Testing Library (Component Testing):**
+- Accessibility-first testing patterns
+- QueryClient provider integration
+- File upload testing capabilities
+- User interaction simulation
+- Modern async testing patterns
+
+**Example React Component Test Pattern:**
+```typescript
+// tests/unit/components/AdminInterface.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AdminInterface } from '@/components/AdminInterface';
+
+const renderAdminInterface = (props = {}) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AdminInterface {...props} />
+    </QueryClientProvider>
+  );
+};
+
+describe('AdminInterface', () => {
+  it('should upload asset files successfully', async () => {
+    renderAdminInterface();
+    
+    const file = new File(['test content'], 'test.png', { type: 'image/png' });
+    const uploadInput = screen.getByLabelText(/upload asset/i);
+    
+    fireEvent.change(uploadInput, { target: { files: [file] } });
+    
+    await waitFor(() => {
+      expect(screen.getByText(/asset uploaded successfully/i)).toBeInTheDocument();
+    });
+  });
+  
+  it('should be accessible via keyboard navigation', async () => {
+    renderAdminInterface();
+    
+    const uploadButton = screen.getByRole('button', { name: /upload/i });
+    expect(uploadButton).toBeInTheDocument();
+    
+    uploadButton.focus();
+    expect(uploadButton).toHaveFocus();
+  });
+});
+```
 
 **Playwright (E2E Testing):**
 - Cross-browser testing (Chrome, Firefox, Safari)
