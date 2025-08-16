@@ -8,6 +8,11 @@
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
+    "type-check": "tsc --noEmit --strict",
+    "type-check:detailed": "tsx scripts/type-check.ts",
+    "phase1:status": "tsx scripts/phase1-status.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "db:push": "drizzle-kit push",
     "prepare": "husky"
   },
