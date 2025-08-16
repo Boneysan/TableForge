@@ -32,11 +32,18 @@ Replit should auto-install, but if needed:
 npm install
 ```
 
-**Key Dependencies for Type Safety:**
+**Key Dependencies for Type Safety & Testing:**
 - `typescript: 5.6.3` - TypeScript compiler
 - `tsx: ^4.19.1` - TypeScript executor
 - `@typescript-eslint/*` - TypeScript ESLint rules
-- `vitest: ^3.2.4` - Testing framework
+- `vitest: ^3.2.4` - Testing framework with TypeScript support
+- `@testing-library/react` - React component testing utilities
+- `@testing-library/jest-dom` - Jest DOM matchers for testing
+- `@playwright/test` - End-to-end testing framework
+- `happy-dom` - Lightweight DOM implementation for testing
+- `jsdom` - DOM testing environment
+- `supertest` - HTTP assertion library for API testing
+- `k6` - Performance and load testing tool
 
 ### 🔐 Step 3: Environment Setup
 
@@ -98,10 +105,9 @@ NODE_ENV = "development"
 }
 ```
 
-### 🎯 Step 5: Phase 1 Type Safety Validation
+### 🎯 Step 5: Phase 1 & 2 Validation
 
-Run these commands in Replit Console to validate Phase 1:
-
+**Phase 1 - Type Safety Validation:**
 ```bash
 # 1. Check TypeScript compilation
 npm run type-check
@@ -117,6 +123,30 @@ npx tsx tests/unit/type-safety.test.ts
 
 # 5. Simple validation (no dependencies)
 node tests/unit/type-safety-simple.test.js
+```
+
+**Phase 2 - Testing Infrastructure Validation:**
+```bash
+# 6. Run comprehensive test suite
+npm test
+
+# 7. Run unit tests with coverage
+npm run test:unit
+
+# 8. Run integration tests
+npm run test:integration
+
+# 9. Run E2E tests (headless)
+npm run test:e2e
+
+# 10. Run performance tests
+npm run test:performance
+
+# 11. Run security tests
+npm run test:security
+
+# 12. Generate coverage report
+npm run test:coverage
 ```
 
 ### 📁 Step 6: Project Structure Overview
@@ -135,13 +165,38 @@ TableForge/
 │   └── server/repositories/
 │       └── types.ts         # Repository pattern types
 │
-├── 🧪 Tests & Validation
-│   ├── tests/unit/
-│   │   ├── type-safety.test.ts        # Full TypeScript tests
-│   │   └── type-safety-simple.test.js # Simple Node.js tests
+├── 🧪 Testing Infrastructure (Phase 2 Complete)
+│   ├── tests/
+│   │   ├── unit/                      # Unit tests (95% coverage target)
+│   │   │   ├── components/           # React component tests
+│   │   │   ├── hooks/               # Custom hooks tests
+│   │   │   ├── utils/               # Utility function tests
+│   │   │   ├── middleware/          # Server middleware tests
+│   │   │   └── services/            # Service layer tests
+│   │   ├── integration/             # Integration tests (85% coverage target)
+│   │   │   ├── api/                # API endpoint tests
+│   │   │   ├── database/           # Database operation tests
+│   │   │   ├── websocket/          # WebSocket integration tests
+│   │   │   └── auth/               # Authentication flow tests
+│   │   ├── e2e/                    # End-to-end tests (100% critical flows)
+│   │   │   ├── user-flows/         # Complete user journey tests
+│   │   │   ├── admin-flows/        # Admin interface tests
+│   │   │   └── game-flows/         # Game session tests
+│   │   ├── performance/            # Performance and load tests
+│   │   │   ├── load/              # Load testing scenarios
+│   │   │   ├── stress/            # Stress testing scenarios
+│   │   │   └── benchmarks/        # Performance benchmarks
+│   │   ├── security/               # Security testing
+│   │   │   ├── penetration/       # Penetration testing
+│   │   │   └── vulnerability/     # Vulnerability scanning
+│   │   ├── fixtures/               # Test data & mocks
+│   │   └── utils/                  # Testing utilities & helpers
+│   ├── vitest.config.ts             # Enhanced test configuration
+│   ├── playwright.config.ts         # E2E test configuration
 │   └── scripts/
-│       ├── type-check.ts              # Type validation script
-│       └── phase1-status.ts           # Phase 1 completion checker
+│       ├── type-check.ts            # Type validation script
+│       ├── phase1-status.ts         # Phase 1 completion checker
+│       └── phase2-status.ts         # Phase 2 completion checker
 │
 ├── 🚀 Application Code
 │   ├── server/              # Backend (Express + TypeScript)
@@ -150,7 +205,8 @@ TableForge/
 │
 └── 📚 Documentation
     └── docs/implementation/
-        └── phase1-type-safety.md     # Complete Phase 1 guide
+        ├── phase1-type-safety.md     # Complete Phase 1 guide
+        └── phase2-testing.md         # Complete Phase 2 guide
 ```
 
 ### 🔍 Step 7: Development Workflow
@@ -160,7 +216,7 @@ TableForge/
 npm run dev
 ```
 
-**Type Safety Checks:**
+**Type Safety Checks (Phase 1):**
 ```bash
 # Quick type check
 npm run type-check
@@ -175,18 +231,42 @@ npm run lint
 npm run lint:fix
 ```
 
+**Testing Workflow (Phase 2):**
+```bash
+# Run all tests
+npm test
+
+# Unit tests only
+npm run test:unit
+
+# Integration tests only
+npm run test:integration
+
+# E2E tests (requires server running)
+npm run test:e2e
+
+# Performance tests
+npm run test:performance
+
+# Security tests
+npm run test:security
+
+# Coverage reports
+npm run test:coverage
+```
+
 **Database Setup:**
 ```bash
 # Push schema to database
 npm run db:push
 ```
 
-**Testing:**
+**Continuous Testing:**
 ```bash
-# Run all tests
-npm test
+# Watch mode for development
+npm run test:watch
 
-# Run type safety tests specifically
+# Type safety tests specifically
 npx tsx tests/unit/type-safety.test.ts
 ```
 
@@ -224,6 +304,18 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
+**Testing Issues:**
+```bash
+# Clear test cache
+npm run test:clear-cache
+
+# Reset test database
+npm run test:db:reset
+
+# Debug failing tests
+npm run test:debug
+```
+
 **Port Issues:**
 ```bash
 # Kill existing processes
@@ -237,16 +329,33 @@ npm run dev
 node -e "console.log(process.env.DATABASE_URL)"
 ```
 
-### ✅ Phase 1 Validation Checklist
+**Performance Test Issues:**
+```bash
+# Check if k6 is available (for performance tests)
+k6 version
 
-Run these commands to verify Phase 1 completion:
+# Install k6 if needed (Replit might require manual install)
+curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-amd64.tar.gz -L | tar xvz --strip-components 1
+```
 
+### ✅ Phase 1 & 2 Validation Checklist
+
+**Phase 1 - Type Safety (Complete):**
 - [ ] `npm install` - Dependencies installed
 - [ ] `npm run type-check` - TypeScript strict compilation passes
 - [ ] `npm run lint` - ESLint validation passes
 - [ ] `npm run phase1:status` - Phase 1 status shows 100% complete
 - [ ] `npx tsx tests/unit/type-safety.test.ts` - All type safety tests pass
 - [ ] `npm run dev` - Development server starts without errors
+
+**Phase 2 - Testing Infrastructure (Complete):**
+- [ ] `npm test` - All tests run successfully
+- [ ] `npm run test:unit` - Unit tests achieve 95% coverage
+- [ ] `npm run test:integration` - Integration tests pass
+- [ ] `npm run test:coverage` - Coverage reports generate successfully
+- [ ] `vitest --version` - Vitest testing framework available
+- [ ] `npx playwright --version` - Playwright E2E framework available
+- [ ] Test directory structure exists under `tests/`
 
 ### 🎯 Expected Output
 
@@ -271,13 +380,77 @@ Run these commands to verify Phase 1 completion:
 📊 TypeScript compilation ensures type safety at build time
 ```
 
+**Successful Phase 2 Setup:**
+```
+🧪 Running Phase 2 Testing Infrastructure...
+
+📋 Unit Tests
+  ✅ components/AdminInterface.test.tsx
+  ✅ hooks/useWebSocket.test.ts
+  ✅ middleware/auth.test.ts
+
+📋 Integration Tests  
+  ✅ api/rooms.test.ts
+  ✅ websocket/game-session.test.ts
+  ✅ auth/authentication.test.ts
+
+📋 E2E Tests
+  ✅ user-flows/complete-game-session.spec.ts
+  ✅ admin-flows/game-system-management.spec.ts
+
+📋 Performance Tests
+  ✅ load/websocket-load.js
+  ✅ benchmarks/api-endpoints.test.ts
+
+📋 Security Tests
+  ✅ penetration/auth-bypass.test.ts
+
+🎉 Phase 2 Testing Infrastructure Complete!
+✅ 95% unit test coverage achieved
+✅ 85% integration test coverage achieved  
+✅ 100% critical flow E2E coverage achieved
+📊 Comprehensive testing framework ready for development
+```
+
 ### 🔗 Useful Replit Features
 
-- **Version Control:** Built-in Git integration
-- **Collaboration:** Real-time collaborative editing
+- **Version Control:** Built-in Git integration for testing branches
+- **Collaboration:** Real-time collaborative editing for pair programming
 - **Deployment:** One-click deployment to Replit hosting
-- **Database:** Integrated PostgreSQL database option
+- **Database:** Integrated PostgreSQL database option for testing
 - **Secrets Management:** Secure environment variable storage
+- **Console Tools:** Built-in terminal for running test commands
+- **Port Management:** Automatic port forwarding for development server
+- **Package Management:** Automatic dependency installation and updates
+
+### 📊 Testing Framework Features
+
+**Vitest (Unit & Integration Testing):**
+- 90% coverage thresholds enforced
+- Parallel test execution for speed
+- Hot reload in watch mode
+- Multiple reporters (HTML, JSON, XML)
+- TypeScript support out of the box
+
+**Playwright (E2E Testing):**
+- Cross-browser testing (Chrome, Firefox, Safari)
+- Mobile device simulation
+- Visual regression testing
+- Video recording on failures
+- Automatic screenshots on test failures
+
+**k6 (Performance Testing):**
+- WebSocket load testing
+- API performance benchmarking
+- Stress testing scenarios
+- Real-time metrics and reporting
+
+**Security Testing:**
+- Authentication bypass testing
+- XSS prevention validation
+- SQL injection protection
+- CSRF protection testing
+- Input validation security
 
 ### 📞 Support
 
@@ -285,9 +458,20 @@ If you encounter issues:
 
 1. **Check Replit Console** for error messages
 2. **Verify Environment Variables** in Secrets tab
-3. **Run Phase 1 validation** commands above
+3. **Run Phase 1 & 2 validation** commands above
 4. **Check TypeScript compilation** with `npm run type-check`
+5. **Review test output** with `npm run test:debug`
+6. **Check coverage reports** in `./coverage/` directory
+7. **Verify test database** connection for integration tests
+
+**Common Issues & Solutions:**
+
+- **Test failures**: Run `npm run test:clear-cache` and retry
+- **Coverage issues**: Check `vitest.config.ts` coverage settings
+- **E2E test failures**: Ensure development server is running (`npm run dev`)
+- **Performance test issues**: Verify k6 installation and WebSocket connections
+- **Security test failures**: Check authentication middleware configuration
 
 ---
 
-**Ready to code!** 🚀 Your TableForge project with Phase 1 Type Safety is now fully configured for Replit development.
+**Ready to code and test!** 🚀 Your TableForge project with complete Phase 1 Type Safety and Phase 2 Testing Infrastructure is now fully configured for Replit development.
