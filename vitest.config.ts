@@ -7,41 +7,70 @@ export default defineConfig({
     environment: 'happy-dom',
     setupFiles: ['./tests/setup.ts'],
     include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['**/node_modules/**', '**/e2e/**'],
+    exclude: ['**/node_modules/**', '**/e2e/**', '**/performance/**'],
+    
+    // Enhanced coverage configuration
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
       exclude: [
         'coverage/**',
         'dist/**',
-        'packages/*/test{,s}/**',
         '**/*.d.ts',
-        'cypress/**',
-        'test{,s}/**',
-        'test{,-*}.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/*{.,-}spec.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/__tests__/**',
-        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-        '**/.{eslint,mocha,prettier}rc.{js,cjs,yml}',
         'e2e/**',
-        'server/vite.ts'
+        'performance/**',
+        '**/*.config.*',
+        'scripts/**',
+        'server/vite.ts',
+        'tests/fixtures/**',
+        'tests/utils/**'
       ],
       thresholds: {
         global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80
+          branches: 90,
+          functions: 90,
+          lines: 90,
+          statements: 90
+        },
+        // Per-file thresholds for critical components
+        './server/auth/': {
+          branches: 95,
+          functions: 95,
+          lines: 95,
+          statements: 95
+        },
+        './server/middleware/': {
+          branches: 95,
+          functions: 95,
+          lines: 95,
+          statements: 95
         }
       }
+    },
+    
+    // Test timeout configuration
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    
+    // Parallel execution
+    threads: true,
+    maxThreads: 4,
+    
+    // Reporter configuration
+    reporter: ['verbose', 'json', 'html'],
+    outputFile: {
+      json: './test-results/results.json',
+      html: './test-results/report.html'
     }
   },
+  
   resolve: {
     alias: {
       '@': resolve(__dirname, './client/src'),
       '@shared': resolve(__dirname, './shared'),
       '@server': resolve(__dirname, './server'),
+      '@tests': resolve(__dirname, './tests')
     }
   }
 });
