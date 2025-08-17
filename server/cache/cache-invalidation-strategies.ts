@@ -3,7 +3,7 @@
 
 import { createUserLogger } from '../utils/logger';
 import { metrics } from '../observability/metrics';
-import { ApplicationCachePhase3 } from './application-cache-phase3';
+import { EnhancedApplicationCache } from './application-cache-phase3';
 import RedisCacheService from './redis-cache-phase3';
 
 const logger = createUserLogger('cache-invalidation');
@@ -31,7 +31,7 @@ export class CacheInvalidationManager {
   private processing = false;
 
   constructor(
-    private appCache: ApplicationCachePhase3,
+    private appCache: EnhancedApplicationCache,
     private redisCache: RedisCacheService
   ) {
     this.registerDefaultStrategies();
@@ -361,7 +361,7 @@ export class CacheInvalidationManager {
       name: 'system_invalidation',
       description: 'Invalidates system configuration and global cache entries',
       priority: 100,
-      execute: async (event: InvalidationEvent): Promise<number> => {
+      execute: async (_event: InvalidationEvent): Promise<number> => {
         let totalInvalidated = 0;
 
         // Application cache patterns
