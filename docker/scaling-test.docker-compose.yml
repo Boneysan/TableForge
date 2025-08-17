@@ -1,0 +1,192 @@
+# docker/scaling-test.docker-compose.yml
+# Docker Compose configuration for WebSocket scaling tests
+# Simulates multi-instance deployment for testing purposes
+
+version: '3.8'
+
+services:
+  # Redis for pub/sub coordination
+  redis-scaling:
+    image: redis:7-alpine
+    container_name: tableforge-redis-scaling
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_scaling_data:/data
+    environment:
+      - REDIS_PASSWORD=scaling_test_password
+    networks:
+      - scaling_test_network
+
+  # WebSocket Server Instance 1
+  websocket-instance-1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tableforge-ws-1
+    ports:
+      - "8081:8080"
+    environment:
+      - NODE_ENV=test
+      - PORT=8080
+      - INSTANCE_ID=ws-instance-1
+      - REDIS_HOST=redis-scaling
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=scaling_test_password
+      - REDIS_PUB_SUB_DB=0
+      - WEBSOCKET_SCALING_ENABLED=true
+      - LOAD_BALANCER_STRATEGY=round_robin
+    depends_on:
+      - redis-scaling
+    networks:
+      - scaling_test_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # WebSocket Server Instance 2
+  websocket-instance-2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tableforge-ws-2
+    ports:
+      - "8082:8080"
+    environment:
+      - NODE_ENV=test
+      - PORT=8080
+      - INSTANCE_ID=ws-instance-2
+      - REDIS_HOST=redis-scaling
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=scaling_test_password
+      - REDIS_PUB_SUB_DB=0
+      - WEBSOCKET_SCALING_ENABLED=true
+      - LOAD_BALANCER_STRATEGY=least_connections
+    depends_on:
+      - redis-scaling
+    networks:
+      - scaling_test_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # WebSocket Server Instance 3
+  websocket-instance-3:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tableforge-ws-3
+    ports:
+      - "8083:8080"
+    environment:
+      - NODE_ENV=test
+      - PORT=8080
+      - INSTANCE_ID=ws-instance-3
+      - REDIS_HOST=redis-scaling
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=scaling_test_password
+      - REDIS_PUB_SUB_DB=0
+      - WEBSOCKET_SCALING_ENABLED=true
+      - LOAD_BALANCER_STRATEGY=weighted_load
+    depends_on:
+      - redis-scaling
+    networks:
+      - scaling_test_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Load Balancer (HAProxy)
+  load-balancer:
+    image: haproxy:2.8
+    container_name: tableforge-lb
+    ports:
+      - "80:80"
+      - "8404:8404"  # HAProxy stats
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - websocket-instance-1
+      - websocket-instance-2
+      - websocket-instance-3
+    networks:
+      - scaling_test_network
+    healthcheck:
+      test: ["CMD", "haproxy", "-c", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: tableforge-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - scaling_test_network
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: tableforge-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - scaling_test_network
+
+  # Test Client Simulator
+  test-client:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.test-client
+    container_name: tableforge-test-client
+    environment:
+      - LOAD_BALANCER_URL=http://load-balancer
+      - WEBSOCKET_URLS=ws://websocket-instance-1:8080,ws://websocket-instance-2:8080,ws://websocket-instance-3:8080
+      - TEST_MODE=scaling
+      - CLIENT_COUNT=100
+      - MESSAGE_RATE=10
+    depends_on:
+      - load-balancer
+      - websocket-instance-1
+      - websocket-instance-2
+      - websocket-instance-3
+    networks:
+      - scaling_test_network
+    profiles:
+      - testing
+
+networks:
+  scaling_test_network:
+    driver: bridge
+
+volumes:
+  redis_scaling_data:
+  prometheus_data:
+  grafana_data:
