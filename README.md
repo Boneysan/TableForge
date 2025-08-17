@@ -44,6 +44,7 @@ Vorpal Board supports rules-agnostic gameplay with advanced features for managin
 - **PostgreSQL** database with Drizzle ORM
 - **Phase 3 Database Connection Pool** with performance optimization
 - **Redis** caching layer for scalability
+- **Phase 3 Query Optimizer** with intelligent caching and performance analytics
 - **Google Cloud Storage** for asset storage
 
 ### Authentication & Security
@@ -132,6 +133,8 @@ The application uses PostgreSQL with Phase 3 optimized connection pooling and th
 - **Enhanced Connection Pool**: Optimized database connections with monitoring
 - **Redis Cache Layer**: Multi-level caching for improved response times
 - **Query Optimization**: Batch operations and performance monitoring
+- **Intelligent Caching**: Room, asset, and search result caching with automatic invalidation
+- **Performance Analytics**: Slow query detection, table statistics, and optimization recommendations
 - **Health Monitoring**: Real-time database and cache health tracking
 - **Migration System**: Automated database migration management
 
