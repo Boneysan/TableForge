@@ -23,10 +23,10 @@ import { logger } from '../utils/logger';
  * Demonstrates all implemented optimization features
  */
 export class Phase3DatabaseOptimization {
-  private connectionPool: OptimizedConnectionPool;
-  private databaseService: OptimizedDatabaseService;
-  private monitoringService: DatabaseMonitoringService;
-  private cacheService: RedisCacheService;
+  private connectionPool!: OptimizedConnectionPool;
+  private databaseService!: OptimizedDatabaseService;
+  private monitoringService!: DatabaseMonitoringService;
+  private cacheService!: RedisCacheService;
   private isInitialized = false;
 
   constructor() {
@@ -68,7 +68,7 @@ export class Phase3DatabaseOptimization {
       await this.demonstrateCapabilities();
       
     } catch (error) {
-      logger.error('Failed to initialize Phase 3 optimization system', { error });
+      logger.error({ error }, 'Failed to initialize Phase 3 optimization system');
       throw error;
     }
   }
@@ -83,39 +83,39 @@ export class Phase3DatabaseOptimization {
       // 1. Connection Pool Optimization Demo
       logger.info('\n--- 1. CONNECTION POOL OPTIMIZATION ---');
       const poolStats = this.connectionPool.getPoolStats();
-      logger.info('Pool Statistics:', {
+      logger.info({
         totalConnections: poolStats.totalConnections,
         activeConnections: poolStats.activeConnections,
         idleConnections: poolStats.idleConnections,
         maxConnections: poolStats.maxConnections,
         averageAcquireTime: `${poolStats.averageAcquireTime}ms`
-      });
+      }, 'Pool Statistics:');
 
       // 2. Query Optimizer Demo  
       logger.info('\n--- 2. QUERY OPTIMIZER SERVICE ---');
       const queryOptimizer = this.databaseService.getQueryOptimizer();
       const performanceMetrics = await queryOptimizer.getPerformanceMetrics();
-      logger.info('Query Performance:', {
+      logger.info({
         slowQueryCount: performanceMetrics.slowQueryCount,
         averageQueryTime: `${performanceMetrics.averageQueryTime}ms`,
         cacheHitRate: `${(performanceMetrics.cacheHitRate * 100).toFixed(1)}%`,
         totalTableSize: performanceMetrics.totalTableSize
-      });
+      }, 'Query Performance:');
 
       // 3. Batch Loading Demo
       logger.info('\n--- 3. BATCH LOADING CAPABILITIES ---');
       // Simulate batch loading of assets
       const sampleAssetIds = ['asset-1', 'asset-2', 'asset-3', 'asset-4', 'asset-5'];
-      logger.info('Demonstrating batch asset loading...', { 
+      logger.info({ 
         assetCount: sampleAssetIds.length 
-      });
+      }, 'Demonstrating batch asset loading...');
       
       try {
         const assets = await this.databaseService.getMultipleAssets(sampleAssetIds);
-        logger.info('Batch loading completed:', { 
+        logger.info({ 
           requested: sampleAssetIds.length,
           found: assets.length 
-        });
+        }, 'Batch loading completed:');
       } catch (error) {
         logger.info('Batch loading test (expected to find no assets in demo)');
       }
@@ -123,28 +123,28 @@ export class Phase3DatabaseOptimization {
       // 4. Database Monitoring Tools Demo
       logger.info('\n--- 4. DATABASE MONITORING TOOLS ---');
       const monitoringDashboard = await this.monitoringService.getMonitoringDashboard();
-      logger.info('Monitoring Dashboard:', {
+      logger.info({
         overallStatus: monitoringDashboard.status.overall,
         healthScore: monitoringDashboard.status.currentHealthScore,
         databaseLatency: `${monitoringDashboard.performance.databaseLatency}ms`,
         cacheHitRate: `${monitoringDashboard.performance.cacheHitRate}%`,
         totalConnections: monitoringDashboard.resources.totalConnections
-      });
+      }, 'Monitoring Dashboard:');
 
       // 5. Automated Optimization Demo
       logger.info('\n--- 5. AUTOMATED OPTIMIZATION ROUTINES ---');
       const monitoringStats = this.monitoringService.getMonitoringStats();
-      logger.info('Automation Status:', {
+      logger.info({
         lastHealthCheck: monitoringStats.lastHealthCheck,
         lastOptimization: monitoringStats.lastOptimization,
         optimizationRuns: monitoringStats.optimizationRuns,
         averageHealthScore: Math.round(monitoringStats.averageHealthScore)
-      });
+      }, 'Automation Status:');
 
       // Performance Report
       logger.info('\n--- COMPREHENSIVE PERFORMANCE REPORT ---');
       const performanceReport = await this.databaseService.getPerformanceReport();
-      logger.info('Database Performance Summary:', {
+      logger.info({
         databaseStatus: performanceReport.database.status,
         averageQueryTime: `${performanceReport.database.averageQueryTime}ms`,
         cacheHitRate: `${(performanceReport.cache.hitRate * 100).toFixed(1)}%`,
@@ -152,18 +152,18 @@ export class Phase3DatabaseOptimization {
         totalRows: performanceReport.tables.totalRows,
         tablesNeedingVacuum: performanceReport.tables.needsVacuum,
         recommendations: performanceReport.recommendations.length
-      });
+      }, 'Database Performance Summary:');
 
       if (performanceReport.recommendations.length > 0) {
-        logger.info('Performance Recommendations:', {
+        logger.info({
           recommendations: performanceReport.recommendations.slice(0, 3)
-        });
+        }, 'Performance Recommendations:');
       }
 
       logger.info('✨ Phase 3 Database Optimization demonstration complete!');
 
     } catch (error) {
-      logger.error('Error during capability demonstration', { error });
+      logger.error({ error }, 'Error during capability demonstration');
     }
   }
 
@@ -246,7 +246,7 @@ export class Phase3DatabaseOptimization {
       const report = await this.databaseService.runOptimization();
       
       if (report.success) {
-        logger.info('✅ Phase 3 optimization completed successfully', {
+        logger.info({
           duration: `${report.duration}ms`,
           tablesAnalyzed: report.queryOptimization.analyzedTables,
           tablesVacuumed: report.maintenance.vacuumedTables,
@@ -254,12 +254,12 @@ export class Phase3DatabaseOptimization {
             ...report.queryOptimization.recommendations,
             ...report.maintenance.recommendations
           ].length
-        });
+        }, '✅ Phase 3 optimization completed successfully');
       } else {
-        logger.error('❌ Phase 3 optimization failed', { error: report.error });
+        logger.error({ error: report.error }, '❌ Phase 3 optimization failed');
       }
     } catch (error) {
-      logger.error('Failed to run Phase 3 optimization', { error });
+      logger.error({ error }, 'Failed to run Phase 3 optimization');
       throw error;
     }
   }
@@ -287,7 +287,7 @@ export class Phase3DatabaseOptimization {
       logger.info('Phase 3 Database Optimization System shutdown complete');
       
     } catch (error) {
-      logger.error('Error during Phase 3 system shutdown', { error });
+      logger.error({ error }, 'Error during Phase 3 system shutdown');
     }
   }
 
