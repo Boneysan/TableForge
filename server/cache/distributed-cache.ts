@@ -108,10 +108,9 @@ export class RedisDistributedCache implements DistributedCache {
     this.client = client || new MockRedisClient();
   }
 
-  async get<T>(key: string, cacheType: string): Promise<T | null> {
+  async get<T>(key: string): Promise<T | null> {
     try {
-      const fullKey = `${cacheType}:${key}`;
-      const value = await this.client.get(fullKey);
+      const value = await this.client.get(key);
       
       if (!value) {
         return null;
@@ -121,34 +120,32 @@ export class RedisDistributedCache implements DistributedCache {
     } catch (error) {
       this.logger.error('Redis get error', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        key: `${cacheType}:${key}`
+        key
       });
       return null;
     }
   }
 
-  async set<T>(key: string, value: T, cacheType: string, ttl?: number): Promise<boolean> {
+  async set<T>(key: string, value: T, ttl?: number): Promise<boolean> {
     try {
-      const fullKey = `${cacheType}:${key}`;
       const config = cacheConfig.getDistributedCacheConfig();
       const serialized = JSON.stringify(value);
       const actualTTL = ttl || config.defaultTTL;
 
-      const result = await this.client.set(fullKey, serialized, { EX: actualTTL });
+      const result = await this.client.set(key, serialized, { EX: actualTTL });
       return result === 'OK';
     } catch (error) {
       this.logger.error('Redis set error', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        key: `${cacheType}:${key}`
+        key
       });
       return false;
     }
   }
 
-  async mget<T>(keys: string[], cacheType: string): Promise<Array<T | null>> {
+  async mget<T>(keys: string[]): Promise<Array<T | null>> {
     try {
-      const fullKeys = keys.map(key => `${cacheType}:${key}`);
-      const values = await this.client.mget(fullKeys);
+      const values = await this.client.mget(keys);
       
       return values.map(value => {
         if (!value) return null;
@@ -161,21 +158,19 @@ export class RedisDistributedCache implements DistributedCache {
     } catch (error) {
       this.logger.error('Redis mget error', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        keyCount: keys.length,
-        cacheType
+        keyCount: keys.length
       });
       return new Array(keys.length).fill(null);
     }
   }
 
-  async mset(items: Array<{ key: string; value: any; ttl?: number }>, cacheType: string): Promise<boolean> {
+  async mset(items: Array<{ key: string; value: any; ttl?: number }>): Promise<boolean> {
     try {
       const keyValues: string[] = [];
       
       for (const item of items) {
-        const fullKey = `${cacheType}:${item.key}`;
         const serialized = JSON.stringify(item.value);
-        keyValues.push(fullKey, serialized);
+        keyValues.push(item.key, serialized);
       }
 
       const result = await this.client.mset(keyValues);
@@ -183,8 +178,7 @@ export class RedisDistributedCache implements DistributedCache {
       // Handle TTL for each key individually (Redis MSET doesn't support TTL)
       for (const item of items) {
         if (item.ttl) {
-          const fullKey = `${cacheType}:${item.key}`;
-          await this.client.set(fullKey, JSON.stringify(item.value), { EX: item.ttl });
+          await this.client.set(item.key, JSON.stringify(item.value), { EX: item.ttl });
         }
       }
 
@@ -192,10 +186,47 @@ export class RedisDistributedCache implements DistributedCache {
     } catch (error) {
       this.logger.error('Redis mset error', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        itemCount: items.length,
-        cacheType
+        itemCount: items.length
       });
       return false;
+    }
+  }
+
+  async delete(key: string): Promise<boolean> {
+    try {
+      const deletedCount = await this.client.del([key]);
+      return deletedCount > 0;
+    } catch (error) {
+      this.logger.error('Redis delete error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        key
+      });
+      return false;
+    }
+  }
+
+  async invalidatePattern(pattern: string): Promise<number> {
+    try {
+      const keys = await this.client.keys(pattern);
+      if (keys.length === 0) {
+        return 0;
+      }
+
+      const deletedCount = await this.client.del(keys);
+      
+      this.logger.debug('Redis pattern invalidation completed', {
+        pattern,
+        deletedCount,
+        totalKeys: keys.length
+      });
+
+      return deletedCount;
+    } catch (error) {
+      this.logger.error('Redis pattern invalidation error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        pattern
+      });
+      return 0;
     }
   }
 
@@ -303,7 +334,13 @@ export class RedisDistributedCache implements DistributedCache {
       return {
         size: 0, // Would need separate tracking or Redis key count
         maxSize: 0, // Redis doesn't have built-in size limits
-        memoryUsage: memoryMatch && memoryMatch[1] ? parseInt(memoryMatch[1], 10) : 0
+        memoryUsage: memoryMatch && memoryMatch[1] ? parseInt(memoryMatch[1], 10) : 0,
+        hitRate: 0, // Would need separate tracking
+        missRate: 0, // Would need separate tracking
+        totalHits: 0, // Would need separate tracking
+        totalMisses: 0, // Would need separate tracking
+        totalOperations: 0, // Would need separate tracking
+        itemCount: 0 // Would need separate tracking
       };
     } catch (error) {
       this.logger.error('Failed to get Redis stats', {
@@ -313,7 +350,13 @@ export class RedisDistributedCache implements DistributedCache {
       return {
         size: 0,
         maxSize: 0,
-        memoryUsage: 0
+        memoryUsage: 0,
+        hitRate: 0,
+        missRate: 0,
+        totalHits: 0,
+        totalMisses: 0,
+        totalOperations: 0,
+        itemCount: 0
       };
     }
   }
@@ -347,9 +390,9 @@ export class RedisDistributedCache implements DistributedCache {
   async incrementCounter(key: string, cacheType: string, increment = 1): Promise<number> {
     try {
       const fullKey = `${cacheType}:counter:${key}`;
-      const current = await this.get<number>(fullKey, 'counter') || 0;
+      const current = await this.get<number>(fullKey) || 0;
       const newValue = current + increment;
-      await this.set(fullKey, newValue, 'counter');
+      await this.set(fullKey, newValue);
       return newValue;
     } catch (error) {
       this.logger.error('Redis counter increment error', {
@@ -362,17 +405,16 @@ export class RedisDistributedCache implements DistributedCache {
 
   async atomicUpdate<T>(
     key: string, 
-    cacheType: string, 
     updateFn: (current: T | null) => T
   ): Promise<boolean> {
     try {
-      const current = await this.get<T>(key, cacheType);
+      const current = await this.get<T>(key);
       const updated = updateFn(current);
-      return await this.set(key, updated, cacheType);
+      return await this.set(key, updated);
     } catch (error) {
       this.logger.error('Redis atomic update error', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        key: `${cacheType}:${key}`
+        key
       });
       return false;
     }
