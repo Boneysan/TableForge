@@ -7,18 +7,21 @@ This directory contains comprehensive performance testing infrastructure using k
 ```
 tests/performance/
 ├── load/                           # Load testing scenarios
-│   └── websocket-load.js          # Phase 2 WebSocket load testing ✅
+│   └── websocket-load.js          # Phase 2 Section 5.1 WebSocket load testing ✅
+├── api/                           # API performance tests
+│   ├── endpoints.test.ts           # Phase 2 Section 5.2 API benchmarking ✅
+│   └── additional-endpoints.test.ts # Extended API performance testing
 ├── stress/                         # Stress testing scenarios  
 │   └── high-concurrency.js        # High concurrency stress testing
 ├── benchmarks/                     # Performance benchmarks
 │   └── baseline.js                 # Baseline performance measurements
-└── api/                           # API performance tests
-    └── endpoints.test.ts           # API endpoint benchmarking
+├── SETUP.md                       # Installation and setup guide
+└── README.md                      # This documentation
 ```
 
-## 🎯 Phase 2 Implementation: Section 5.1 Load Testing with k6
+## 🎯 Phase 2 Implementation: Sections 5.1 & 5.2
 
-### **WebSocket Load Testing** (`websocket-load.js`)
+### **Section 5.1 - WebSocket Load Testing** (`websocket-load.js`)
 **✅ Exact Phase 2 Specification Implementation**
 
 #### Load Pattern
@@ -30,6 +33,15 @@ tests/performance/
 - **Connection time**: Average < 1000ms (`ws_connecting: ['avg<1000']`)
 - **Message delivery**: Count > 0 (`ws_msgs_received: ['count>0']`)
 - **Session duration**: Average < 60 seconds (`ws_session_duration: ['avg<60000']`)
+
+### **Section 5.2 - API Performance Tests** (`endpoints.test.ts`)
+**✅ Exact Phase 2 Specification Implementation**
+
+#### API Benchmarking with autocannon
+- **Room creation**: POST `/api/rooms` performance testing
+- **Asset retrieval**: GET `/api/rooms/test-room/assets` performance testing
+- **Performance assertions**: Latency and throughput validation
+- **Concurrent connections**: Multi-connection load testing
 
 #### Test Scenario
 1. **WebSocket Connection**: Connect to `ws://localhost:5000/ws`
@@ -116,14 +128,19 @@ k6 run tests/performance/benchmarks/baseline.js
 k6 run --summary-trend-stats="avg,min,med,max,p(95),p(99)" tests/performance/benchmarks/baseline.js
 ```
 
-#### **API Performance Testing**
+#### **API Performance Testing** (`endpoints.test.ts` - Phase 2 Section 5.2)
 ```bash
-# Vitest-based API performance tests
-npm run test tests/performance/api/
+# Install dependencies first
+npm install --save-dev autocannon @types/autocannon
 
-# With autocannon installation
-npm install --save-dev autocannon
+# Run API performance tests
 npm run test tests/performance/api/endpoints.test.ts
+
+# Run extended API performance tests
+npm run test tests/performance/api/additional-endpoints.test.ts
+
+# Run all API performance tests
+npm run test tests/performance/api/
 ```
 
 ## 📊 Performance Metrics & Thresholds
@@ -191,14 +208,18 @@ k6 run --out influxdb=http://localhost:8086/k6 tests/performance/load/websocket-
 
 ## 🎉 Phase 2 Compliance
 
-### ✅ **Section 5.1 Load Testing with k6** - **COMPLETE**
-- **Exact specification match**: WebSocket load testing implementation
+### ✅ **Sections 5.1 & 5.2 Load Testing and API Performance** - **COMPLETE**
+- **Section 5.1**: WebSocket load testing implementation with k6
+- **Section 5.2**: API performance testing implementation with autocannon  
 - **k6 framework**: Industry-standard load testing tool
+- **autocannon framework**: High-performance HTTP/1.1 benchmarking tool
 - **WebSocket focus**: Real-time game interaction testing
-- **Progressive load pattern**: 50 → 100 → 0 users
+- **API focus**: HTTP endpoint performance and throughput testing
+- **Progressive load pattern**: 50 → 100 → 0 users for WebSocket testing
 - **Performance thresholds**: Connection time, message delivery, session duration
+- **API benchmarking**: Room creation and asset retrieval performance
 - **Game simulation**: Authentication, room joining, asset movement
-- **Validation checks**: Connection status, message reception
+- **Validation checks**: Connection status, message reception, API response times
 
 ### **Production Readiness**
 - **CI/CD Integration**: JSON output for automated testing
