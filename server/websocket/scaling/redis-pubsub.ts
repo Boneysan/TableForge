@@ -1,6 +1,6 @@
 // server/websocket/scaling/redis-pubsub.ts
 // Phase 3 WebSocket Scaling Manager - Redis Pub/Sub for Horizontal Scaling
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { WebSocketServer } from 'ws';
 import { wsLogger as logger } from '../../utils/logger';
 
@@ -30,39 +30,27 @@ export class WebSocketScalingManager {
   private instanceId: string;
   private wss: WebSocketServer;
   private roomSubscriptions = new Map<string, Set<string>>(); // roomId -> socketIds
-  private heartbeatInterval?: NodeJS.Timeout;
+  private heartbeatInterval?: NodeJS.Timeout | undefined;
 
   constructor(wss: WebSocketServer) {
     this.wss = wss;
-    this.instanceId = process.env.INSTANCE_ID || `instance-${Date.now()}`;
+    this.instanceId = process.env['INSTANCE_ID'] || `instance-${Date.now()}`;
     
-    this.publisher = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
+    const redisOptions = {
+      host: process.env['REDIS_HOST'] || 'localhost',
+      port: parseInt(process.env['REDIS_PORT'] || '6379'),
+      ...(process.env['REDIS_PASSWORD'] && { password: process.env['REDIS_PASSWORD'] }),
       db: 1, // Separate database for pub/sub
-      retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
       family: 4,
-      keepAlive: 30000,
       connectTimeout: 10000,
       commandTimeout: 5000
-    });
+    };
 
-    this.subscriber = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
-      db: 1,
-      retryDelayOnFailover: 100,
-      maxRetriesPerRequest: 3,
-      lazyConnect: true,
-      family: 4,
-      keepAlive: 30000,
-      connectTimeout: 10000,
-      commandTimeout: 5000
-    });
+    this.publisher = new Redis(redisOptions);
+
+    this.subscriber = new Redis(redisOptions);
 
     this.setupEventHandlers();
     this.setupSubscriptions();
@@ -78,11 +66,11 @@ export class WebSocketScalingManager {
       logger.info({ instanceId: this.instanceId }, 'WebSocket scaling subscriber connected');
     });
 
-    this.publisher.on('error', (error) => {
+    this.publisher.on('error', (error: Error) => {
       logger.error({ instanceId: this.instanceId, error: error.message }, 'WebSocket scaling publisher error');
     });
 
-    this.subscriber.on('error', (error) => {
+    this.subscriber.on('error', (error: Error) => {
       logger.error({ instanceId: this.instanceId, error: error.message }, 'WebSocket scaling subscriber error');
     });
 
@@ -105,11 +93,11 @@ export class WebSocketScalingManager {
     // Subscribe to instance-specific messages
     this.subscriber.subscribe(`instance:${this.instanceId}`);
 
-    this.subscriber.on('pmessage', (pattern, channel, message) => {
+    this.subscriber.on('pmessage', (_pattern: string, channel: string, message: string) => {
       this.handleRoomMessage(channel, message);
     });
 
-    this.subscriber.on('message', (channel, message) => {
+    this.subscriber.on('message', (channel: string, message: string) => {
       if (channel === 'broadcast:all') {
         this.handleBroadcastMessage(message);
       } else if (channel.startsWith('instance:')) {
@@ -319,8 +307,14 @@ export class WebSocketScalingManager {
   private handleRoomMessage(channel: string, message: string): void {
     try {
       const data = JSON.parse(message);
-      const roomId = channel.split(':')[1];
-      const eventType = channel.split(':')[2];
+      const channelParts = channel.split(':');
+      const roomId = channelParts[1];
+      const eventType = channelParts[2];
+
+      if (!roomId) {
+        logger.warn({ channel }, 'Invalid room channel format - missing roomId');
+        return;
+      }
 
       // Don't process messages from this instance
       if (data.sourceInstance === this.instanceId) {
@@ -518,7 +512,7 @@ export class WebSocketScalingManager {
       const pattern = 'instance:*:heartbeat';
       const keys = await this.publisher.keys(pattern);
       
-      return keys.map(key => key.split(':')[1]);
+      return keys.map((key: string) => key.split(':')[1]).filter((id): id is string => Boolean(id));
     } catch (error) {
       logger.error({ 
         error: error instanceof Error ? error.message : String(error) 
@@ -558,8 +552,8 @@ export class WebSocketScalingManager {
     try {
       const members = await this.publisher.hgetall(`room:${roomId}:members`);
       
-      return Object.values(members).reduce((total, count) => {
-        return total + parseInt(count || '0');
+      return Object.values(members).reduce((total: number, count: unknown) => {
+        return total + parseInt(String(count || '0'));
       }, 0);
     } catch (error) {
       logger.error({ 
