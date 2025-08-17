@@ -5,7 +5,7 @@ import { logger } from '@server/utils/logger';
 register.setDefaultLabels({
   app: 'vorpal-board',
   version: '1.0.0',
-  environment: process.env.NODE_ENV || 'development',
+  environment: process.env['NODE_ENV'] || 'development',
 });
 
 // Room Metrics
@@ -194,7 +194,10 @@ class MoveTracker {
     if (existingBucketIndex === -1) {
       roomMoves.push(1);
     } else {
-      roomMoves[roomMoves.length - 1]++;
+      const lastIndex = roomMoves.length - 1;
+      if (lastIndex >= 0 && roomMoves[lastIndex] !== undefined) {
+        roomMoves[lastIndex]++;
+      }
     }
 
     // Clean old buckets (older than window)
@@ -368,21 +371,21 @@ export function resetMetrics(): void {
 }
 
 // Export metrics endpoint
-export function getMetrics(): string {
-  return register.metrics();
+export async function getMetrics(): Promise<string> {
+  return await register.metrics();
 }
 
 // Health check for metrics
-export function getMetricsHealth(): {
+export async function getMetricsHealth(): Promise<{
   status: 'healthy' | 'unhealthy';
   details: Record<string, any>;
-} {
+}> {
   try {
-    const metrics = register.getSingleMetric('vorpal_active_rooms_total');
+    const metricsArray = await register.getMetricsAsJSON();
     return {
       status: 'healthy',
       details: {
-        totalMetrics: register.getMetricsAsJSON().length,
+        totalMetrics: metricsArray.length,
         lastUpdate: new Date().toISOString(),
         memoryUsage: process.memoryUsage(),
       },
