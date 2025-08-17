@@ -1,5 +1,5 @@
 // server/websocket/scaling/load-balancer.ts
-import { WebSocketScalingManager, InstanceInfo, RoomDistribution } from './redis-pubsub';
+import { WebSocketScalingManager, RoomDistribution, InstanceStats } from './redis-pubsub';
 import { logger } from '../../utils/logger';
 import { metrics } from '../../observability/metrics';
 
@@ -41,7 +41,7 @@ export class WebSocketLoadBalancer {
    */
   async roundRobinSelect(): Promise<string | null> {
     try {
-      const instances = await this.scalingManager.getActiveInstances();
+      const instances = await this.scalingManager.getRoomDistribution();
       if (instances.length === 0) return null;
 
       // Sort by connection count (ascending) to balance load
@@ -49,14 +49,14 @@ export class WebSocketLoadBalancer {
       
       const selectedInstance = instances[0];
       
-      metrics.loadBalancerSelection?.inc({ 
-        strategy: 'round_robin', 
-        instance: selectedInstance.instanceId 
-      });
+      // metrics.loadBalancerSelection?.inc({ 
+      //   strategy: 'round_robin', 
+      //   instance: selectedInstance.instanceId 
+      // });
 
       return selectedInstance.instanceId;
     } catch (error) {
-      logger.error('Round robin selection failed', { error });
+      logger.error({ error }, 'Round robin selection failed');
       return null;
     }
   }
@@ -66,7 +66,7 @@ export class WebSocketLoadBalancer {
    */
   async leastConnectionsSelect(): Promise<string | null> {
     try {
-      const instances = await this.scalingManager.getActiveInstances();
+      const instances = await this.scalingManager.getRoomDistribution();
       if (instances.length === 0) return null;
 
       // Find instance with minimum connections
@@ -74,14 +74,14 @@ export class WebSocketLoadBalancer {
         current.connections < min.connections ? current : min
       );
 
-      metrics.loadBalancerSelection?.inc({ 
-        strategy: 'least_connections', 
-        instance: selectedInstance.instanceId 
-      });
+      // metrics.loadBalancerSelection?.inc({ 
+      //   strategy: 'least_connections', 
+      //   instance: selectedInstance.instanceId 
+      // });
 
       return selectedInstance.instanceId;
     } catch (error) {
-      logger.error('Least connections selection failed', { error });
+      logger.error({ error }, 'Least connections selection failed');
       return null;
     }
   }
@@ -120,7 +120,7 @@ export class WebSocketLoadBalancer {
   /**
    * Geographic/Affinity Strategy - Routes based on location or user affinity
    */
-  async affinitySelect(userLocation?: string, userId?: string): Promise<string | null> {
+  async weightedSelect(_userLocation?: string, _userId?: string): Promise<string | null> {
     try {
       const instances = await this.scalingManager.getActiveInstances();
       if (instances.length === 0) return null;
@@ -277,7 +277,7 @@ export class WebSocketLoadBalancer {
     }
   }
 
-  private async rebalanceInstance(instance: InstanceInfo): Promise<void> {
+  private async rebalanceInstance(instance: RoomDistribution): Promise<void> {
     try {
       const loadScore = this.calculateLoadScore(instance);
       
@@ -325,7 +325,7 @@ export class WebSocketLoadBalancer {
     }
   }
 
-  private async initiateConnectionMigration(instance: InstanceInfo): Promise<void> {
+  private async initiateConnectionMigration(instance: RoomDistribution): Promise<void> {
     // Implement smart connection migration logic
     const migrationPlan = await this.createMigrationPlan(instance);
     
@@ -338,7 +338,7 @@ export class WebSocketLoadBalancer {
     }
   }
 
-  private async createMigrationPlan(sourceInstance: InstanceInfo): Promise<MigrationPlan> {
+  private async createMigrationPlan(sourceInstance: RoomDistribution): Promise<MigrationPlan> {
     const instances = await this.scalingManager.getActiveInstances();
     const availableInstances = instances.filter(i => 
       i.instanceId !== sourceInstance.instanceId &&
@@ -392,7 +392,7 @@ export class WebSocketLoadBalancer {
   }
 
   // Utility methods
-  private calculateLoadScore(instance: InstanceInfo): number {
+  private calculateLoadScore(instance: RoomDistribution): number {
     // Multi-factor load calculation
     const connectionFactor = instance.connections / 1000; // Normalize to 1000 connections
     const memoryFactor = instance.memory.heapUsed / (instance.memory.heapTotal || 1);
@@ -412,7 +412,7 @@ export class WebSocketLoadBalancer {
     return Math.abs(hash);
   }
 
-  private async analyzeSystemState(instances: InstanceInfo[]): Promise<SystemState> {
+  private async analyzeSystemState(instances: RoomDistribution[]): Promise<SystemState> {
     const highLoadInstances = instances.filter(i => 
       this.calculateLoadScore(i) > this.loadThresholds.high
     ).length;
