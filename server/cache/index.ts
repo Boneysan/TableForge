@@ -36,6 +36,9 @@ export {
   createEdgeCache 
 } from './edge-cache';
 
+// Enhanced Redis cache service from Phase 3 specification
+export { RedisCacheService } from './redis-cache';
+
 import { createApplicationCache } from './application-cache';
 import { createDistributedCache } from './distributed-cache';
 import { createEdgeCache } from './edge-cache';

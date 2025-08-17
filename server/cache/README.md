@@ -20,6 +20,106 @@ The Vorpal Board multi-level caching system implements a sophisticated L1/L2/L3 
 - **Performance Monitoring**: Built-in hit rate tracking and performance metrics
 - **Type Safety**: Full TypeScript support with generic interfaces
 
+## Enhanced Redis Cache Service (Phase 3)
+
+The `RedisCacheService` provides a sophisticated Redis implementation that aligns with the Phase 3 Performance & Scalability specifications:
+
+### Domain-Specific Caching Methods
+
+#### User Session Management
+```typescript
+// Cache user sessions with automatic TTL
+await redisCache.setUserSession('user_123', userSession, 3600);
+const session = await redisCache.getUserSession('user_123');
+```
+
+#### Game Room State (with Compression)
+```typescript
+// Large room states are automatically compressed
+await redisCache.setRoomState('room_789', roomState, 1800);
+const state = await redisCache.getRoomState('room_789');
+```
+
+#### Asset Metadata
+```typescript
+// Static assets with longer TTL
+await redisCache.setAssetMetadata('asset_321', metadata);
+const metadata = await redisCache.getAssetMetadata('asset_321');
+```
+
+#### Game System Templates
+```typescript
+// Very long TTL for rarely changing data
+await redisCache.setGameSystemTemplate('system_456', template);
+const template = await redisCache.getGameSystemTemplate('system_456');
+```
+
+### Advanced Features
+
+#### Cached Query Pattern
+```typescript
+// Cache expensive database queries
+const result = await redisCache.getCachedQuery('user_stats', async () => {
+  return await expensiveDatabaseQuery();
+}, 300);
+```
+
+#### Batch Operations
+```typescript
+// Efficient multi-key operations
+const items = [
+  { key: 'user:1', value: userData1, ttl: 3600 },
+  { key: 'user:2', value: userData2, ttl: 3600 }
+];
+await redisCache.mset(items, 'user_data');
+
+const keys = ['user:1', 'user:2'];
+const results = await redisCache.mget(keys, 'user_data');
+```
+
+#### Smart Invalidation
+```typescript
+// Invalidate user-related data across patterns
+await redisCache.invalidateUserData('user_123');
+
+// Invalidate room-related data
+await redisCache.invalidateRoomData('room_789');
+
+// Pattern-based invalidation
+await redisCache.invalidatePattern('temp:*');
+```
+
+### Production Configuration
+
+The service supports both development (MockRedis) and production (real Redis) configurations:
+
+```typescript
+// Development with mock Redis (current implementation)
+const redisCache = new RedisCacheService();
+
+// Production with real Redis (requires ioredis dependency)
+// Uncomment Redis import and constructor when deploying
+```
+
+### Performance Characteristics
+
+- **Connection Pooling**: Optimized Redis connection settings
+- **Compression**: Automatic compression for large objects (room states, game systems)
+- **Batch Operations**: Efficient pipeline operations for multi-key scenarios
+- **Smart TTL**: Domain-specific TTL values based on data volatility
+- **Health Monitoring**: Built-in health checks and statistics collection
+
+### Integration with Observability
+
+The service integrates with the metrics system to track:
+- Cache hit/miss rates
+- Operation durations
+- Connection health
+- Invalidation patterns
+- Error rates
+
+See `redis-example.ts` for comprehensive usage examples.
+
 ## Quick Start
 
 ### Basic Usage
