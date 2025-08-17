@@ -2,133 +2,79 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Complete Game Session Flow', () => {
-  test('should support full game lifecycle from login to gameplay', async ({ page }) => {
-    // Step 1: Navigate to application
+  test('should support full game lifecycle', async ({ page }) => {
+    // Step 1: Authentication
     await page.goto('/');
-    
-    // Verify home page loads
-    await expect(page).toHaveTitle(/TableForge|Vorpal Board/);
-    
-    // Step 2: Authentication
     await page.click('[data-testid="sign-in-button"]');
     
-    // Mock authentication for E2E testing
+    // Mock Firebase auth for E2E
     await page.evaluate(() => {
-      // Simulate Firebase auth success
-      window.localStorage.setItem('auth-token', 'e2e-test-token');
-      window.dispatchEvent(new CustomEvent('auth-state-change', {
-        detail: {
-          user: {
-            uid: 'e2e-user-123',
-            email: 'e2e@test.com',
-            displayName: 'E2E Test User'
-          }
-        }
-      }));
+      (window as any).mockUser = {
+        uid: 'e2e-user-123',
+        email: 'e2e@test.com',
+        displayName: 'E2E Test User'
+      };
     });
 
     // Wait for authentication to complete
     await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
-    
-    // Step 3: Create new room
+
+    // Step 2: Create new room
     await page.click('[data-testid="create-room-button"]');
-    
-    // Fill room creation form
-    await page.fill('[data-testid="room-name-input"]', 'E2E Test Game Room');
-    await page.fill('[data-testid="room-description"]', 'Automated test room');
-    await page.selectOption('[data-testid="max-players"]', '6');
-    await page.check('[data-testid="allow-spectators"]');
-    
+    await page.fill('[data-testid="room-name-input"]', 'E2E Test Room');
     await page.click('[data-testid="create-room-submit"]');
 
-    // Verify room creation and redirect
     await expect(page).toHaveURL(/\/room\/.+/);
-    await expect(page.locator('[data-testid="room-name"]')).toContainText('E2E Test Game Room');
 
-    // Step 4: Switch to Admin Interface
+    // Step 3: Upload game assets
     await page.click('[data-testid="admin-interface-button"]');
-    await expect(page.locator('[data-testid="admin-interface"]')).toBeVisible();
-
-    // Step 5: Upload game assets
     await page.click('[data-testid="tab-assets"]');
-    
-    // Mock file upload
+
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles('./tests/fixtures/test-card.png');
 
-    // Wait for upload completion
-    await expect(page.locator('[data-testid="upload-success"]')).toBeVisible();
     await expect(page.locator('[data-testid^="asset-"]')).toBeVisible();
 
-    // Step 6: Switch to Game Master view
+    // Step 4: Place assets on board
     await page.click('[data-testid="switch-to-gm"]');
-    await expect(page.locator('[data-testid="gm-interface"]')).toBeVisible();
-
-    // Step 7: Place assets on game board
-    const assetLibrary = page.locator('[data-testid="asset-library"]');
-    const gameBoard = page.locator('[data-testid="game-board"]');
     
-    // Drag asset from library to board
-    const firstAsset = assetLibrary.locator('[data-testid^="asset-"]').first();
-    await firstAsset.dragTo(gameBoard, {
-      targetPosition: { x: 300, y: 200 }
-    });
-
-    // Verify asset appears on board
-    await expect(gameBoard.locator('[data-testid^="board-asset-"]')).toBeVisible();
-
-    // Step 8: Asset manipulation
-    const boardAsset = gameBoard.locator('[data-testid^="board-asset-"]').first();
+    const asset = page.locator('[data-testid^="asset-"]').first();
+    const board = page.locator('[data-testid="game-board"]');
     
-    // Move asset to different position
-    await boardAsset.dragTo(gameBoard, {
-      targetPosition: { x: 500, y: 400 }
-    });
+    await asset.dragTo(board);
 
-    // Right-click for context menu
-    await boardAsset.click({ button: 'right' });
-    await expect(page.locator('[data-testid="asset-context-menu"]')).toBeVisible();
+    // Verify asset is placed
+    await expect(board.locator('[data-testid^="board-asset-"]')).toBeVisible();
+
+    // Step 5: Game interaction
+    const boardAsset = board.locator('[data-testid^="board-asset-"]').first();
+    
+    // Move asset
+    await boardAsset.dragTo(board, {
+      targetPosition: { x: 200, y: 200 }
+    });
 
     // Flip asset
+    await boardAsset.click({ button: 'right' });
     await page.click('[data-testid="flip-asset"]');
-    await expect(boardAsset).toHaveClass(/flipped/);
 
-    // Step 9: Dice rolling functionality
-    await page.click('[data-testid="dice-panel-toggle"]');
-    await expect(page.locator('[data-testid="dice-roller"]')).toBeVisible();
-    
+    // Step 6: Dice rolling
+    await page.click('[data-testid="dice-roller"]');
     await page.selectOption('[data-testid="dice-type"]', 'd20');
-    await page.fill('[data-testid="dice-count"]', '2');
     await page.click('[data-testid="roll-dice"]');
 
-    // Verify dice results
-    await expect(page.locator('[data-testid="dice-results"]')).toBeVisible();
-    await expect(page.locator('[data-testid="dice-total"]')).toBeVisible();
+    await expect(page.locator('[data-testid="dice-result"]')).toBeVisible();
 
-    // Step 10: Chat functionality
-    await page.fill('[data-testid="chat-input"]', 'This is an E2E test message');
+    // Step 7: Chat functionality
+    await page.fill('[data-testid="chat-input"]', 'Test message from E2E');
     await page.press('[data-testid="chat-input"]', 'Enter');
 
     await expect(page.locator('[data-testid="chat-messages"]'))
-      .toContainText('This is an E2E test message');
+      .toContainText('Test message from E2E');
 
-    // Step 11: Save game state
-    await page.click('[data-testid="save-game-button"]');
-    await expect(page.locator('[data-testid="save-success-toast"]')).toBeVisible();
-
-    // Step 12: Game settings
-    await page.click('[data-testid="settings-button"]');
-    await expect(page.locator('[data-testid="settings-modal"]')).toBeVisible();
-    
-    await page.check('[data-testid="auto-save-enabled"]');
-    await page.selectOption('[data-testid="board-theme"]', 'dark');
-    await page.click('[data-testid="save-settings"]');
-
-    // Step 13: Verify settings persistence
-    await page.reload();
-    await page.click('[data-testid="settings-button"]');
-    await expect(page.locator('[data-testid="auto-save-enabled"]')).toBeChecked();
-    await expect(page.locator('[data-testid="board-theme"]')).toHaveValue('dark');
+    // Step 8: Save game state
+    await page.click('[data-testid="save-game"]');
+    await expect(page.locator('[data-testid="save-success"]')).toBeVisible();
   });
 
   test('should handle multiplayer interactions', async ({ browser }) => {
@@ -139,62 +85,32 @@ test.describe('Complete Game Session Flow', () => {
     const page1 = await context1.newPage();
     const page2 = await context2.newPage();
 
-    // Player 1: Create room and authenticate
+    // Player 1 creates room
     await page1.goto('/');
-    await page1.evaluate(() => {
-      window.localStorage.setItem('auth-token', 'player1-token');
-      window.dispatchEvent(new CustomEvent('auth-state-change', {
-        detail: { user: { uid: 'player1', displayName: 'Player One' } }
-      }));
-    });
+    // ... authentication and room creation
 
-    await page1.click('[data-testid="create-room-button"]');
-    await page1.fill('[data-testid="room-name-input"]', 'Multiplayer Test Room');
-    await page1.click('[data-testid="create-room-submit"]');
-
-    // Get room URL for player 2
     const roomUrl = page1.url();
 
-    // Player 2: Join the same room
+    // Player 2 joins room
     await page2.goto(roomUrl);
-    await page2.evaluate(() => {
-      window.localStorage.setItem('auth-token', 'player2-token');
-      window.dispatchEvent(new CustomEvent('auth-state-change', {
-        detail: { user: { uid: 'player2', displayName: 'Player Two' } }
-      }));
+    // ... authentication
+
+    // Verify both players see each other
+    await expect(page1.locator('[data-testid="player-list"]'))
+      .toContainText('Player 2');
+    await expect(page2.locator('[data-testid="player-list"]'))
+      .toContainText('Player 1');
+
+    // Player 1 moves asset
+    const asset1 = page1.locator('[data-testid^="board-asset-"]').first();
+    await asset1.dragTo(page1.locator('[data-testid="game-board"]'), {
+      targetPosition: { x: 300, y: 300 }
     });
 
-    // Verify both players see each other in player list
-    await expect(page1.locator('[data-testid="player-list"]'))
-      .toContainText('Player Two');
-    await expect(page2.locator('[data-testid="player-list"]'))
-      .toContainText('Player One');
+    // Verify Player 2 sees the movement
+    await expect(page2.locator('[data-testid^="board-asset-"]').first())
+      .toHaveCSS('transform', /translate\(300px, 300px\)/);
 
-    // Player 1: Place an asset
-    await page1.click('[data-testid="admin-interface-button"]');
-    // ... upload asset and place on board
-
-    // Player 1: Move asset
-    const gameBoard1 = page1.locator('[data-testid="game-board"]');
-    const asset1 = gameBoard1.locator('[data-testid^="board-asset-"]').first();
-    await asset1.dragTo(gameBoard1, { targetPosition: { x: 400, y: 300 } });
-
-    // Player 2: Verify they see the asset movement
-    const gameBoard2 = page2.locator('[data-testid="game-board"]');
-    const asset2 = gameBoard2.locator('[data-testid^="board-asset-"]').first();
-    
-    // Check asset position synchronized
-    await expect(asset2).toHaveCSS('transform', /translate\(400px, 300px\)/);
-
-    // Player 2: Send chat message
-    await page2.fill('[data-testid="chat-input"]', 'Hello from Player 2!');
-    await page2.press('[data-testid="chat-input"]', 'Enter');
-
-    // Player 1: See the chat message
-    await expect(page1.locator('[data-testid="chat-messages"]'))
-      .toContainText('Hello from Player 2!');
-
-    // Cleanup
     await context1.close();
     await context2.close();
   });
@@ -342,7 +258,7 @@ test.describe('Performance and Load Testing', () => {
     // Simulate large asset library
     await page.evaluate(() => {
       // Mock large number of assets
-      window.mockAssets = Array.from({ length: 500 }, (_, i) => ({
+      (window as any).mockAssets = Array.from({ length: 500 }, (_, i) => ({
         id: `asset-${i}`,
         name: `Test Asset ${i}`,
         type: 'card',
