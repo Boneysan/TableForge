@@ -27,6 +27,17 @@ export interface CacheConfig {
   evictionPolicy: 'lru' | 'lfu' | 'ttl';
   compressionEnabled: boolean;
   serializationMethod: 'json' | 'msgpack' | 'protobuf';
+  namespace?: string; // Cache namespace for multi-tenant support
+}
+
+export interface CacheMetrics {
+  hits: number;
+  misses: number;
+  sets: number;
+  deletes: number;
+  errors: number;
+  totalOperationTime: number;
+  operationCount: number;
 }
 
 // Cache layer interfaces
@@ -39,14 +50,13 @@ export interface ApplicationCache {
 }
 
 export interface DistributedCache {
-  get<T>(key: string, cacheType: string): Promise<T | null>;
-  set<T>(key: string, value: T, cacheType: string, ttl?: number): Promise<boolean>;
-  mget<T>(keys: string[], cacheType: string): Promise<Array<T | null>>;
-  mset(items: Array<{ key: string; value: any; ttl?: number }>, cacheType: string): Promise<boolean>;
-  invalidate(pattern: string): Promise<number>;
-  invalidateUserData(userId: string): Promise<void>;
-  invalidateRoomData(roomId: string): Promise<void>;
-  healthCheck(): Promise<{ status: string; info?: any }>;
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T, ttl?: number): Promise<boolean>;
+  delete(key: string): Promise<boolean>;
+  mget<T>(keys: string[]): Promise<Array<T | null>>;
+  mset(items: Array<{ key: string; value: any; ttl?: number }>): Promise<boolean>;
+  invalidatePattern(pattern: string): Promise<number>;
+  healthCheck(): Promise<{ status: string; latency?: number; info?: any }>;
   getStats(): Promise<CacheStats>;
   close(): Promise<void>;
 }
@@ -63,10 +73,16 @@ export interface CacheStats {
   connected?: boolean;
   keyCount?: number;
   memoryUsage?: any;
-  hitRate?: number;
+  hitRate: number;
+  missRate: number;
+  totalHits: number;
+  totalMisses: number;
+  totalOperations: number;
+  itemCount: number;
   size?: number;
   maxSize?: number;
   error?: string;
+  averageLatency?: number;
 }
 
 // Domain-specific cache interfaces
@@ -273,5 +289,40 @@ export type CacheOperation = 'get' | 'set' | 'delete' | 'invalidate' | 'clear';
 export type EvictionPolicy = 'lru' | 'lfu' | 'ttl' | 'random';
 export type SerializationMethod = 'json' | 'msgpack' | 'protobuf' | 'avro';
 
-// Export all types for easy importing
-export * from './types';
+// Cache key patterns for consistent naming
+export const CacheKeyPatterns = {
+  USER_SESSION: 'user:session:{{userId}}',
+  USER_PROFILE: 'user:profile:{{userId}}',
+  ROOM_STATE: 'room:state:{{roomId}}',
+  ROOM_PLAYERS: 'room:players:{{roomId}}',
+  ASSET_METADATA: 'asset:meta:{{assetId}}',
+  GAME_SYSTEM: 'system:template:{{systemId}}',
+  QUERY_RESULT: 'query:{{queryHash}}',
+  SEARCH_RESULTS: 'search:{{searchHash}}',
+  LEADERBOARD: 'leaderboard:{{type}}:{{period}}',
+  NOTIFICATION: 'notification:{{userId}}',
+  RATE_LIMIT: 'rate:{{userId}}:{{endpoint}}',
+  BATCH_ASSETS: 'batch:assets:{{batchId}}',
+  USER_ROOMS: 'user:rooms:{{userId}}',
+  ROOM_CHAT: 'room:chat:{{roomId}}:{{page}}',
+  SYSTEM_CONFIG: 'system:config:{{key}}'
+} as const;
+
+// Cache TTL constants (in seconds)
+export const CacheTTL = {
+  USER_SESSION: 3600, // 1 hour
+  USER_PROFILE: 1800, // 30 minutes
+  ROOM_STATE: 300, // 5 minutes
+  ROOM_PLAYERS: 60, // 1 minute
+  ASSET_METADATA: 3600, // 1 hour
+  GAME_SYSTEM: 7200, // 2 hours
+  QUERY_RESULT: 600, // 10 minutes
+  SEARCH_RESULTS: 300, // 5 minutes
+  LEADERBOARD: 900, // 15 minutes
+  NOTIFICATION: 1800, // 30 minutes
+  RATE_LIMIT: 3600, // 1 hour
+  BATCH_ASSETS: 3600, // 1 hour
+  USER_ROOMS: 300, // 5 minutes
+  ROOM_CHAT: 1800, // 30 minutes
+  SYSTEM_CONFIG: 86400 // 24 hours
+} as const;

@@ -1,53 +1,29 @@
-// server/cache/application-cache.ts
-// Phase 3 Enhanced Application Cache Implementation
-// import LRU from 'lru-cache'; // TODO: Add lru-cache dependency for production
-import { ApplicationCache, CacheConfig, CacheItem } from './types';
-import { cacheConfig } from './config';
+// server/cache/application-cache-phase3.ts
+// Phase 3 Enhanced application-level cache with LRU eviction and performance tracking
+
+import { ApplicationCache, CacheConfig, CacheStats } from './types';
 import { createUserLogger } from '../utils/logger';
+import { metrics } from '../observability/metrics';
 
-// Mock LRU cache for development (replace with actual lru-cache in production)
-class MockLRU<K, V> {
-  private data = new Map<K, V>();
-  private maxSize: number;
+const logger = createUserLogger('application-cache');
 
-  constructor(options: { max: number; ttl: number; updateAgeOnGet: boolean; allowStale: boolean }) {
-    this.maxSize = options.max;
-  }
-
-  get(key: K): V | undefined {
-    return this.data.get(key);
-  }
-
-  set(key: K, value: V, options?: { ttl: number }): void {
-    if (this.data.size >= this.maxSize) {
-      // Simple LRU eviction - remove first (oldest) item
-      const firstKey = this.data.keys().next().value;
-      this.data.delete(firstKey);
-    }
-    this.data.set(key, value);
-  }
-
-  delete(key: K): boolean {
-    return this.data.delete(key);
-  }
-
-  clear(): void {
-    this.data.clear();
-  }
-
-  keys(): IterableIterator<K> {
-    return this.data.keys();
-  }
-
-  get size(): number {
-    return this.data.size;
-  }
+interface CacheItem<T> {
+  value: T;
+  expiresAt: number;
+  accessedAt: number;
+  createdAt: number;
+  accessCount: number;
+  size: number;
 }
 
-// Metrics placeholder - to be replaced with actual metrics implementation
-const metrics = {
-  cacheOperationDuration: { observe: (_labels: any, _duration: number) => {} },
-  cacheHits: { inc: (_labels: any) => {} },
+interface CacheMetrics {
+  hits: number;
+  misses: number;
+  sets: number;
+  evictions: number;
+  totalSize: number;
+  operationTimes: number[];
+}
   cacheMisses: { inc: (_labels: any) => {} },
   cacheInvalidations: { inc: (_labels: any, _count?: number) => {} }
 };

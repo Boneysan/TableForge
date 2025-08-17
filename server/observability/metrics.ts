@@ -396,3 +396,31 @@ export function getMetricsHealth(): {
     };
   }
 }
+
+// Unified metrics object for easy importing
+export const metrics = {
+  // Cache metrics
+  cacheHits: new Counter({ name: 'cache_hits_total', help: 'Cache hits', labelNames: ['cache_type'] }),
+  cacheMisses: new Counter({ name: 'cache_misses_total', help: 'Cache misses', labelNames: ['cache_type'] }),
+  cacheErrors: new Counter({ name: 'cache_errors_total', help: 'Cache errors', labelNames: ['type', 'cache_type'] }),
+  cacheConnections: new Gauge({ name: 'cache_connections', help: 'Cache connections', labelNames: ['status', 'cache_type'] }),
+  cacheOperationDuration: new Histogram({ name: 'cache_operation_duration_seconds', help: 'Cache operation duration', labelNames: ['operation', 'cache_type'] }),
+  cacheInvalidations: new Counter({ name: 'cache_invalidations_total', help: 'Cache invalidations', labelNames: ['pattern'] }),
+  
+  // Database metrics
+  dbConnections: databaseConnectionsGauge,
+  dbPoolSize: new Gauge({ name: 'db_pool_size', help: 'Database pool size' }),
+  dbPoolIdle: new Gauge({ name: 'db_pool_idle', help: 'Database pool idle connections' }),
+  dbPoolWaiting: new Gauge({ name: 'db_pool_waiting', help: 'Database pool waiting connections' }),
+  dbQueryDuration: databaseQueryDurationHistogram,
+  dbTransactionDuration: new Histogram({ name: 'db_transaction_duration_seconds', help: 'Database transaction duration' }),
+  dbErrors: new Counter({ name: 'db_errors_total', help: 'Database errors', labelNames: ['type'] }),
+  
+  // WebSocket metrics
+  wsConnections: websocketConnectionsGauge,
+  wsRoomMembers: new Gauge({ name: 'ws_room_members', help: 'WebSocket room members', labelNames: ['room_id'] }),
+  wsBroadcasts: new Counter({ name: 'ws_broadcasts_total', help: 'WebSocket broadcasts', labelNames: ['type', 'room_id'] }),
+  wsMessageDeliveries: new Counter({ name: 'ws_message_deliveries_total', help: 'WebSocket message deliveries', labelNames: ['type'] }),
+  wsRemoteRoomJoins: new Counter({ name: 'ws_remote_room_joins_total', help: 'Remote room joins', labelNames: ['room_id'] }),
+  wsRemoteRoomLeaves: new Counter({ name: 'ws_remote_room_leaves_total', help: 'Remote room leaves', labelNames: ['room_id'] })
+};
