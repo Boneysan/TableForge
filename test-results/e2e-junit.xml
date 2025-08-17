@@ -1,0 +1,1298 @@
+<testsuites id="" name="" tests="300" failures="0" skipped="300" errors="0" time="0.4314559999999999">
+<testsuite name="admin-flows\admin-interface.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Admin Interface E2E Tests › should complete admin user management workflow" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin analytics and monitoring" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin asset management" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin security and access control" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin backup and maintenance operations" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin error scenarios" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\game-system-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Game System Management › should create and manage game systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should manage game system categories" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle asset management within systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should validate system publishing workflow" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle system permissions and access control" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should support system templates and cloning" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\room-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Room Management Interface › should display and manage active rooms" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should handle room moderation actions" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should monitor room performance metrics" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\user-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="User Management Interface › should manage user accounts and permissions" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should handle user suspension and activation" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should display user activity analytics" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multi-client-board.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="15" failures="0" skipped="15" time="0" errors="0">
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should sync asset movements between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should handle simultaneous movements gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should show other users cursors and selections" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should sync deck creation and card operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should handle card visibility and permissions" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should sync chat messages between users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should show typing indicators" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should sync dice rolls between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should handle multiple simultaneous dice rolls" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should sync undo/redo operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should handle conflict resolution for simultaneous edits" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should handle temporary disconnections gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should show connection status to users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should handle many assets without performance degradation" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should maintain sync with rapid operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multiplayer-flows\multiplayer-interactions.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Multiplayer Interaction E2E Tests › should handle multi-client room joining and synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should synchronize asset movements between clients" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle real-time chat synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle collaborative dice rolling" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle turn-based gameplay mechanics" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle conflict resolution and concurrent edits" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle client disconnection and reconnection" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle multiplayer performance with many concurrent actions" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\complete-game-session.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Complete Game Session Flow › should support full game lifecycle" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle multiplayer interactions" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle connection resilience" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should manage game systems" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle rapid asset movements" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle large asset libraries" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\critical-user-journey.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="chromium" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Critical User Journey: Complete Game Session › should complete full game session lifecycle" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle game session with multiple asset types" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle errors gracefully" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\admin-interface.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Admin Interface E2E Tests › should complete admin user management workflow" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin analytics and monitoring" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin asset management" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin security and access control" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin backup and maintenance operations" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin error scenarios" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\game-system-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Game System Management › should create and manage game systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should manage game system categories" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle asset management within systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should validate system publishing workflow" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle system permissions and access control" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should support system templates and cloning" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\room-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Room Management Interface › should display and manage active rooms" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should handle room moderation actions" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should monitor room performance metrics" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\user-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="User Management Interface › should manage user accounts and permissions" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should handle user suspension and activation" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should display user activity analytics" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multi-client-board.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="15" failures="0" skipped="15" time="0" errors="0">
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should sync asset movements between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should handle simultaneous movements gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should show other users cursors and selections" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should sync deck creation and card operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should handle card visibility and permissions" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should sync chat messages between users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should show typing indicators" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should sync dice rolls between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should handle multiple simultaneous dice rolls" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should sync undo/redo operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should handle conflict resolution for simultaneous edits" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should handle temporary disconnections gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should show connection status to users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should handle many assets without performance degradation" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should maintain sync with rapid operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multiplayer-flows\multiplayer-interactions.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Multiplayer Interaction E2E Tests › should handle multi-client room joining and synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should synchronize asset movements between clients" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle real-time chat synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle collaborative dice rolling" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle turn-based gameplay mechanics" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle conflict resolution and concurrent edits" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle client disconnection and reconnection" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle multiplayer performance with many concurrent actions" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\complete-game-session.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Complete Game Session Flow › should support full game lifecycle" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle multiplayer interactions" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle connection resilience" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should manage game systems" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle rapid asset movements" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle large asset libraries" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\critical-user-journey.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="firefox" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Critical User Journey: Complete Game Session › should complete full game session lifecycle" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle game session with multiple asset types" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle errors gracefully" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\admin-interface.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Admin Interface E2E Tests › should complete admin user management workflow" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin analytics and monitoring" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin asset management" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin security and access control" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin backup and maintenance operations" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin error scenarios" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\game-system-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Game System Management › should create and manage game systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should manage game system categories" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle asset management within systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should validate system publishing workflow" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle system permissions and access control" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should support system templates and cloning" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\room-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Room Management Interface › should display and manage active rooms" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should handle room moderation actions" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should monitor room performance metrics" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\user-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="User Management Interface › should manage user accounts and permissions" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should handle user suspension and activation" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should display user activity analytics" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multi-client-board.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="15" failures="0" skipped="15" time="0" errors="0">
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should sync asset movements between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should handle simultaneous movements gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should show other users cursors and selections" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should sync deck creation and card operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should handle card visibility and permissions" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should sync chat messages between users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should show typing indicators" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should sync dice rolls between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should handle multiple simultaneous dice rolls" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should sync undo/redo operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should handle conflict resolution for simultaneous edits" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should handle temporary disconnections gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should show connection status to users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should handle many assets without performance degradation" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should maintain sync with rapid operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multiplayer-flows\multiplayer-interactions.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Multiplayer Interaction E2E Tests › should handle multi-client room joining and synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should synchronize asset movements between clients" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle real-time chat synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle collaborative dice rolling" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle turn-based gameplay mechanics" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle conflict resolution and concurrent edits" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle client disconnection and reconnection" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle multiplayer performance with many concurrent actions" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\complete-game-session.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Complete Game Session Flow › should support full game lifecycle" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle multiplayer interactions" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle connection resilience" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should manage game systems" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle rapid asset movements" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle large asset libraries" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\critical-user-journey.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="webkit" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Critical User Journey: Complete Game Session › should complete full game session lifecycle" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle game session with multiple asset types" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle errors gracefully" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\admin-interface.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Admin Interface E2E Tests › should complete admin user management workflow" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin analytics and monitoring" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin asset management" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin security and access control" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin backup and maintenance operations" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin error scenarios" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\game-system-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Game System Management › should create and manage game systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should manage game system categories" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle asset management within systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should validate system publishing workflow" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle system permissions and access control" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should support system templates and cloning" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\room-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Room Management Interface › should display and manage active rooms" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should handle room moderation actions" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should monitor room performance metrics" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\user-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="User Management Interface › should manage user accounts and permissions" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should handle user suspension and activation" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should display user activity analytics" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multi-client-board.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="15" failures="0" skipped="15" time="0" errors="0">
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should sync asset movements between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should handle simultaneous movements gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should show other users cursors and selections" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should sync deck creation and card operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should handle card visibility and permissions" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should sync chat messages between users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should show typing indicators" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should sync dice rolls between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should handle multiple simultaneous dice rolls" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should sync undo/redo operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should handle conflict resolution for simultaneous edits" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should handle temporary disconnections gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should show connection status to users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should handle many assets without performance degradation" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should maintain sync with rapid operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multiplayer-flows\multiplayer-interactions.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Multiplayer Interaction E2E Tests › should handle multi-client room joining and synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should synchronize asset movements between clients" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle real-time chat synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle collaborative dice rolling" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle turn-based gameplay mechanics" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle conflict resolution and concurrent edits" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle client disconnection and reconnection" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle multiplayer performance with many concurrent actions" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\complete-game-session.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Complete Game Session Flow › should support full game lifecycle" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle multiplayer interactions" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle connection resilience" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should manage game systems" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle rapid asset movements" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle large asset libraries" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\critical-user-journey.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Chrome" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Critical User Journey: Complete Game Session › should complete full game session lifecycle" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle game session with multiple asset types" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle errors gracefully" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\admin-interface.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Admin Interface E2E Tests › should complete admin user management workflow" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin analytics and monitoring" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin asset management" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin security and access control" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin backup and maintenance operations" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin error scenarios" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\game-system-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Game System Management › should create and manage game systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should manage game system categories" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle asset management within systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should validate system publishing workflow" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle system permissions and access control" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should support system templates and cloning" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\room-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Room Management Interface › should display and manage active rooms" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should handle room moderation actions" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should monitor room performance metrics" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\user-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="User Management Interface › should manage user accounts and permissions" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should handle user suspension and activation" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should display user activity analytics" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multi-client-board.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="15" failures="0" skipped="15" time="0" errors="0">
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should sync asset movements between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should handle simultaneous movements gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should show other users cursors and selections" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should sync deck creation and card operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should handle card visibility and permissions" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should sync chat messages between users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should show typing indicators" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should sync dice rolls between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should handle multiple simultaneous dice rolls" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should sync undo/redo operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should handle conflict resolution for simultaneous edits" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should handle temporary disconnections gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should show connection status to users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should handle many assets without performance degradation" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should maintain sync with rapid operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multiplayer-flows\multiplayer-interactions.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Multiplayer Interaction E2E Tests › should handle multi-client room joining and synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should synchronize asset movements between clients" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle real-time chat synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle collaborative dice rolling" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle turn-based gameplay mechanics" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle conflict resolution and concurrent edits" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle client disconnection and reconnection" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle multiplayer performance with many concurrent actions" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\complete-game-session.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Complete Game Session Flow › should support full game lifecycle" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle multiplayer interactions" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle connection resilience" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should manage game systems" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle rapid asset movements" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle large asset libraries" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\critical-user-journey.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Mobile Safari" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Critical User Journey: Complete Game Session › should complete full game session lifecycle" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle game session with multiple asset types" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle errors gracefully" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\admin-interface.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Admin Interface E2E Tests › should complete admin user management workflow" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin analytics and monitoring" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin asset management" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin security and access control" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin backup and maintenance operations" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should handle admin error scenarios" classname="admin-flows\admin-interface.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\game-system-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Game System Management › should create and manage game systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should manage game system categories" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle asset management within systems" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should validate system publishing workflow" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should handle system permissions and access control" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Game System Management › should support system templates and cloning" classname="admin-flows\game-system-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\room-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Room Management Interface › should display and manage active rooms" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should handle room moderation actions" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Room Management Interface › should monitor room performance metrics" classname="admin-flows\room-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="admin-flows\user-management.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="User Management Interface › should manage user accounts and permissions" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should handle user suspension and activation" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="User Management Interface › should display user activity analytics" classname="admin-flows\user-management.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multi-client-board.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="15" failures="0" skipped="15" time="0" errors="0">
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should sync asset movements between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should handle simultaneous movements gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Real-time Asset Movement › should show other users cursors and selections" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should sync deck creation and card operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Deck and Card Management › should handle card visibility and permissions" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should sync chat messages between users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Chat and Communication › should show typing indicators" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should sync dice rolls between clients" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Dice Rolling and Random Events › should handle multiple simultaneous dice rolls" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should sync undo/redo operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Undo/Redo and State Management › should handle conflict resolution for simultaneous edits" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should handle temporary disconnections gracefully" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Connection Handling › should show connection status to users" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should handle many assets without performance degradation" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multi-Client Board Interactions › Performance and Stress Testing › should maintain sync with rapid operations" classname="multi-client-board.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="multiplayer-flows\multiplayer-interactions.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Multiplayer Interaction E2E Tests › should handle multi-client room joining and synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should synchronize asset movements between clients" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle real-time chat synchronization" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle collaborative dice rolling" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle turn-based gameplay mechanics" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle conflict resolution and concurrent edits" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle client disconnection and reconnection" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Multiplayer Interaction E2E Tests › should handle multiplayer performance with many concurrent actions" classname="multiplayer-flows\multiplayer-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\complete-game-session.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Complete Game Session Flow › should support full game lifecycle" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle multiplayer interactions" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Complete Game Session Flow › should handle connection resilience" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Admin Interface E2E Tests › should manage game systems" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle rapid asset movements" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance and Load Testing › should handle large asset libraries" classname="user-flows\complete-game-session.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="user-flows\critical-user-journey.spec.ts" timestamp="2025-08-17T03:04:22.085Z" hostname="Microsoft Edge" tests="3" failures="0" skipped="3" time="0" errors="0">
+<testcase name="Critical User Journey: Complete Game Session › should complete full game session lifecycle" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle game session with multiple asset types" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Critical User Journey: Complete Game Session › should handle errors gracefully" classname="user-flows\critical-user-journey.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>
