@@ -15,11 +15,11 @@ export class DatabaseMigrationExample {
   
   // OLD WAY (current db.ts setup)
   static createLegacyDatabase() {
-    if (!process.env.DATABASE_URL) {
+    if (!process.env['DATABASE_URL']) {
       throw new Error('DATABASE_URL must be set. Did you forget to provision a database?');
     }
 
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const pool = new Pool({ connectionString: process.env['DATABASE_URL'] });
     return drizzle({ client: pool, schema });
   }
 
@@ -34,7 +34,7 @@ export class DatabaseMigrationExample {
 
     // Step 1: Test both databases work the same way
     const legacyDb = this.createLegacyDatabase();
-    const enhancedDb = this.createEnhancedDatabase();
+    // Note: Enhanced DB is accessible via getEnhancedDb() service
 
     try {
       // Test basic query on both
@@ -70,7 +70,7 @@ export class DatabaseMigrationExample {
         { text: 'SELECT 2 as test2' },
         { text: 'SELECT 3 as test3' }
       ]);
-      console.log('Batch results:', batchResults.map(r => r[0]));
+      console.log('Batch results:', batchResults.map((r: any) => r[0]));
 
       console.log('\n✅ Migration test successful!');
       
@@ -126,18 +126,18 @@ export class DatabaseMigrationExample {
     console.log('\n=== Environment Configuration ===');
 
     console.log('Environment variables for Phase 3 database:');
-    console.log('DATABASE_URL=', process.env.DATABASE_URL ? '***SET***' : 'NOT SET');
-    console.log('DATABASE_HOST=', process.env.DATABASE_HOST || 'localhost');
-    console.log('DATABASE_PORT=', process.env.DATABASE_PORT || '5432');
-    console.log('DATABASE_NAME=', process.env.DATABASE_NAME || 'tableforge');
-    console.log('DATABASE_USER=', process.env.DATABASE_USER || 'postgres');
-    console.log('DATABASE_PASSWORD=', process.env.DATABASE_PASSWORD ? '***SET***' : 'NOT SET');
+    console.log('DATABASE_URL=', process.env['DATABASE_URL'] ? '***SET***' : 'NOT SET');
+    console.log('DATABASE_HOST=', process.env['DATABASE_HOST'] || 'localhost');
+    console.log('DATABASE_PORT=', process.env['DATABASE_PORT'] || '5432');
+    console.log('DATABASE_NAME=', process.env['DATABASE_NAME'] || 'tableforge');
+    console.log('DATABASE_USER=', process.env['DATABASE_USER'] || 'postgres');
+    console.log('DATABASE_PASSWORD=', process.env['DATABASE_PASSWORD'] ? '***SET***' : 'NOT SET');
     
     console.log('\nConnection pool settings:');
-    console.log('DB_POOL_MIN=', process.env.DB_POOL_MIN || '5');
-    console.log('DB_POOL_MAX=', process.env.DB_POOL_MAX || '20');
-    console.log('DB_IDLE_TIMEOUT=', process.env.DB_IDLE_TIMEOUT || '30000');
-    console.log('DB_CONNECTION_TIMEOUT=', process.env.DB_CONNECTION_TIMEOUT || '10000');
+    console.log('DB_POOL_MIN=', process.env['DB_POOL_MIN'] || '5');
+    console.log('DB_POOL_MAX=', process.env['DB_POOL_MAX'] || '20');
+    console.log('DB_IDLE_TIMEOUT=', process.env['DB_IDLE_TIMEOUT'] || '30000');
+    console.log('DB_CONNECTION_TIMEOUT=', process.env['DB_CONNECTION_TIMEOUT'] || '10000');
     
     console.log('\nRecommended production settings:');
     console.log('DB_POOL_MIN=10');
