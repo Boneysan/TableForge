@@ -42,6 +42,8 @@ Vorpal Board supports rules-agnostic gameplay with advanced features for managin
 - **TypeScript** with ES modules
 - **WebSocket** server for real-time communication
 - **PostgreSQL** database with Drizzle ORM
+- **Phase 3 Database Connection Pool** with performance optimization
+- **Redis** caching layer for scalability
 - **Google Cloud Storage** for asset storage
 
 ### Authentication & Security
@@ -118,13 +120,20 @@ The application will be available at `http://localhost:5000`.
 
 ## Database Schema
 
-The application uses PostgreSQL with the following main entities:
+The application uses PostgreSQL with Phase 3 optimized connection pooling and the following main entities:
 - **Users**: Player profiles and authentication
 - **Game Rooms**: Virtual game spaces
 - **Game Systems**: Reusable game templates and rules
 - **Game Assets**: Cards, tokens, and other game pieces
 - **Card Decks & Piles**: Organized card collections
 - **Board Assets**: Positioned game elements
+
+### Phase 3 Performance Features
+- **Enhanced Connection Pool**: Optimized database connections with monitoring
+- **Redis Cache Layer**: Multi-level caching for improved response times
+- **Query Optimization**: Batch operations and performance monitoring
+- **Health Monitoring**: Real-time database and cache health tracking
+- **Migration System**: Automated database migration management
 
 ## API Endpoints
 
@@ -143,6 +152,10 @@ The application uses PostgreSQL with the following main entities:
 - `GET /api/rooms/:id/assets` - Get room assets
 - `POST /api/systems/:id/assets` - Upload system assets
 
+### Performance & Database
+- `GET /api/health` - Database and cache health check
+- `GET /api/metrics` - Performance metrics and statistics
+
 ## Contributing
 
 1. Fork the repository
@@ -152,6 +165,14 @@ The application uses PostgreSQL with the following main entities:
 5. Open a Pull Request
 
 ## Recent Updates
+
+### 🚀 Phase 3 Performance & Scalability (Complete)
+- **Enhanced Database Connection Pool**: Optimized PostgreSQL connections with monitoring, health checks, and automatic optimization
+- **Redis Cache Layer**: Multi-level caching system with domain-specific methods, compression, and smart invalidation
+- **Query Optimization**: Batch operations, transaction management, and performance monitoring
+- **Migration System**: Automated database migration tracking and execution
+- **Performance Monitoring**: Real-time metrics for database performance, cache hit rates, and connection pool statistics
+- **Environment Configuration**: Production-ready database configuration with validation and optimization
 
 ### 🎯 Phase 1 Type Safety Enhancement (Complete)
 - **Zero `any` types**: Eliminated all explicit `any` types from production code
