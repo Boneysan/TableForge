@@ -22,7 +22,6 @@
     "db:seed:e2e": "tsx scripts/seed-e2e-data.ts",
     "db:seed:performance": "tsx scripts/seed-performance-data.ts",
     "prepare": "husky",
-    
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:unit:coverage": "vitest run tests/unit --coverage",
@@ -45,7 +44,6 @@
     "test:components": "vitest run tests/unit/components",
     "test:middleware": "vitest run tests/unit/middleware",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
-    
     "security:audit": "npm audit --audit-level=high",
     "security:fix": "npm audit fix",
     "quality:check": "npm run lint && npm run type-check && npm run test:unit:coverage",
@@ -105,6 +103,7 @@
     "@types/dompurify": "^3.0.5",
     "@types/js-yaml": "^4.0.9",
     "@types/memoizee": "^0.4.12",
+    "@types/node-cron": "^3.0.11",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
@@ -145,6 +144,7 @@
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
     "next-themes": "^0.4.6",
+    "node-cron": "^4.2.1",
     "openid-client": "^6.6.3",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
