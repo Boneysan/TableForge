@@ -51,9 +51,9 @@ export class DatabaseOptimizationManager {
       await this.performInitialOptimization();
 
     } catch (error) {
-      logger.error('Failed to initialize database optimization services', { 
+      logger.error({ 
         error: error instanceof Error ? error.message : String(error) 
-      });
+      }, 'Failed to initialize database optimization services');
       throw error;
     }
   }
@@ -67,7 +67,7 @@ export class DatabaseOptimizationManager {
       const healthCheck = await this.databaseService.performHealthCheck();
       
       if (!healthCheck.overall) {
-        logger.warn('Skipping initial optimization due to health issues', { healthCheck });
+        logger.warn({ healthCheck }, 'Skipping initial optimization due to health issues');
         return;
       }
 
@@ -81,11 +81,11 @@ export class DatabaseOptimizationManager {
         report.tables.needsVacuum > 0;
 
       if (needsOptimization) {
-        logger.info('Initial optimization needed', {
+        logger.info({
           cacheHitRate: report.cache.hitRate,
           avgQueryTime: report.database.averageQueryTime,
           tablesNeedingVacuum: report.tables.needsVacuum
-        });
+        }, 'Initial optimization needed');
 
         await this.databaseService.runOptimization();
         logger.info('Initial optimization completed');
@@ -94,9 +94,9 @@ export class DatabaseOptimizationManager {
       }
 
     } catch (error) {
-      logger.error('Initial optimization failed', { 
+      logger.error({ 
         error: error instanceof Error ? error.message : String(error) 
-      });
+      }, 'Initial optimization failed');
       // Don't throw - initialization should continue even if optimization fails
     }
   }
@@ -167,7 +167,7 @@ export class DatabaseOptimizationManager {
       };
 
     } catch (error) {
-      logger.error('Failed to get optimization status', { error });
+      logger.error({ error }, 'Failed to get optimization status');
       throw error;
     }
   }
@@ -214,18 +214,18 @@ export class DatabaseOptimizationManager {
         }
       };
 
-      logger.info('Full optimization completed successfully', {
+      logger.info({
         duration,
         tablesOptimized: report.summary.totalTablesOptimized,
         recommendations: report.summary.totalRecommendations
-      });
+      }, 'Full optimization completed successfully');
 
       return report;
 
     } catch (error) {
-      logger.error('Full optimization failed', { 
+      logger.error({ 
         error: error instanceof Error ? error.message : String(error) 
-      });
+      }, 'Full optimization failed');
 
       return {
         timestamp: new Date(),
@@ -277,7 +277,7 @@ export class DatabaseOptimizationManager {
       return { recommendations };
 
     } catch (error) {
-      logger.error('Connection pool optimization failed', { error });
+      logger.error({ error }, 'Connection pool optimization failed');
       return { 
         recommendations: ['Connection pool optimization failed'],
         error: error instanceof Error ? error.message : String(error)
@@ -303,7 +303,7 @@ export class DatabaseOptimizationManager {
       return { recommendations };
 
     } catch (error) {
-      logger.error('Cache optimization failed', { error });
+      logger.error({ error }, 'Cache optimization failed');
       return { 
         recommendations: ['Cache optimization failed'],
         error: error instanceof Error ? error.message : String(error)
@@ -339,7 +339,7 @@ export class DatabaseOptimizationManager {
       return Math.min(100, score);
 
     } catch (error) {
-      logger.error('Failed to calculate performance improvement', { error });
+      logger.error({ error }, 'Failed to calculate performance improvement');
       return 0;
     }
   }
@@ -405,7 +405,7 @@ export class DatabaseOptimizationManager {
       logger.info('Database optimization manager shutdown complete');
 
     } catch (error) {
-      logger.error('Error during optimization manager shutdown', { error });
+      logger.error({ error }, 'Error during optimization manager shutdown');
     }
   }
 }
