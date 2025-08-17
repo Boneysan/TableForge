@@ -127,7 +127,10 @@ describe('AdminInterface', () => {
       
       fireEvent.click(screen.getByTestId('tab-players'));
       
-      const roleSelect = screen.getByLabelText(/role/i);
+      // Use getAllByLabelText and pick the first one, or use a more specific selector
+      const roleSelects = screen.getAllByLabelText(/role/i);
+      expect(roleSelects.length).toBeGreaterThan(0);
+      const roleSelect = roleSelects[0]!; // Non-null assertion since we checked length
       fireEvent.change(roleSelect, { target: { value: 'admin' } });
       
       await waitFor(() => {

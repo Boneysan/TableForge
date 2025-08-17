@@ -171,3 +171,58 @@ export const mockDatabaseQueries = {
     success: false as const
   }
 };
+
+// Mock board assets for GameBoard component testing
+export const mockBoardAssets = [
+  {
+    id: 'board-asset-1',
+    assetId: 'asset-1',
+    roomId: 'test-room-123',
+    x: 100,
+    y: 150,
+    width: 60,
+    height: 90,
+    rotation: 0,
+    scale: 1,
+    zIndex: 1,
+    isFlipped: false,
+    ownedBy: mockUser.uid,
+    name: 'Test Token',
+    type: 'token',
+    url: '/test-assets/token-1.png'
+  },
+  {
+    id: 'board-asset-2', 
+    assetId: 'asset-2',
+    roomId: 'test-room-123',
+    x: 250,
+    y: 200,
+    width: 60,
+    height: 90,
+    rotation: 45,
+    scale: 1,
+    zIndex: 2,
+    isFlipped: false,
+    ownedBy: 'test-user-456', // mockUsers[1].uid
+    name: 'Test Card',
+    type: 'card',
+    url: '/test-assets/card-1.png'
+  },
+  {
+    id: 'board-asset-3',
+    assetId: 'asset-3', 
+    roomId: 'test-room-123',
+    x: 400,
+    y: 300,
+    width: 120,
+    height: 120,
+    rotation: 0,
+    scale: 1,
+    zIndex: 0,
+    isFlipped: false,
+    ownedBy: null,
+    name: 'Test Tile',
+    type: 'tile',
+    url: '/test-assets/tile-1.png'
+  }
+];

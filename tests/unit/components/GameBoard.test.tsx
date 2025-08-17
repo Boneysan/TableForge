@@ -6,8 +6,8 @@ import { mockBoardAssets, mockUser } from '@tests/fixtures';
 
 // Mock the GameBoard component
 vi.mock('@/components/GameBoard', () => ({
-  GameBoard: ({ assets, onAssetMove, onAssetSelect, ...props }: any) => (
-    <div data-testid="game-board" style={{ width: '800px', height: '600px' }}>
+  GameBoard: ({ assets, onAssetMove, onAssetSelect, width = 800, height = 600, ...props }: any) => (
+    <div data-testid="game-board" style={{ width: `${width}px`, height: `${height}px` }}>
       {assets?.map((asset: any) => (
         <div
           key={asset.id}
