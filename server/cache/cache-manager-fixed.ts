@@ -45,7 +45,7 @@ export class MultiLevelCacheManager implements CacheStrategy {
       }
 
       // L2: Distributed cache (Redis)
-      const l2Result = await this.distributedCache.get<T>(key, cacheType);
+      const l2Result = await this.distributedCache.get<T>(key);
       if (l2Result !== null) {
         const duration = Date.now() - startTime;
         
@@ -72,7 +72,7 @@ export class MultiLevelCacheManager implements CacheStrategy {
         // Populate L1 and L2 caches
         this.applicationCache.set(key, l3Result, cacheType,
           cacheConfig.getApplicationCacheConfig().defaultTTL);
-        await this.distributedCache.set(key, l3Result, cacheType,
+        await this.distributedCache.set(key, l3Result,
           cacheConfig.getDistributedCacheConfig().defaultTTL);
         
         this.recordHit();
@@ -133,7 +133,7 @@ export class MultiLevelCacheManager implements CacheStrategy {
       // Set in all cache levels (parallel for L2 and L3)
       const [l1Success, l2Success, l3Success] = await Promise.allSettled([
         Promise.resolve(this.applicationCache.set(key, value, cacheType, l1TTL)),
-        this.distributedCache.set(key, value, cacheType, l2TTL),
+        this.distributedCache.set(key, value, l2TTL),
         this.edgeCache.set(key, value, l3TTL)
       ]);
 
@@ -239,7 +239,7 @@ export class MultiLevelCacheManager implements CacheStrategy {
     try {
       const [l1Count, l2Count, l3Count] = await Promise.allSettled([
         Promise.resolve(this.applicationCache.invalidate(pattern)),
-        this.distributedCache.invalidate(pattern),
+        this.distributedCache.invalidatePattern(pattern),
         this.edgeCache.invalidate(pattern)
       ]);
 
@@ -274,7 +274,7 @@ export class MultiLevelCacheManager implements CacheStrategy {
   async invalidateUserData(userId: string): Promise<void> {
     await Promise.all([
       this.invalidate(`user:*:${userId}*`),
-      this.distributedCache.invalidateUserData(userId)
+      this.distributedCache.invalidatePattern(`user:*:${userId}*`)
     ]);
     
     cacheLogger.info('User data invalidated', { userId });
@@ -283,7 +283,7 @@ export class MultiLevelCacheManager implements CacheStrategy {
   async invalidateRoomData(roomId: string): Promise<void> {
     await Promise.all([
       this.invalidate(`room:*:${roomId}*`),
-      this.distributedCache.invalidateRoomData(roomId)
+      this.distributedCache.invalidatePattern(`room:*:${roomId}*`)
     ]);
     
     cacheLogger.info('Room data invalidated', { roomId });
