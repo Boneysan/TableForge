@@ -1,7 +1,7 @@
 // server/cache/cache-manager-phase3.ts
 // Phase 3 Unified cache manager integrating all caching components
 
-import { CacheConfig, CacheStats, CacheStrategy, ApplicationCache, DistributedCache } from './types';
+import { CacheConfig, CacheStats, CacheStrategy, ApplicationCache, DistributedCache, EdgeCache } from './types';
 import { createUserLogger } from '../utils/logger';
 import { metrics } from '../observability/metrics';
 import RedisCacheService from './redis-cache-phase3';
@@ -22,12 +22,11 @@ export interface CacheManagerConfig {
 }
 
 export class CacheManagerPhase3 implements CacheStrategy {
-  private appCacheInstance: ApplicationCache;
-  private distCacheInstance: DistributedCache;
+  private appCacheInstance!: ApplicationCache;
+  private distCacheInstance!: DistributedCache;
   private invalidationManager: CacheInvalidationManager;
   private monitoringService: CacheMonitoringService;
   private config: CacheManagerConfig;
-  private initialized = false;
 
   constructor(config: CacheManagerConfig) {
     this.config = config;
@@ -60,8 +59,29 @@ export class CacheManagerPhase3 implements CacheStrategy {
     return this.distCacheInstance;
   }
 
-  get edgeCache() {
-    return undefined; // Future implementation
+  get edgeCache(): EdgeCache {
+    // Return a mock implementation for future development
+    return {
+      async get<T>(_key: string): Promise<T | null> {
+        return null; // Future implementation
+      },
+      async set<T>(_key: string, _value: T, _ttl?: number): Promise<boolean> {
+        return false; // Future implementation
+      },
+      async invalidate(_pattern: string): Promise<number> {
+        return 0; // Future implementation
+      },
+      async getStats(): Promise<CacheStats> {
+        return {
+          hitRate: 0,
+          missRate: 0,
+          totalHits: 0,
+          totalMisses: 0,
+          totalOperations: 0,
+          itemCount: 0
+        };
+      }
+    };
   }
 
   // Initialize cache instances
@@ -74,7 +94,6 @@ export class CacheManagerPhase3 implements CacheStrategy {
       // Initialize distributed cache
       this.distCacheInstance = new RedisCacheService(this.config.distributedCache);
 
-      this.initialized = true;
       logger.info('Cache instances initialized successfully');
     } catch (error) {
       logger.error('Failed to initialize cache instances', { error });
@@ -414,7 +433,7 @@ export class CacheManagerPhase3 implements CacheStrategy {
         totalMisses: l1Stats.totalMisses + l2Stats.totalMisses,
         totalOperations: l1Stats.totalOperations + l2Stats.totalOperations,
         itemCount: l1Stats.itemCount + l2Stats.itemCount,
-        connected: l1Stats.connected && l2Stats.connected
+        connected: Boolean(l1Stats.connected && l2Stats.connected)
       };
 
       return {

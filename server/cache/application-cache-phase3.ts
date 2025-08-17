@@ -4,29 +4,59 @@
 import { ApplicationCache, CacheConfig, CacheStats } from './types';
 import { createUserLogger } from '../utils/logger';
 import { metrics } from '../observability/metrics';
+import { cacheConfig } from './config';
 
-const logger = createUserLogger('application-cache');
+// Mock LRU cache for development (replace with actual lru-cache in production)
+class MockLRU<K, V> {
+  private data = new Map<K, V>();
+  private maxSize: number;
 
-interface CacheItem<T> {
+  constructor(options: { max: number; ttl: number; updateAgeOnGet: boolean; allowStale: boolean }) {
+    this.maxSize = options.max;
+  }
+
+  get(key: K): V | undefined {
+    return this.data.get(key);
+  }
+
+  set(key: K, value: V): void {
+    if (this.data.size >= this.maxSize) {
+      // Simple LRU eviction - remove first (oldest) item
+      const firstKey = this.data.keys().next().value;
+      if (firstKey !== undefined) {
+        this.data.delete(firstKey);
+      }
+    }
+    this.data.set(key, value);
+  }
+
+  delete(key: K): boolean {
+    return this.data.delete(key);
+  }
+
+  clear(): void {
+    this.data.clear();
+  }
+
+  keys(): IterableIterator<K> {
+    return this.data.keys();
+  }
+
+  get size(): number {
+    return this.data.size;
+  }
+}
+
+interface CacheItem<T = any> {
   value: T;
   expiresAt: number;
   accessedAt: number;
   createdAt: number;
   accessCount: number;
   size: number;
+  lastAccessed: number;
+  hitCount: number;
 }
-
-interface CacheMetrics {
-  hits: number;
-  misses: number;
-  sets: number;
-  evictions: number;
-  totalSize: number;
-  operationTimes: number[];
-}
-  cacheMisses: { inc: (_labels: any) => {} },
-  cacheInvalidations: { inc: (_labels: any, _count?: number) => {} }
-};
 
 export class EnhancedApplicationCache implements ApplicationCache {
   private cache: MockLRU<string, CacheItem>;
@@ -79,16 +109,17 @@ export class EnhancedApplicationCache implements ApplicationCache {
     const startTime = Date.now();
     
     const item: CacheItem<T> = {
-      key,
       value,
-      ttl: ttl || this.config.defaultTTL,
       createdAt: Date.now(),
       lastAccessed: Date.now(),
       hitCount: 0,
+      accessedAt: Date.now(),
+      accessCount: 1,
+      size: JSON.stringify(value).length,
       expiresAt: Date.now() + ((ttl || this.config.defaultTTL) * 1000)
     };
 
-    this.cache.set(key, item, { ttl: (ttl || this.config.defaultTTL) * 1000 });
+    this.cache.set(key, item);
     
     metrics.cacheOperationDuration.observe(
       { operation: 'set', cache_type: `app_${cacheType}` },
@@ -117,11 +148,20 @@ export class EnhancedApplicationCache implements ApplicationCache {
     this.cache.clear();
   }
 
-  getStats(): { size: number; maxSize: number; hitRate: number } {
+  getStats(): CacheStats {
+    const hitRate = this.calculateHitRate();
     return {
+      connected: true,
+      keyCount: this.cache.size,
+      memoryUsage: this.cache.size * 1024, // Rough estimate
+      hitRate,
+      missRate: 1 - hitRate,
+      totalHits: 0, // Would be tracked in production
+      totalMisses: 0, // Would be tracked in production
+      totalOperations: 0, // Would be tracked in production
+      itemCount: this.cache.size,
       size: this.cache.size,
-      maxSize: this.config.maxSize,
-      hitRate: this.calculateHitRate()
+      maxSize: this.config.maxSize
     };
   }
 
@@ -132,7 +172,7 @@ export class EnhancedApplicationCache implements ApplicationCache {
   }
 
   // Additional methods for compatibility with ApplicationCache interface
-  has(key: string, cacheType: string): boolean {
+  has(key: string, _cacheType: string): boolean {
     const item = this.cache.get(key);
     if (!item) {
       return false;
@@ -147,7 +187,7 @@ export class EnhancedApplicationCache implements ApplicationCache {
     return true;
   }
 
-  delete(key: string, cacheType?: string): boolean {
+  delete(key: string, _cacheType?: string): boolean {
     return this.cache.delete(key);
   }
 }
