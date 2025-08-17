@@ -1,7 +1,7 @@
 // server/database/monitoring-service.ts
 import { OptimizedDatabaseService } from './optimized-db-service';
 import { dbLogger as logger } from '../utils/logger';
-import cron from 'node-cron';
+import * as cron from 'node-cron';
 
 /**
  * Database monitoring service that provides continuous monitoring,
@@ -71,7 +71,6 @@ export class DatabaseMonitoringService {
   private async performAutomatedOptimization(): Promise<void> {
     try {
       logger.info('Starting automated database optimization');
-      const startTime = Date.now();
 
       // Get current performance metrics
       const healthCheck = await this.dbService.performHealthCheck();
@@ -91,23 +90,23 @@ export class DatabaseMonitoringService {
         this.monitoringStats.optimizationRuns++;
 
         if (report.success) {
-          logger.info('Automated optimization completed successfully', {
+          logger.info({
             duration: report.duration,
             tablesAnalyzed: report.queryOptimization.analyzedTables,
             tablesVacuumed: report.maintenance.vacuumedTables
-          });
+          }, 'Automated optimization completed successfully');
         } else {
-          logger.error('Automated optimization failed', { error: report.error });
-          await this.triggerAlert('optimization_failed', report.error);
+          logger.error({ error: report.error }, 'Automated optimization failed');
+          await this.triggerAlert('optimization_failed', report.error || 'Unknown error');
         }
       } else {
         logger.debug('Skipping optimization - conditions not met');
       }
 
     } catch (error) {
-      logger.error('Automated optimization routine failed', { 
+      logger.error({ 
         error: error instanceof Error ? error.message : String(error) 
-      });
+      }, 'Automated optimization routine failed');
       await this.triggerAlert('optimization_error', error instanceof Error ? error.message : String(error));
     }
   }
@@ -125,17 +124,17 @@ export class DatabaseMonitoringService {
       // Check for issues that need alerts
       await this.checkAlertConditions(healthCheck, healthScore);
 
-      logger.debug('Health monitoring completed', {
+      logger.debug({
         healthy: healthCheck.overall,
         score: healthScore,
         dbLatency: healthCheck.database.latency,
         poolUtilization: healthCheck.database.poolUtilization
-      });
+      }, 'Health monitoring completed');
 
     } catch (error) {
-      logger.error('Health monitoring failed', { 
+      logger.error({ 
         error: error instanceof Error ? error.message : String(error) 
-      });
+      }, 'Health monitoring failed');
       await this.triggerAlert('health_check_failed', error instanceof Error ? error.message : String(error));
     }
   }
@@ -180,13 +179,13 @@ export class DatabaseMonitoringService {
       }
 
       if (reasons.length > 0) {
-        logger.info('Optimization triggered', { reasons });
+        logger.info({ reasons }, 'Optimization triggered');
         return true;
       }
 
       return false;
     } catch (error) {
-      logger.error('Failed to determine optimization need', { error });
+      logger.error({ error }, 'Failed to determine optimization need');
       return false;
     }
   }
@@ -244,11 +243,11 @@ export class DatabaseMonitoringService {
   private async triggerAlert(type: string, message: string): Promise<void> {
     this.monitoringStats.alertsTriggered++;
     
-    logger.warn('Database alert triggered', {
+    logger.warn({
       type,
       message,
       timestamp: new Date().toISOString()
-    });
+    }, 'Database alert triggered');
 
     // TODO: Integrate with external alerting systems
     // - Email notifications
@@ -306,7 +305,7 @@ export class DatabaseMonitoringService {
         ]
       };
     } catch (error) {
-      logger.error('Failed to generate monitoring dashboard', { error });
+      logger.error({ error }, 'Failed to generate monitoring dashboard');
       throw error;
     }
   }
@@ -336,7 +335,7 @@ export class DatabaseMonitoringService {
       queryType = 'mixed'
     } = config;
 
-    logger.info('Starting database load test', { queryCount, concurrency, queryType });
+    logger.info({ queryCount, concurrency, queryType }, 'Starting database load test');
     const startTime = Date.now();
 
     try {
@@ -390,11 +389,11 @@ export class DatabaseMonitoringService {
         errors: results.filter(r => !r.success).map(r => r.error!).slice(0, 10)
       };
 
-      logger.info('Load test completed', result.results);
+      logger.info(result.results, 'Load test completed');
       return result;
 
     } catch (error) {
-      logger.error('Load test failed', { error });
+      logger.error({ error }, 'Load test failed');
       throw error;
     }
   }
