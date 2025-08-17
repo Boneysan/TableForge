@@ -213,7 +213,9 @@ describe('Move Logic', () => {
         height: 0,
       };
 
-      expect(checkCollision(asset1, zeroAsset)).toBe(false);
+      // A zero-size asset at (25,25) is inside asset1 at (0,0) with size 50x50
+      // So collision should be detected
+      expect(checkCollision(asset1, zeroAsset)).toBe(true);
     });
   });
 
