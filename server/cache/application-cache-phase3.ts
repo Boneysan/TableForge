@@ -18,13 +18,11 @@ class MockLRU<K, V> {
     return this.data.get(key);
   }
 
-  set(key: K, value: V): void {
+  set(key: K, value: V, options?: { ttl: number }): void {
     if (this.data.size >= this.maxSize) {
       // Simple LRU eviction - remove first (oldest) item
       const firstKey = this.data.keys().next().value;
-      if (firstKey !== undefined) {
-        this.data.delete(firstKey);
-      }
+      this.data.delete(firstKey);
     }
     this.data.set(key, value);
   }
@@ -93,9 +91,7 @@ export class EnhancedApplicationCache implements ApplicationCache {
 
       metrics.cacheHits.inc({ cache_type: `app_${cacheType}` });
       item.lastAccessed = Date.now();
-      if (item.hitCount !== undefined) {
-        item.hitCount++;
-      }
+      item.hitCount++;
       return item.value as T;
     }
 
@@ -116,7 +112,7 @@ export class EnhancedApplicationCache implements ApplicationCache {
       expiresAt: Date.now() + ((ttl || this.config.defaultTTL) * 1000)
     };
 
-    this.cache.set(key, item);
+    this.cache.set(key, item, { ttl: (ttl || this.config.defaultTTL) * 1000 });
     
     metrics.cacheOperationDuration.observe(
       { operation: 'set', cache_type: `app_${cacheType}` },
@@ -160,7 +156,7 @@ export class EnhancedApplicationCache implements ApplicationCache {
   }
 
   // Additional methods for compatibility with ApplicationCache interface
-  has(key: string): boolean {
+  has(key: string, cacheType: string): boolean {
     const item = this.cache.get(key);
     if (!item) {
       return false;
@@ -175,7 +171,7 @@ export class EnhancedApplicationCache implements ApplicationCache {
     return true;
   }
 
-  delete(key: string): boolean {
+  delete(key: string, cacheType?: string): boolean {
     return this.cache.delete(key);
   }
 }
@@ -191,3 +187,6 @@ export class MemoryApplicationCache extends EnhancedApplicationCache {
 export function createApplicationCache(config?: CacheConfig): ApplicationCache {
   return new EnhancedApplicationCache(config);
 }
+
+// Export the Phase 3 compliant implementation as default
+export { EnhancedApplicationCache as ApplicationCache } from './application-cache';
