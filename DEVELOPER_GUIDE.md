@@ -184,7 +184,34 @@ npm run test          # Run all tests
 npm run test:unit     # Unit tests only
 npm run test:e2e      # End-to-end tests
 npm run test:coverage # Coverage report
+
+# Phase 3 Performance Testing
+npm run test:performance:cache    # Cache performance tests
+npm run test:performance:load     # Load scaling tests
+npm run test:performance:suite    # Full performance suite
+npm run benchmark:targets         # Validate performance targets
+npm run validate:phase3           # Validate Phase 3 implementation
 ```
+
+### Performance Testing (Phase 3)
+
+#### Cache Performance Testing
+- **File**: `tests/performance/cache-performance.test.ts`
+- **Purpose**: Validates cache hit/miss performance, database query caching, concurrent access
+- **Targets**: <5ms cache operations, >90% hit rate
+- **Usage**: `npm run test:performance:cache`
+
+#### Load Scaling Testing
+- **File**: `tests/performance/load-scaling.test.ts`
+- **Purpose**: Tests concurrent user capacity, scaling efficiency, spike load handling
+- **Targets**: 1000+ concurrent users per instance
+- **Usage**: `npm run test:performance:load`
+
+#### Performance Target Validation
+- **File**: `scripts/benchmark-performance-targets.ts`
+- **Purpose**: Comprehensive validation of all Phase 3 performance targets
+- **Targets**: API <50ms, DB <25ms, Cache <5ms, WS <10ms delivery
+- **Usage**: `npm run benchmark:targets`
 
 ### Writing Tests
 
@@ -202,6 +229,11 @@ npm run test:coverage # Coverage report
    - Test API endpoints with Supertest
    - Include authentication and authorization tests
    - Test error conditions and edge cases
+
+4. **Performance Tests** 
+   - Use custom performance testing framework
+   - Focus on cache performance, load scaling, and resource usage
+   - Validate against specific performance targets
 
 ## Code Quality
 
