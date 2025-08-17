@@ -3,7 +3,6 @@
 
 import { createUserLogger } from '../utils/logger';
 import { metrics } from '../observability/metrics';
-import { CacheStats } from './types';
 
 const logger = createUserLogger('cache-monitor');
 
@@ -51,7 +50,7 @@ export class CacheMonitoringService {
   private config: CacheMonitoringConfig;
   private metricsHistory: CachePerformanceMetrics[] = [];
   private activeAlerts: Map<string, CacheAlert> = new Map();
-  private monitoringInterval?: NodeJS.Timeout;
+  private monitoringInterval?: NodeJS.Timeout | undefined;
 
   constructor(config: CacheMonitoringConfig) {
     this.config = config;
@@ -427,8 +426,7 @@ export const defaultMonitoringConfig: CacheMonitoringConfig = {
     memoryUsageMax: 512 * 1024 * 1024 // 512MB maximum memory
   },
   alerts: {
-    email: [],
-    webhook: undefined
+    email: []
   }
 };
 
