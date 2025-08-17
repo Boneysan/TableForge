@@ -35,11 +35,11 @@ export class CacheIntegrationExample {
       },
       monitoring: {
         ...defaultCacheManagerConfig.monitoring,
-        alerting: {
-          enabled: true,
-          hitRateThreshold: 0.8,  // Alert if hit rate < 80%
-          errorRateThreshold: 0.05, // Alert if error rate > 5%
-          responseTimeThreshold: 100 // Alert if avg response > 100ms
+        alertThresholds: {
+          hitRateMin: 0.8,  // Alert if hit rate < 80%
+          errorRateMax: 0.05, // Alert if error rate > 5%
+          latencyMax: 100, // Alert if avg response > 100ms
+          memoryUsageMax: 512 * 1024 * 1024 // 512MB maximum memory
         }
       }
     };
@@ -99,8 +99,11 @@ export class CacheIntegrationExample {
 
       cachedRooms.forEach((room, index) => {
         if (room === null) {
-          missedIndices.push(index);
-          missedRoomIds.push(roomIds[index]);
+          const roomId = roomIds[index];
+          if (roomId) {
+            missedIndices.push(index);
+            missedRoomIds.push(roomId);
+          }
         }
       });
 
@@ -122,7 +125,9 @@ export class CacheIntegrationExample {
         // Update results array
         freshRooms.forEach((room, index) => {
           const originalIndex = missedIndices[index];
-          cachedRooms[originalIndex] = room;
+          if (originalIndex !== undefined) {
+            cachedRooms[originalIndex] = room;
+          }
         });
       }
 
@@ -217,7 +222,7 @@ export class CacheIntegrationExample {
       logger.error('Health check failed', { error });
       return {
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
